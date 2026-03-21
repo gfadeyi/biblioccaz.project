@@ -2,7 +2,7 @@
 
 $host = 'localhost';          
 $db   = 'biblioccaz';         
-$user = 'esgiroot';               
+$user = 'admin_biblio';               
 $pass = 'Esgi_2026_Biblio!';   
 $charset = 'utf8mb4';
 
