@@ -1,11 +1,28 @@
 <?php
 session_start();
+require_once 'config.php'; 
+
 if (isset($_POST['connexion'])) {
-    if ($_POST['user'] == "admin" && $_POST['pass'] == "1234") {
+    $user = $_POST['user'];
+    $pass = $_POST['pass'];
+
+    
+    $stmt = $pdo->prepare("SELECT * FROM utilisateurs WHERE pseudo = ?");
+    $stmt->execute([$user]);
+    $resultat = $stmt->fetch();
+
+    
+   
+    if ($resultat && $pass === $resultat['mot_de_passe']) {
         $_SESSION['admin'] = true;
+        $_SESSION['pseudo'] = $resultat['pseudo'];
+        $_SESSION['role'] = $resultat['role']; 
+        
         header("Location: admin.php");
         exit();
-    } else { $erreur = "Identifiants incorrects !"; }
+    } else {
+        $erreur = "Identifiants incorrects !";
+    }
 }
 ?>
 <!DOCTYPE html>
@@ -20,7 +37,11 @@ if (isset($_POST['connexion'])) {
         <div class="card shadow border-0">
             <div class="card-body p-4 text-center">
                 <h2 class="text-success fw-bold mb-4">BIBLIOccaz</h2>
-                <?php if(isset($erreur)) echo "<div class='alert alert-danger'>$erreur</div>"; ?>
+                
+                <?php if(isset($erreur)): ?>
+                    <div class="alert alert-danger"><?php echo $erreur; ?></div>
+                <?php endif; ?>
+                
                 <form method="POST">
                     <input type="text" name="user" class="form-control mb-3" placeholder="Utilisateur" required>
                     <input type="password" name="pass" class="form-control mb-3" placeholder="Mot de passe" required>
