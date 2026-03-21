@@ -2,7 +2,7 @@
 
 $host = 'localhost';          
 $db   = 'biblioccaz';         
-$user = '***SUPPRIME***';               
+$user = 'admin_biblio';               
 $pass = '***SUPPRIME***';   
 $charset = 'utf8mb4';
 
