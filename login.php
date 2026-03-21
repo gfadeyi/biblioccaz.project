@@ -30,8 +30,42 @@ if (isset($_POST['connexion'])) {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <title>Connexion - Biblioccaz</title>
+    <style>
+        body { 
+            background-color: #d9ead3 !important; 
+        }
+        .card {
+            border: 2px solid #b6d7a8 !important;
+        }
+        .text-success { 
+            color: #274e13 !important; 
+        }
+        .btn-success {
+            background-color: #8fce00 !important;
+            border-color: #274e13 !important;
+            color: #274e13 !important;
+            font-weight: bold;
+        }
+        .btn-success:hover {
+            background-color: #93c47d !important;
+            border-color: #274e13 !important;
+        }
+        .btn-outline-secondary {
+            border-color: #93c47d !important;
+            color: #274e13 !important;
+        }
+        .btn-outline-secondary:hover {
+            background-color: #b6d7a8 !important;
+            border-color: #274e13 !important;
+            color: #274e13 !important;
+        }
+        .form-control:focus {
+            border-color: #8fce00 !important;
+            box-shadow: 0 0 0 0.25rem rgba(143, 206, 0, 0.25) !important;
+        }
+    </style>
 </head>
-<body class="bg-light d-flex align-items-center" style="height: 100vh;">
+<body class="d-flex align-items-center" style="height: 100vh;">
     <div class="container" style="max-width: 400px;">
         <div class="card shadow border-0">
             <div class="card-body p-4 text-center">
@@ -53,7 +87,7 @@ if (isset($_POST['connexion'])) {
                     </button>
                 </form>
 
-                <hr class="text-muted">
+                <hr style="color: #93c47d;">
 
                 <div class="mt-3">
                     <a href="index.php" class="btn btn-outline-secondary w-100">
