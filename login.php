@@ -6,7 +6,6 @@ if (isset($_POST['connexion'])) {
     $user = $_POST['user'];
     $pass = $_POST['pass'];
 
-    
     $stmt = $pdo->prepare("SELECT * FROM utilisateurs WHERE pseudo = ?");
     $stmt->execute([$user]);
     $resultat = $stmt->fetch();
@@ -49,4 +48,20 @@ if (isset($_POST['connexion'])) {
                     <div class="mb-3">
                         <input type="password" name="pass" class="form-control" placeholder="Mot de passe" required>
                     </div>
-                    <button type="submit" name="
+                    <button type="submit" name="connexion" class="btn btn-success w-100 mb-3">
+                        <i class="bi bi-box-arrow-in-right"></i> Entrer
+                    </button>
+                </form>
+
+                <hr class="text-muted">
+
+                <div class="mt-3">
+                    <a href="index.php" class="btn btn-outline-secondary w-100">
+                        <i class="bi bi-house-door"></i> Retour à l'accueil
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
