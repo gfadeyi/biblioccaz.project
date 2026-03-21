@@ -11,8 +11,6 @@ if (isset($_POST['connexion'])) {
     $stmt->execute([$user]);
     $resultat = $stmt->fetch();
 
-    
-   
     if ($resultat && $pass === $resultat['mot_de_passe']) {
         $_SESSION['admin'] = true;
         $_SESSION['pseudo'] = $resultat['pseudo'];
@@ -29,7 +27,9 @@ if (isset($_POST['connexion'])) {
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <title>Connexion - Biblioccaz</title>
 </head>
 <body class="bg-light d-flex align-items-center" style="height: 100vh;">
@@ -39,16 +39,14 @@ if (isset($_POST['connexion'])) {
                 <h2 class="text-success fw-bold mb-4">BIBLIOccaz</h2>
                 
                 <?php if(isset($erreur)): ?>
-                    <div class="alert alert-danger"><?php echo $erreur; ?></div>
+                    <div class="alert alert-danger py-2"><?php echo $erreur; ?></div>
                 <?php endif; ?>
                 
                 <form method="POST">
-                    <input type="text" name="user" class="form-control mb-3" placeholder="Utilisateur" required>
-                    <input type="password" name="pass" class="form-control mb-3" placeholder="Mot de passe" required>
-                    <button type="submit" name="connexion" class="btn btn-success w-100">Entrer</button>
-                </form>
-            </div>
-        </div>
-    </div>
-</body>
-</html>
+                    <div class="mb-3">
+                        <input type="text" name="user" class="form-control" placeholder="Utilisateur" required>
+                    </div>
+                    <div class="mb-3">
+                        <input type="password" name="pass" class="form-control" placeholder="Mot de passe" required>
+                    </div>
+                    <button type="submit" name="
