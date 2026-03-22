@@ -1,0 +1,82 @@
+=====================================================
+PROJET : BIBLIOccaz - Site de vente de livres d'occasion
+AUTEUR : GAEL FADEYI | JEANNY BENON | DAVID RADOM
+CLASSE : 1A1
+=====================================================
+
+1. ACCÈS AU SITE EN LIGNE (VPS)
+-------------------------------
+URL : http://91.134.143.156/
+Login Admin : http://91.134.143.156/login.php
+
+2. PREMIÈRE UTILISATION (Pour Jeanny et David)
+----------------------------------------------
+Pour récupérer le projet sur votre ordinateur :
+1. Installez Git si ce n'est pas fait.
+2. Faites un clic droit dans votre dossier de travail et choisissez "Git Bash Here".
+3. Dans le terminal Git Bash, tapez : 
+   git clone https://github.com/gfadeyi/biblioccaz.project.git
+
+3. TRAVAILLER AU QUOTIDIEN (Le workflow Git)
+--------------------------------------------
+A. Envoyer vos modifs (Depuis votre PC avec Git Bash) :
+   1. git add . 
+      -> Sens : Prépare tous les fichiers modifiés pour l'envoi.
+   2. git commit -m "Explication de la modif" 
+      -> Sens : Met une étiquette sur votre travail (ex: "Correction bug").
+   3. git push origin main 
+      -> Sens : Envoie officiellement votre code sur GitHub.
+
+B. Mettre à jour le VPS (Via MobaXterm) :
+   1. cd /var/www/html
+   2. sudo git pull origin main 
+      -> Sens : Télécharge le code de GitHub sur le serveur pour mettre le site à jour.
+
+4. MÉMO : EN CAS DE PERTE DE MOT DE PASSE 
+-----------------------------------------
+Si un accès Admin est bloqué, on le réinitialise en base de données :
+1. Sur MobaXterm, tapez : sudo mysql
+2. Sélectionnez la base : USE biblioccaz;
+3. Tapez : UPDATE utilisateurs SET mot_de_passe = 'nouveau' WHERE pseudo = 'gael';
+
+5. INFOS TECHNIQUES (LOGS)
+--------------------------
+SERVEUR VPS :
+- IP : 91.134.143.156 
+- Utilisateur : ubuntu | MDP SSH : esgiroot
+
+BASE DE DONNÉES :
+- Nom : biblioccaz (2 'c') | Utilisateur SQL : admin_biblio
+- MDP SQL : [À VOIR DANS CONFIG.PHP]
+
+COMPTES ADMIN TEST :
+- gael / esgiroot
+- jeanny / esgi2026!
+- david / esgi2026!
+
+6. LE PETIT MÉMO DE L'ÉQUIPE
+----------------------------
+- CLONE : On le fait 1 SEULE FOIS au début du projet.
+- PULL : On le fait CHAQUE MATIN avant de coder (pour avoir le code des autres).
+- PUSH : On le fait DÈS QU'ON A FINI une tâche (pour ne rien perdre).
+- GIT BASH : C'est le terminal à utiliser sur Windows pour Git.
+
+7. RÉSUMÉ DES COMMANDES (MÉMO RAPIDE)
+-------------------------------------
+ÉTAPE 1 : Ouvrir le dossier du projet.
+ÉTAPE 2 : Clic droit -> "Git Bash Here".
+
+- Pour RÉCUPÉRER le travail des autres :
+  > git pull origin main
+
+- Pour ENVOYER votre travail :
+  > git add .
+  > git commit -m "J'ai fait telle modif"
+  > git push origin main
+
+- Pour METTRE À JOUR LE SITE (MobaXterm) :
+  > sudo git pull origin main
+
+ASTUCE : Toujours faire un "PULL" avant de commencer à travailler pour éviter les conflits !
+
+=====================================================
