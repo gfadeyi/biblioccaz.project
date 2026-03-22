@@ -8,15 +8,15 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <style>
         body { 
-            background-color: #d9ead3; /* Vert très clair en fond */
-            color: #274e13; /* Vert très foncé pour le texte */
+            background-color: #d9ead3; 
+            color: #274e13; 
         }
         
         header { background-color: #ffffff !important; border-bottom: 3px solid #93c47d !important; }
         .sidebar { background-color: #ffffff !important; border: 1px solid #b6d7a8; }
         
         .text-bibli-green { color: #274e13 !important; }
-        .text-success { color: #274e13 !important; } /* On remplace le vert flash par ton vert foncé */
+        .text-success { color: #274e13 !important; } 
         
         .search-bar { border-radius: 20px; border: 2px solid #93c47d; }
         .btn-search { 
