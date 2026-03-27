@@ -1,4 +1,9 @@
-        <a href=" nouveauté.php"> nouveauté</a>
+<?php
+include'header.php';
+?>
+
+
+<a href=" nouveauté.php"> nouveauté</a>
         <a href=" petits_prix.php"> petis prix </a> 
         <a href=" css_biblioccaz.css"> stylesheet</a>
         <a href=" dernière_chance.php"> dernière chance</a>
