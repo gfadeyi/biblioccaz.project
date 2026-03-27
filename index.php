@@ -1,3 +1,7 @@
+<?php
+include 'header.php';
+?>
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -138,3 +142,7 @@
 
 </body>
 </html>
+
+<?php
+include'footer.php';
+

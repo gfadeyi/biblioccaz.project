@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once 'config.php'; 
+include 'header.php';
 
 if (isset($_POST['connexion'])) {
     $user = $_POST['user'];
@@ -99,3 +100,7 @@ if (isset($_POST['connexion'])) {
     </div>
 </body>
 </html>
+
+<?php
+include'footer.php';
+
