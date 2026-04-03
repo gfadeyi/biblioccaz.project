@@ -3,19 +3,8 @@ require_once 'config.php';
 include 'header.php';
 
 ?>
-<!DOCTYPE html>
-<html lang="fr">
-    <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Biblioccaz - Accueil</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
-    <style>
-        
-<h1>Les nouveautés</h1>;
+<head>    
 </head>
-</style>
     <header class="py-3 shadow-sm">
         <div class="container-fluid px-5">
             <div class="row align-items-center">
