@@ -3,21 +3,15 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/C:/xampp/htdocs/biblioccaz.project/header.php</file>
-            <file>file:/C:/xampp/htdocs/biblioccaz.project/admin.php</file>
-            <file>file:/C:/xampp/htdocs/biblioccaz.project/css_biblioccaz.css</file>
-            <file>file:/C:/xampp/htdocs/biblioccaz.project/config.php</file>
-            <file>file:/C:/xampp/htdocs/biblioccaz.project/login.php</file>
-            <file>file:/C:/xampp/htdocs/biblioccaz.project/index.php</file>
-            <file>file:/C:/xampp/htdocs/biblioccaz.project/nouveauté.php</file>
-            <file>file:/C:/xampp/htdocs/biblioccaz.project/petits_prix.php</file>
-            <file>file:/C:/xampp/htdocs/biblioccaz.project/dernière_chance.php</file>
-            <file>file:/C:/xampp/htdocs/biblioccaz.project/bd_mangas.php</file>
-            <file>file:/C:/xampp/htdocs/biblioccaz.project/jeunesse.php</file>
-            <file>file:/C:/xampp/htdocs/biblioccaz.project/cart.php</file>
-            <file>file:/C:/xampp/htdocs/biblioccaz.project/recherche.php</file>
-            <file>file:/C:/xampp/htdocs/biblioccaz.project/roman.php</file>
-            <file>file:/C:/xampp/htdocs/biblioccaz.project/footer.php</file>
+            <file>file:/C:/MAMP/htdocs/biblioccaz.project/index.php</file>
+            <file>file:/C:/MAMP/htdocs/biblioccaz.project/login.php</file>
+            <file>file:/C:/MAMP/htdocs/biblioccaz.project/logout.php</file>
+            <file>file:/C:/MAMP/htdocs/biblioccaz.project/admin.php</file>
+            <file>file:/C:/MAMP/htdocs/biblioccaz.project/config.php</file>
+            <file>file:/C:/MAMP/htdocs/biblioccaz.project/modifier_livre.php</file>
+            <file>file:/C:/MAMP/htdocs/biblioccaz.project/partie_carte_livre.php</file>
+            <file>file:/C:/MAMP/htdocs/biblioccaz.project/detail_livre.php</file>
+            <file>file:/C:/MAMP/htdocs/biblioccaz.project/header.php</file>
         </group>
     </open-files>
 </project-private>
