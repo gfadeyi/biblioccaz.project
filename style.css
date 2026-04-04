@@ -1,0 +1,111 @@
+.announcement-bar {
+    background-color: #2e7d32;
+    color: white;
+    padding: 8px 0;
+    font-size: 0.8rem;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+}
+
+.navbar {
+    background-color: white;
+    box-shadow: 0 2px 15px rgba(0,0,0,0.05);
+    padding: 15px 0;
+}
+
+.navbar .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.navbar-brand {
+    font-family: 'Francois One', sans-serif;
+    color: #274e13 !important;
+    font-size: 1.8rem;
+}
+
+.search-container {
+    position: relative;
+    width: 100%;
+    max-width: 400px;
+}
+
+.search-input {
+    border-radius: 20px;
+    padding-left: 40px;
+    border: 1px solid #ddd;
+    background-color: #f8f9fa;
+}
+
+.search-icon {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #888;
+}
+
+.nav-icons-link {
+    color: #333;
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin-left: 20px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.nav-icons-link:hover {
+    color: #2e7d32;
+}
+
+.btn-sell {
+    background-color: #274e13;
+    color: white !important;
+    border-radius: 20px;
+    padding: 8px 20px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all 0.3s;
+    text-decoration: none;
+}
+
+.btn-sell:hover {
+    background-color: #2e7d32;
+    transform: scale(1.05);
+}
+
+.auth-container {
+    max-width: 450px;
+    margin: 50px auto;
+    padding: 30px;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+}
+
+.auth-title {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    color: #274e13;
+    margin-bottom: 25px;
+    text-align: center;
+}
+
+.btn-auth {
+    background-color: #274e13;
+    color: white;
+    border: none;
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    font-weight: 600;
+    margin-top: 10px;
+}
+
+.btn-auth:hover {
+    background-color: #2e7d32;
+    color: white;
+}

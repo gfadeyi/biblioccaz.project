@@ -3,7 +3,6 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/C:/MAMP/htdocs/biblioccaz.project/header.php</file>
             <file>file:/C:/MAMP/htdocs/biblioccaz.project/index.php</file>
             <file>file:/C:/MAMP/htdocs/biblioccaz.project/login.php</file>
             <file>file:/C:/MAMP/htdocs/biblioccaz.project/logout.php</file>
@@ -12,6 +11,13 @@
             <file>file:/C:/MAMP/htdocs/biblioccaz.project/modifier_livre.php</file>
             <file>file:/C:/MAMP/htdocs/biblioccaz.project/partie_carte_livre.php</file>
             <file>file:/C:/MAMP/htdocs/biblioccaz.project/detail_livre.php</file>
+            <file>file:/C:/MAMP/htdocs/biblioccaz.project/style.css</file>
+            <file>file:/C:/MAMP/htdocs/biblioccaz.project/traitement_login.php</file>
+            <file>file:/C:/MAMP/htdocs/biblioccaz.project/inventaire_admin.php</file>
+            <file>file:/C:/MAMP/htdocs/biblioccaz.project/ajouter_livre.php</file>
+            <file>file:/C:/MAMP/htdocs/biblioccaz.project/supprimer_livre.php</file>
+            <file>file:/C:/MAMP/htdocs/biblioccaz.project/ajouter_exemplaire_action.php</file>
+            <file>file:/C:/MAMP/htdocs/biblioccaz.project/header.php</file>
         </group>
     </open-files>
 </project-private>

@@ -1,58 +1,100 @@
 <?php
-ini_set('display_errors', 1);
-error_reporting(E_ALL);
 require_once 'config.php';
-if (!isset($_SESSION['admin'])) { header("Location: login.php"); exit(); }
-include 'header.php';
+if (session_status() === PHP_SESSION_NONE) { session_start(); }
 
-$id = $_GET['id'] ?? null;
-$stmt = $pdo->prepare("SELECT * FROM livre WHERE id_livre = ?");
-$stmt->execute([$id]);
-$livre = $stmt->fetch();
-
-if (isset($_POST['modifier'])) {
-    $nomImage = $livre['couverture']; 
-    if (isset($_FILES['image']) && $_FILES['image']['error'] === 0) {
-        $extension = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
-        $nomImage = time() . "_" . bin2hex(random_bytes(4)) . "." . $extension;
-        move_uploaded_file($_FILES['image']['tmp_name'], "img/" . $nomImage);
-    }
-
-    $description = $_POST['description'] ?? '';
-
-    $update = $pdo->prepare("UPDATE livre SET titre = ?, auteur = ?, couverture = ?, description = ? WHERE id_livre = ?");
-    $update->execute([$_POST['titre'], $_POST['auteur'], $nomImage, $description, $id]);
-    
-    echo "<script>window.location.href='admin.php';</script>";
+if (!isset($_SESSION['admin']) || $_SESSION['admin'] !== true) {
+    header("Location: login.php");
     exit();
 }
+
+$id = $_GET['id'] ?? null;
+$query = $pdo->prepare("SELECT * FROM livre WHERE id_livre = :id");
+$query->execute(['id' => $id]);
+$livre = $query->fetch();
+
+$error_msg = "";
+
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $titre = $_POST['titre'];
+    $auteur = $_POST['auteur'];
+    $description = $_POST['description'];
+    $nom_image = $livre['couverture'];
+
+    if (!empty($_FILES['image']['name'])) {
+        $nom_image = $_FILES['image']['name'];
+        $target = "img/" . basename($nom_image);
+        if (!move_uploaded_file($_FILES['image']['tmp_name'], $target)) {
+            $error_msg = "Erreur de transfert de l'image.";
+        }
+    }
+
+    if (empty($error_msg)) {
+        try {
+            $sql = "UPDATE livre SET titre = :titre, auteur = :auteur, description = :description, couverture = :couverture WHERE id_livre = :id";
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute([
+                'titre' => $titre,
+                'auteur' => $auteur,
+                'description' => $description,
+                'couverture' => $nom_image,
+                'id' => $id
+            ]);
+            header("Location: inventaire_admin.php");
+            exit();
+        } catch (Exception $e) {
+            $error_msg = "Erreur SQL : " . $e->getMessage();
+        }
+    }
+}
+
+include 'header.php';
 ?>
 
 <div class="container mt-5">
-    <div class="col-md-6 mx-auto">
-        <div class="card p-4 shadow border-0">
-            <h4 class="mb-4" style="color: #274e13;">Modifier le livre</h4>
-            <form method="POST" enctype="multipart/form-data">
-                <div class="mb-3">
-                    <label class="small fw-bold">Titre</label>
-                    <input type="text" name="titre" class="form-control" value="<?= htmlspecialchars($livre['titre']) ?>" required>
-                </div>
-                <div class="mb-3">
-                    <label class="small fw-bold">Auteur</label>
-                    <input type="text" name="auteur" class="form-control" value="<?= htmlspecialchars($livre['auteur']) ?>" required>
-                </div>
-                <div class="mb-3">
-                    <label class="small fw-bold">Résumé / Description</label>
-                    <textarea name="description" class="form-control" rows="8"><?= htmlspecialchars($livre['description'] ?? '') ?></textarea>
-                </div>
-                <div class="mb-3">
-                    <label class="small fw-bold">Changer l'image</label>
-                    <input type="file" name="image" class="form-control">
-                </div>
-                <button type="submit" name="modifier" class="btn text-white w-100" style="background-color: #274e13;">Enregistrer les modifications</button>
-                <a href="admin.php" class="btn btn-link w-100 mt-2 text-decoration-none" style="color: #666;">Annuler</a>
-            </form>
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="d-flex align-items-center mb-4">
+                <a href="inventaire_admin.php" class="btn btn-outline-secondary me-3"><i class="bi bi-arrow-left"></i></a>
+                <h2 class="mb-0">Modifier le livre</h2>
+            </div>
+
+            <?php if (!empty($error_msg)): ?>
+                <div class="alert alert-danger border-0 shadow-sm"><?php echo $error_msg; ?></div>
+            <?php endif; ?>
+
+            <div class="card shadow-sm border-0 p-4">
+                <form action="modifier_livre.php?id=<?php echo $id; ?>" method="POST" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Titre</label>
+                        <input type="text" name="titre" class="form-control" value="<?php echo htmlspecialchars($livre['titre']); ?>">
+                    </div>
+                    
+                    <div class="text-center mb-3">
+                        <?php if(!empty($livre['couverture'])): ?>
+                            <img src="img/<?php echo htmlspecialchars($livre['couverture']); ?>" width="120" class="img-thumbnail border-0 shadow-sm">
+                        <?php endif; ?>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Changer l'image (Optionnel)</label>
+                        <input type="file" name="image" class="form-control" accept="image/*">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Auteur</label>
+                        <input type="text" name="auteur" class="form-control" value="<?php echo htmlspecialchars($livre['auteur']); ?>">
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Description</label>
+                        <textarea name="description" class="form-control" rows="4"><?php echo htmlspecialchars($livre['description']); ?></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-success w-100 py-2" style="background-color: #274e13; border: none;">Mettre à jour</button>
+                </form>
+            </div>
         </div>
     </div>
 </div>
+
 <?php include 'footer.php'; ?>
