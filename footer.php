@@ -8,6 +8,18 @@
             <div class="col-md-4 mb-3"><h6>Suivez-nous</h6><i class="bi bi-instagram px-2"></i><i class="bi bi-facebook px-2"></i></div>
         </div>
         <hr class="my-4">
+        <div class="d-flex flex-wrap justify-content-center align-items-center mb-3 gap-3">
+            <span class="text-success fw-bold small text-uppercase" style="letter-spacing: 1px; font-size: 0.7rem;">
+             Paiement 100% sécurisé
+            </span>
+        <div class="d-flex align-items-center gap-2 border rounded p-1 bg-white shadow-sm">
+        <img src="img/cb.png" alt="CB" style="height: 22px; width: auto;">
+        <img src="img/visa.png" alt="Visa" style="height: 22px; width: auto;">
+        <img src="img/mastercard.png" alt="Mastercard" style="height: 22px; width: auto;">
+        <img src="img/apple-pay.png" alt="Apple Pay" style="height: 22px; width: auto;">
+        <img src="img/google-pay.png" alt="Google Pay" style="height: 22px; width: auto;">
+    </div>
+</div>
         <p class="small text-muted mb-0">&copy; 2026 BIBLIOccaz - ESGI</p>
     </div>
 </footer>
