@@ -13,11 +13,11 @@
              Paiement 100% sécurisé
             </span>
         <div class="d-flex align-items-center gap-2 border rounded p-1 bg-white shadow-sm">
-        <img src="img/cb.png" alt="CB" style="height: 22px; width: auto;">
-        <img src="img/visa.png" alt="Visa" style="height: 22px; width: auto;">
-        <img src="img/mastercard.png" alt="Mastercard" style="height: 22px; width: auto;">
-        <img src="img/apple-pay.png" alt="Apple Pay" style="height: 22px; width: auto;">
-        <img src="img/google-pay.png" alt="Google Pay" style="height: 22px; width: auto;">
+        <img src="img/cb.png" alt="cb" style="height: 22px; width: auto;">
+        <img src="img/visa.png" alt="visa" style="height: 22px; width: auto;">
+        <img src="img/mastercard.png" alt="mastercard" style="height: 22px; width: auto;">
+        <img src="img/apple-pay.png" alt="apple Pay" style="height: 22px; width: auto;">
+        <img src="img/google-pay.png" alt="google Pay" style="height: 22px; width: auto;">
     </div>
 </div>
         <p class="small text-muted mb-0">&copy; 2026 BIBLIOccaz - ESGI</p>
