@@ -23,6 +23,11 @@
             
             <button type="submit" class="btn btn-auth w-100 py-2">Entrer</button>
         </form>
+        <hr style="color: #93c47d;">
+    <p class="text-center mb-0" style="font-size: 0.9rem;">
+    Pas encore de compte ?
+    <a href="inscription.php" style="color: #274e13; font-weight: bold;">S'inscrire</a>
+    </p>
     </div>
 </div>
 
