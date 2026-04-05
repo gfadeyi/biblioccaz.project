@@ -7,8 +7,7 @@ include 'header.php';
 <h1>Recherche</h1>;
 </head>
     
-</body>
-</html>
+
 <?php
 include'footer.php';
 
