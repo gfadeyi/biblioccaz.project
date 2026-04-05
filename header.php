@@ -1,73 +1,51 @@
+<?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+if (isset($_GET['toggle_theme'])) {
+    $_SESSION['theme'] = (isset($_SESSION['theme']) && $_SESSION['theme'] === 'dark') ? 'light' : 'dark';
+    header("Location: " . strtok($_SERVER["REQUEST_URI"], '?'));
+    exit();
+}
+$theme_class = (isset($_SESSION['theme']) && $_SESSION['theme'] === 'dark') ? 'dark-mode' : '';
+?>
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BIBLIOccaz</title>
+    <title><?= $titre ?? "BIBLIOccaz" ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <link href="https://fonts.googleapis.com/css2?family=Francois+One&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body class="<?= $theme_class ?>">
 
-<div class="announcement-bar container-fluid">
-    <div class="container text-center text-uppercase">
-        BIBLIOccaz : Donnez une seconde vie à vos lectures — Livraison offerte dès 35 euros d'achat
-    </div>
+<div class="announcement-bar text-center">
+    LIVRAISON OFFERTE DÈS 35 EUROS D'ACHAT
 </div>
 
-<nav class="navbar navbar-expand-lg sticky-top">
-    <div class="container">
-        <a class="navbar-brand" href="index.php">BIBLIOccaz</a>
+<nav class="navbar navbar-expand-lg">
+    <div class="container d-flex align-items-center justify-content-between">
+        <a class="navbar-brand" href="index.php" style="min-width: 150px; text-decoration: none;">BIBLIOccaz</a>
+        
+        <div class="search-wrapper flex-grow-1 mx-3" style="max-width: 600px;">
+            <form action="recherche.php" method="GET" class="position-relative">
+                <i class="bi bi-search position-absolute" style="left: 15px; top: 50%; transform: translateY(-50%); color: #888;"></i>
+                <input type="text" name="q" class="form-control" placeholder="Rechercher un livre, un auteur..." style="border-radius: 25px; padding-left: 45px; background-color: var(--input-bg); color: var(--text-color); border: 1px solid var(--border-color);">
+            </form>
+        </div>
 
-        <?php 
-        if (session_status() === PHP_SESSION_NONE) { session_start(); }
-        $page = basename($_SERVER['PHP_SELF']);
-        $pages_gestion = ['admin.php', 'inventaire_admin.php', 'ajouter_livre.php', 'modifier_livre.php', 'gestion_users.php'];
-        $est_page_gestion = in_array($page, $pages_gestion);
-        ?>
-
-        <?php if (!$est_page_gestion): ?>
-        <form class="d-none d-lg-block ms-4 me-auto">
-            <div class="search-container">
-                <i class="bi bi-search search-icon"></i>
-                <input type="text" class="form-control search-input" placeholder="Rechercher un livre, un auteur...">
+        <div class="nav-links d-flex align-items-center">
+            <a href="login.php" class="nav-icons-link me-3 text-decoration-none" style="color: var(--text-color);">
+                <i class="bi bi-person"></i> Connexion
+            </a>
+            <a href="vendre.php" class="btn-sell text-decoration-none">Donner ou revendre</a>
+            <div class="ms-3 ps-3 border-start">
+                <a href="?toggle_theme=1" class="nav-icons-link text-decoration-none" style="color: var(--text-color);">
+                    <i class="bi <?= ($theme_class === 'dark-mode') ? 'bi-sun' : 'bi-moon-stars' ?>"></i>
+                </a>
             </div>
-        </form>
-        <?php endif; ?>
-
-        <div class="d-flex align-items-center ms-auto">
-            <?php if (isset($_SESSION['admin']) && $_SESSION['admin'] === true): ?>
-                <a href="admin.php" class="nav-icons-link">
-                    <i class="bi bi-speedometer2 fs-5"></i> <span>Dashboard</span>
-                </a>
-                <a href="logout.php" class="nav-icons-link ms-3 text-danger">
-                    <i class="bi bi-box-arrow-right fs-5"></i> <span>Déconnexion</span>
-                </a>
-                
-                <?php if (!$est_page_gestion): ?>
-                <a href="panier.php" class="nav-icons-link ms-3">
-                    <i class="bi bi-cart3 fs-5"></i> <span>Panier</span>
-                </a>
-                <a href="vendre.php" class="btn btn-sell ms-4">
-                    Donner ou revendre
-                </a>
-                <?php endif; ?>
-
-            <?php else: ?>
-                <a href="login.php" class="nav-icons-link">
-                    <i class="bi bi-person fs-5"></i> <span>Connexion</span>
-                </a>
-                <a href="panier.php" class="nav-icons-link ms-3">
-                    <i class="bi bi-cart3 fs-5"></i> <span>Panier</span>
-                </a>
-                <a href="vendre.php" class="btn btn-sell ms-4">
-                    Donner ou revendre
-                </a>
-            <?php endif; ?>
         </div>
     </div>
 </nav>
-
-<main class="py-4">
