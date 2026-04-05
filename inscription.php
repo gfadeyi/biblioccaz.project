@@ -40,7 +40,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
  
             if ($connexion_auto) {
                 // Connexion automatique
-                session_start();
                 $_SESSION['user_id'] = $id;
                 $_SESSION['pseudo']  = $pseudo;
                 $_SESSION['role']    = 'client';
