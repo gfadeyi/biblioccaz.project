@@ -2,9 +2,45 @@
 require_once 'config.php';
 include 'header.php';
 
-$nouveautes = $pdo->query("SELECT l.*, e.prix, e.etat FROM livre l INNER JOIN exemplaire e ON l.id_livre = e.id_livre ORDER BY l.id_livre DESC LIMIT 8")->fetchAll();
-$meilleuresVentes = $pdo->query("SELECT l.*, e.prix, e.etat FROM livre l INNER JOIN exemplaire e ON l.id_livre = e.id_livre ORDER BY l.id_livre ASC LIMIT 8")->fetchAll();
-$petitsPrix = $pdo->query("SELECT l.*, e.prix, e.etat FROM livre l INNER JOIN exemplaire e ON l.id_livre = e.id_livre WHERE e.prix < 10 ORDER BY e.prix ASC LIMIT 8")->fetchAll();
+$nouveautes = $pdo->query("
+    SELECT l.*, e.prix, e.etat 
+    FROM livre l 
+    INNER JOIN exemplaire e ON l.id_livre = e.id_livre 
+    WHERE e.id_exemplaire = (
+        SELECT id_exemplaire FROM exemplaire 
+        WHERE id_livre = l.id_livre 
+        ORDER BY prix ASC LIMIT 1
+    )
+    ORDER BY l.id_livre DESC 
+    LIMIT 8
+")->fetchAll();
+
+$meilleuresVentes = $pdo->query("
+    SELECT l.*, e.prix, e.etat 
+    FROM livre l 
+    INNER JOIN exemplaire e ON l.id_livre = e.id_livre 
+    WHERE e.id_exemplaire = (
+        SELECT id_exemplaire FROM exemplaire 
+        WHERE id_livre = l.id_livre 
+        ORDER BY prix ASC LIMIT 1
+    )
+    ORDER BY l.id_livre ASC 
+    LIMIT 8
+")->fetchAll();
+
+$petitsPrix = $pdo->query("
+    SELECT l.*, e.prix, e.etat 
+    FROM livre l 
+    INNER JOIN exemplaire e ON l.id_livre = e.id_livre 
+    WHERE e.prix < 10 
+    AND e.id_exemplaire = (
+        SELECT id_exemplaire FROM exemplaire 
+        WHERE id_livre = l.id_livre 
+        ORDER BY prix ASC LIMIT 1
+    )
+    ORDER BY e.prix ASC 
+    LIMIT 8
+")->fetchAll();
 ?>
 
 <style>

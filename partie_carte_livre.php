@@ -17,7 +17,14 @@
             <div class="mt-auto">
                 <div class="d-flex justify-content-between align-items-center">
                     <span class="badge bg-light text-dark border small">
-                        <?= htmlspecialchars($l['etat']) ?>
+                        <?php 
+                        $etat_propre = htmlspecialchars($l['etat']);
+                        if ($etat_propre == 'bon') echo 'Bon état';
+                        elseif ($etat_propre == 'tres bon') echo 'Très bon état';
+                        elseif ($etat_propre == 'neuf') echo 'Neuf';
+                        elseif ($etat_propre == 'use') echo 'État usé';
+                        else echo ucfirst($etat_propre);
+                        ?>
                     </span>
                     <span class="fw-bold" style="color: #274e13; font-size: 1.1rem;">
                         <?= number_format($l['prix'], 2) ?> €
