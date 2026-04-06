@@ -2,7 +2,7 @@
 require_once 'config.php';
 if (session_status() === PHP_SESSION_NONE) { session_start(); }
 
-if (!isset($_SESSION['admin']) || $_SESSION['admin'] !== true) {
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
     header("Location: login.php");
     exit();
 }
@@ -15,7 +15,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $description = $_POST['description'];
     $prix = $_POST['prix'];
     $etat = $_POST['etat'];
-    
     $nom_image = $_FILES['image']['name'];
     $target = "img/" . basename($nom_image);
 
@@ -23,14 +22,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $pdo->beginTransaction();
 
         if (move_uploaded_file($_FILES['image']['tmp_name'], $target)) {
-            
-            $stmtLivre = $pdo->prepare("INSERT INTO livre (titre, auteur, description, couverture) VALUES (?, ?, ?, ?)");
+            $stmtLivre = $pdo->prepare("INSERT INTO livre (titre, auteur, description, couverture, is_valide) VALUES (?, ?, ?, ?, 0)");
             $stmtLivre->execute([$titre, $auteur, $description, $nom_image]);
 
             $id_livre = $pdo->lastInsertId();
-
-            $stmtEx = $pdo->prepare("INSERT INTO exemplaire (id_livre, prix, etat) VALUES (?, ?, ?)");
-            $stmtEx->execute([$id_livre, $prix, $etat]);
+            $id_user = $_SESSION['user_id'];
+            
+            $stmtEx = $pdo->prepare("INSERT INTO exemplaire (id_livre, prix, etat, id_user, is_disponible) VALUES (?, ?, ?, ?, 1)");
+            $stmtEx->execute([$id_livre, $prix, $etat, $id_user]);
 
             $pdo->commit();
             $message = "success";
@@ -51,35 +50,33 @@ include 'header.php';
         <div class="col-md-8">
             <div class="d-flex align-items-center mb-4">
                 <a href="admin.php" class="btn btn-outline-secondary me-3"><i class="bi bi-arrow-left"></i></a>
-                <h2 class="mb-0 fw-bold">Ajouter un nouveau titre</h2>
+                <h2 class="mb-0 fw-bold">Ajouter un titre</h2>
             </div>
 
             <?php if ($message == "success"): ?>
-                <div class="alert alert-success border-0 shadow-sm">Livre et premier exemplaire ajoutés !</div>
+                <div class="alert alert-warning border-0 shadow-sm">Titre ajouté ! Il est en attente de modération avant d'être publié.</div>
             <?php elseif ($message == "upload_error"): ?>
-                <div class="alert alert-danger border-0 shadow-sm">Erreur d'image.</div>
+                <div class="alert alert-danger border-0 shadow-sm">Erreur lors du transfert de l'image.</div>
             <?php endif; ?>
 
-            <div class="card shadow-sm border-0 p-4">
+            <div class="card shadow-sm border-0 p-4" style="border-radius: 15px;">
                 <form action="ajouter_livre.php" method="POST" enctype="multipart/form-data">
                     <div class="mb-3">
-                        <label class="form-label fw-bold">Titre</label>
-                        <input type="text" name="titre" class="form-control" required>
+                        <label class="form-label fw-bold small">Titre du livre</label>
+                        <input type="text" name="titre" class="form-control bg-light" required>
                     </div>
-
                     <div class="mb-3">
-                        <label class="form-label fw-bold">Auteur</label>
-                        <input type="text" name="auteur" class="form-control" required>
+                        <label class="form-label fw-bold small">Auteur</label>
+                        <input type="text" name="auteur" class="form-control bg-light" required>
                     </div>
-
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label class="form-label fw-bold">Prix (€)</label>
-                            <input type="number" step="0.01" name="prix" class="form-control" required>
+                            <label class="form-label fw-bold small">Prix (€)</label>
+                            <input type="number" step="0.01" name="prix" class="form-control bg-light" required>
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label class="form-label fw-bold">État</label>
-                            <select name="etat" class="form-select" required>
+                            <label class="form-label fw-bold small">État</label>
+                            <select name="etat" class="form-select bg-light" required>
                                 <option value="Neuf">Neuf</option>
                                 <option value="Très bon état">Très bon état</option>
                                 <option value="Bon état">Bon état</option>
@@ -87,18 +84,15 @@ include 'header.php';
                             </select>
                         </div>
                     </div>
-
                     <div class="mb-3">
-                        <label class="form-label fw-bold">Couverture</label>
-                        <input type="file" name="image" class="form-control" accept="image/*" required>
+                        <label class="form-label fw-bold small">Couverture</label>
+                        <input type="file" name="image" class="form-control bg-light" accept="image/*" required>
                     </div>
-
                     <div class="mb-4">
-                        <label class="form-label fw-bold">Description</label>
-                        <textarea name="description" class="form-control" rows="4" required></textarea>
+                        <label class="form-label fw-bold small">Résumé</label>
+                        <textarea name="description" class="form-control bg-light" rows="4" required></textarea>
                     </div>
-
-                    <button type="submit" class="btn btn-success w-100 py-2 fw-bold" style="background-color: #274e13; border: none;">ENREGISTRER</button>
+                    <button type="submit" class="btn btn-success w-100 py-3 fw-bold rounded-pill" style="background-color: #274e13; border: none;">ENREGISTRER POUR MODÉRATION</button>
                 </form>
             </div>
         </div>

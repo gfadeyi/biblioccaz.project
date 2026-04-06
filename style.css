@@ -1,71 +1,28 @@
-:root {
-    --bg-color: #ffffff;
-    --text-color: #212529;
-    --nav-bg: #ffffff;
-    --border-color: #dee2e6;
-    --input-bg: #ffffff;
-    --card-bg: #ffffff;
-    --bibli-green: #274e13;
+.dropdown-toggle::after {
+    display: none; /* Cache la petite flèche moche de base */
 }
 
-body.dark-mode {
-    --bg-color: #121212;
-    --text-color: #ffffff;
-    --nav-bg: #1a1a1a;
-    --border-color: #444444;
-    --input-bg: #2d2d2d;
-    --card-bg: #1e1e1e;
-    --bibli-green: #93c47d;
-}
-
-body {
-    background-color: var(--bg-color) !important;
-    color: var(--text-color) !important;
-    transition: 0.3s;
-    margin: 0;
-    min-height: 100vh;
-}
-
-.container, .container-fluid, section, main, article, .row, .col-md-8, .col-md-4, .card-body, .card {
-    background-color: transparent !important;
-    color: inherit !important;
-}
-
-.announcement-bar {
-    background-color: #274e13;
-    color: white;
-    padding: 8px 0;
-    font-size: 0.75rem;
-    font-weight: bold;
-}
-
-.navbar {
-    background-color: var(--nav-bg) !important;
-    padding: 12px 0;
-    border-bottom: 1px solid var(--border-color);
-}
-
-.navbar-brand {
-    font-weight: bold;
-    color: #274e13 !important;
-    font-size: 1.6rem;
-    text-transform: uppercase;
-}
-
-.btn-sell {
-    background-color: #274e13;
-    color: white !important;
-    border-radius: 25px;
-    padding: 8px 20px;
-    font-weight: 600;
-}
-
-.auth-container {
-    max-width: 450px;
-    margin: 60px auto;
-    padding: 40px;
+.dropdown-menu {
     background-color: var(--card-bg) !important;
-    text-align: center;
-    border: 1px solid var(--border-color) !important;
-    border-radius: 15px;
+    color: var(--text-color) !important;
+}
+
+.dropdown-item {
+    padding: 8px 15px;
+    font-size: 0.9rem;
+    transition: 0.2s;
+}
+
+.dropdown-item:hover {
+    background-color: #f8f9fa;
+    color: var(--bibli-green) !important;
+}
+
+body.dark-mode .dropdown-item:hover {
+    background-color: #333;
+    color: #93c47d !important;
+}
+
+.dropdown-item.text-danger:hover {
+    background-color: #ffe5e5 !important;
 }

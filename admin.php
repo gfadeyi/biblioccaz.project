@@ -1,64 +1,90 @@
 <?php
 require_once 'config.php';
+if (session_status() === PHP_SESSION_NONE) { session_start(); }
 
-if (!isset($_SESSION['admin']) || $_SESSION['admin'] !== true) {
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
     header("Location: login.php");
     exit();
 }
+
+$countTitresValides = $pdo->query("SELECT COUNT(*) FROM livre WHERE is_valide = 1")->fetchColumn();
+$countAttente = $pdo->query("SELECT COUNT(*) FROM livre WHERE is_valide = 0")->fetchColumn();
+$countDisponibles = $pdo->query("SELECT COUNT(*) FROM exemplaire WHERE is_disponible = 1")->fetchColumn();
+$countUsers = $pdo->query("SELECT COUNT(*) FROM user")->fetchColumn();
 
 include 'header.php';
 ?>
 
 <div class="container mt-5">
-    <div class="row">
-        <div class="col-md-12 text-center mb-5">
-            <h1 class="display-5 fw-bold" style="color: #274e13;">Espace Administration</h1>
-            <p class="lead">Bienvenue, <?php echo htmlspecialchars($_SESSION['pseudo']); ?></p>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold">Dashboard Général</h2>
+        <span class="badge bg-dark rounded-pill px-3 py-2">Administration Active</span>
+    </div>
+    
+    <div class="row g-4 text-center">
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm p-4" style="border-radius: 15px; background-color: #f4f7f4;">
+                <i class="bi bi-book text-success fs-1 mb-2"></i>
+                <h3 class="fw-bold"><?= $countTitresValides ?></h3>
+                <p class="text-muted mb-0 small">Titres validés</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm p-4" style="border-radius: 15px; background-color: #fff3cd;">
+                <i class="bi bi-shield-exclamation text-warning fs-1 mb-2"></i>
+                <h3 class="fw-bold text-warning"><?= $countAttente ?></h3>
+                <p class="text-muted mb-0 small">En attente de validation</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm p-4" style="border-radius: 15px; background-color: #f4f7f4;">
+                <i class="bi bi-box-seam text-success fs-1 mb-2"></i>
+                <h3 class="fw-bold"><?= $countDisponibles ?></h3>
+                <p class="text-muted mb-0 small">Exemplaires en vente</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm p-4" style="border-radius: 15px; background-color: #f4f7f4;">
+                <i class="bi bi-people text-success fs-1 mb-2"></i>
+                <h3 class="fw-bold"><?= $countUsers ?></h3>
+                <p class="text-muted mb-0 small">Membres inscrits</p>
+            </div>
         </div>
     </div>
 
-    <div class="row g-4">
-        <div class="col-md-4">
-            <a href="ajouter_livre.php" class="text-decoration-none">
-                <div class="card h-100 border-0 shadow-sm p-4 text-center admin-card">
-                    <i class="bi bi-plus-circle-dotted display-4 text-success mb-3"></i>
-                    <h3 class="h5 text-dark">Ajouter un livre</h3>
-                    <p class="text-muted small">Enregistrer une nouvelle référence</p>
-                </div>
-            </a>
+    <div class="row mt-5 g-4">
+        <div class="col-md-6">
+            <h4 class="fw-bold mb-3">Gestion Catalogue</h4>
+            <div class="list-group shadow-sm border-0" style="border-radius: 15px; overflow: hidden;">
+                <a href="ajouter_livre.php" class="list-group-item list-group-item-action py-3">
+                    <i class="bi bi-plus-circle me-2 text-success"></i> Ajouter un titre (ISBN)
+                </a>
+                <a href="moderation_catalogue.php" class="list-group-item list-group-item-action py-3 d-flex justify-content-between align-items-center">
+                    <span><i class="bi bi-shield-check me-2 text-warning"></i> Modération des fiches</span>
+                    <?php if($countAttente > 0): ?>
+                        <span class="badge bg-danger rounded-pill"><?= $countAttente ?></span>
+                    <?php endif; ?>
+                </a>
+                <a href="inventaire_admin.php" class="list-group-item list-group-item-action py-3">
+                    <i class="bi bi-box-seam me-2 text-success"></i> Inventaire des stocks
+                </a>
+            </div>
         </div>
-
-        <div class="col-md-4">
-            <a href="inventaire_admin.php" class="text-decoration-none">
-                <div class="card h-100 border-0 shadow-sm p-4 text-center admin-card">
-                    <i class="bi bi-journal-check display-4 text-primary mb-3"></i>
-                    <h3 class="h5 text-dark">Inventaire</h3>
-                    <p class="text-muted small">Modifier ou supprimer des livres</p>
-                </div>
-            </a>
-        </div>
-
-        <div class="col-md-4">
-            <a href="gestion_users.php" class="text-decoration-none">
-                <div class="card h-100 border-0 shadow-sm p-4 text-center admin-card">
-                    <i class="bi bi-people display-4 text-info mb-3"></i>
-                    <h3 class="h5 text-dark">Utilisateurs</h3>
-                    <p class="text-muted small">Gérer les comptes admin</p>
-                </div>
-            </a>
+        <div class="col-md-6">
+            <h4 class="fw-bold mb-3">Utilisateurs & Logs</h4>
+            <div class="list-group shadow-sm border-0" style="border-radius: 15px; overflow: hidden;">
+                <a href="gestion_utilisateurs.php" class="list-group-item list-group-item-action py-3">
+                    <i class="bi bi-people me-2 text-success"></i> Gestion des comptes
+                </a>
+                <a href="diffusion_admin.php" class="list-group-item list-group-item-action py-3">
+                    <i class="bi bi-megaphone me-2 text-success"></i> Diffusion Newsletter
+                </a>
+                <a href="admin_logs.php" class="list-group-item list-group-item-action py-3">
+                    <i class="bi bi-journal-text me-2 text-success"></i> Journal d'activité (Logs)
+                </a>
+            </div>
         </div>
     </div>
 </div>
-
-<style>
-.admin-card {
-    transition: transform 0.2s, box-shadow 0.2s;
-    border-radius: 15px;
-}
-.admin-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
-}
-</style>
 
 <?php include 'footer.php'; ?>
