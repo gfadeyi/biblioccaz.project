@@ -15,7 +15,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $prenom        = trim($_POST['prenom'] ?? '');
     $connexion_auto = isset($_POST['connexion_auto']);
  
-    // Validations
+  
     if (!$pseudo || !$email || !$mot_de_passe || !$nom || !$prenom) {
         $erreur = "Veuillez remplir tous les champs obligatoires.";
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
@@ -25,13 +25,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif ($mot_de_passe !== $confirmation) {
         $erreur = "Les mots de passe ne correspondent pas.";
     } else {
-        // Vérifier si pseudo ou email déjà utilisé
+        
         $stmt = $pdo->prepare("SELECT id FROM user WHERE pseudo = ? OR email = ?");
         $stmt->execute([$pseudo, $email]);
         if ($stmt->fetch()) {
             $erreur = "Ce pseudo ou cet email est déjà utilisé.";
         } else {
-            // Insertion
+            
             $hash = password_hash($mot_de_passe, PASSWORD_DEFAULT);
             $stmt = $pdo->prepare("INSERT INTO user (pseudo, email, mot_de_passe, nom, prenom, role)
                                    VALUES (?, ?, ?, ?, ?, 'client')");
@@ -39,7 +39,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $id = $pdo->lastInsertId();
  
             if ($connexion_auto) {
+<<<<<<< HEAD
                 // Connexion automatique
+=======
+                
+                session_start();
+>>>>>>> d42a85f342351756ca2b5619150ce78c3235b250
                 $_SESSION['user_id'] = $id;
                 $_SESSION['pseudo']  = $pseudo;
                 $_SESSION['role']    = 'client';
