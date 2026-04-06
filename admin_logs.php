@@ -36,22 +36,23 @@ $logs = $stmt->fetchAll();
             <tbody>
                 <?php if (empty($logs)): ?>
                     <tr><td colspan="5" class="text-center py-5 text-muted">Aucun log enregistré pour le moment.</td></tr>
+                <?php else: ?>
+                    <?php foreach ($logs as $log): ?>
+                    <tr>
+                        <td class="ps-4 small"><?= date('d/m/Y H:i', strtotime($log['date_action'])) ?></td>
+                        <td>
+                            <span class="badge bg-light text-dark border">
+                                <?= htmlspecialchars($log['pseudo'] ?? 'Système') ?>
+                            </span>
+                        </td>
+                        <td>
+                            <span class="fw-bold text-success small"><?= htmlspecialchars($log['action_type']) ?></span>
+                        </td>
+                        <td class="text-muted small"><?= htmlspecialchars($log['description']) ?></td>
+                        <td class="text-end pe-4 small text-muted"><?= htmlspecialchars($log['adresse_ip']) ?></td>
+                    </tr>
+                    <?php endforeach; ?>
                 <?php endif; ?>
-                <?php foreach ($logs as $log): ?>
-                <tr>
-                    <td class="ps-4 small"><?= date('d/m/Y H:i', strtotime($log['date_action'])) ?></td>
-                    <td>
-                        <span class="badge bg-light text-dark border">
-                            <?= htmlspecialchars($log['pseudo'] ?? 'Système') ?>
-                        </span>
-                    </td>
-                    <td>
-                        <span class="fw-bold text-success small"><?= htmlspecialchars($log['action_type']) ?></span>
-                    </td>
-                    <td class="text-muted small"><?= htmlspecialchars($log['description']) ?></td>
-                    <td class="text-end pe-4 small text-muted"><?= htmlspecialchars($log['adresse_ip']) ?></td>
-                </tr>
-                <?php endforeach; ?>
             </tbody>
         </table>
     </div>
