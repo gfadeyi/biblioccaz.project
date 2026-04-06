@@ -100,6 +100,10 @@ $error = isset($_GET['error']) ? "Identifiants incorrects." : "";
                 <i class="bi bi-facebook text-primary me-2 fs-5"></i>
                 <span>Avec Facebook</span>
             </a>
+            <a href="inscription.php" class="btn social-btn rounded-pill py-2 d-flex align-items-center justify-content-center shadow-sm bg-custom">
+            <i class="bi bi-person-plus me-2 fs-5" style="color: #274e13;"></i>
+            <span>Créer un compte</span>
+        </a>
         </div>
     </div>
 </div>

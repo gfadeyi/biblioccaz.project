@@ -39,12 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $id = $pdo->lastInsertId();
  
             if ($connexion_auto) {
-<<<<<<< HEAD
-                // Connexion automatique
-=======
-                
-                session_start();
->>>>>>> d42a85f342351756ca2b5619150ce78c3235b250
+
                 $_SESSION['user_id'] = $id;
                 $_SESSION['pseudo']  = $pseudo;
                 $_SESSION['role']    = 'client';
