@@ -123,7 +123,7 @@ $error = isset($_GET['error']) ? "Identifiants incorrects." : "";
                 <p class="small text-muted mb-0">PAIEMENT 100% SÉCURISÉ</p>
                 <div class="mt-2">
                     <img src="https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg" alt="Paypal" height="15" class="me-2" style="opacity: 0.6">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg" alt="Visa" height="10" class="me-2" style="opacity: 0.6">
+                    <img src="img/visa.jpg" alt="Visa" height="10" class="me-2" style="opacity: 0.6">
                     <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" alt="Mastercard" height="15" style="opacity: 0.6">
                 </div>
                 <p class="small text-muted mt-3">© 2026 BIBLIOccaz - ESGI</p>
