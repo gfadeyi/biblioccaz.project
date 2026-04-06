@@ -30,4 +30,15 @@ try {
 } catch (\PDOException $e) {
     die("Erreur de connexion : " . $e->getMessage());
 }
+
+function insertLog($pdo, $type, $message) {
+    $sql = "INSERT INTO logs (action_type, description, adresse_ip, id_user) VALUES (?, ?, ?, ?)";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([
+        $type, 
+        $message, 
+        $_SERVER['REMOTE_ADDR'], 
+        $_SESSION['user_id'] ?? null
+    ]);
+}
 ?>

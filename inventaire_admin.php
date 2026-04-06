@@ -7,17 +7,10 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
     exit();
 }
 
-if (isset($_GET['del_ex'])) {
-    $stmt = $pdo->prepare("DELETE FROM exemplaire WHERE id_exemplaire = ?");
-    $stmt->execute([$_GET['del_ex']]);
-    header("Location: inventaire_admin.php");
-    exit();
-}
-
 include 'header.php';
 
 $query = $pdo->query("
-    SELECT l.*, COUNT(e.id_exemplaire) as nb_stock 
+    SELECT l.*, SUM(e.quantite) as nb_stock 
     FROM livre l 
     LEFT JOIN exemplaire e ON l.id_livre = e.id_livre 
     GROUP BY l.id_livre 
@@ -28,11 +21,17 @@ $livres = $query->fetchAll();
 
 <div class="container mt-5">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="fw-bold">Gestion Stock & Inventaire</h2>
-        <a href="ajouter_livre.php" class="btn btn-success shadow-sm">
-            <i class="bi bi-plus-circle"></i> Nouveau Titre
+        <div class="d-flex align-items-center">
+            <a href="admin.php" class="btn btn-outline-secondary me-3 btn-sm rounded-circle shadow-sm">
+                <i class="bi bi-arrow-left"></i>
+            </a>
+            <h2 class="fw-bold mb-0">Gestion Stock & Inventaire</h2>
+        </div>
+        <a href="ajouter_livre.php" class="btn btn-success shadow-sm rounded-pill px-4">
+            <i class="bi bi-plus-circle me-2"></i>Nouveau Titre
         </a>
     </div>
+
     <div class="card shadow-sm border-0" style="border-radius: 15px; overflow: hidden;">
         <table class="table align-middle mb-0">
             <thead class="table-light">
@@ -60,13 +59,18 @@ $livres = $query->fetchAll();
                     <td><?= htmlspecialchars($livre['auteur']); ?></td>
                     <td class="text-center">
                         <span class="badge rounded-pill <?= ($livre['nb_stock'] > 0) ? 'bg-success' : 'bg-danger'; ?>">
-                            <?= $livre['nb_stock']; ?> ex.
+                            <?= (int)$livre['nb_stock']; ?> ex.
                         </span>
                     </td>
                     <td class="text-center">
-                        <a href="modifier_livre.php?id=<?= $livre['id_livre']; ?>" class="btn btn-sm btn-outline-primary">
-                            <i class="bi bi-pencil"></i>
-                        </a>
+                        <div class="btn-group">
+                            <a href="gerer_exemplaires.php?id=<?= $livre['id_livre']; ?>" class="btn btn-sm btn-outline-success" title="Gérer le stock">
+                                <i class="bi bi-box-seam me-1"></i> Stock
+                            </a>
+                            <a href="modifier_livre.php?id=<?= $livre['id_livre']; ?>" class="btn btn-sm btn-outline-primary" title="Modifier la fiche">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                        </div>
                     </td>
                 </tr>
                 <?php endforeach; ?>
@@ -74,4 +78,5 @@ $livres = $query->fetchAll();
         </table>
     </div>
 </div>
+
 <?php include 'footer.php'; ?>

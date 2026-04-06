@@ -31,23 +31,30 @@ $livres = $pdo->query("SELECT * FROM livre WHERE is_valide = 0 ORDER BY id_livre
 ?>
 
 <div class="container mt-5">
-    <h2 class="fw-bold mb-4"><i class="bi bi-shield-check me-2 text-warning"></i>Modération Catalogue</h2>
+    <div class="d-flex align-items-center mb-4">
+        <a href="admin.php" class="btn btn-outline-secondary me-3 btn-sm rounded-circle shadow-sm">
+            <i class="bi bi-arrow-left"></i>
+        </a>
+        <h2 class="fw-bold mb-0"><i class="bi bi-shield-check me-2 text-warning"></i>Modération Catalogue</h2>
+    </div>
 
     <?php if (empty($livres)): ?>
-        <div class="alert alert-info border-0 shadow-sm">Aucune fiche livre en attente de validation.</div>
+        <div class="alert alert-info border-0 shadow-sm" style="border-radius: 10px;">
+            <i class="bi bi-info-circle me-2"></i>Aucune fiche livre en attente de validation.
+        </div>
     <?php else: ?>
         <div class="row g-4">
             <?php foreach ($livres as $l): ?>
             <div class="col-md-6">
-                <div class="card border-0 shadow-sm p-3" style="border-radius: 15px;">
+                <div class="card border-0 shadow-sm p-3 h-100" style="border-radius: 15px;">
                     <div class="d-flex align-items-center">
-                        <img src="img/<?= htmlspecialchars($l['couverture'] ?: 'default.jpg') ?>" class="rounded me-3" style="width: 80px; height: 110px; object-fit: cover;">
+                        <img src="img/<?= htmlspecialchars($l['couverture'] ?: 'default.jpg') ?>" class="rounded me-3 shadow-sm" style="width: 80px; height: 110px; object-fit: cover;">
                         <div class="flex-grow-1">
                             <h6 class="fw-bold mb-1"><?= htmlspecialchars($l['titre']) ?></h6>
-                            <p class="text-muted small mb-2"><?= htmlspecialchars($l['auteur']) ?></p>
-                            <div class="d-flex gap-2">
-                                <a href="moderation_catalogue.php?action=valider&id=<?= $l['id_livre'] ?>" class="btn btn-sm btn-success w-50">Valider</a>
-                                <a href="moderation_catalogue.php?action=refuser&id=<?= $l['id_livre'] ?>" class="btn btn-sm btn-outline-danger w-50" onclick="return confirm('Refuser ce livre ?')">Refuser</a>
+                            <p class="text-muted small mb-2 text-truncate" style="max-width: 200px;"><?= htmlspecialchars($l['auteur']) ?></p>
+                            <div class="d-flex gap-2 mt-2">
+                                <a href="moderation_catalogue.php?action=valider&id=<?= $l['id_livre'] ?>" class="btn btn-sm btn-success w-50 fw-bold">Valider</a>
+                                <a href="moderation_catalogue.php?action=refuser&id=<?= $l['id_livre'] ?>" class="btn btn-sm btn-outline-danger w-50 fw-bold" onclick="return confirm('Refuser ce livre ?')">Refuser</a>
                             </div>
                         </div>
                     </div>

@@ -9,7 +9,7 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
 
 $countTitresValides = $pdo->query("SELECT COUNT(*) FROM livre WHERE is_valide = 1")->fetchColumn();
 $countAttente = $pdo->query("SELECT COUNT(*) FROM livre WHERE is_valide = 0")->fetchColumn();
-$countDisponibles = $pdo->query("SELECT COUNT(*) FROM exemplaire WHERE is_disponible = 1")->fetchColumn();
+$countDisponibles = $pdo->query("SELECT SUM(quantite) FROM exemplaire WHERE is_disponible = 1")->fetchColumn() ?: 0;
 $countUsers = $pdo->query("SELECT COUNT(*) FROM user")->fetchColumn();
 
 include 'header.php';
