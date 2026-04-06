@@ -40,7 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
  
             if ($connexion_auto) {
 
-                $_SESSION['user_id'] = $id;
+                $_SESSION['id_user'] = $id;
                 $_SESSION['pseudo']  = $pseudo;
                 $_SESSION['role']    = 'client';
                 header("Location: index.php");

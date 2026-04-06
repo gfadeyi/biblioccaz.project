@@ -10,7 +10,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $stmt->execute([$pseudo, $pseudo]);
     $user = $stmt->fetch();
 
-    if ($user && $mdp === $user['mot_de_passe']) {
+    if ($user && password_verify($mdp, $user['mot_de_passe'])) {
         
         if ($user['statut'] === 'suspendu') {
             header("Location: login.php?error=banned");
