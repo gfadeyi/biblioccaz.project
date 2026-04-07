@@ -1,31 +1,38 @@
 <?php
 require_once 'config.php';
-if (session_status() === PHP_SESSION_NONE) { session_start(); }
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $pseudo = $_POST['pseudo'];
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $identifiant = trim($_POST['pseudo']);
     $mdp = $_POST['mdp'];
 
+    if (empty($identifiant) || empty($mdp)) {
+        header("Location: login.php?error=empty");
+        exit();
+    }
+
     $stmt = $pdo->prepare("SELECT * FROM user WHERE pseudo = ? OR email = ?");
-    $stmt->execute([$pseudo, $pseudo]);
+    $stmt->execute([$identifiant, $identifiant]);
     $user = $stmt->fetch();
 
     if ($user && password_verify($mdp, $user['mot_de_passe'])) {
         
-        if ($user['statut'] === 'suspendu') {
+        if ($user['statut'] === 'banni') {
             header("Location: login.php?error=banned");
+            exit();
+        }
+
+        if ($user['statut'] === 'suspendu') {
+            header("Location: login.php?error=suspended");
             exit();
         }
 
         $_SESSION['user_id'] = $user['id'];
         $_SESSION['pseudo'] = $user['pseudo'];
         $_SESSION['role'] = $user['role'];
+        $_SESSION['nom'] = $user['nom'];
+        $_SESSION['prenom'] = $user['prenom'];
 
-        $stmtLog = $pdo->prepare("INSERT INTO logs (id_user, action_type, description, adresse_ip) VALUES (?, 'CONNEXION', 'Connexion réussie à l\'interface', ?)");
-        $stmtLog->execute([$user['id'], $_SERVER['REMOTE_ADDR']]);
-
-        $stmtUpdate = $pdo->prepare("UPDATE user SET last_activity = NOW() WHERE id = ?");
-        $stmtUpdate->execute([$user['id']]);
+        insertLog($pdo, 'CONNEXION', "Connexion réussie de l'utilisateur : " . $user['pseudo']);
 
         if ($user['role'] === 'admin') {
             header("Location: admin.php");
@@ -33,7 +40,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             header("Location: index.php");
         }
         exit();
+
     } else {
+        insertLog($pdo, 'CONNEXION_ECHEC', "Tentative de connexion échouée pour : " . $identifiant);
         header("Location: login.php?error=1");
         exit();
     }
