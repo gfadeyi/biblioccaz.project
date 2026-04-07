@@ -9,7 +9,7 @@ if ($isLocal) {
     $host = 'localhost';
     $db   = 'biblioccaz';
     $user = 'root'; 
-    $pass = ''; 
+    $pass = (PHP_OS === 'Darwin' || is_dir('/Applications/MAMP')) ? 'root' : ''; 
 } else {
     $host = 'localhost';
     $db   = 'biblioccaz';
@@ -28,17 +28,29 @@ $options = [
 try {
     $pdo = new PDO($dsn, $user, $pass, $options);
 } catch (\PDOException $e) {
-    die("Erreur de connexion : " . $e->getMessage());
+    if ($isLocal) {
+        try {
+            $pass = ($pass === 'root') ? '' : 'root';
+            $pdo = new PDO($dsn, $user, $pass, $options);
+        } catch (\PDOException $e2) {
+            die("Erreur de connexion locale : " . $e2->getMessage());
+        }
+    } else {
+        die("Erreur de connexion serveur : " . $e->getMessage());
+    }
 }
 
 function insertLog($pdo, $type, $message) {
-    $sql = "INSERT INTO logs (action_type, description, adresse_ip, id_user) VALUES (?, ?, ?, ?)";
-    $stmt = $pdo->prepare($sql);
-    $stmt->execute([
-        $type, 
-        $message, 
-        $_SERVER['REMOTE_ADDR'], 
-        $_SESSION['user_id'] ?? null
-    ]);
+    try {
+        $sql = "INSERT INTO logs (action_type, description, adresse_ip, id_user, date_log) VALUES (?, ?, ?, ?, NOW())";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([
+            $type, 
+            $message, 
+            $_SERVER['REMOTE_ADDR'], 
+            $_SESSION['user_id'] ?? null
+        ]);
+    } catch (Exception $e) {
+    }
 }
 ?>
