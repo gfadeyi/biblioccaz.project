@@ -7,12 +7,12 @@ $erreur = "";
 $succes = "";
  
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $pseudo        = trim($_POST['pseudo'] ?? '');
-    $email         = trim($_POST['email'] ?? '');
-    $mot_de_passe  = $_POST['mot_de_passe'] ?? '';
-    $confirmation  = $_POST['confirmation'] ?? '';
-    $nom           = trim($_POST['nom'] ?? '');
-    $prenom        = trim($_POST['prenom'] ?? '');
+    $pseudo         = trim($_POST['pseudo'] ?? '');
+    $email          = trim($_POST['email'] ?? '');
+    $mot_de_passe   = $_POST['mot_de_passe'] ?? '';
+    $confirmation   = $_POST['confirmation'] ?? '';
+    $nom            = trim($_POST['nom'] ?? '');
+    $prenom         = trim($_POST['prenom'] ?? '');
     $connexion_auto = isset($_POST['connexion_auto']);
  
   
@@ -39,13 +39,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $id = $pdo->lastInsertId();
  
             if ($connexion_auto) {
-
-                $_SESSION['id_user'] = $id;
+                $_SESSION['user_id'] = $id;
                 $_SESSION['pseudo']  = $pseudo;
                 $_SESSION['role']    = 'client';
+                $_SESSION['nom']     = $nom;
+                $_SESSION['prenom']  = $prenom;
+
+                insertLog($pdo, 'INSCRIPTION', "Nouvel utilisateur inscrit et connecté : " . $pseudo, $id);
+                
                 header("Location: index.php");
                 exit();
             } else {
+                insertLog($pdo, 'INSCRIPTION', "Nouvel utilisateur inscrit : " . $pseudo, $id);
                 header("Location: login.php?inscription=success");
                 exit();
             }
@@ -111,7 +116,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <input class="form-check-input" type="checkbox"
                                    name="connexion_auto" id="connexion_auto" checked>
                             <label class="form-check-label" for="connexion_auto">
-                                Me connecter automatiquement après l'inscription
+                                 Me connecter automatiquement après l'inscription
                             </label>
                         </div>
                     </div>
