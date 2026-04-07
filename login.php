@@ -1,6 +1,18 @@
 <?php
 include 'header.php';
-$error = isset($_GET['error']) ? "Identifiants incorrects." : "";
+
+$error = "";
+if (isset($_GET['error'])) {
+    if ($_GET['error'] == '1') {
+        $error = "Identifiants incorrects.";
+    } elseif ($_GET['error'] == 'banned') {
+        $error = "Ce compte a été banni par un administrateur.";
+    } elseif ($_GET['error'] == 'suspended') {
+        $error = "Ce compte est temporairement suspendu.";
+    } elseif ($_GET['error'] == 'empty') {
+        $error = "Veuillez remplir tous les champs.";
+    }
+}
 ?>
 
 <style>
@@ -36,6 +48,22 @@ $error = isset($_GET['error']) ? "Identifiants incorrects." : "";
     }
     .btn-continue:hover {
         background-color: #1a330d;
+    }
+    .btn-register-outline {
+        border: 2px solid #274e13 !important;
+        color: #274e13 !important;
+        border-radius: 50px;
+        padding: 12px 0;
+        font-weight: bold;
+        width: 100%;
+        margin-top: 15px;
+        text-decoration: none;
+        display: block;
+        transition: 0.3s;
+    }
+    .btn-register-outline:hover {
+        background-color: #274e13;
+        color: white !important;
     }
     .divider-container {
         position: relative;
@@ -85,6 +113,11 @@ $error = isset($_GET['error']) ? "Identifiants incorrects." : "";
 
             <button type="submit" class="btn-continue">CONTINUER</button>
         </form>
+
+        <div class="mt-4">
+            <p class="text-muted small mb-2">Nouveau sur BIBLIOccaz ?</p>
+            <a href="inscription.php" class="btn-register-outline">CRÉER UN COMPTE</a>
+        </div>
 
         <div class="divider-container">
             <hr>

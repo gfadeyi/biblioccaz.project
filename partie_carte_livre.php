@@ -2,7 +2,7 @@
     <div class="card h-100 shadow-sm border-0" style="border-radius: 15px; overflow: hidden;">
         <div class="card-img-container">
             <?php $img = !empty($l['couverture']) ? $l['couverture'] : 'default.png'; ?>
-            <img src="img/<?= $img ?>" class="img-fluid" style="max-height: 100%; object-fit: contain;">
+            <img src="img/<?= rawurlencode($img) ?>" class="img-fluid" style="max-height: 100%; object-fit: contain;">
         </div>
         
         <div class="card-body">

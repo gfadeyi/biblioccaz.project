@@ -48,7 +48,7 @@ $livres = $query->fetchAll();
                     <td class="ps-4 py-3">
                         <div class="d-flex align-items-center">
                             <?php if (!empty($livre['couverture'])): ?>
-                                <img src="img/<?= htmlspecialchars($livre['couverture']); ?>" style="width: 45px; height: 60px; object-fit: cover; border-radius: 4px;" class="me-3 shadow-sm">
+                                <img src="img/<?= rawurlencode($livre['couverture']); ?>" style="width: 45px; height: 60px; object-fit: cover; border-radius: 4px;" class="me-3 shadow-sm">
                             <?php endif; ?>
                             <div>
                                 <div class="fw-bold"><?= htmlspecialchars($livre['titre']); ?></div>
@@ -64,10 +64,10 @@ $livres = $query->fetchAll();
                     </td>
                     <td class="text-center">
                         <div class="btn-group">
-                            <a href="gerer_exemplaires.php?id=<?= $livre['id_livre']; ?>" class="btn btn-sm btn-outline-success" title="Gérer le stock">
+                            <a href="gerer_exemplaires.php?id=<?= $livre['id_livre']; ?>" class="btn btn-sm btn-outline-success">
                                 <i class="bi bi-box-seam me-1"></i> Stock
                             </a>
-                            <a href="modifier_livre.php?id=<?= $livre['id_livre']; ?>" class="btn btn-sm btn-outline-primary" title="Modifier la fiche">
+                            <a href="modifier_livre.php?id=<?= $livre['id_livre']; ?>" class="btn btn-sm btn-outline-primary">
                                 <i class="bi bi-pencil"></i>
                             </a>
                         </div>

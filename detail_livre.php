@@ -83,7 +83,8 @@ function formaterEtat($etat) {
         <div class="col-md-4">
             <div class="sticky-top">
                 <div class="p-4 bg-white border rounded shadow-sm text-center">
-                    <img src="img/<?= $livre['couverture'] ?: 'default.png' ?>" class="img-fluid" style="max-height: 450px;">
+                    <?php $img_url = $livre['couverture'] ?: 'default.png'; ?>
+                    <img src="img/<?= rawurlencode($img_url) ?>" class="img-fluid" style="max-height: 450px;">
                 </div>
             </div>
         </div>

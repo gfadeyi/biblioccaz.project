@@ -32,7 +32,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $nom_image = "default.png";
         if (!empty($_FILES['image']['name'])) {
             $nom_image = $_FILES['image']['name'];
-            move_uploaded_file($_FILES['image']['tmp_name'], "img/" . $nom_image);
+            $target_path = __DIR__ . "/img/" . $nom_image;
+            move_uploaded_file($_FILES['image']['tmp_name'], $target_path);
         }
 
         $sql = "INSERT INTO livre (titre, auteur, description, couverture, isbn, editeur, annee_parution, nb_pages, poids, dimensions, reliure) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
