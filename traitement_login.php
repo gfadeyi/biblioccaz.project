@@ -16,6 +16,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($user && password_verify($mdp, $user['mot_de_passe'])) {
         
+        if ($user['email_verifie'] == 0) {
+    header("Location: login.php?error=not_verified");
+    exit();
+}
+        
         if ($user['statut'] === 'banni') {
             header("Location: login.php?error=banned");
             exit();
