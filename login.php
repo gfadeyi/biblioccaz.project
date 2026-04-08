@@ -12,7 +12,11 @@ if (isset($_GET['error'])) {
     } elseif ($_GET['error'] == 'empty') {
         $error = "Veuillez remplir tous les champs.";
     }
+    elseif ($_GET['error'] == 'not_verified') {
+        $error = "Veuillez confirmer votre email avant de vous connecter.";
+    }
 }
+
 ?>
 
 <style>
