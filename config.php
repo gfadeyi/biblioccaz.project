@@ -42,7 +42,7 @@ try {
 
 function insertLog($pdo, $type, $message) {
     try {
-        $sql = "INSERT INTO logs (action_type, description, adresse_ip, id_user, date_log) VALUES (?, ?, ?, ?, NOW())";
+        $sql = "INSERT INTO logs (action_type, description, adresse_ip, id_user) VALUES (?, ?, ?, ?)";
         $stmt = $pdo->prepare($sql);
         $stmt->execute([
             $type, 
@@ -53,4 +53,6 @@ function insertLog($pdo, $type, $message) {
     } catch (Exception $e) {
     }
 }
+
+insertLog($pdo, 'VISITE', "Consultation de la page : " . $_SERVER['PHP_SELF']);
 ?>
