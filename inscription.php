@@ -30,29 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->execute([$pseudo, $email]);
         if ($stmt->fetch()) {
             $erreur = "Ce pseudo ou cet email est déjà utilisé.";
-        } else {
-            
-            $hash = password_hash($mot_de_passe, PASSWORD_DEFAULT);
-            $token = bin2hex(random_bytes(32));
-            $stmt = $pdo->prepare("INSERT INTO user (pseudo, email, mot_de_passe, nom, prenom, role, email_token, email_verifie)
-                                   VALUES (?, ?, ?, ?, ?, 'client',?,0)");
-            $stmt->execute([$pseudo, $email, $hash, $nom, $prenom, $token]);
-            $id = $pdo->lastInsertId();
-            
-        require_once 'vendor/autoload.php';
-          use PHPMailer\PHPMailer\PHPMailer;
-
-                $mail = new PHPMailer(true);
-                $mail->isSendmail();
-                $mail->setFrom('biblioccaz@gmail.com', 'BIBLIOccaz');
-                $mail->addAddress($email, $prenom . ' ' . $nom);
-                $mail->isHTML(true);
-                $mail->CharSet = 'UTF-8';
-                $mail->Subject = 'Confirmez votre inscription - BIBLIOccaz';
-                $lien = "http://" . $_SERVER['HTTP_HOST'] . "/verification.php?token=" . $token;
-                $mail->Body = '<a href="' . $lien . '">Confirmer mon email</a>';
-                $mail->send();
- 
+        }
             if ($connexion_auto) {
                 $_SESSION['user_id'] = $id;
                 $_SESSION['pseudo']  = $pseudo;
