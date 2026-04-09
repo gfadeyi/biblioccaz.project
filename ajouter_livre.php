@@ -30,20 +30,28 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $reliure = !empty($_POST['reliure']) ? $_POST['reliure'] : 'Broché';
         
         $nom_image = "default.png";
-        if (!empty($_FILES['image']['name'])) {
-            $nom_image = $_FILES['image']['name'];
+
+        if (isset($_FILES['image']) && $_FILES['image']['error'] == 0) {
+            $nom_image = time() . "_" . basename($_FILES['image']['name']);
             $target_path = __DIR__ . "/img/" . $nom_image;
-            move_uploaded_file($_FILES['image']['tmp_name'], $target_path);
+
+            if (!move_uploaded_file($_FILES['image']['tmp_name'], $target_path)) {
+                $nom_image = "default.png";
+            }
         }
 
-        $sql = "INSERT INTO livre (titre, auteur, description, couverture, isbn, editeur, annee_parution, nb_pages, poids, dimensions, reliure) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute([$titre, $auteur, $description, $nom_image, $isbn_val, $editeur, $annee, $pages, $poids, $dimensions, $reliure]);
-        
-        insertLog($pdo, 'CATALOGUE', "Ajout du livre : " . $titre);
+        try {
+            $sql = "INSERT INTO livre (titre, auteur, description, couverture, isbn, editeur, annee_parution, nb_pages, poids, dimensions, reliure) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute([$titre, $auteur, $description, $nom_image, $isbn_val, $editeur, $annee, $pages, $poids, $dimensions, $reliure]);
+            
+            insertLog($pdo, 'CATALOGUE', "Ajout du livre : " . $titre);
 
-        header("Location: inventaire_admin.php?msg=success");
-        exit();
+            header("Location: inventaire_admin.php?msg=success");
+            exit();
+        } catch (PDOException $e) {
+            $error = "Erreur SQL : " . $e->getMessage();
+        }
     }
 }
 
@@ -70,7 +78,7 @@ include 'header.php';
                             <input type="text" name="titre" class="form-control bg-light border-0" placeholder="Ex: Le Petit Prince" required>
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label class="form-label fw-bold small">Auteur</label>
+                            <label class="form-label fw-bold small">Auteur(s)</label>
                             <input type="text" name="auteur" class="form-control bg-light border-0" placeholder="Ex: Antoine de Saint-Exupéry" required>
                         </div>
                     </div>
