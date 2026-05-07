@@ -5,17 +5,10 @@ if (session_status() === PHP_SESSION_NONE) {
 
 $isLocal = ($_SERVER['REMOTE_ADDR'] == '127.0.0.1' || $_SERVER['REMOTE_ADDR'] == '::1');
 
-if ($isLocal) {
-    $host = 'localhost';
-    $db   = 'biblioccaz';
-    $user = 'root'; 
-    $pass = (PHP_OS === 'Darwin' || is_dir('/Applications/MAMP')) ? 'root' : ''; 
-} else {
-    $host = 'localhost';
-    $db   = 'biblioccaz';
-    $user = 'admin_biblio'; 
-    $pass = 'Esgi_2026_Biblio!'; 
-}
+$host = 'localhost';
+$db   = 'biblioccaz';
+$user = 'admin_biblio'; 
+$pass = 'Esgi_2026_Biblio!'; 
 
 $charset = 'utf8mb4';
 $dsn = "mysql:host=$host;dbname=$db;charset=$charset";
@@ -30,8 +23,9 @@ try {
 } catch (\PDOException $e) {
     if ($isLocal) {
         try {
-            $pass = ($pass === 'root') ? '' : 'root';
-            $pdo = new PDO($dsn, $user, $pass, $options);
+            $user_local = 'root';
+            $pass_local = ''; 
+            $pdo = new PDO($dsn, $user_local, $pass_local, $options);
         } catch (\PDOException $e2) {
             die("Erreur de connexion locale : " . $e2->getMessage());
         }
