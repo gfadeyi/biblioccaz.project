@@ -15,7 +15,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $prenom         = trim($_POST['prenom'] ?? '');
     $connexion_auto = isset($_POST['connexion_auto']);
  
-  
     if (!$pseudo || !$email || !$mot_de_passe || !$nom || !$prenom) {
         $erreur = "Veuillez remplir tous les champs obligatoires.";
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
@@ -25,21 +24,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif ($mot_de_passe !== $confirmation) {
         $erreur = "Les mots de passe ne correspondent pas.";
     } else {
-        
         $stmt = $pdo->prepare("SELECT id FROM user WHERE pseudo = ? OR email = ?");
         $stmt->execute([$pseudo, $email]);
         if ($stmt->fetch()) {
             $erreur = "Ce pseudo ou cet email est déjà utilisé.";
         } else {
-            
             $hash = password_hash($mot_de_passe, PASSWORD_DEFAULT);
-            $token = bin2hex(random_bytes(32));
-            $stmt = $pdo->prepare("INSERT INTO user (pseudo, email, mot_de_passe, nom, prenom, role)
-                                   VALUES (?, ?, ?, ?, ?, 'client',?,0)");
-            $stmt->execute([$pseudo, $email, $hash, $nom, $prenom]);
+            $code_verif = rand(100000, 999999);
+
+            $stmt = $pdo->prepare("INSERT INTO user (pseudo, email, mot_de_passe, nom, prenom, role, code_verification, est_verifie) VALUES (?, ?, ?, ?, ?, 'client', ?, 1)");
+            $stmt->execute([$pseudo, $email, $hash, $nom, $prenom, $code_verif]);
             $id = $pdo->lastInsertId();
             
-   
             if ($connexion_auto) {
                 $_SESSION['user_id'] = $id;
                 $_SESSION['pseudo']  = $pseudo;

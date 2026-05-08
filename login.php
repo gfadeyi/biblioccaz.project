@@ -5,214 +5,81 @@ $error = "";
 if (isset($_GET['error'])) {
     if ($_GET['error'] == '1') {
         $error = "Identifiants incorrects.";
-    } elseif ($_GET['error'] == 'banned') {
-        $error = "Ce compte a été banni par un administrateur.";
-    } elseif ($_GET['error'] == 'suspended') {
-        $error = "Ce compte est temporairement suspendu.";
+    } elseif ($_GET['error'] == 'captcha') {
+        $error = "Vérification échouée : Mauvaise pièce du puzzle.";
     } elseif ($_GET['error'] == 'empty') {
         $error = "Veuillez remplir tous les champs.";
     }
-   
 }
-
 ?>
 
 <style>
-    .login-container {
-        max-width: 450px;
-        margin: 80px auto;
-    }
+    .login-container { max-width: 450px; margin: 80px auto; }
     .input-recyclivre {
-        border: none !important;
-        border-bottom: 1px solid #ccc !important;
-        border-radius: 0 !important;
-        padding: 20px 0 !important;
-        background: transparent !important;
-        text-align: center;
+        border: none !important; border-bottom: 1px solid #ccc !important;
+        border-radius: 0 !important; padding: 20px 0 !important;
+        background: transparent !important; text-align: center;
         font-size: 1.1rem;
-        color: inherit !important;
     }
-    .input-recyclivre:focus {
-        box-shadow: none !important;
-        border-bottom-color: #274e13 !important;
-        outline: none;
-    }
+    .input-recyclivre:focus { border-bottom-color: #274e13 !important; box-shadow: none !important; }
     .btn-continue {
-        background-color: #274e13;
-        color: white;
-        border: none;
-        border-radius: 50px;
-        padding: 12px 0;
-        font-weight: bold;
-        width: 100%;
-        margin-top: 40px;
-        transition: 0.3s;
+        background-color: #274e13; color: white; border: none;
+        border-radius: 50px; padding: 12px 0; font-weight: bold;
+        width: 100%; margin-top: 30px; transition: 0.3s;
+        cursor: pointer;
     }
-    .btn-continue:hover {
-        background-color: #1a330d;
+    .btn-continue:hover { background-color: #1a330d; }
+    .puzzle-choice input:checked + img { border: 3px solid #274e13 !important; background-color: rgba(39, 78, 19, 0.2); }
+    .puzzle-choice img { cursor: pointer; width: 80px; height: 80px; object-fit: contain; background: #eee; border-radius: 8px; }
+    .captcha-bg {
+        background: url('img/fond_puzzle.jpg') no-repeat center; 
+        background-size: cover; height: 180px; border-radius: 8px; border: 1px solid #ddd;
     }
-    .btn-register-outline {
-        border: 2px solid #274e13 !important;
-        color: #274e13 !important;
-        border-radius: 50px;
-        padding: 12px 0;
-        font-weight: bold;
-        width: 100%;
-        margin-top: 15px;
-        text-decoration: none;
-        display: block;
-        transition: 0.3s;
-    }
-    .btn-register-outline:hover {
-        background-color: #274e13;
-        color: white !important;
-    }
-    .divider-container {
-        position: relative;
-        margin: 50px 0;
-    }
-    .divider-text {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        padding: 0 15px;
-    }
-    body.dark-mode .divider-text, 
-    body.dark-mode .bg-custom {
-        background-color: #121212 !important;
-    }
-    body:not(.dark-mode) .divider-text, 
-    body:not(.dark-mode) .bg-custom {
-        background-color: #ffffff !important;
-    }
-    .social-btn {
-        border: 1px solid #eee !important;
-        color: inherit !important;
-        text-decoration: none !important;
-    }
-    body.dark-mode .social-btn {
-        border-color: #444 !important;
-    }
-    
-    .puzzle-choice input:checked + img {
-    border: 2px solid #198754; 
-    background-color: rgba(25, 135, 84, 0.2);
-}
-.puzzle-choice img {
-    cursor: pointer;
-    transition: transform 0.2s;
-}
-.puzzle-choice img:hover {
-    transform: scale(1.1);
-}
 </style>
-<?php
-  $chemin_fond = "images/mon_fond_login.jpg";
-  $chemin_piece = "images/ma_piece.png";
-?>
 
-<div style="background: url('<?php echo $chemin_fond; ?>'); height: 150px;">
-   </div>
 <div class="container">
     <div class="login-container text-center">
-        <h1 class="fw-bold mb-5">Se connecter / S'inscrire</h1>
+        <h1 class="fw-bold mb-5">Se connecter</h1>
         
         <?php if ($error): ?>
             <div class="alert alert-danger border-0 small mb-4"><?= $error ?></div>
         <?php endif; ?>
 
         <form action="traitement_login.php" method="POST">
-            <div class="mb-2">
-                <input type="text" name="pseudo" class="form-control input-recyclivre" placeholder="E-mail ou Pseudo" required autocomplete="off">
+            <input type="text" name="pseudo" class="form-control input-recyclivre mb-2" placeholder="E-mail ou Pseudo" required>
+            <input type="password" name="mdp" class="form-control input-recyclivre mb-4" placeholder="Mot de passe" required>
+
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-light small fw-bold">Sécurité : Complétez le puzzle</div>
+                <div class="card-body">
+                    <div class="captcha-bg mb-3"></div>
+                    <div class="d-flex justify-content-around">
+                        <label class="puzzle-choice">
+                            <input type="radio" name="puzzle_pos" value="wrong1" class="btn-check" required>
+                            <img src="img/piece_puzzle_false_1.jpg">
+                        </label>
+                        <label class="puzzle-choice">
+                            <input type="radio" name="puzzle_pos" value="correct" class="btn-check">
+                            <img src="img/piece_puzzle.jpg">
+                        </label>
+                        <label class="puzzle-choice">
+                            <input type="radio" name="puzzle_pos" value="wrong2" class="btn-check">
+                            <img src="img/piece_puzzle_false_2.jpg">
+                        </label>
+                    </div>
+                </div>
             </div>
-            
-            <div class="mb-2">
-                <input type="password" name="mdp" class="form-control input-recyclivre" placeholder="Mot de passe" required>
-            </div>
-            <form action="verif.php" method="POST">
-  <div class="card" style="width: 300px;">
-    <div class="card-header">Cliquez sur la bonne pièce</div>
-    
-    <div class="card-body position-relative" style="background: url('fond_avec_trou.jpg'); height: 150px;">
-      
-      <div class="d-flex justify-content-between align-items-center h-100">
-        
-        <label class="puzzle-choice">
-          <input type="radio" name="puzzle_pos" value="wrong1" class="btn-check">
-          <img src="piece.png" class="btn btn-outline-light p-1">
-        </label>
 
-        <label class="puzzle-choice">
-          <input type="radio" name="puzzle_pos" value="correct" class="btn-check">
-          <img src="piece.png" class="btn btn-outline-light p-1">
-        </label>
-
-        <label class="puzzle-choice">
-          <input type="radio" name="puzzle_pos" value="wrong2" class="btn-check">
-          <img src="piece.png" class="btn btn-outline-light p-1">
-        </label>
-        
-      </div>
-    </div>
-
-    <div class="card-footer">
-      <button type="submit" class="btn btn-primary w-100">Vérifier</button>
-    </div>
-  </div>
-</form>
             <button type="submit" class="btn-continue">CONTINUER</button>
         </form>
 
-        <div class="mt-4">
+        <div class="mt-4 pt-3 border-top">
             <p class="text-muted small mb-2">Nouveau sur BIBLIOccaz ?</p>
-            <a href="inscription.php" class="btn-register-outline">CRÉER UN COMPTE</a>
-        </div>
-
-        <div class="divider-container">
-            <hr>
-            <span class="divider-text text-muted small">Ou</span>
-        </div>
-
-        <div class="d-grid gap-3">
-            <a href="#" class="btn social-btn rounded-pill py-2 d-flex align-items-center justify-content-center shadow-sm bg-custom">
-                <img src="https://www.gstatic.com/images/branding/product/1x/gsa_512dp.png" alt="Google" width="18" class="me-2">
-                <span>Avec Google</span>
+            <a href="inscription.php" class="btn btn-outline-success rounded-pill w-100 fw-bold py-2" style="border-color: #274e13; color: #274e13; text-decoration: none;">
+                CRÉER UN COMPTE
             </a>
-            <a href="#" class="btn social-btn rounded-pill py-2 d-flex align-items-center justify-content-center shadow-sm bg-custom">
-                <i class="bi bi-facebook text-primary me-2 fs-5"></i>
-                <span>Avec Facebook</span>
-            </a>
-            <a href="inscription.php" class="btn social-btn rounded-pill py-2 d-flex align-items-center justify-content-center shadow-sm bg-custom">
-            <i class="bi bi-person-plus me-2 fs-5" style="color: #274e13;"></i>
-            <span>Créer un compte</span>
-        </a>
         </div>
     </div>
 </div>
-
-<footer class="mt-5 pt-5 border-top">
-    <div class="container py-5">
-        <div class="row text-center text-md-start">
-            <div class="col-md-4 mb-4">
-                <h5 class="fw-bold text-success">BIBLIOccaz</h5>
-                <p class="text-muted small">Donnez une seconde vie à vos lectures.</p>
-            </div>
-            <div class="col-md-8 text-md-end mb-4">
-                <div class="d-flex justify-content-center justify-content-md-end gap-3 fs-4 mb-3">
-                    <a href="#" class="text-dark"><i class="bi bi-instagram"></i></a>
-                    <a href="#" class="text-dark"><i class="bi bi-facebook"></i></a>
-                </div>
-                <p class="small text-muted mb-0">PAIEMENT 100% SÉCURISÉ</p>
-                <div class="mt-2">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg" alt="Paypal" height="15" class="me-2" style="opacity: 0.6">
-                    <img src="img/visa.jpg" alt="Visa" height="10" class="me-2" style="opacity: 0.6">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" alt="Mastercard" height="15" style="opacity: 0.6">
-                </div>
-                <p class="small text-muted mt-3">© 2026 BIBLIOccaz - ESGI</p>
-            </div>
-        </div>
-    </div>
-</footer>
 
 <?php include 'footer.php'; ?>
