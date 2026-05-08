@@ -20,6 +20,15 @@ $livres = $query->fetchAll();
 ?>
 
 <div class="container mt-5">
+
+    <?php if (isset($_GET['msg']) && $_GET['msg'] === 'success'): ?>
+        <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm rounded-3 mb-4" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i>
+            Le livre a été ajouté avec succès au catalogue !
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    <?php endif; ?>
+
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div class="d-flex align-items-center">
             <a href="admin.php" class="btn btn-outline-secondary me-3 btn-sm rounded-circle shadow-sm">
