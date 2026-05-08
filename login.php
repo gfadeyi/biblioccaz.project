@@ -94,8 +94,26 @@ if (isset($_GET['error'])) {
     body.dark-mode .social-btn {
         border-color: #444 !important;
     }
+    
+    .puzzle-choice input:checked + img {
+    border: 2px solid #198754; 
+    background-color: rgba(25, 135, 84, 0.2);
+}
+.puzzle-choice img {
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+.puzzle-choice img:hover {
+    transform: scale(1.1);
+}
 </style>
+<?php
+  $chemin_fond = "images/mon_fond_login.jpg";
+  $chemin_piece = "images/ma_piece.png";
+?>
 
+<div style="background: url('<?php echo $chemin_fond; ?>'); height: 150px;">
+   </div>
 <div class="container">
     <div class="login-container text-center">
         <h1 class="fw-bold mb-5">Se connecter / S'inscrire</h1>
@@ -112,7 +130,37 @@ if (isset($_GET['error'])) {
             <div class="mb-2">
                 <input type="password" name="mdp" class="form-control input-recyclivre" placeholder="Mot de passe" required>
             </div>
+            <form action="verif.php" method="POST">
+  <div class="card" style="width: 300px;">
+    <div class="card-header">Cliquez sur la bonne pièce</div>
+    
+    <div class="card-body position-relative" style="background: url('fond_avec_trou.jpg'); height: 150px;">
+      
+      <div class="d-flex justify-content-between align-items-center h-100">
+        
+        <label class="puzzle-choice">
+          <input type="radio" name="puzzle_pos" value="wrong1" class="btn-check">
+          <img src="piece.png" class="btn btn-outline-light p-1">
+        </label>
 
+        <label class="puzzle-choice">
+          <input type="radio" name="puzzle_pos" value="correct" class="btn-check">
+          <img src="piece.png" class="btn btn-outline-light p-1">
+        </label>
+
+        <label class="puzzle-choice">
+          <input type="radio" name="puzzle_pos" value="wrong2" class="btn-check">
+          <img src="piece.png" class="btn btn-outline-light p-1">
+        </label>
+        
+      </div>
+    </div>
+
+    <div class="card-footer">
+      <button type="submit" class="btn btn-primary w-100">Vérifier</button>
+    </div>
+  </div>
+</form>
             <button type="submit" class="btn-continue">CONTINUER</button>
         </form>
 
