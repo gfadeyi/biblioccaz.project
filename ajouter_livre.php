@@ -16,12 +16,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $description = trim($_POST['description']);
     $isbn = trim($_POST['isbn']);
 
-    if (empty($titre) || empty($auteur) || empty($description)) {
-        $error = "Le titre, l'auteur et la description sont obligatoires.";
-    } elseif (!empty($isbn) && strlen($isbn) !== 13 && strlen($isbn) !== 10) {
+    if (empty($titre) || empty($auteur) || empty($isbn) || empty($description)) {
+        $error = "Veuillez renseigner les 4 champs nécessaires : titre, auteur, ISBN et description.";
+    } elseif (strlen($isbn) !== 13 && strlen($isbn) !== 10) {
         $error = "L'ISBN doit comporter soit 10 caractères, soit 13 caractères.";
     } else {
-        $isbn_val = !empty($isbn) ? $isbn : null;
+        $isbn_val = $isbn;
         $editeur = !empty($_POST['editeur']) ? $_POST['editeur'] : null;
         $annee = !empty($_POST['annee_parution']) ? $_POST['annee_parution'] : null;
         $pages = !empty($_POST['nb_pages']) ? $_POST['nb_pages'] : null;
@@ -32,25 +32,38 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $nom_image = "default.png";
 
         if (isset($_FILES['image']) && $_FILES['image']['error'] == 0) {
-            $nom_image = time() . "_" . basename($_FILES['image']['name']);
-            $target_path = __DIR__ . "/img/" . $nom_image;
+            $allowed = ['jpg', 'jpeg', 'png', 'webp'];
+            $filename = $_FILES['image']['name'];
+            $filesize = $_FILES['image']['size'];
+            $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
 
-            if (!move_uploaded_file($_FILES['image']['tmp_name'], $target_path)) {
-                $nom_image = "default.png";
+            if (!in_array($ext, $allowed)) {
+                $error = "Format d'image non supporté (JPG, PNG, WEBP uniquement).";
+            } elseif ($filesize > 2 * 1024 * 1024) {
+                $error = "L'image est trop lourde (2 Mo maximum).";
+            } else {
+                $nom_image = time() . "_" . bin2hex(random_bytes(4)) . "." . $ext;
+                $target_path = __DIR__ . "/img/" . $nom_image;
+
+                if (!move_uploaded_file($_FILES['image']['tmp_name'], $target_path)) {
+                    $nom_image = "default.png";
+                }
             }
         }
 
-        try {
-            $sql = "INSERT INTO livre (titre, auteur, description, couverture, isbn, editeur, annee_parution, nb_pages, poids, dimensions, reliure) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-            $stmt = $pdo->prepare($sql);
-            $stmt->execute([$titre, $auteur, $description, $nom_image, $isbn_val, $editeur, $annee, $pages, $poids, $dimensions, $reliure]);
-            
-            insertLog($pdo, 'CATALOGUE', "Ajout du livre : " . $titre);
+        if (empty($error)) {
+            try {
+                $sql = "INSERT INTO livre (titre, auteur, description, couverture, isbn, editeur, annee_parution, nb_pages, poids, dimensions, reliure) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                $stmt = $pdo->prepare($sql);
+                $stmt->execute([$titre, $auteur, $description, $nom_image, $isbn_val, $editeur, $annee, $pages, $poids, $dimensions, $reliure]);
+                
+                insertLog($pdo, 'CATALOGUE', "Ajout du livre : " . $titre);
 
-            header("Location: inventaire_admin.php?msg=success");
-            exit();
-        } catch (PDOException $e) {
-            $error = "Erreur SQL : " . $e->getMessage();
+                header("Location: inventaire_admin.php?msg=success");
+                exit();
+            } catch (PDOException $e) {
+                $error = "Erreur SQL : " . $e->getMessage();
+            }
         }
     }
 }
@@ -74,18 +87,22 @@ include 'header.php';
                     <h5 class="fw-bold mb-3 text-success">Informations obligatoires</h5>
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label class="form-label fw-bold small">Titre</label>
+                            <label class="form-label fw-bold small">Titre <span class="text-danger">*</span></label>
                             <input type="text" name="titre" class="form-control bg-light border-0" placeholder="Ex: Le Petit Prince" required>
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label class="form-label fw-bold small">Auteur(s)</label>
+                            <label class="form-label fw-bold small">Auteur(s) <span class="text-danger">*</span></label>
                             <input type="text" name="auteur" class="form-control bg-light border-0" placeholder="Ex: Antoine de Saint-Exupéry" required>
                         </div>
                     </div>
 
                     <div class="row">
-                        <div class="col-md-12 mb-3">
-                            <label class="form-label fw-bold small">Image de couverture</label>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold small">ISBN (10 ou 13 chiffres) <span class="text-danger">*</span></label>
+                            <input type="text" name="isbn" class="form-control bg-light border-0" placeholder="Ex: 1026824087" maxlength="13" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold small">Image de couverture (Max 2Mo, JPG/PNG)</label>
                             <input type="file" name="image" class="form-control bg-light border-0" accept="image/*">
                         </div>
                     </div>
@@ -93,15 +110,11 @@ include 'header.php';
                     <hr class="my-4 text-muted">
                     <h5 class="fw-bold mb-3 text-success">Caractéristiques</h5>
                     <div class="row">
-                        <div class="col-md-4 mb-3">
-                            <label class="form-label fw-bold small">ISBN (10 ou 13 chiffres)</label>
-                            <input type="text" name="isbn" class="form-control bg-light border-0" placeholder="Ex: 1026824087" maxlength="13">
-                        </div>
-                        <div class="col-md-4 mb-3">
+                        <div class="col-md-6 mb-3">
                             <label class="form-label fw-bold small">Éditeur</label>
                             <input type="text" name="editeur" class="form-control bg-light border-0">
                         </div>
-                        <div class="col-md-4 mb-3">
+                        <div class="col-md-6 mb-3">
                             <label class="form-label fw-bold small">Année de parution</label>
                             <input type="text" name="annee_parution" class="form-control bg-light border-0">
                         </div>
@@ -131,7 +144,7 @@ include 'header.php';
                     </div>
 
                     <div class="mb-4">
-                        <label class="form-label fw-bold small">Résumé / Description</label>
+                        <label class="form-label fw-bold small">Résumé / Description <span class="text-danger">*</span></label>
                         <textarea name="description" class="form-control bg-light border-0" rows="5" required></textarea>
                     </div>
 
