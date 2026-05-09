@@ -35,7 +35,7 @@ $logs = $stmt->fetchAll();
             </thead>
             <tbody>
                 <?php if (empty($logs)): ?>
-                    <tr><td colspan="5" class="text-center py-5 text-muted">Aucun log enregistré pour le moment.</td></tr>
+                    <tr><td colspan="5" class="text-center py-5 text-muted">Aucun log enregistré.</td></tr>
                 <?php else: ?>
                     <?php foreach ($logs as $log): ?>
                     <tr>
