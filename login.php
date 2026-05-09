@@ -11,6 +11,15 @@ if (isset($_GET['error'])) {
         $error = "Veuillez remplir tous les champs.";
     }
 }
+
+if ($user && password_verify($password, $user['password'])) {
+    if ($user['is_verified'] == 1) {
+       
+        $_SESSION['user'] = $user['id'];
+    } else {
+        echo "Veuillez confirmer votre email avant de vous connecter.";
+    }
+}
 ?>
 
 <style>

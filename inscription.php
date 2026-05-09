@@ -55,6 +55,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 }
+
+$token = bin2hex(random_bytes(32));
+
+
+$sql = "INSERT INTO users (email, password, validation_token, is_verified) 
+        VALUES (:email, :password, :token, 0)";
+
+$stmt = $pdo->prepare($sql);
+$stmt->execute([
+    'email'    => $email_utilisateur,
+    'password' => $password_hashe, 
+    'token'    => $token
+]);
+
+
 ?>
  
 <div class="container my-5" style="max-width: 550px;">
