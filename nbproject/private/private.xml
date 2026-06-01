@@ -3,11 +3,35 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/C:/Users/gael-/Documents/Projet%20Annuel/login.php</file>
-            <file>file:/C:/Users/gael-/Documents/Projet%20Annuel/inscription.php</file>
-            <file>file:/C:/Users/gael-/Documents/Projet%20Annuel/traitement_login.php</file>
-            <file>file:/C:/Users/gael-/Documents/Projet%20Annuel/admin_logs.php</file>
-            <file>file:/C:/Users/gael-/Documents/Projet%20Annuel/diffusion_admin.php</file>
+            <file>file:/C:/MAMP/htdocs/biblioccaz.project/action_admin.php</file>
+            <file>file:/C:/MAMP/htdocs/biblioccaz.project/footer.php</file>
+            <file>file:/C:/MAMP/htdocs/biblioccaz.project/gestion_utilisateurs.php</file>
+            <file>file:/C:/MAMP/htdocs/biblioccaz.project/detail_livre.php</file>
+            <file>file:/C:/MAMP/htdocs/biblioccaz.project/moderation_catalogue.php</file>
+            <file>file:/C:/MAMP/htdocs/biblioccaz.project/inventaire_admin.php</file>
+            <file>file:/C:/MAMP/htdocs/biblioccaz.project/admin.php</file>
+            <file>file:/C:/MAMP/htdocs/biblioccaz.project/admin_logs.php</file>
+            <file>file:/C:/MAMP/htdocs/biblioccaz.project/ajouter_exemplaire_action.php</file>
+            <file>file:/C:/MAMP/htdocs/biblioccaz.project/ajouter_livre.php</file>
+            <file>file:/C:/MAMP/htdocs/biblioccaz.project/bd_mangas.php</file>
+            <file>file:/C:/MAMP/htdocs/biblioccaz.project/cart.php</file>
+            <file>file:/C:/MAMP/htdocs/biblioccaz.project/config.php</file>
+            <file>file:/C:/MAMP/htdocs/biblioccaz.project/dernière_chance.php</file>
+            <file>file:/C:/MAMP/htdocs/biblioccaz.project/diffusion_admin.php</file>
+            <file>file:/C:/MAMP/htdocs/biblioccaz.project/gerer_exemplaires.php</file>
+            <file>file:/C:/MAMP/htdocs/biblioccaz.project/inscription.php</file>
+            <file>file:/C:/MAMP/htdocs/biblioccaz.project/login.php</file>
+            <file>file:/C:/MAMP/htdocs/biblioccaz.project/logout.php</file>
+            <file>file:/C:/MAMP/htdocs/biblioccaz.project/modifier_livre.php</file>
+            <file>file:/C:/MAMP/htdocs/biblioccaz.project/modifier_profil.php</file>
+            <file>file:/C:/MAMP/htdocs/biblioccaz.project/nouveauté.php</file>
+            <file>file:/C:/MAMP/htdocs/biblioccaz.project/partie_carte_livre.php</file>
+            <file>file:/C:/MAMP/htdocs/biblioccaz.project/petits_prix.php</file>
+            <file>file:/C:/MAMP/htdocs/biblioccaz.project/profil.php</file>
+            <file>file:/C:/MAMP/htdocs/biblioccaz.project/recherche.php</file>
+            <file>file:/C:/MAMP/htdocs/biblioccaz.project/verification_mail.php</file>
+            <file>file:/C:/MAMP/htdocs/biblioccaz.project/traitement_login.php</file>
+            <file>file:/C:/MAMP/htdocs/biblioccaz.project/supprimer_livre.php</file>
         </group>
     </open-files>
 </project-private>
