@@ -1,4 +1,6 @@
 <?php
+echo "HELLO SCRIPT"; exit;
+
 require_once 'config.php';
 
 
