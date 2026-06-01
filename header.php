@@ -54,7 +54,7 @@ $isAdmin = (isset($_SESSION['role']) && $_SESSION['role'] === 'admin');
             <div class="position-relative">
                 <form action="recherche.php" method="GET" class="position-relative">
                     <i class="bi bi-search position-absolute" style="left: 15px; top: 50%; transform: translateY(-50%); color: #888;"></i>
-                    <input type="text" id="barre-rechercher" name="q" autocomplete="off" class="form-control rounded-pill ps-5" placeholder="Rechercher un livre...">
+                    <input type="text" id="barre-recherche" name="q" autocomplete="off" class="form-control rounded-pill ps-5" placeholder="Rechercher un livre...">
                     <div id="suggestions-recherche" class="list-group position-absolute w-100 mt-1 shadow d-none" style="z-index: 1000; max-height: 300px; overflow-y: auto;"> </div>    
                 </form>
             </div>
