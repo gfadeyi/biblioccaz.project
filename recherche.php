@@ -8,7 +8,7 @@ $recherche = isset($_GET['q']) ? trim ($_GET['q']) : '';
 $livres =[];
 
 if (!empty($recherche)) {
-    $stmt = $pdo->prepare("SELECT id_livre, titre, prix FROM livre WHERE titre LIKE ? LIMIT 5");
+    $req = $bdd->prepare("SELECT id_livre, titre, auteur, couverture, description FROM livre WHERE titre LIKE :q OR auteur LIKE :q");
     $stmt-> execute (["%$recherche%"]);
     $livres = $stmt->fetchAll(PDO::FETCH_ASSO);
 }
