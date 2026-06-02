@@ -24,7 +24,7 @@ if (barre && suggestions) {
                 item.className = 'list-group-item list-group-item-action d-flex justify-content-between align-items-center';
                 item.innerHTML = `
                 <span>${livre.titre}</span>
-                <span class="badge bg-success rounded-pill">${livre.prix}€ </span>
+                <span class="badge bg-success rounded-pill">${livre.auteur} </span>
                 `;
                 suggestions.appendChild(item);
             });
