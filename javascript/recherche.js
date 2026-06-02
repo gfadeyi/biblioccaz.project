@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     
                         livres.forEach(livre => {
                             let item = document.createElement('a');
-                            item.href = 'details_livre.php?id=' + livre.id;
+                            item.href = 'detail_livre.php?id=' + livre.id;
                             item.className = 'list-group-item list-group-item-action d-flex justify-content-between align-items-center';
                             item.innerHTML = `
                                 <span>${livre.titre}</span>
