@@ -4,6 +4,7 @@ document.addEventListener ('DOMContentLoaded', function() {
 
 if (barre && suggestions) {
     barre.addEventListener ('input', function(e) {
+        e.preventDefault();
         let saisie = e.target.value.trim();
         if (saisie.length <2) {
             suggestions.classList.add('d-none');
