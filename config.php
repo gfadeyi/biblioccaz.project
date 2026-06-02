@@ -21,32 +21,31 @@ $options = [
 try {
     $pdo = new PDO($dsn, $user, $pass, $options);
 } catch (\PDOException $e) {
-    if ($isLocal) {
-        try {
-            $user_local = 'root';
-            $pass_local = ''; 
-            $pdo = new PDO($dsn, $user_local, $pass_local, $options);
-        } catch (\PDOException $e2) {
-            die("Erreur de connexion locale : " . $e2->getMessage());
-        }
+    die("Erreur de connexion : " . $e->getMessage());
+}
+
+function insertLog($type, $message) {
+    $logFile = __DIR__ . '/secure_data/logs.txt';
+    $date = date('Y-m-d H:i:s');
+    $ip = $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
+    
+    $userId = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : 'ANONYME';
+    $pseudo = isset($_SESSION['pseudo']) ? $_SESSION['pseudo'] : 'Invité';
+    
+    if ($userId !== 'ANONYME') {
+        $userString = $userId . ' (' . $pseudo . ')';
     } else {
-        die("Erreur de connexion serveur : " . $e->getMessage());
+        $userString = 'ANONYME';
     }
+    
+    $logLine = '[' . $date . '] [' . $type . '] [IP: ' . $ip . '] [USER_ID: ' . $userString . '] - ' . $message . PHP_EOL;
+    file_put_contents($logFile, $logLine, FILE_APPEND);
 }
 
-function insertLog($pdo, $type, $message) {
-    try {
-        $sql = "INSERT INTO logs (action_type, description, adresse_ip, id_user) VALUES (?, ?, ?, ?)";
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute([
-            $type, 
-            $message, 
-            $_SERVER['REMOTE_ADDR'], 
-            $_SESSION['user_id'] ?? null
-        ]);
-    } catch (Exception $e) {
-    }
-}
+$currentPage = basename($_SERVER['PHP_SELF']);
+$ignoredPages = ['get_stats_logs.php', 'action_admin.php', 'modifier_statut.php'];
 
-insertLog($pdo, 'VISITE', "Consultation de la page : " . $_SERVER['PHP_SELF']);
+if (!in_array($currentPage, $ignoredPages) && strpos($currentPage, 'traitement_') === false) {
+    insertLog('VISITE', "Consultation de la page : " . $currentPage);
+}
 ?>

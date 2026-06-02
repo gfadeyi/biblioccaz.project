@@ -31,14 +31,16 @@ $livres = $query->fetchAll();
 
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div class="d-flex align-items-center">
-            <a href="admin.php" class="btn btn-outline-secondary me-3 btn-sm rounded-circle shadow-sm">
-                <i class="bi bi-arrow-left"></i>
-            </a>
-            <h2 class="fw-bold mb-0">Gestion Stock & Inventaire</h2>
+            <h2 class="fw-bold mb-0 text-dark">Gestion Stock & Inventaire</h2>
         </div>
-        <a href="ajouter_livre.php" class="btn btn-success shadow-sm rounded-pill px-4">
-            <i class="bi bi-plus-circle me-2"></i>Nouveau Titre
-        </a>
+        <div class="d-flex gap-2">
+            <a href="ajouter_livre.php" class="btn btn-success shadow-sm rounded-pill px-4">
+                <i class="bi bi-plus-circle me-2"></i>Nouveau Titre
+            </a>
+            <a href="admin.php" class="btn btn-outline-secondary rounded-pill px-3">
+                <i class="bi bi-arrow-left me-2"></i>Retour au Dashboard
+            </a>
+        </div>
     </div>
 
     <div class="card shadow-sm border-0" style="border-radius: 15px; overflow: hidden;">
