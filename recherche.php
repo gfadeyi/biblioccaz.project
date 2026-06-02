@@ -9,8 +9,8 @@ $livres = [];
 
 if (!empty($recherche)) {
     $stmt = $pdo->prepare("SELECT id_livre as id, titre, auteur, couverture, description FROM livre WHERE titre LIKE :q OR auteur LIKE :q");
-    $stmt-> execute (["%$recherche%"]);
-    $livres = $stmt->fetchAll(PDO::FETCH_ASSO);
+    $stmt-> execute ([ ':q' => "%$recherche%"]);
+    $livres = $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
 header('Content-Type: application/json');
