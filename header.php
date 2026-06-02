@@ -47,10 +47,7 @@ $isAdmin = (isset($_SESSION['role']) && $_SESSION['role'] === 'admin');
 document.addEventListener('DOMContentLoaded', function() {
     const barre = document.getElementById('barre-recherche');
     const suggestions = document.getElementById('suggestions-recherche');
-<<<<<<< ours
-=======
 
->>>>>>> theirs
     if (barre && suggestions) {
         barre.addEventListener('input', function(e) {
             let saisie = e.target.value.trim();
@@ -79,10 +76,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 })
                 .catch(error => console.error('Erreur:', error));
         });
-<<<<<<< ours
-=======
 
->>>>>>> theirs
         document.addEventListener('click', function(e) {
             if (!barre.contains(e.target) && !suggestions.contains(e.target)) {
                 suggestions.classList.add('d-none');
@@ -90,11 +84,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
-<<<<<<< ours
 </script>
-=======
-</script> 
->>>>>>> theirs
 </head>
 <body class="<?= $theme_class ?>">
 
