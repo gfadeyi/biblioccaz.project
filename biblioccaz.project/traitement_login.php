@@ -29,9 +29,9 @@ try {
         $_SESSION['nom'] = $user['nom'];
         $_SESSION['prenom'] = $user['prenom'];
 
-        $_SESSION['connexion_time'] = time();
-
-        insertLog('CONNEXION', "Connexion réussie");
+        $ip = $_SERVER['REMOTE_ADDR'];
+        $stmtLog = $pdo->prepare("INSERT INTO logs (id_user, action_type, description, adresse_ip, date_action) VALUES (?, 'CONNEXION', 'Connexion réussie', ?, NOW())");
+        $stmtLog->execute([$user['id'], $ip]);
 
         header("Location: index.php");
         exit();

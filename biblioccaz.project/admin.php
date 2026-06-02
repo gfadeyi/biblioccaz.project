@@ -74,7 +74,7 @@ include 'header.php';
             <h4 class="fw-bold mb-3">Utilisateurs & Logs</h4>
             <div class="list-group shadow-sm border-0" style="border-radius: 15px; overflow: hidden;">
                 <a href="gestion_utilisateurs.php" class="list-group-item list-group-item-action py-3">
-                    <i class="bi bi-people me-2 text-success"></i> Gestion des membres
+                    <i class="bi bi-people me-2 text-success"></i> Gestion des comptes
                 </a>
                 <a href="diffusion_admin.php" class="list-group-item list-group-item-action py-3">
                     <i class="bi bi-megaphone me-2 text-success"></i> Diffusion Newsletter

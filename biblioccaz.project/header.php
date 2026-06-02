@@ -43,46 +43,6 @@ $isAdmin = (isset($_SESSION['role']) && $_SESSION['role'] === 'admin');
         body.dark-mode .lien-menu { color: #eee; }
         body.dark-mode .section-admin { background-color: #1e2a1e; border-color: #2a3a2a; }
     </style>
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const barre = document.getElementById('barre-recherche');
-    const suggestions = document.getElementById('suggestions-recherche');
-    if (barre && suggestions) {
-        barre.addEventListener('input', function(e) {
-            let saisie = e.target.value.trim();
-            if (saisie.length < 2) {
-                suggestions.classList.add('d-none');
-                suggestions.innerHTML = '';
-                return;
-            }
-            fetch('recherche.php?q=' + encodeURIComponent(saisie))
-                .then(response => response.json())
-                .then(livres => {
-                    suggestions.innerHTML = '';
-                    if (livres.length > 0) {
-                        suggestions.classList.remove('d-none');
-                        livres.forEach(livre => {
-                            let item = document.createElement('a');
-                            item.href = 'detail_livre.php?id=' + livre.id;
-                            item.className = 'list-group-item list-group-item-action d-flex justify-content-between align-items-center';
-                            item.innerHTML = `<span>${livre.titre}</span><span class="badge bg-success rounded-pill">${livre.auteur}</span>`;
-                            suggestions.appendChild(item);
-                        });
-                    } else {
-                        suggestions.classList.remove('d-none');
-                        suggestions.innerHTML = '<div class="list-group-item text-muted small">Aucun livre trouvé...</div>';
-                    }
-                })
-                .catch(error => console.error('Erreur:', error));
-        });
-        document.addEventListener('click', function(e) {
-            if (!barre.contains(e.target) && !suggestions.contains(e.target)) {
-                suggestions.classList.add('d-none');
-            }
-        });
-    }
-});
-</script>
 </head>
 <body class="<?= $theme_class ?>">
 
@@ -90,13 +50,16 @@ document.addEventListener('DOMContentLoaded', function() {
     <div class="container d-flex justify-content-between align-items-center">
         <a class="navbar-brand fw-bold text-success fs-3" href="index.php" style="text-decoration:none;">BIBLIOccaz</a>
         
-<div class="flex-grow-1 mx-4" style="max-width: 450px;">
-    <div class="position-relative">
-        <i class="bi bi-search position-absolute" style="left: 15px; top: 50%; transform: translateY(-50%); color: #888;"></i>
-        <input type="text" id="barre-recherche" name="q" autocomplete="off" class="form-control rounded-pill ps-5" placeholder="Rechercher un livre...">
-        <div id="suggestions-recherche" class="list-group position-absolute w-100 mt-1 shadow d-none" style="z-index: 1000; max-height: 300px; overflow-y: auto;"></div>    
-    </div>
-</div>
+        <div class="flex-grow-1 mx-4" style="max-width: 450px;">
+            <div class="position-relative">
+                <form action="recherche.php" method="GET" class="position-relative">
+                    <i class="bi bi-search position-absolute" style="left: 15px; top: 50%; transform: translateY(-50%); color: #888;"></i>
+                    <input type="text" id="barre-recherche" name="q" autocomplete="off" class="form-control rounded-pill ps-5" placeholder="Rechercher un livre...">
+                    <div id="suggestions-recherche" class="list-group position-absolute w-100 mt-1 shadow d-none" style="z-index: 1000; max-height: 300px; overflow-y: auto;"> </div>    
+                </form>
+            </div>
+        </div>
+
         <div class="d-flex align-items-center">
             <?php if ($connected): ?>
                 <div class="mon-compte-dropdown">

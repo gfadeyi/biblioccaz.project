@@ -27,18 +27,15 @@ $copy_list = implode('; ', $emails_only);
 ?>
 
 <div class="container mt-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h2 class="fw-bold mb-0 text-dark"><i class="bi bi-megaphone me-2 text-success"></i>Diffusion & Newsletter</h2>
-            <p class="text-muted small mb-0">Gestion de l'audience et export des contacts actifs.</p>
+    <div class="row align-items-center mb-4">
+        <div class="col-md-6">
+            <h2 class="fw-bold"><i class="bi bi-megaphone me-2 text-success"></i>Diffusion & Newsletter</h2>
+            <p class="text-muted small">Gestion de l'audience et export des contacts actifs.</p>
         </div>
-        <div class="d-flex align-items-center gap-3">
+        <div class="col-md-6 text-md-end">
             <div class="badge bg-success px-4 py-2 rounded-pill fs-6 shadow-sm">
                 <?= count($subscribers) ?> abonnés
             </div>
-            <a href="admin.php" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
-                <i class="bi bi-arrow-left me-2"></i>Retour au Dashboard
-            </a>
         </div>
     </div>
 

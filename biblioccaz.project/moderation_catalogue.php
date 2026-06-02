@@ -9,13 +9,17 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
 
 if (isset($_GET['action']) && isset($_GET['id'])) {
     $id = $_GET['id'];
+    $admin_id = $_SESSION['user_id'];
+    $ip = $_SERVER['REMOTE_ADDR'];
 
     if ($_GET['action'] === 'valider') {
         $pdo->prepare("UPDATE livre SET is_valide = 1 WHERE id_livre = ?")->execute([$id]);
-        insertLog('MODERATION', "Validation du livre ID #" . $id);
+        $stmtLog = $pdo->prepare("INSERT INTO logs (id_user, action_type, description, adresse_ip) VALUES (?, 'MODERATION', ?, ?)");
+        $stmtLog->execute([$admin_id, "Validation du livre ID #$id", $ip]);
     } elseif ($_GET['action'] === 'refuser') {
         $pdo->prepare("DELETE FROM livre WHERE id_livre = ?")->execute([$id]);
-        insertLog('MODERATION', "Suppression du livre ID #" . $id);
+        $stmtLog = $pdo->prepare("INSERT INTO logs (id_user, action_type, description, adresse_ip) VALUES (?, 'MODERATION', ?, ?)");
+        $stmtLog->execute([$admin_id, "Suppression du livre ID #$id", $ip]);
     }
     header("Location: moderation_catalogue.php");
     exit();
@@ -27,16 +31,11 @@ $livres = $pdo->query("SELECT * FROM livre WHERE is_valide = 0 ORDER BY id_livre
 ?>
 
 <div class="container mt-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h2 class="fw-bold mb-0 text-dark"><i class="bi bi-shield-check me-2 text-warning"></i>Modération Catalogue</h2>
-            <p class="text-muted small mb-0">Validation des nouvelles fiches de livres soumis.</p>
-        </div>
-        <div>
-            <a href="admin.php" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
-                <i class="bi bi-arrow-left me-2"></i>Retour au Dashboard
-            </a>
-        </div>
+    <div class="d-flex align-items-center mb-4">
+        <a href="admin.php" class="btn btn-outline-secondary me-3 btn-sm rounded-circle shadow-sm">
+            <i class="bi bi-arrow-left"></i>
+        </a>
+        <h2 class="fw-bold mb-0"><i class="bi bi-shield-check me-2 text-warning"></i>Modération Catalogue</h2>
     </div>
 
     <?php if (empty($livres)): ?>
