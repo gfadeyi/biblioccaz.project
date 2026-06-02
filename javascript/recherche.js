@@ -1,6 +1,6 @@
 document.addEventListener ('DOMContentLoaded', function() {
     const barre = document.getElementById('barre-recherche');
-    const suggestions = document.getElementById('suggestionsrecherche');
+    const suggestions = document.getElementById('suggestions-recherche');
 
 if (barre && suggestions) {
     barre.addEventListener ('input', function(e) {
