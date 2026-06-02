@@ -1,6 +1,6 @@
-document.addEventListener ('DOMContentloaded', function() {
+document.addEventListener ('DOMContentLoaded', function() {
     const barre = document.getElementById('barre-recherche');
-    const suggestion = document.getElementById('suggestionsrecherche');
+    const suggestions = document.getElementById('suggestionsrecherche');
 
 if (barre && suggestions) {
     barre.addEventListener ('input', function(e) {
@@ -10,17 +10,17 @@ if (barre && suggestions) {
             suggestions.innerHTML ='';
             return;
         }
-        fetch('rechecher.phpq=' + encodeURIComponent(saisie))
+        fetch('rechecher.php?q=' + encodeURIComponent(saisie))
             .then(response => response.json())
             .then(livres => {
-                                sugestions.innerHTML ='';
+                                suggestions.innerHTML ='';
 
-                if (livres.lenght > 0) {
-                    suggestions.classListremove('d-none');
+                if (livres.length > 0) {
+                    suggestions.classlistremove('d-none');
                 
             livres.forEach(livre => {
-                let item = document.creataElement('a');
-                item.href = 'détails_livre.php?id' +livre.id;
+                let item = document.createElement('a');
+                item.href = 'détails_livre.php?id=' +livre.id;
                 item.className = 'list-group-item list-group-item-action d-flex justify-content-between align-items-center';
                 item.innerHTML = `
                 <span>${livre.titre}</span>
@@ -40,6 +40,6 @@ if (barre && suggestions) {
             if (!barre.contains(e.target) && !suggestions.contains(e.target)){
                 suggestions.classList.add('d-none');
             }
-        })
+        });
     }
-})
+});
