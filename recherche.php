@@ -13,4 +13,8 @@ if (!empty($search)) {
 
 header('Content-Type: application/json; charset=utf-8');
 echo json_encode($results, JSON_UNESCAPED_UNICODE);
+<<<<<<< ours
 exit;
+=======
+exit;
+>>>>>>> theirs
