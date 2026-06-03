@@ -27,10 +27,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $hash = password_hash($mdp, PASSWORD_DEFAULT);
             $token = bin2hex(random_bytes(32));
 
-            $stmt = $pdo->prepare("INSERT INTO user (pseudo, email, mot_de_passe, nom, prenom, role, code_verification, est_verifie) VALUES (?, ?, ?, ?, ?, 'client', ?, 0)");
+            $stmt = $pdo->prepare("INSERT INTO user (pseudo, email, mot_de_passe, nom, prenom, role, email_token, email_verifie) VALUES (?, ?, ?, ?, ?, 'client', ?, 0)");
             
             if ($stmt->execute([$pseudo, $email, $hash, $nom, $prenom, $token])) {
                 
+
                 $destinataire = $email;
                 $sujet = "BIBLOccaz - Votre compte est activé";
 
