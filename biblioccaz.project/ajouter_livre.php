@@ -57,7 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $stmt = $pdo->prepare($sql);
                 $stmt->execute([$titre, $auteur, $description, $nom_image, $isbn_val, $editeur, $annee, $pages, $poids, $dimensions, $reliure]);
                 
-                insertLog('CATALOGUE', "Ajout du livre : " . $titre);
+                insertLog($pdo, 'CATALOGUE', "Ajout du livre : " . $titre);
 
                 header("Location: inventaire_admin.php?msg=success");
                 exit();
@@ -74,12 +74,7 @@ include 'header.php';
 <div class="container mt-5 mb-5">
     <div class="row justify-content-center">
         <div class="col-md-10">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2 class="fw-bold mb-0 text-dark">Ajouter un nouveau livre</h2>
-                <a href="admin.php" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
-                    <i class="bi bi-arrow-left me-2"></i>Retour au Dashboard
-                </a>
-            </div>
+            <h2 class="mb-4 fw-bold text-center">Ajouter un nouveau livre</h2>
 
             <?php if ($error): ?>
                 <div class="alert alert-danger border-0 shadow-sm rounded-3">
