@@ -84,7 +84,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
-</script> 
+</script>
 </head>
 <body class="<?= $theme_class ?>">
 

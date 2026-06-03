@@ -11,15 +11,15 @@ $id = $_GET['id'] ?? null;
 $action = $_GET['action'] ?? null;
 
 if ($id && $action) {
-    if ($action === 'bannir') {
+    if ($action === 'ban') {
         $stmt = $pdo->prepare("UPDATE user SET statut = 'banni' WHERE id = ? AND role != 'admin'");
         $stmt->execute([$id]);
-        insertLog($pdo, 'MODERATION', "Utilisateur ID $id a été banni.");
+        insertLog('MODERATION', "Utilisateur ID $id a été banni.");
     } 
-    elseif ($action === 'activer') {
+    elseif ($action === 'deban') {
         $stmt = $pdo->prepare("UPDATE user SET statut = 'actif' WHERE id = ?");
         $stmt->execute([$id]);
-        insertLog($pdo, 'MODERATION', "Utilisateur ID $id a été réactivé.");
+        insertLog('MODERATION', "Utilisateur ID $id a été réactivé.");
     }
 }
 
