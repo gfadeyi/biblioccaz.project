@@ -33,19 +33,23 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $reliure = !empty($_POST['reliure']) ? $_POST['reliure'] : 'Broché';
 
         if (!empty($_FILES['image']['name'])) {
-            $nom_image = $_FILES['image']['name'];
-            $target = "img/" . basename($nom_image);
-            move_uploaded_file($_FILES['image']['tmp_name'], $target);
+            $nom_image = time() . '_' . basename($_FILES['image']['name']);
+            $target = __DIR__ . "/img/" . $nom_image;
             
-            $sql = "UPDATE livre SET titre=?, auteur=?, description=?, couverture=?, isbn=?, editeur=?, annee_parution=?, nb_pages=?, poids=?, dimensions=?, reliure=? WHERE id_livre=?";
-            $stmt = $pdo->prepare($sql);
-            $stmt->execute([$titre, $auteur, $description, $nom_image, $isbn_val, $editeur, $annee, $pages, $poids, $dimensions, $reliure, $id]);
+            if (move_uploaded_file($_FILES['image']['tmp_name'], $target)) {
+                $sql = "UPDATE livre SET titre=?, auteur=?, description=?, couverture=?, isbn=?, editeur=?, annee_parution=?, nb_pages=?, poids=?, dimensions=?, reliure=? WHERE id_livre=?";
+                $stmt = $pdo->prepare($sql);
+                $stmt->execute([$titre, $auteur, $description, $nom_image, $isbn_val, $editeur, $annee, $pages, $poids, $dimensions, $reliure, $id]);
+                $message = "success";
+            } else {
+                $error = "Erreur lors du transfert de l'image sur le serveur. Vérifiez les permissions du dossier img.";
+            }
         } else {
             $sql = "UPDATE livre SET titre=?, auteur=?, description=?, isbn=?, editeur=?, annee_parution=?, nb_pages=?, poids=?, dimensions=?, reliure=? WHERE id_livre=?";
             $stmt = $pdo->prepare($sql);
             $stmt->execute([$titre, $auteur, $description, $isbn_val, $editeur, $annee, $pages, $poids, $dimensions, $reliure, $id]);
+            $message = "success";
         }
-        $message = "success";
     }
 }
 
@@ -93,7 +97,7 @@ include 'header.php';
                     <div class="row mb-3 align-items-end">
                         <div class="col-md-3 text-center">
                             <label class="form-label fw-bold small d-block">Couverture actuelle</label>
-                            <img src="img/<?= $livre['couverture'] ?: 'default.png' ?>" class="img-thumbnail" style="height: 140px; width: 100px; object-fit: cover;">
+                            <img src="img/<?= $livre['couverture'] ?: 'default.jpg' ?>" class="img-thumbnail" style="height: 140px; width: 100px; object-fit: cover;">
                         </div>
                         <div class="col-md-9">
                             <label class="form-label fw-bold small">Changer l'image</label>
