@@ -3,4 +3,4 @@ secure_data/*
 !secure_data/.gitkeep
 img/*
 !img/default.png
-!img/captcha/
+!img/captcha/biblioccaz.project/
