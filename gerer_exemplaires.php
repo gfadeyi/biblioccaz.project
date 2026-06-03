@@ -14,10 +14,10 @@ if (isset($_GET['action']) && isset($_GET['ex_id'])) {
     $ex_id = $_GET['ex_id'];
     if ($_GET['action'] == 'plus') {
         $pdo->prepare("UPDATE exemplaire SET quantite = quantite + 1 WHERE id_exemplaire = ?")->execute([$ex_id]);
-        insertLog($pdo, 'STOCK', "Augmentation stock (+1) exemplaire ID " . $ex_id);
+        insertLog('STOCK', "Augmentation stock (+1) exemplaire ID " . $ex_id);
     } elseif ($_GET['action'] == 'moins') {
         $pdo->prepare("UPDATE exemplaire SET quantite = GREATEST(1, quantite - 1) WHERE id_exemplaire = ?")->execute([$ex_id]);
-        insertLog($pdo, 'STOCK', "Diminution stock (-1) exemplaire ID " . $ex_id);
+        insertLog('STOCK', "Diminution stock (-1) exemplary ID " . $ex_id);
     }
     header("Location: gerer_exemplaires.php?id=$id_livre");
     exit();
@@ -34,7 +34,7 @@ if (isset($_POST['add_ex'])) {
     $sql = "INSERT INTO exemplaire (etat, prix, type_offre, is_disponible, id_livre, id_user, quantite) VALUES (?, ?, ?, ?, ?, ?, ?)";
     $pdo->prepare($sql)->execute([$etat, $prix, $type_offre, $is_disponible, $id_livre, $id_user, $quantite]);
     
-    insertLog($pdo, 'STOCK', "Ajout de $quantite ex. ($etat) pour le livre ID $id_livre");
+    insertLog('STOCK', "Ajout de $quantite ex. ($etat) pour le livre ID $id_livre");
     
     header("Location: gerer_exemplaires.php?id=$id_livre");
     exit();
@@ -42,7 +42,7 @@ if (isset($_POST['add_ex'])) {
 
 if (isset($_GET['del'])) {
     $pdo->prepare("DELETE FROM exemplaire WHERE id_exemplaire = ?")->execute([$_GET['del']]);
-    insertLog($pdo, 'STOCK', "Suppression offre exemplaire ID " . $_GET['del']);
+    insertLog('STOCK', "Suppression offre exemplaire ID " . $_GET['del']);
     header("Location: gerer_exemplaires.php?id=$id_livre");
     exit();
 }
@@ -72,7 +72,7 @@ include 'header.php';
     <div class="row">
         <div class="col-md-4">
             <div class="card border-0 shadow-sm p-4 mb-4" style="border-radius: 15px;">
-                <img src="img/<?= htmlspecialchars($livre['couverture'] ?: 'default.jpg') ?>" class="rounded shadow-sm mb-3 mx-auto d-block" style="width: 120px; height: 170px; object-fit: cover;">
+                <img src="img/<?= htmlspecialchars($livre['couverture'] ?: 'default.png') ?>" class="rounded shadow-sm mb-3 mx-auto d-block" style="width: 120px; height: 170px; object-fit: cover;">
                 
                 <form action="gerer_exemplaires.php?id=<?= $id_livre ?>" method="POST">
                     <div class="mb-3">

@@ -76,6 +76,18 @@ function formaterEtat($etat) {
     .char-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; background: white; }
     .char-table td { padding: 10px 12px; border: 1px solid #eee; }
     .char-label { background-color: #f8f9fa; color: #666; font-weight: bold; width: 35%; }
+
+    .btn-outline-admin-green {
+        color: #274e13;
+        border-color: #274e13;
+        background-color: transparent;
+        transition: all 0.2s ease-in-out;
+    }
+    .btn-outline-admin-green:hover {
+        color: #fff;
+        background-color: #274e13;
+        border-color: #274e13;
+    }
 </style>
 
 <div class="container mt-5 mb-5">
@@ -83,8 +95,10 @@ function formaterEtat($etat) {
         <div class="col-md-4">
             <div class="sticky-top">
                 <div class="p-4 bg-white border rounded shadow-sm text-center">
-                    <?php $img_url = $livre['couverture'] ?: 'default.png'; ?>
-                    <img src="img/<?= rawurlencode($img_url) ?>" class="img-fluid" style="max-height: 450px;">
+                    <?php 
+                    $img_file = !empty($livre['couverture']) ? $livre['couverture'] : 'default.jpg'; 
+                    ?>
+                    <img src="img/<?= htmlspecialchars($img_file) ?>" class="img-fluid" style="max-height: 450px;">
                 </div>
             </div>
         </div>
@@ -159,6 +173,20 @@ function formaterEtat($etat) {
                 <?php else: ?>
                     <h4 class="text-danger fw-bold text-center">Épuisé</h4>
                 <?php endif; ?>
+
+                <?php if (isset($isAdmin) && $isAdmin): ?>
+                    <hr class="my-4">
+                    <h6 class="fw-bold mb-3 small uppercase text-biblio"><i class="bi bi-shield-lock-fill"></i> Options Admin</h6>
+                    <div class="d-grid gap-2">
+                        <a href="modifier_livre.php?id=<?= $id ?>" class="btn btn-sm btn-outline-admin-green rounded-pill py-2">
+                            <i class="bi bi-pencil-square"></i> Modifier la fiche
+                        </a>
+                        <a href="gerer_exemplaires.php?id=<?= $id ?>" class="btn btn-sm btn-outline-admin-green rounded-pill py-2">
+                            <i class="bi bi-box-seam"></i> Gérer les exemplaires
+                        </a>
+                    </div>
+                <?php endif; ?>
+
                 <hr class="my-4">
                 <div class="text-center">
                     <p class="mb-0 fw-bold text-biblio">BIBLIOccaz</p>
