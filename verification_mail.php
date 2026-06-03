@@ -1,8 +1,12 @@
 <?php
 require_once 'config.php';
+include 'header.php';
+
+echo '<dic class="container my-5 text-center" style="max-whidth: 600px;">'
 
 if (isset($_GET['token'])) {
     $token = $_GET['token'];
+    
     $stmt = $pdo->prepare("SELECT id FROM user WHERE code_verification = ?");
     $stmt->execute([$token]);
     $user = $stmt->fetch();
