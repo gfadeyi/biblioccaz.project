@@ -18,7 +18,7 @@ if (isset($_GET['token'])) {
     } else {
         echo "Lien invalide ou expiré.";
     }else{
-        echo "Aucun token fourni."
+        echo "Aucun token fourni.";
     }
 }
 ?>
