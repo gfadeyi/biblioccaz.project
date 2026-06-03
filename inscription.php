@@ -1,7 +1,4 @@
 <?php
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\Exception;
-
 require 'vendor/autoload.php';
 require_once 'config.php';
 include 'header.php';
@@ -34,28 +31,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
             if ($stmt->execute([$pseudo, $email, $hash, $nom, $prenom, $token])) {
                 
-                $mail = new PHPMailer(true);
-                try {
-                    $mail->isSMTP();
-                    $mail->Host       = 'smtp.gmail.com';
-                    $mail->SMTPAuth   = true;
-                    $mail->Username   = 'biblioccaz.noreply@gmail.com'; 
-                    $mail->Password   = 'ton code 16 caracteres ici'; 
-                    $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-                    $mail->Port       = 587;
+                $destinataire = $email;
+                $sujet = "BIBLOccaz - Votre compte est activé";
 
-                    $mail->setFrom('biblioccaz.noreply@gmail.com', 'BIBLIOccaz');
-                    $mail->addAddress($email);
-                    $mail->isHTML(true);
-                    $mail->Subject = 'Activez votre compte BIBLIOccaz';
-                    
-                    $url = "http://91.134.143.156/verifier.php?token=" . $token;
-                    $mail->Body = "<h1>Bienvenue $prenom !</h1><p>Merci de rejoindre BIBLIOccaz. Cliquez ci-dessous pour valider votre compte :</p><p><a href='$url' style='padding:10px 20px; background:#274e13; color:white; text-decoration:none; border-radius:5px;'>Valider mon compte</a></p>";
+                $headers = "From:biblioccaz.noreply@gmail.com\r\n";
+                $headers .= "Reply-To: biblioccaz.noreply@gmail.com\r\n";
+                $headers .= "Content-Type: text/plain; charset=UTF-8\r\n";
 
-                    $mail->send();
+                $url = "http://91.134.143.156/verification_mail.php?token=" . $token;
+
+                $message = "Bienvenue $prenom !\n\n";
+                $message .= "Merci de rejoindre BIBLIOccaz. Pour valider votre compte, veuillez cliquer sur le lien ci-dessous ou le copier/coller dans votre navigateur :\n";
+                $message .= $url . "\n\n";
+                $message .= "---------------\n";
+                $message .= "Ceci est un mail automatique, merci de ne pas y répondre.";
+
+                if (mail($destinataire, $sujet, $message, $headers)){
                     echo "<script>alert('Un mail de validation a été envoyé à $email'); window.location.href='login.php';</script>";
                     exit();
-                } catch (Exception $e) {
+                } else {
                     $erreur = "Le compte est créé mais le mail n'est pas parti. Erreur : " . $mail->ErrorInfo;
                 }
             }
