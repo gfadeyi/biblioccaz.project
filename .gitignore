@@ -4,3 +4,4 @@ secure_data/*
 img/*
 !img/default.png
 !img/captcha/biblioccaz.project/
+/nbproject/private/
