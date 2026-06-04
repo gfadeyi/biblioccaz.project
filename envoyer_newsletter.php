@@ -19,7 +19,7 @@ $sujet = "📚 Les nouveautés littéraires du mois sur BIBLIOccaz !";
 $headers[] = 'MIME-Version: 1.0';
 $headers[] = 'Content-type: text/html; charset=utf-8';
 
-$headers[] = 'From: BIBLIOccaz <ton-email-brevo@domaine.com>';
+$headers[] = 'From: BIBLIOccaz <biblioccaz.noreply@gmail.com>';
 $message_html = '
 <div style="max-width: 600px; margin: 0 auto; font-family: Arial, sans-serif; background-color: #D9EAD3; padding: 20px;">
     <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
