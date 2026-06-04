@@ -19,7 +19,7 @@ if (isset($_POST['email']) && !empty($_POST['email'])) {
         exit();
 
     } catch (PDOException $e) {
-        // En cas de bug de BDD, on l'affiche pour debugger facilement
+
         die("Erreur lors de l'inscription : " . $e->getMessage());
     }
 } else {
