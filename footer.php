@@ -1,5 +1,22 @@
-</div> 
+</div>
 </main>
+
+
+<div style="text-align: center; padding: 20px; background-color: #D9EAD3; border-top: 2px solid #274E13;">
+    <h3 style="color: #274E13; margin-top: 0;">Rejoignez la newsletter BIBLIOccaz</h3>
+    <p style="color: #333333; font-size: 14px;">Recevez nos dernières pépites littéraires d'occasion chaque mois.</p>
+    
+    <form method="POST" action="newsletter_subscribers.php">
+        <input type="email" name="email" placeholder="Votre adresse email..." required 
+               style="padding: 10px; width: 250px; border: 1px solid #274E13; border-radius: 4px;">
+        <button type="submit" 
+                style="padding: 10px 20px; background-color: #8FCE00; color: white; border: none; border-radius: 4px; font-weight: bold; cursor: pointer;">
+            S'inscrire
+        </button>
+    </form>
+</div>
+
+
 <footer class="bg-white border-top py-5 mt-5" style="border-top: 4px solid var(--border-green) !important;">
     <div class="container text-center">
         <div class="row">
