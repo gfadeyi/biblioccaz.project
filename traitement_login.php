@@ -6,7 +6,7 @@ $pseudo = trim($_POST['pseudo'] ?? '');
 $mdp = $_POST['mdp'] ?? '';
 $captcha = $_POST['puzzle_pos'] ?? '';
 
-if ($captcha !== 'correct') {
+if (!isset($_POST['captcha_token']) || empty($_POST['captcha_token'])) {
     header("Location: login.php?error=captcha");
     exit();
 }
