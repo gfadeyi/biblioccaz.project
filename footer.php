@@ -1,6 +1,8 @@
 </div> 
 </main>
-    <div style="text-align: center; padding: 20px; background-color: #D9EAD3; border-top: 2px solid #274E13;">
+    
+<footer 
+<div style="text-align: center; padding: 20px; background-color: #D9EAD3; border-top: 2px solid #274E13;">
     <h3 style="color: #274E13; margin-top: 0;">Rejoignez la newsletter BIBLIOccaz</h3>
     <p style="color: #333333; font-size: 14px;">Recevez nos dernières pépites littéraires d'occasion chaque mois.</p>
     
@@ -13,7 +15,7 @@
         </button>
     </form>
 </div>
-<footer class="bg-white border-top py-5 mt-5" style="border-top: 4px solid var(--border-green) !important;">
+class="bg-white border-top py-5 mt-5" style="border-top: 4px solid var(--border-green) !important;">
     <div class="container text-center">
         <div class="row">
             <div class="col-md-4 mb-3"><h5>BIBLIOccaz</h5><p class="small"> Donnez une seconde vie à vos lectures.</p></div>
