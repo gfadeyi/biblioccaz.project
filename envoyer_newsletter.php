@@ -20,10 +20,10 @@ if (empty($abonnes)) {
 $sujet = "📚 Les nouveautés littéraires du mois sur BIBLIOccaz !";
 
 // Configuration des headers propre et simple (comme dans ton inscription.php)
-$headers = "From: BIBLIOccaz <biblioccaz.noreply@11369430.brevosend.com>\r\n";
-$headers .= "Reply-To: biblioccaz.noreply@11369430.brevosend.com\r\n";
-$headers .= "MIME-Version: 1.0\r\n";
-$headers .= "Content-Type: text/html; charset=UTF-8\r\n";
+        $headers = "From:biblioccaz.noreply@gmail.com\r\n";
+        $headers .= "Reply-To: biblioccaz.noreply@gmail.com\r\n";
+        $headers .= "MIME-Version: 1.0\r\n";
+        $headers .= "Content-Type: text/html; charset=UTF-8\r\n";
 
 $message_html = '
 <div style="max-width: 600px; margin: 0 auto; font-family: Arial, sans-serif; background-color: #D9EAD3; padding: 20px;">
@@ -66,10 +66,10 @@ $compteur = 0;
 foreach ($abonnes as $abonne) {
     // Utilisation directe de la chaîne $headers
     if (mail($abonne['email'], $sujet, $message_html, $headers)) {
-        echo "✅ Envoyé avec succès à : " . htmlspecialchars($abonne['email']) . "<br>";
+        echo "Envoyé avec succès à : " . htmlspecialchars($abonne['email']) . "<br>";
         $compteur++;
     } else {
-        echo "❌ Échec de l'envoi pour : " . htmlspecialchars($abonne['email']) . "<br>";
+        echo "Échec de l'envoi pour : " . htmlspecialchars($abonne['email']) . "<br>";
     }
 }
 
