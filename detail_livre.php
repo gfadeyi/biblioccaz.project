@@ -36,7 +36,6 @@ function formaterEtat($etat) {
 
 <style>
     body { background-color: #f8f9fa; }
-    .sticky-top { top: 20px; }
     .btn-custom-green { 
         background-color: #274e13; 
         color: white; 
@@ -88,12 +87,13 @@ function formaterEtat($etat) {
         background-color: #274e13;
         border-color: #274e13;
     }
+    .detail-container { position: relative; z-index: 1; }
 </style>
 
-<div class="container mt-5 mb-5">
+<div class="container mt-5 mb-5 detail-container">
     <div class="row g-5">
         <div class="col-md-4">
-            <div class="sticky-top">
+            <div>
                 <div class="p-4 bg-white border rounded shadow-sm text-center">
                     <?php 
                     $img_file = !empty($livre['couverture']) ? $livre['couverture'] : 'default.jpg'; 
@@ -162,27 +162,39 @@ function formaterEtat($etat) {
         </div>
 
         <div class="col-md-3">
-            <div class="card p-4 shadow-sm border-0 bg-white sticky-top" style="border-radius: 15px;">
+            <div class="card p-4 shadow-sm border-0 bg-white" style="border-radius: 15px;">
                 <?php if ($offre_selectionnee): ?>
                     <h2 class="fw-bold mb-1 text-biblio"><?= number_format($offre_selectionnee['prix'], 2) ?> €</h2>
                     <p class="text-muted small mb-4">En stock (État : <?= formaterEtat($offre_selectionnee['etat']) ?>)</p>
-                    <div class="d-grid gap-2">
-                        <button class="btn btn-custom-green py-3 shadow-sm rounded-pill">Ajouter au panier</button>
-                        <button class="btn btn-outline-dark py-2 rounded-pill">Acheter</button>
-                    </div>
+                    
+                    <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'client'): ?>
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-custom-green py-3 shadow-sm rounded-pill">Ajouter au panier</button>
+                            <button class="btn btn-outline-dark py-2 rounded-pill">Acheter</button>
+                        </div>
+                    <?php elseif (!isset($_SESSION['user_id'])): ?>
+                        <div class="d-grid gap-2">
+                            <a href="login.php" class="btn btn-custom-green py-3 shadow-sm rounded-pill text-center text-decoration-none">Connexion pour acheter</a>
+                        </div>
+                    <?php else: ?>
+                        <div class="alert alert-light border text-muted small py-2 px-3 text-center mb-0 rounded-3">
+                            Mode consultation
+                        </div>
+                    <?php endif; ?>
+
                 <?php else: ?>
                     <h4 class="text-danger fw-bold text-center">Épuisé</h4>
                 <?php endif; ?>
 
-                <?php if (isset($isAdmin) && $isAdmin): ?>
+                <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
                     <hr class="my-4">
                     <h6 class="fw-bold mb-3 small uppercase text-biblio"><i class="bi bi-shield-lock-fill"></i> Options Admin</h6>
                     <div class="d-grid gap-2">
                         <a href="modifier_livre.php?id=<?= $id ?>" class="btn btn-sm btn-outline-admin-green rounded-pill py-2">
-                            <i class="bi bi-pencil-square"></i> Modifier la fiche
+                            Modifier la fiche
                         </a>
                         <a href="gerer_exemplaires.php?id=<?= $id ?>" class="btn btn-sm btn-outline-admin-green rounded-pill py-2">
-                            <i class="bi bi-box-seam"></i> Gérer les exemplaires
+                            Gérer les exemplaires
                         </a>
                     </div>
                 <?php endif; ?>
