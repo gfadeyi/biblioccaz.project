@@ -18,7 +18,6 @@ $sujet = "📚 Les nouveautés littéraires du mois sur BIBLIOccaz !";
 
 $headers[] = 'MIME-Version: 1.0';
 $headers[] = 'Content-type: text/html; charset=utf-8';
-
 $headers[] = 'From: BIBLIOccaz <biblioccaz.noreply@11369430.brevosend.com>';
 $message_html = '
 <div style="max-width: 600px; margin: 0 auto; font-family: Arial, sans-serif; background-color: #D9EAD3; padding: 20px;">
@@ -65,3 +64,16 @@ $message_html = '
 
     </table>
 </div>';
+$compteur = 0;
+foreach ($abonnes as $abonne) {
+    // Envoi du mail réel à chaque adresse de la BDD via msmtp
+    if (mail($abonne['email'], $sujet, $message_html, implode("\r\n", $headers))) {
+        echo "✅ Envoyé avec succès à : " . htmlspecialchars($abonne['email']) . "<br>";
+        $compteur++;
+    } else {
+        echo "❌ Échec de l'envoi pour : " . htmlspecialchars($abonne['email']) . "<br>";
+    }
+}
+
+echo "<br><strong>Opération terminée !</strong> Total de newsletters envoyées : " . $compteur;
+?>
