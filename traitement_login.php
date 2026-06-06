@@ -2,13 +2,21 @@
 require_once 'config.php';
 if (session_status() === PHP_SESSION_NONE) { session_start(); }
 
-
 $pseudo = trim($_POST['pseudo'] ?? '');
 $mdp = $_POST['mdp'] ?? '';
-$captcha_token = $_POST['captcha_token'] ?? ''; 
+
+
+$captcha_token = $_POST['captcha_token'] ?? '';
 
 
 if (empty($captcha_token)) {
+    header("Location: login.php?error=captcha");
+    exit();
+}
+
+$decoded = base64_decode($captcha_token);
+if (strpos($decoded, 'success_validated_') !== 0) {
+    
     header("Location: login.php?error=captcha");
     exit();
 }

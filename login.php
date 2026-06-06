@@ -74,7 +74,6 @@ if (isset($_GET['verif'])) { $success = "Compte validé ! Vous pouvez vous conne
 </div>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-   
     const slider = document.getElementById('captchaSlider');
     const pieceCanvas = document.getElementById('pieceCanvas');
     const mainCanvas = document.getElementById('mainCanvas');
@@ -85,38 +84,46 @@ document.addEventListener('DOMContentLoaded', function () {
     let targetX = 0; 
     const pieceSize = 50; 
 
+ 
     const puzzleImages = [
         'img/fond_puzzle_2.jpg',
-       'img/fond_puzzle_3.jpg',
-     'img/fond_puzzle_4.jpg',
+        'img/fond_puzzle_3.jpg',
+        'img/fond_puzzle_4.jpg'
     ];
 
     function initPuzzle() {
         const ctxMain = mainCanvas.getContext('2d');
         const ctxPiece = pieceCanvas.getContext('2d');
         const img = new Image();
-        
+     
         img.src = puzzleImages[Math.floor(Math.random() * puzzleImages.length)];
         
         img.onload = function() {
-          
-            targetX = Math.floor(Math.random() * 150) + 60; 
-            const targetY = Math.floor(Math.random() * 60) + 20;  
+            
+            targetX = Math.floor(Math.random() * 140) + 70; 
+            const targetY = Math.floor(Math.random() * 60) + 20; 
 
+           
             ctxMain.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
+            ctxPiece.clearRect(0, 0, pieceCanvas.width, pieceCanvas.height);
+
+          
             ctxMain.drawImage(img, 0, 0, mainCanvas.width, mainCanvas.height);
 
+          
             ctxMain.fillStyle = 'rgba(0, 0, 0, 0.5)';
             ctxMain.fillRect(targetX, targetY, pieceSize, pieceSize);
 
+           
             pieceCanvas.width = pieceSize;
             pieceCanvas.height = pieceSize;
             pieceCanvas.style.top = targetY + 'px';
-            pieceCanvas.style.left = '0px';
+            pieceCanvas.style.transform = 'translateX(0px)';
 
-            ctxPiece.clearRect(0, 0, pieceSize, pieceSize);
+           
             ctxPiece.drawImage(img, targetX, targetY, pieceSize, pieceSize, 0, 0, pieceSize, pieceSize);
             
+          
             slider.value = 0;
             slider.max = 250; 
             message.textContent = '';
@@ -124,21 +131,26 @@ document.addEventListener('DOMContentLoaded', function () {
         };
     }
 
+   
     slider.addEventListener('input', function() {
         const xPosition = slider.value;
         pieceCanvas.style.transform = 'translateX(' + xPosition + 'px)';
     });
 
+  
     slider.addEventListener('change', function() {
         const userX = parseInt(slider.value);
         const difference = Math.abs(userX - targetX);
-        const tolerance = 6; 
+        const tolerance = 7; 
 
         if (difference <= tolerance) {
+           
             message.textContent = "✅ Parfait ! Humain validé.";
             message.className = "mt-2 small text-success";
             
-            tokenInput.value = btoa('success_' + Date.now());
+          
+            tokenInput.value = btoa('success_validated_' + Date.now());
+            
             triggerBtn.innerHTML = "✅ Vérification Réussie";
             triggerBtn.className = "btn btn-success w-100";
             
@@ -149,6 +161,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }, 800);
 
         } else {
+          
             message.textContent = "❌ Mauvais alignement. Réessayez.";
             message.className = "mt-2 small text-danger";
             
@@ -156,10 +169,12 @@ document.addEventListener('DOMContentLoaded', function () {
                 slider.value = 0;
                 pieceCanvas.style.transform = 'translateX(0px)';
                 message.textContent = '';
+                tokenInput.value = '';
             }, 1000);
         }
     });
 
+  
     document.getElementById('captchaModal').addEventListener('shown.bs.modal', initPuzzle);
 });
 </script>
