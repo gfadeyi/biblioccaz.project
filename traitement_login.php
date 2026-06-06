@@ -2,11 +2,13 @@
 require_once 'config.php';
 if (session_status() === PHP_SESSION_NONE) { session_start(); }
 
+
 $pseudo = trim($_POST['pseudo'] ?? '');
 $mdp = $_POST['mdp'] ?? '';
-$captcha = $_POST['puzzle_pos'] ?? '';
+$captcha_token = $_POST['captcha_token'] ?? ''; 
 
-if (!isset($_POST['captcha_token']) || empty($_POST['captcha_token'])) {
+
+if (empty($captcha_token)) {
     header("Location: login.php?error=captcha");
     exit();
 }
