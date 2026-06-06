@@ -43,7 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $headers .= "Reply-To: biblioccaz.noreply@gmail.com\r\n";
                 $headers .= "Content-Type: text/plain; charset=UTF-8\r\n";
 
-                $url = "http://91.134.143.156/verification_mail.php?token=" . $token;
+                $url = "https://biblioccaz.fr/index.php/verification_mail.php?token=" . $token;
 
                 $message = "Bienvenue $prenom !\n\n";
                 $message .= "Merci de rejoindre BIBLIOccaz. Pour valider votre compte, veuillez cliquer sur le lien ci-dessous ou le copier/coller dans votre navigateur :\n";

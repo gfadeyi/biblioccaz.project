@@ -12,7 +12,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action_candidature'],
     if ($_POST['action_candidature'] === 'accepter') {
         $stmt = $pdo->prepare("UPDATE user SET role = 'moderateur', statut = 'valide_moderateur' WHERE id = ?");
         $stmt->execute([$userId]);
-        insertLog('ADMIN', "Candidature acceptée : Utilisateur ID " . $userId . " promu Modérateur (en attente de première connexion)");
+        insertLog('ADMIN', "Candidature acceptée : Utilisateur ID " . $userId . " promu Modérateur");
     } elseif ($_POST['action_candidature'] === 'refus_temporaire') {
         $stmt = $pdo->prepare("UPDATE user SET statut = 'refuse_temporaire' WHERE id = ?");
         $stmt->execute([$userId]);
@@ -27,16 +27,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action_candidature'],
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
-    if ($_POST['action'] === 'changer_role' && isset($_POST['user_id'], $_POST['nouveau_role'])) {
+    $userId = $_POST['user_id'];
+    
+    if ($_POST['action'] === 'changer_role' && isset($userId, $_POST['nouveau_role'])) {
         $stmt = $pdo->prepare("UPDATE user SET role = ? WHERE id = ?");
-        $stmt->execute([$_POST['nouveau_role'], $_POST['user_id']]);
-        insertLog('ADMIN', "Changement de rôle de l'utilisateur ID " . $_POST['user_id'] . " vers " . $_POST['nouveau_role']);
+        $stmt->execute([$_POST['nouveau_role'], $userId]);
+        insertLog('ADMIN', "Changement de rôle de l'utilisateur ID " . $userId . " vers " . $_POST['nouveau_role']);
     }
 
-    if ($_POST['action'] === 'supprimer' && isset($_POST['user_id'])) {
+    if ($_POST['action'] === 'supprimer' && isset($userId)) {
         $stmt = $pdo->prepare("DELETE FROM user WHERE id = ?");
         $stmt->execute([$userId]);
-        insertLog('ADMIN', "Suppression définitive de l'utilisateur ID " . $_POST['user_id']);
+        insertLog('ADMIN', "Suppression définitive de l'utilisateur ID " . $userId);
     }
     header("Location: gestion_utilisateurs.php");
     exit();
@@ -52,12 +54,13 @@ $membres = [];
 $candidatures = [];
 
 foreach ($allUsers as $u) {
-    $userRole = isset($u['role']) ? strtolower(trim($u['role'])) : '';
-    $userStatut = isset($u['statut']) ? strtolower(trim($u['statut'])) : '';
+    $userRole = strtolower(trim($u['role']));
+    $userStatut = strtolower(trim($u['statut']));
 
     if ($userStatut === 'en_attente_moderateur') {
         $candidatures[] = $u;
-    } elseif ($userRole === 'admin' || $userRole === 'moderateur' || $userRole === 'gestionnaire') {
+    } 
+    elseif (in_array($userRole, ['admin', 'moderateur', 'gestionnaire'])) {
         $equipe[] = $u;
     } else {
         $membres[] = $u;
@@ -71,11 +74,9 @@ foreach ($allUsers as $u) {
             <h2 class="fw-bold mb-0 text-dark">Gestion du Personnel & des Membres</h2>
             <p class="text-muted small mb-0">Gestion des privilèges d'accès et modération du catalogue.</p>
         </div>
-        <div>
-            <a href="admin.php" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
-                <i class="bi bi-arrow-left me-2"></i>Retour au Dashboard
-            </a>
-        </div>
+        <a href="admin.php" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
+            <i class="bi bi-arrow-left me-2"></i>Retour au Dashboard
+        </a>
     </div>
 
     <?php if (!empty($candidatures)): ?>
@@ -106,15 +107,15 @@ foreach ($allUsers as $u) {
                                 <input type="hidden" name="action_candidature" value="accepter">
                                 <button type="submit" class="btn btn-sm btn-success fw-bold me-1 rounded-pill px-3"><i class="bi bi-check-lg"></i> Accepter</button>
                             </form>
-                            <form method="POST" class="d-inline" onsubmit="return confirm('Refuser temporairement cette candidature ? L\'utilisateur pourra postuler à nouveau.');">
+                            <form method="POST" class="d-inline" onsubmit="return confirm('Refuser temporairement ?');">
                                 <input type="hidden" name="user_id" value="<?= $cAnd['id'] ?>">
                                 <input type="hidden" name="action_candidature" value="refus_temporaire">
-                                <button type="submit" class="btn btn-sm btn-outline-warning fw-bold me-1 rounded-pill px-3"><i class="bi bi-exclamation-triangle"></i> Rejeter temporairement</button>
+                                <button type="submit" class="btn btn-sm btn-outline-warning fw-bold me-1 rounded-pill px-3"><i class="bi bi-exclamation-triangle"></i> Rejeter temp.</button>
                             </form>
-                            <form method="POST" class="d-inline" onsubmit="return confirm('Refuser définitivement cette candidature ?');">
+                            <form method="POST" class="d-inline" onsubmit="return confirm('Refuser définitivement ?');">
                                 <input type="hidden" name="user_id" value="<?= $cAnd['id'] ?>">
                                 <input type="hidden" name="action_candidature" value="refus_definitif">
-                                <button type="submit" class="btn btn-sm btn-outline-danger fw-bold rounded-pill px-3"><i class="bi bi-slash-circle"></i> Rejeter définitivement</button>
+                                <button type="submit" class="btn btn-sm btn-outline-danger fw-bold rounded-pill px-3"><i class="bi bi-slash-circle"></i> Rejeter définitif</button>
                             </form>
                         </td>
                     </tr>
@@ -168,7 +169,7 @@ foreach ($allUsers as $u) {
                             <?php 
                             $checkStatut = strtolower(trim($staff['statut']));
                             if ($checkStatut === 'valide_moderateur'): ?>
-                                <span class="badge bg-light text-success border border-success rounded-pill px-2 py-1 fs-7">Accepté (En attente co)</span>
+                                <span class="badge bg-light text-success border border-success rounded-pill px-2 py-1 fs-7">Accepté (Attente co)</span>
                             <?php else: ?>
                                 <span class="badge bg-success rounded-pill px-2 py-1 fs-7">Actif</span>
                             <?php endif; ?>
@@ -245,7 +246,7 @@ foreach ($allUsers as $u) {
                                         <option value="moderateur">Modérateur</option>
                                         <option value="admin">Admin</option>
                                     </select>
-                                    <button type="submit" class="btn btn-sm btn-primary">Changer</button>
+                                    <button type="submit" class="btn btn-sm btn-primary" title="Changer le rôle">Changer</button>
                                 </form>
                             </td>
                             <td>
@@ -259,16 +260,11 @@ foreach ($allUsers as $u) {
                             </td>
                             <td class="text-end pe-4">
                                 <div class="btn-group">
-                                    <a href="modifier_profil.php?id=<?= $client['id'] ?>" class="btn btn-sm btn-light border"><i class="bi bi-pencil"></i></a>
-                                    <?php if ($rawStatut === 'banni' || $rawStatut === 'refuse_definitif'): ?>
-                                        <a href="action_admin.php?action=deban&id=<?= $client['id'] ?>" class="btn btn-sm btn-outline-success"><i class="bi bi-check-circle"></i></a>
-                                    <?php else: ?>
-                                        <a href="action_admin.php?action=ban&id=<?= $client['id'] ?>" class="btn btn-sm btn-outline-danger"><i class="bi bi-slash-circle"></i></a>
-                                    <?php endif; ?>
-                                    <form method="POST" onsubmit="return confirm('Supprimer définitivement cet utilisateur ? Cette action est irréversible.');" class="d-inline">
+                                    <a href="modifier_profil.php?id=<?= $client['id'] ?>" class="btn btn-sm btn-light border" title="Modifier le profil"><i class="bi bi-pencil"></i></a>
+                                    <form method="POST" onsubmit="return confirm('Supprimer cet utilisateur ?');" class="d-inline">
                                         <input type="hidden" name="user_id" value="<?= $client['id'] ?>">
                                         <input type="hidden" name="action" value="supprimer">
-                                        <button type="submit" class="btn btn-sm btn-danger border-start-0"><i class="bi bi-trash"></i></button>
+                                        <button type="submit" class="btn btn-sm btn-danger" title="Supprimer cet utilisateur"><i class="bi bi-trash"></i></button>
                                     </form>
                                 </div>
                             </td>

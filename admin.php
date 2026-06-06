@@ -12,6 +12,8 @@ $countAttente = $pdo->query("SELECT COUNT(*) FROM livre WHERE is_valide = 0")->f
 $countDisponibles = $pdo->query("SELECT SUM(quantite) FROM exemplaire WHERE is_disponible = 1")->fetchColumn() ?: 0;
 $countUsers = $pdo->query("SELECT COUNT(*) FROM user")->fetchColumn();
 
+$nbActifs = $pdo->query("SELECT COUNT(*) FROM user WHERE last_activity > NOW() - INTERVAL 5 MINUTE")->fetchColumn();
+
 include 'header.php';
 ?>
 
@@ -74,10 +76,14 @@ include 'header.php';
             </div>
         </div>
         <div class="col-md-6">
-            <h4 class="fw-bold mb-3">Utilisateurs & Logs</h4>
+            <h4 class="fw-bold mb-3">Utilisateurs & Activité</h4>
             <div class="list-group shadow-sm border-0" style="border-radius: 15px; overflow: hidden;">
                 <a href="gestion_utilisateurs.php" class="list-group-item list-group-item-action py-3">
                     <i class="bi bi-people me-2 text-success"></i> Gestion des membres
+                </a>
+                <a href="utilisateurs_en_ligne.php" class="list-group-item list-group-item-action py-3 d-flex justify-content-between align-items-center">
+                    <span><i class="bi bi-broadcast me-2 text-success"></i> Utilisateurs en ligne</span>
+                    <span class="badge bg-success rounded-pill"><?= $nbActifs ?></span>
                 </a>
                 <a href="diffusion_admin.php" class="list-group-item list-group-item-action py-3">
                     <i class="bi bi-megaphone me-2 text-success"></i> Diffusion Newsletter
@@ -86,7 +92,7 @@ include 'header.php';
                     <i class="bi bi-journal-text me-2 text-success"></i> Journal d'activité (Logs)
                 </a>
                 <a href="admin_captcha.php" class="list-group-item list-group-item-action py-3">
-                    <i class="bi bi-images me-2 text-success"></i> Gestion des images CAPTCHA 
+                    <i class="bi bi-images me-2 text-success"></i> Gestion des images CAPTCHA
                 </a>
             </div>
         </div>
