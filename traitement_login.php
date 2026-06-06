@@ -2,12 +2,12 @@
 require_once 'config.php';
 if (session_status() === PHP_SESSION_NONE) { session_start(); }
 
-// 1. Récupération des données du formulaire
+
 $pseudo = trim($_POST['pseudo'] ?? '');
 $mdp = $_POST['mdp'] ?? '';
-$captcha_token = $_POST['captcha_token'] ?? ''; // Correction du nom ici
+$captcha_token = $_POST['captcha_token'] ?? ''; 
 
-// 2. Vérification stricte du CAPTCHA
+
 if (empty($captcha_token)) {
     header("Location: login.php?error=captcha");
     exit();
