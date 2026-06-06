@@ -41,7 +41,7 @@ if (isset($_GET['verif'])) { $success = "Compte validé ! Vous pouvez vous conne
                 <button type="button" class="btn btn-outline-secondary w-100" data-bs-toggle="modal" data-bs-target="#captchaModal" id="captchaTriggerBtn">
                     <i class="bi bi-puzzle"></i> Cliquez pour vérifier
                 </button>
-                <input type="hidden" name="captcha_token" id="captchaToken" required>
+                <input type="hidden" name="captcha_token" id="captchaToken" >
             </div>
 
             <div class="modal fade" id="captchaModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
@@ -87,9 +87,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const puzzleImages = [
         'img/fond_puzzle_2.jpg',
-        'img/fond_puzzle.jpg',
-        'img/fond_puzzle_3.jpg',
-        'img/fond_puzzle_4.jpg',
+       'img/fond_puzzle_3.jpg',
+     'img/fond_puzzle_4.jpg',
     ];
 
     function initPuzzle() {
