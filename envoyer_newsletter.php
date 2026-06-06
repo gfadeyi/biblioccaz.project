@@ -13,8 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stmt = $pdo->prepare("SELECT id FROM newsletter_subscribers WHERE email = ?");
     $stmt->execute([$email]);
 
-    if (
-        $stmt->fetch()) {
+    if ($stmt->fetch()) {
         echo "<script>alert('Vous êtes déjà inscrit à notre newsletter !'); window.location.href='index.php';</script>";
         exit();
     }
@@ -43,7 +42,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $response = curl_exec($ch);
         curl_close($ch);
+        
+            $urlMail = 'https://api.brevo.com/v3/smtp/email';
+        $dataMail = [
+            'sender' => ['name' => 'Biblioccaz', 'email' => 'contact@biblioccaz.fr'], 
+            'to' => [['email' => $email]],
+            'subject' => 'Bienvenue dans la newsletter Biblioccaz !',
+            'htmlContent' => '<html><body><h1>Merci pour votre inscription !</h1><p>Vous recevrez désormais nos offres.</p></body></html>'
+        ];
 
+        $chMail = curl_init($urlMail);
+        curl_setopt($chMail, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($chMail, CURLOPT_POST, true);
+        curl_setopt($chMail, CURLOPT_POSTFIELDS, json_encode($dataMail));
+        curl_setopt($chMail, CURLOPT_HTTPHEADER, ['Content-Type: application/json', 'api-key: ' . $apiKey]);
+        curl_setopt($chMail, CURLOPT_SSL_VERIFYPEER, false);
+        curl_exec($chMail);
+        curl_close($chMail);
 
         echo "<script>alert('Inscription réussie ! Vous avez été ajouté à notre liste de diffusion.'); window.location.href='index.php';</script>";
         exit();
