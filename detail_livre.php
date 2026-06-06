@@ -119,7 +119,7 @@ function formaterEtat($etat) {
                                 <div class="etat-nom"><?= $etat_label ?></div>
                                 <div class="stock-msg">
                                     <?php if ($offre['stock'] == 1): ?>
-                                        <span class="text-danger small">C'est le dernier !</span>
+                                        <span class="text-danger small">C'est le premier !</span>
                                     <?php elseif ($offre['stock'] < 5): ?>
                                         <span class="text-biblio small">Plus que <?= $offre['stock'] ?> ex.</span>
                                     <?php endif; ?>
@@ -168,10 +168,17 @@ function formaterEtat($etat) {
                     <p class="text-muted small mb-4">En stock (État : <?= formaterEtat($offre_selectionnee['etat']) ?>)</p>
                     
                     <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'client'): ?>
-                        <div class="d-grid gap-2">
-                            <button class="btn btn-custom-green py-3 shadow-sm rounded-pill">Ajouter au panier</button>
-                            <button class="btn btn-outline-dark py-2 rounded-pill">Acheter</button>
-                        </div>
+                        <form action="action_ajouter_panier.php" method="POST">
+                            <input type="hidden" name="id_livre" value="<?= $id ?>">
+                            <input type="hidden" name="titre" value="<?= htmlspecialchars($livre['titre']) ?>">
+                            <input type="hidden" name="etat" value="<?= htmlspecialchars($offre_selectionnee['etat']) ?>">
+                            <input type="hidden" name="prix" value="<?= $offre_selectionnee['prix'] ?>">
+                            <input type="hidden" name="image" value="<?= htmlspecialchars($img_file) ?>">
+                            <div class="d-grid gap-2">
+                                <button type="submit" name="action" value="ajouter" class="btn btn-custom-green py-3 shadow-sm rounded-pill">Ajouter au panier</button>
+                                <button type="submit" name="action" value="acheter" class="btn btn-outline-dark py-2 rounded-pill">Acheter</button>
+                            </div>
+                        </form>
                     <?php elseif (!isset($_SESSION['user_id'])): ?>
                         <div class="d-grid gap-2">
                             <a href="login.php" class="btn btn-custom-green py-3 shadow-sm rounded-pill text-center text-decoration-none">Connexion pour acheter</a>
@@ -208,5 +215,99 @@ function formaterEtat($etat) {
         </div>
     </div>
 </div>
+
+<div class="modal fade" id="modalAjoutPanier" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 shadow" style="border-radius: 20px;">
+            <div class="modal-body p-4">
+                <div class="d-flex align-items-center justify-content-between mb-4">
+                    <h5 class="fw-bold text-success mb-0"><i class="bi bi-check-circle-fill me-2"></i>Article ajouté au panier avec succès !</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                
+                <div class="row align-items-center bg-light p-3 rounded-4 g-3 mb-4 mx-0">
+                    <div class="col-auto text-center">
+                        <img id="modalProductImg" src="" class="img-fluid rounded border" style="max-height: 100px; object-fit: cover;">
+                    </div>
+                    <div class="col">
+                        <h6 id="modalProductTitle" class="fw-bold text-dark mb-1"></h6>
+                        <div id="modalProductEtat" class="text-muted small mb-1"></div>
+                        <div class="fw-bold text-success" id="modalProductPrix"></div>
+                    </div>
+                    <div class="col-md-5 d-flex gap-2 justify-content-end">
+                        <button type="button" class="btn btn-outline-dark rounded-pill btn-sm px-3" data-bs-dismiss="modal">Continuer mes achats</button>
+                        <a href="panier.php" class="btn btn-custom-green rounded-pill btn-sm px-3 text-white text-decoration-none">Voir mon panier</a>
+                    </div>
+                </div>
+
+                <div class="pt-2">
+                    <h6 class="fw-bold text-dark mb-3"><i class="bi bi-heart-fill text-danger me-2"></i>Vous pourriez aussi aimer...</h6>
+                    <div class="row g-3">
+                        <?php
+                        $stmtSug = $pdo->prepare("SELECT id_livre, titre, couverture FROM livre WHERE id_livre != ? ORDER BY RAND() LIMIT 3");
+                        $stmtSug->execute([$id]);
+                        $suggestions = $stmtSug->fetchAll();
+                        foreach ($suggestions as $sug):
+                            $sug_img = !empty($sug['couverture']) ? $sug['couverture'] : 'default.jpg';
+                        ?>
+                            <div class="col-4">
+                                <a href="detail_livre.php?id=<?= $sug['id_livre'] ?>" class="text-decoration-none text-dark">
+                                    <div class="p-2 border rounded-3 text-center bg-white h-100 shadow-sm">
+                                        <img src="img/<?= htmlspecialchars($sug_img) ?>" class="img-fluid rounded mb-2" style="max-height: 80px; object-fit: cover;">
+                                        <div class="small fw-bold text-truncate"><?= htmlspecialchars($sug['titre']) ?></div>
+                                    </div>
+                                </a>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('form[action="action_ajouter_panier.php"]');
+    if (form) {
+        const btnAjouter = form.querySelector('button[value="ajouter"]');
+        if (btnAjouter) {
+            btnAjouter.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                const formData = new FormData(form);
+                formData.append('action', 'ajouter');
+
+                fetch('action_ajouter_panier.php', {
+                    method: 'POST',
+                    body: formData,
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                })
+                .then(response => {
+                    document.getElementById('modalProductImg').src = 'img/' + form.querySelector('input[name="image"]').value;
+                    document.getElementById('modalProductTitle').innerText = form.querySelector('input[name="titre"]').value;
+                    document.getElementById('modalProductEtat').innerText = 'État : ' + form.querySelector('input[name="etat"]').value;
+                    document.getElementById('modalProductPrix').innerText = form.querySelector('input[name="prix"]').value + ' €';
+                    
+                    const modal = new bootstrap.Modal(document.getElementById('modalAjoutPanier'));
+                    modal.show();
+                    
+                    fetch(window.location.href)
+                        .then(res => res.text())
+                        .then(html => {
+                            const parser = new DOMParser();
+                            const doc = parser.parseFromString(html, 'text/html');
+                            const newCartMenu = doc.querySelector('.dropdown.position-relative');
+                            if (newCartMenu) {
+                                document.querySelector('.dropdown.position-relative').innerHTML = newCartMenu.innerHTML;
+                            }
+                        });
+                })
+                .catch(err => console.error(err));
+            });
+        }
+    }
+});
+</script>
 
 <?php include 'footer.php'; ?>
