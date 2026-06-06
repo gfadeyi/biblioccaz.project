@@ -12,6 +12,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $confirmation = $_POST['confirmation'] ?? '';
     $nom = trim($_POST['nom'] ?? '');
     $prenom = trim($_POST['prenom'] ?? '');
+    
+    $role = 'client';
+    if (isset($_POST['role']) && $_POST['role'] === 'auteur') {
+        $role = 'auteur';
+    }
 
     if (!$pseudo || !$email || !$mdp || !$nom || !$prenom) {
         $erreur = "Veuillez remplir tous les champs obligatoires.";
@@ -27,11 +32,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $hash = password_hash($mdp, PASSWORD_DEFAULT);
             $token = bin2hex(random_bytes(32));
 
-            $stmt = $pdo->prepare("INSERT INTO user (pseudo, email, mot_de_passe, nom, prenom, role, email_token, email_verifie) VALUES (?, ?, ?, ?, ?, 'client', ?, 0)");
+            $stmt = $pdo->prepare("INSERT INTO user (pseudo, email, mot_de_passe, nom, prenom, role, email_token, email_verifie) VALUES (?, ?, ?, ?, ?, ?, ?, 0)");
             
-            if ($stmt->execute([$pseudo, $email, $hash, $nom, $prenom, $token])) {
+            if ($stmt->execute([$pseudo, $email, $hash, $nom, $prenom, $role, $token])) {
                 
-
                 $destinataire = $email;
                 $sujet = "BIBLOccaz - Votre compte est activé";
 
@@ -94,6 +98,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <label class="form-label fw-bold">Confirmation *</label>
                         <input type="password" name="confirmation" class="form-control" required>
                     </div>
+                    
+                    <div class="col-12">
+                        <label class="form-label fw-bold">Type de compte *</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="role" id="roleClient" value="client" checked>
+                            <label class="form-check-label" for="roleClient">
+                                Client (Acheter / Vendre / Emprunter des livres)
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="role" id="roleAuteur" value="auteur">
+                            <label class="form-check-label" for="roleAuteur">
+                                Auteur (Proposer mes propres œuvres au catalogue)
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="col-12 mt-3 text-center">
+                        <div class="p-3 rounded-3 bg-light border">
+                            <p class="small text-muted mb-2">Vous souhaitez aider à faire grandir la communauté ?</p>
+                            <a href="postuler_moderateur.php" class="btn btn-sm btn-outline-warning fw-bold text-dark rounded-pill px-3">
+                                <i class="bi bi-shield-plus me-1"></i> Rejoindre l'équipe en tant que modérateur
+                            </a>
+                        </div>
+                    </div>
+
                     <div class="col-12 text-center mt-4">
                         <button type="submit" class="btn btn-bibli w-100 py-2">S'INSCRIRE</button>
                     </div>
