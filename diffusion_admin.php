@@ -28,7 +28,7 @@ if (isset($_GET['action']) && isset($_GET['id'])) {
         if (!empty($apiKey)){
             $url = 'https://api.brevo.com/v3/contacts/lists/' . $idListe . '/contacts/remove';
 
-        $data = [
+            $data = [
                 'emails' => [$email]
             ];
 
