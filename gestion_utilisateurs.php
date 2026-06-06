@@ -35,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 
     if ($_POST['action'] === 'supprimer' && isset($_POST['user_id'])) {
         $stmt = $pdo->prepare("DELETE FROM user WHERE id = ?");
-        $stmt->execute([$_POST['user_id']]);
+        $stmt->execute([$userId]);
         insertLog('ADMIN', "Suppression définitive de l'utilisateur ID " . $_POST['user_id']);
     }
     header("Location: gestion_utilisateurs.php");
@@ -52,9 +52,12 @@ $membres = [];
 $candidatures = [];
 
 foreach ($allUsers as $u) {
-    if (isset($u['statut']) && strtolower(trim($u['statut'])) === 'en_attente_moderateur') {
+    $userRole = isset($u['role']) ? strtolower(trim($u['role'])) : '';
+    $userStatut = isset($u['statut']) ? strtolower(trim($u['statut'])) : '';
+
+    if ($userStatut === 'en_attente_moderateur') {
         $candidatures[] = $u;
-    } elseif ($u['role'] === 'admin' || $u['role'] === 'moderateur' || $u['role'] === 'gestionnaire') {
+    } elseif ($userRole === 'admin' || $userRole === 'moderateur' || $userRole === 'gestionnaire') {
         $equipe[] = $u;
     } else {
         $membres[] = $u;
@@ -153,14 +156,18 @@ foreach ($allUsers as $u) {
                         </td>
                         <td class="text-muted small"><?= htmlspecialchars($staff['email']) ?></td>
                         <td>
-                            <?php if ($staff['role'] === 'admin'): ?>
+                            <?php 
+                            $checkRole = strtolower(trim($staff['role']));
+                            if ($checkRole === 'admin'): ?>
                                 <span class="badge bg-danger rounded-pill px-3 py-1 fs-7">Administrateur</span>
-                            <?php elseif ($staff['role'] === 'moderateur' || $staff['role'] === 'gestionnaire'): ?>
+                            <?php elseif ($checkRole === 'moderateur' || $checkRole === 'gestionnaire'): ?>
                                 <span class="badge bg-warning text-dark rounded-pill px-3 py-1 fs-7">Modérateur</span>
                             <?php endif; ?>
                         </td>
                         <td>
-                            <?php if ($staff['statut'] === 'valide_moderateur'): ?>
+                            <?php 
+                            $checkStatut = strtolower(trim($staff['statut']));
+                            if ($checkStatut === 'valide_moderateur'): ?>
                                 <span class="badge bg-light text-success border border-success rounded-pill px-2 py-1 fs-7">Accepté (En attente co)</span>
                             <?php else: ?>
                                 <span class="badge bg-success rounded-pill px-2 py-1 fs-7">Actif</span>
@@ -171,10 +178,10 @@ foreach ($allUsers as $u) {
                                 <input type="hidden" name="user_id" value="<?= $staff['id'] ?>">
                                 <input type="hidden" name="action" value="changer_role">
                                 <select name="nouveau_role" class="form-select form-select-sm d-inline-block w-auto me-2" onchange="this.form.submit()">
-                                    <option value="admin" <?= $staff['role'] === 'admin' ? 'selected' : '' ?>>Admin</option>
-                                    <option value="moderateur" <?= ($staff['role'] === 'moderateur' || $staff['role'] === 'gestionnaire') ? 'selected' : '' ?>>Modérateur</option>
-                                    <option value="auteur">Auteur</option>
-                                    <option value="client">Client</option>
+                                    <option value="admin" <?= strtolower(trim($staff['role'])) === 'admin' ? 'selected' : '' ?>>Admin</option>
+                                    <option value="moderateur" <?= (strtolower(trim($staff['role'])) === 'moderateur' || strtolower(trim($staff['role'])) === 'gestionnaire') ? 'selected' : '' ?>>Modérateur</option>
+                                    <option value="auteur" <?= strtolower(trim($staff['role'])) === 'auteur' ? 'selected' : '' ?>>Auteur</option>
+                                    <option value="client" <?= strtolower(trim($staff['role'])) === 'client' ? 'selected' : '' ?>>Client</option>
                                 </select>
                             </form>
                         </td>
@@ -222,7 +229,7 @@ foreach ($allUsers as $u) {
                             </td>
                             <td class="text-muted small"><?= htmlspecialchars($client['email']) ?></td>
                             <td>
-                                <?php if ($client['role'] === 'auteur'): ?>
+                                <?php if (strtolower(trim($client['role'])) === 'auteur'): ?>
                                     <span class="badge bg-info text-dark rounded-pill px-3 py-1 fs-7">Auteur</span>
                                 <?php else: ?>
                                     <span class="badge bg-primary rounded-pill px-3 py-1 fs-7">Client</span>
@@ -233,8 +240,8 @@ foreach ($allUsers as $u) {
                                     <input type="hidden" name="user_id" value="<?= $client['id'] ?>">
                                     <input type="hidden" name="action" value="changer_role">
                                     <select name="nouveau_role" class="form-select form-select-sm">
-                                        <option value="client" <?= $client['role'] === 'client' ? 'selected' : '' ?>>Client</option>
-                                        <option value="auteur" <?= $client['role'] === 'auteur' ? 'selected' : '' ?>>Auteur</option>
+                                        <option value="client" <?= strtolower(trim($client['role'])) === 'client' ? 'selected' : '' ?>>Client</option>
+                                        <option value="auteur" <?= strtolower(trim($client['role'])) === 'auteur' ? 'selected' : '' ?>>Auteur</option>
                                         <option value="moderateur">Modérateur</option>
                                         <option value="admin">Admin</option>
                                     </select>

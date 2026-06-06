@@ -69,7 +69,7 @@ include 'header.php';
                     <i class="bi bi-box-seam me-2 text-success"></i> Inventaire des stocks
                 </a>
                 <a href="export-pdf.php" class="list-group-item list-group-item-action py-3">
-                    <i class="bi bi-journal-text text-success"></i>   export pdf
+                    <i class="bi bi-file-earmark-pdf me-2 text-success"></i> Export des inscrits (PDF)
                 </a>
             </div>
         </div>
@@ -86,8 +86,8 @@ include 'header.php';
                     <i class="bi bi-journal-text me-2 text-success"></i> Journal d'activité (Logs)
                 </a>
                 <a href="admin_captcha.php" class="list-group-item list-group-item-action py-3">
-    <i class="bi bi-images me-2 text-success"></i> Gestion des images CAPTCHA
-</a>
+                    <i class="bi bi-images me-2 text-success"></i> Gestion des images CAPTCHA
+                </a>
             </div>
         </div>
     </div>
