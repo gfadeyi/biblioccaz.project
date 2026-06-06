@@ -81,7 +81,7 @@ $options->set('isRemoteEnabled', true);
 $dompdf = new Dompdf($options);
 $dompdf->loadHtml($html);
 
-n
+
 $dompdf->setPaper('A4', 'portrait');
 
 $dompdf->render();
