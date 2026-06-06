@@ -68,6 +68,9 @@ include 'header.php';
                 <a href="inventaire_admin.php" class="list-group-item list-group-item-action py-3">
                     <i class="bi bi-box-seam me-2 text-success"></i> Inventaire des stocks
                 </a>
+                <a href="export-pdf.php" class="btn-export">
+    export en pdf 
+</a>
             </div>
         </div>
         <div class="col-md-6">
@@ -82,6 +85,9 @@ include 'header.php';
                 <a href="admin_logs.php" class="list-group-item list-group-item-action py-3">
                     <i class="bi bi-journal-text me-2 text-success"></i> Journal d'activité (Logs)
                 </a>
+                <a href="admin_captcha.php" class="list-group-item list-group-item-action py-3">
+    <i class="bi bi-images me-2 text-success"></i> Gestion des images CAPTCHA
+</a>
             </div>
         </div>
     </div>
