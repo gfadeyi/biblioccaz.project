@@ -1,8 +1,8 @@
 <?php
 require_once 'config.php'; 
 
-if (isset($_POST['email']) && !empty($_POST['email'])) {
-    $email = filter_var($_POST['email'], FILTER_VALIDATE_EMAIL);
+if (isset($_POST['email_newsletter']) && !empty($_POST['email_newsletter'])) {
+    $email = filter_var($_POST['email_newsletter'], FILTER_VALIDATE_EMAIL);
     
     if (!$email) {
         header('Location: index.php?newsletter=error_email');
