@@ -1,4 +1,8 @@
 <?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
 header("Cache-Control: no-cache, no-store, must-revalidate"); 
 header("Pragma: no-cache"); 
 header("Expires: 0");
@@ -11,9 +15,9 @@ if (isset($_GET['error'])) {
     if ($_GET['error'] == '1') { $error = "Identifiants incorrects."; }
     elseif ($_GET['error'] == 'captcha') { $error = "Veuillez compléter le puzzle."; }
     elseif ($_GET['error'] == 'not_verified') { $error = "Veuillez confirmer votre email avant de vous connecter."; }
-    elseif ($_GET['error'] == 'en_attente_moderateur') { $error = "Votre demande d'inscription en tant que modérateur est en cours d'examen par l'administrateur."; }
-    elseif ($_GET['error'] == 'refuse_temporaire') { $error = "Votre candidature n'a pas été retenue pour l'instant car nous ne recherchons pas de modérateur actuellement. Vous pourrez retenter votre chance ultérieurement."; }
-    elseif ($_GET['error'] == 'refuse_definitif') { $error = "Votre demande a été rejetée définitivement. Vous ne pouvez plus soumettre de candidature suite à un trop grand nombre de demandes après des refus temporaires ou pour cause de spam."; }
+    elseif ($_GET['error'] == 'en_attente_moderateur') { $error = "Votre demande d'inscription en tant que modérateur est en cours d'examen."; }
+    elseif ($_GET['error'] == 'refuse_temporaire') { $error = "Votre candidature n'a pas été retenue pour l'instant."; }
+    elseif ($_GET['error'] == 'refuse_definitif') { $error = "Votre demande a été rejetée définitivement."; }
 }
 
 if (isset($_GET['verif'])) { $success = "Compte validé ! Vous pouvez vous connecter."; }
@@ -33,6 +37,14 @@ if (isset($_GET['verif'])) { $success = "Compte validé ! Vous pouvez vous conne
 
 <div class="container text-center">
     <div class="login-container">
+        
+        <?php if (isset($_GET['msg']) && $_GET['msg'] === 'inactive'): ?>
+            <div class="alert alert-warning alert-dismissible fade show mb-4" role="alert">
+                <strong>Déconnexion automatique :</strong> Inactivité prolongée (5 min).
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        <?php endif; ?>
+
         <h1 class="fw-bold mb-4">Se connecter</h1>
         
         <?php if ($error): ?><div class="alert alert-danger small"><?= $error ?></div><?php endif; ?>
@@ -127,7 +139,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     tokenInput.value = ''; 
                 };
             })
-            .catch(error => console.error('Erreur de chargement de l\'image CAPTCHA:', error));
+            .catch(error => console.error('Erreur:', error));
     }
 
     slider.addEventListener('input', function() {
@@ -176,13 +188,9 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!tokenInput.value) {
             e.preventDefault(); 
             alert("Veuillez d'abord réussir le puzzle de sécurité.");
-            
             const modalEl = document.getElementById('captchaModal');
             const modalInstance = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
             modalInstance.show();
-        } else {
-            
-            console.log("Jeton envoyé :", tokenInput.value);
         }
     });
 

@@ -2,8 +2,9 @@
 if (session_status() === PHP_SESSION_NONE) { session_start(); }
 require_once 'config.php';
 
-if (isset($_POST['id_livre'], $_POST['etat'], $_POST['prix'], $_POST['titre'], $_POST['image'])) {
+if (isset($_POST['id_livre'], $_POST['id_exemplaire'], $_POST['prix'], $_POST['titre'], $_POST['image'])) {
     $idLivre = $_POST['id_livre'];
+    $idExemplaire = $_POST['id_exemplaire'];
     $etat = $_POST['etat'];
     $prix = floatval($_POST['prix']);
     $titre = $_POST['titre'];
@@ -14,13 +15,14 @@ if (isset($_POST['id_livre'], $_POST['etat'], $_POST['prix'], $_POST['titre'], $
         $_SESSION['panier'] = [];
     }
 
-    $cleUnique = $idLivre . '_' . strtolower(trim($etat));
+    $cleUnique = 'ex_' . $idExemplaire;
 
     if (isset($_SESSION['panier'][$cleUnique])) {
         $_SESSION['panier'][$cleUnique]['quantite'] += 1;
     } else {
         $_SESSION['panier'][$cleUnique] = [
             'id_livre' => $idLivre,
+            'id_exemplaire' => $idExemplaire,
             'titre' => $titre,
             'etat' => $etat,
             'prix' => $prix,
@@ -41,3 +43,4 @@ if (isset($_POST['id_livre'], $_POST['etat'], $_POST['prix'], $_POST['titre'], $
         exit();
     }
 }
+?>
