@@ -1,20 +1,21 @@
 <?php
-
+require_once 'config.php';
 if (session_status() === PHP_SESSION_NONE) { session_start(); }
 
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
+    header("Location: login.php");
+    exit();
+}
 
 $dir = 'img/captcha/';
 $message = "";
 $messageClass = "";
 
-
 if (isset($_FILES['captcha_file'])) {
-
     if (!is_dir($dir)) { mkdir($dir, 0755, true); }
 
     $targetFile = $dir . basename($_FILES['captcha_file']['name']);
     $imageFileType = strtolower(pathinfo($targetFile, PATHINFO_EXTENSION));
-    
     
     $check = getimagesize($_FILES['captcha_file']['tmp_name']);
     if ($check !== false) {
@@ -39,17 +40,14 @@ if (isset($_FILES['captcha_file'])) {
     }
 }
 
-
 if (isset($_GET['delete'])) {
     $fileToDelete = $_GET['delete'];
-  
     if (strpos($fileToDelete, $dir) === 0 && file_exists($fileToDelete)) {
         unlink($fileToDelete);
         $message = "L'image a bien été supprimée du CAPTCHA.";
         $messageClass = "alert-success";
     }
 }
-
 
 $images = [];
 if (is_dir($dir)) {
@@ -65,7 +63,7 @@ include 'header.php';
 ?>
 
 <div class="container mt-5">
-    <h2 class="fw-bold mb-4">️ Gestion des images du CAPTCHA </h2>
+    <h2 class="fw-bold mb-4">⚙️ Gestion des images du CAPTCHA</h2>
 
     <?php if ($message): ?>
         <div class="alert <?= $messageClass ?> alert-dismissible fade show" role="alert">
@@ -105,7 +103,7 @@ include 'header.php';
                         <div class="card-body p-2 bg-light d-flex justify-content-between align-items-center">
                             <small class="text-muted text-truncate" style="max-width: 130px;"><?= basename($img) ?></small>
                             <a href="admin_captcha.php?delete=<?= urlencode($img) ?>" 
-                               class="btn btn-danger btn-sm" 
+                               class="btn btn-danger btn-sm" \
                                onclick="return confirm('Voulez-vous vraiment supprimer cette image du CAPTCHA ?');">
                                 🗑️ Supprimer
                             </a>
