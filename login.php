@@ -94,41 +94,46 @@ document.addEventListener('DOMContentLoaded', function () {
     function initPuzzle() {
         const ctxMain = mainCanvas.getContext('2d');
         const ctxPiece = pieceCanvas.getContext('2d');
-        const img = new Image();
-     
-        img.src = puzzleImages[Math.floor(Math.random() * puzzleImages.length)];
         
-        img.onload = function() {
-            
-            targetX = Math.floor(Math.random() * 140) + 70; 
-            const targetY = Math.floor(Math.random() * 60) + 20; 
+      
+        fetch('get_captcha_image.php')
+            .then(response => response.json())
+            .then(data => {
+                const img = new Image();
+                img.src = data.image; 
+                
+                img.onload = function() {
+                  
+                    targetX = Math.floor(Math.random() * 140) + 70; 
+                    const targetY = Math.floor(Math.random() * 60) + 20;  
 
-           
-            ctxMain.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
-            ctxPiece.clearRect(0, 0, pieceCanvas.width, pieceCanvas.height);
+                
+                    ctxMain.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
+                    ctxPiece.clearRect(0, 0, pieceCanvas.width, pieceCanvas.height);
 
-          
-            ctxMain.drawImage(img, 0, 0, mainCanvas.width, mainCanvas.height);
+               
+                    ctxMain.drawImage(img, 0, 0, mainCanvas.width, mainCanvas.height);
 
-          
-            ctxMain.fillStyle = 'rgba(0, 0, 0, 0.5)';
-            ctxMain.fillRect(targetX, targetY, pieceSize, pieceSize);
+                   
+                    ctxMain.fillStyle = 'rgba(0, 0, 0, 0.5)';
+                    ctxMain.fillRect(targetX, targetY, pieceSize, pieceSize);
 
-           
-            pieceCanvas.width = pieceSize;
-            pieceCanvas.height = pieceSize;
-            pieceCanvas.style.top = targetY + 'px';
-            pieceCanvas.style.transform = 'translateX(0px)';
+                  
+                    pieceCanvas.width = pieceSize;
+                    pieceCanvas.height = pieceSize;
+                    pieceCanvas.style.top = targetY + 'px';
+                    pieceCanvas.style.transform = 'translateX(0px)';
 
-           
-            ctxPiece.drawImage(img, targetX, targetY, pieceSize, pieceSize, 0, 0, pieceSize, pieceSize);
-            
-          
-            slider.value = 0;
-            slider.max = 250; 
-            message.textContent = '';
-            tokenInput.value = ''; 
-        };
+                   
+                    ctxPiece.drawImage(img, targetX, targetY, pieceSize, pieceSize, 0, 0, pieceSize, pieceSize);
+                    
+                    slider.value = 0;
+                    slider.max = 250; 
+                    message.textContent = '';
+                    tokenInput.value = ''; 
+                };
+            })
+            .catch(error => console.error('Erreur de chargement de l\'image CAPTCHA:', error));
     }
 
    
