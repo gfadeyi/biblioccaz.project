@@ -1,4 +1,7 @@
 <?php
+header("Cache-Control: no-cache, no-store, must-revalidate"); 
+header("Pragma: no-cache"); 
+header("Expires: 0");
 include 'header.php';
 
 $error = "";
@@ -143,30 +146,37 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
   
+   
+ 
     slider.addEventListener('change', function() {
         const userX = parseInt(slider.value);
         const difference = Math.abs(userX - targetX);
-        const tolerance = 7; 
-
+        const tolerance = 9; 
         if (difference <= tolerance) {
            
+            tokenInput.value = btoa('success_validated_' + Date.now());
+            
+         
             message.textContent = "✅ Parfait ! Humain validé.";
             message.className = "mt-2 small text-success";
-            
-          
-            tokenInput.value = btoa('success_validated_' + Date.now());
             
             triggerBtn.innerHTML = "✅ Vérification Réussie";
             triggerBtn.className = "btn btn-success w-100";
             
+           
+            slider.disabled = true;
+            
+            
             setTimeout(() => {
                 const modalEl = document.getElementById('captchaModal');
                 const modalInstance = bootstrap.Modal.getInstance(modalEl);
-                modalInstance.hide();
-            }, 800);
+                if (modalInstance) {
+                    modalInstance.hide();
+                }
+            }, 600);
 
         } else {
-          
+           
             message.textContent = "❌ Mauvais alignement. Réessayez.";
             message.className = "mt-2 small text-danger";
             
