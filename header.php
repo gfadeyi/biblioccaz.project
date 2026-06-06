@@ -27,6 +27,13 @@ if ($connected && $userRole === 'admin') {
 
     $total_notif_admin = $nb_notif_modo + $nb_notif_livres;
 }
+
+$totalArticles = 0;
+if (isset($_SESSION['panier'])) {
+    foreach ($_SESSION['panier'] as $item) {
+        $totalArticles += $item['quantite'];
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -37,35 +44,6 @@ if ($connected && $userRole === 'admin') {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <link rel="stylesheet" href="style.css">
-    <style>
-        .mon-compte-dropdown { position: relative; display: inline-block; z-index: 1050; }
-        .menu-deroulant-content {
-            display: none;
-            position: absolute;
-            right: 0;
-            background-color: white;
-            min-width: 260px;
-            box-shadow: 0px 8px 16px rgba(0,0,0,0.15);
-            z-index: 1060;
-            border-radius: 12px;
-            overflow: hidden;
-            border: 1px solid #ddd;
-        }
-        .mon-compte-dropdown:hover .menu-deroulant-content { display: block; }
-        .menu-header { background-color: #f8f9fa; padding: 15px; text-align: center; border-bottom: 1px solid #eee; }
-        .section-admin, .section-gestionnaire, .section-auteur { background-color: #f4f7f4; border-top: 1px solid #e0eee0; border-bottom: 1px solid #e0eee0; }
-        .lien-menu { color: #333; padding: 12px 20px; text-decoration: none !important; display: block; font-size: 0.9rem; }
-        .lien-menu:hover { background-color: rgba(39, 78, 19, 0.05); color: #274e13; }
-        .titre-admin, .titre-gestionnaire, .titre-auteur { font-weight: bold; color: #274e13; text-transform: uppercase; font-size: 0.7rem; padding: 10px 20px 5px; margin: 0; }
-        .section-deco { background-color: #f8f9fa; border-top: 1px solid #eee; }
-        .deco-link { color: #274e13 !important; font-weight: bold; text-align: center; padding: 12px; display: block; text-decoration: none; transition: 0.3s; }
-        .deco-link:hover { background-color: #e9ecef; }
-        body.dark-mode .menu-deroulant-content { background-color: #2d2d2d; border-color: #444; }
-        body.dark-mode .menu-header, body.dark-mode .section-deco { background-color: #333; border-color: #444; }
-        body.dark-mode .lien-menu { color: #eee; }
-        body.dark-mode .section-admin, body.dark-mode .section-gestionnaire, body.dark-mode .section-auteur { background-color: #1e2a1e; border-color: #2a3a2a; }
-        nav.navbar { position: relative; z-index: 1040; }
-    </style>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const barre = document.getElementById('barre-recherche');
@@ -130,81 +108,94 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
         </div>
 
-        <div class="d-flex align-items-center">
-            <?php if ($connected): ?>
-                <div class="mon-compte-dropdown">
-                    <div class="nav-link d-flex align-items-center py-2 position-relative" style="cursor: pointer;">
-                        <i class="bi bi-person-circle fs-4 me-2 text-dark"></i>
-                        <span class="text-dark fw-medium me-1"><?= htmlspecialchars($_SESSION['pseudo']) ?></span>
-                        <?php if ($total_notif_admin > 0): ?>
-                            <span class="badge bg-success rounded-pill" style="font-size: 0.7rem; padding: 0.25em 0.55em;"><?= $total_notif_admin ?></span>
-                        <?php endif; ?>
-                    </div>
-                    
-                    <div class="menu-deroulant-content">
-                        <div class="menu-header">
-                            <i class="bi bi-person-fill text-secondary" style="font-size: 2.5rem;"></i>
-                            <p class="mb-2 fw-bold text-dark"><?= htmlspecialchars($_SESSION['pseudo']) ?></p>
-                            <a href="profil.php" class="btn btn-sm btn-outline-secondary rounded-pill px-3">Mon profil</a>
-                        </div>
-
-                        <?php if ($userRole === 'admin'): ?>
-                            <div class="section-admin">
-                                <h6 class="titre-admin d-flex justify-content-between align-items-center">
-                                    Administration
-                                    <?php if ($total_notif_admin > 0): ?>
-                                        <span class="badge bg-success text-white rounded-pill" style="font-size: 0.6rem;"><?= $total_notif_admin ?></span>
-                                    <?php endif; ?>
-                                </h6>
-                                <a class="lien-menu" href="admin.php"><i class="bi bi-speedometer2 me-2"></i> Dashboard Global</a>
-                                <a class="lien-menu d-flex justify-content-between align-items-center" href="moderation_catalogue.php">
-                                    <span><i class="bi bi-shield-check me-2"></i> Modération Livres</span>
-                                    <?php if ($nb_notif_livres > 0): ?>
-                                        <span class="badge bg-success" style="font-size: 0.7rem;"><?= $nb_notif_livres ?></span>
-                                    <?php endif; ?>
-                                </a>
-                                <a class="lien-menu" href="inventaire_admin.php"><i class="bi bi-box-seam me-2"></i> Inventaire & Stocks</a>
-                                <a class="lien-menu d-flex justify-content-between align-items-center" href="gestion_utilisateurs.php">
-                                    <span><i class="bi bi-people me-2"></i> Gestion Membres</span>
-                                    <?php if ($nb_notif_modo > 0): ?>
-                                        <span class="badge bg-success" style="font-size: 0.7rem;"><?= $nb_notif_modo ?></span>
-                                    <?php endif; ?>
-                                </a>
-                                <a class="lien-menu" href="diffusion_admin.php"><i class="bi bi-megaphone me-2"></i> Diffusion Newsletter</a>
-                                <a class="lien-menu" href="admin_logs.php"><i class="bi bi-journal-text me-2"></i> Journal des Logs</a>
-                            </div>
-                        <?php elseif ($userRole === 'gestionnaire'): ?>
-                            <div class="section-gestionnaire">
-                                <h6 class="titre-gestionnaire">Gestionnaire</h6>
-                                <a class="lien-menu" href="dashboard_gestionnaire.php"><i class="bi bi-speedometer me-2"></i> Mon Dashboard</a>
-                                <a class="lien-menu" href="moderation_catalogue.php"><i class="bi bi-shield-check me-2"></i> Modérer le Catalogue</a>
-                                <a class="lien-menu" href="inventaire_admin.php"><i class="bi bi-box-seam me-2"></i> Suivi des Stocks</a>
-                            </div>
-                        <?php elseif ($userRole === 'auteur'): ?>
-                            <div class="section-auteur">
-                                <h6 class="titre-auteur">Espace Créateur</h6>
-                                <a class="lien-menu" href="dashboard_auteur.php"><i class="bi bi-layout-text-sidebar-reverse me-2"></i> Mon Tableau de bord</a>
-                                <a class="lien-menu" href="proposer_ouvrage.php"><i class="bi bi-journal-plus me-2"></i> Soumettre un livre</a>
-                            </div>
-                        <?php else: ?>
-                            <a class="lien-menu" href="commandes.php"><i class="bi bi-truck me-2"></i> Mes achats</a>
-                            <a class="lien-menu" href="wishlist.php"><i class="bi bi-heart me-2"></i> Ma liste d'envies</a>
-                        <?php endif; ?>
-
-                        <div class="section-deco">
-                            <a href="logout.php" class="deco-link">Me déconnecter <i class="bi bi-box-arrow-right ms-2"></i></a>
-                        </div>
-                    </div>
-                </div>
-            <?php else: ?>
-                <a href="login.php" class="nav-link me-3 text-dark">Connexion</a>
-            <?php endif; ?>
-
+        <div class="d-flex align-items-center gap-2">
             <?php if ($userRole === 'auteur'): ?>
-                <a href="proposer_ouvrage.php" class="btn btn-success rounded-pill ms-3 px-4 fw-bold">Proposer une œuvre</a>
+                <a href="proposer_ouvrage.php" class="btn btn-success rounded-pill px-3 fw-bold btn-sm d-none d-sm-inline-block me-2">Proposer une œuvre</a>
             <?php elseif ($userRole === 'client' || !$connected): ?>
-                <a href="vendre.php" class="btn btn-success rounded-pill ms-3 px-4 fw-bold">Donner ou revendre</a>
+                <a href="vendre.php" class="btn btn-success rounded-pill px-3 fw-bold btn-sm d-none d-sm-inline-block me-2">Donner ou revendre</a>
             <?php endif; ?>
+
+            <div class="dropdown d-inline-block dropdown-hover">
+                <div class="p-2 text-dark">
+                    <?php if ($connected): ?>
+                        <a href="profil.php" class="text-decoration-none text-dark d-flex align-items-center">
+                            <i class="bi bi-person-circle fs-4 me-1"></i>
+                            <span class="fw-medium small d-none d-md-inline-block"><?= htmlspecialchars($_SESSION['pseudo']) ?></span>
+                        </a>
+                        <?php if ($total_notif_admin > 0): ?>
+                            <span class="badge bg-success rounded-pill ms-1" style="font-size: 0.65rem;"><?= $total_notif_admin ?></span>
+                        <?php endif; ?>
+                    <?php else: ?>
+                        <a href="login.php" class="text-decoration-none text-dark d-flex align-items-center">
+                            <i class="bi bi-person-circle fs-4 me-1"></i>
+                            <span class="fw-medium small d-none d-md-inline-block">Connexion</span>
+                        </a>
+                    <?php endif; ?>
+                </div>
+                <ul class="dropdown-menu dropdown-menu-end shadow border-0 p-2" style="border-radius: 12px; min-width: 220px;">
+                    <?php if ($connected): ?>
+                        <li class="px-3 py-2 border-bottom mb-1 text-center bg-light rounded-3">
+                            <strong class="text-dark d-block text-truncate"><?= htmlspecialchars($_SESSION['pseudo']) ?></strong>
+                            <a href="profil.php" class="btn btn-sm btn-outline-secondary rounded-pill px-3 mt-1" style="font-size: 0.75rem;">Mon profil</a>
+                        </li>
+                        <?php if ($userRole === 'admin'): ?>
+                            <li><a class="dropdown-item small rounded-2 py-2" href="admin.php"><i class="bi bi-speedometer2 me-2 text-success"></i>Dashboard Global</a></li>
+                            <li><a class="dropdown-item small rounded-2 py-2" href="moderation_catalogue.php"><i class="bi bi-shield-check me-2 text-success"></i>Modération Livres</a></li>
+                            <li><a class="dropdown-item small rounded-2 py-2" href="inventaire_admin.php"><i class="bi bi-box-seam me-2 text-success"></i>Stocks</a></li>
+                            <li><a class="dropdown-item small rounded-2 py-2" href="gestion_utilisateurs.php"><i class="bi bi-people me-2 text-success"></i>Membres</a></li>
+                        <?php elseif ($userRole === 'gestionnaire'): ?>
+                            <li><a class="dropdown-item small rounded-2 py-2" href="dashboard_gestionnaire.php"><i class="bi bi-speedometer me-2 text-success"></i>Dashboard</a></li>
+                            <li><a class="dropdown-item small rounded-2 py-2" href="moderation_catalogue.php"><i class="bi bi-shield-check me-2 text-success"></i>Modérer</a></li>
+                        <?php elseif ($userRole === 'auteur'): ?>
+                            <li><a class="dropdown-item small rounded-2 py-2" href="dashboard_auteur.php"><i class="bi bi-layout-text-sidebar-reverse me-2 text-success"></i>Créateur</a></li>
+                        <?php else: ?>
+                            <li><a class="dropdown-item small rounded-2 py-2" href="commandes.php"><i class="bi bi-truck me-2 text-success"></i>Mes achats</a></li>
+                            <li><a class="dropdown-item small rounded-2 py-2" href="wishlist.php"><i class="bi bi-heart me-2 text-success"></i>Ma liste</a></li>
+                        <?php endif; ?>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item small text-danger rounded-2 py-2" href="logout.php"><i class="bi bi-box-arrow-right me-2"></i>Déconnexion</a></li>
+                    <?php else: ?>
+                        <li><a class="dropdown-item small rounded-2 py-2" href="login.php">Se connecter</a></li>
+                        <li><a class="dropdown-item small rounded-2 py-2" href="inscription.php">Créer un compte</a></li>
+                    <?php endif; ?>
+                </ul>
+            </div>
+
+            <div class="dropdown d-inline-block dropdown-hover position-relative">
+                <a href="panier.php" class="btn btn-link text-dark p-2 text-decoration-none d-flex align-items-center justify-content-center position-relative" style="width: 40px; height: 40px;">
+                    <i class="bi bi-cart fs-4 text-success"></i>
+                    <?php if ($totalArticles > 0): ?>
+                        <span class="badge-notify"><?= $totalArticles ?></span>
+                    <?php endif; ?>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end p-3 shadow border-0 cart-dropdown-adjust">
+                    <?php if (empty($_SESSION['panier'])): ?>
+                        <li>
+                            <div class="text-center text-muted py-2 small">Votre panier est vide</div>
+                        </li>
+                    <?php else: ?>
+                        <h6 class="fw-bold text-dark mb-3 small">Mon Panier (<?= $totalArticles ?>)</h6>
+                        <div class="mini-cart-scroll">
+                            <?php foreach ($_SESSION['panier'] as $item): ?>
+                                <div class="d-flex align-items-center mb-3 pb-2 border-bottom">
+                                    <img src="img/<?= htmlspecialchars($item['image']) ?>" class="img-fluid rounded border" style="width: 40px; height: 55px; object-fit: cover; flex-shrink: 0;">
+                                    <div class="flex-grow-1 ms-3 min-width-0">
+                                        <h6 class="mb-0 small fw-bold text-dark text-truncate" style="max-width: 150px;"><?= htmlspecialchars($item['titre']) ?></h6>
+                                        <div class="text-muted" style="font-size: 0.7rem;">État : <?= htmlspecialchars($item['etat']) ?></div>
+                                        <small class="text-secondary" style="font-size: 0.75rem;">Qté : <?= $item['quantite'] ?></small>
+                                    </div>
+                                    <span class="fw-bold text-dark small ms-2 flex-shrink-0"><?= number_format($item['prix'] * $item['quantite'], 2) ?> €</span>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                        <li class="pt-2 mt-1">
+                            <a href="panier.php" class="btn btn-custom-green btn-sm w-100 text-white text-center d-block rounded-pill py-2 text-decoration-none">
+                                Voir tout le panier
+                            </a>
+                        </li>
+                    <?php endif; ?>
+                </ul>
+            </div>
         </div>
     </div>
 </nav>
