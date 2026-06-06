@@ -87,6 +87,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const puzzleImages = [
         'img/fond_puzzle_2.jpg',
+        'img/fond_puzzle.jpg',
+        'img/fond_puzzle_3.jpg',
+        'img/fond_puzzle_4.jpg',
     ];
 
     function initPuzzle() {
