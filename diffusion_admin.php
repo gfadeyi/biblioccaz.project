@@ -15,7 +15,7 @@ if (isset($_GET['action']) && isset($_GET['id'])) {
         $stmtEmail -> execute([$id]);
         $user = $stmtEmail->fetch();
 
-        if (user){
+        if ($user){
             $email =$user['email'];
         }
 
