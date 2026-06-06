@@ -9,10 +9,47 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
 
 if (isset($_GET['action']) && isset($_GET['id'])) {
     $id = $_GET['id'];
+    
     if ($_GET['action'] === 'unsubscribe') {
+        $stmtEmail = $pdo->prepare(" SELECT email FROM user WHERE id = ?");
+        $stmtEmail -> execute([$id]);
+        $user = $stmtEmail->fetch();
+
+        if (user){
+            $email =$user['email'];
+        }
+
         $stmt = $pdo->prepare("UPDATE user SET is_newsletter = 0 WHERE id = ?");
         $stmt->execute([$id]);
+    
+            $apiKey = ''; 
+            $idListe = 2; 
+
+        if (!empty($apiKey)){
+            $url = 'https://api.brevo.com/v3/contacts/lists/' . $idListe . '/contacts/remove';
+
+            $data = [
+                'email' => $email,
+                'listIds' => [$idListe],
+                'updateEnabled' => true
+            ];
+
+            $ch = curl_init($url);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+            curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                'Content-Type: application/json',
+                'api-key: ' . $apiKey
+            ]);
+
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+
+            $response = curl_exec($ch);
+            curl_close($ch);   
     }
+}
     header("Location: diffusion_admin.php");
     exit();
 }
