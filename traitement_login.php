@@ -10,8 +10,7 @@ $captcha_token = $_POST['captcha_token'] ?? '';
 
 
 if (empty($captcha_token)) {
-    header("Location: login.php?error=captcha");
-    exit();
+      die("Erreur de sécurité : Le serveur n'a reçu aucun jeton de CAPTCHA. Vérifie que le formulaire transmet bien le champ.");
 }
 
 $decoded = base64_decode($captcha_token);
