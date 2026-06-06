@@ -23,9 +23,12 @@ if (isset($_GET['verif'])) { $success = "Compte validé ! Vous pouvez vous conne
     .login-container { max-width: 450px; margin: 80px auto; }
     .input-recyclivre { border: none !important; border-bottom: 1px solid #ccc !important; padding: 15px 0 !important; background: transparent !important; text-align: center; }
     .btn-continue { background-color: #274e13; color: white; border-radius: 50px; padding: 12px 0; width: 100%; margin-top: 20px; border: none; font-weight: bold; }
-    .puzzle-choice img { cursor: pointer; width: 75px; height: 75px; object-fit: contain; background: #eee; border-radius: 8px; }
-    .puzzle-choice input:checked + img { border: 3px solid #274e13 !important; background: #e2efda; }
-    .captcha-bg { background: url('img/fond_puzzle.jpg') no-repeat center; background-size: cover; height: 160px; border-radius: 8px; }
+    
+    #pieceCanvas {
+        position: absolute !important;
+        left: 0px !important;
+        z-index: 99;
+    }
 </style>
 
 <div class="container text-center">
@@ -44,7 +47,7 @@ if (isset($_GET['verif'])) { $success = "Compte validé ! Vous pouvez vous conne
                 <button type="button" class="btn btn-outline-secondary w-100" data-bs-toggle="modal" data-bs-target="#captchaModal" id="captchaTriggerBtn">
                     <i class="bi bi-puzzle"></i> Cliquez pour vérifier
                 </button>
-                <input type="hidden" name="captcha_token" id="captchaToken" >
+                <input type="hidden" name="captcha_token" id="captchaToken">
             </div>
 
             <div class="modal fade" id="captchaModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
@@ -58,14 +61,14 @@ if (isset($_GET['verif'])) { $success = "Compte validé ! Vous pouvez vous conne
                             
                             <div class="position-relative d-inline-block shadow-sm rounded overflow-hidden" id="captchaBox" style="width: 300px; height: 150px;">
                                 <canvas id="mainCanvas" width="300" height="150"></canvas>
-                                <canvas id="pieceCanvas" width="300" height="150" class="position-absolute top-0 start-0"></canvas>
+                                <canvas id="pieceCanvas" width="50" height="50"></canvas>
                             </div>
 
                             <div class="mt-4 px-3">
                                 <input type="range" class="form-range captcha-slider" id="captchaSlider" min="0" max="250" value="0">
                             </div>
                             
-                            <p id="captchaMessage" class="mt-2 small"></p>
+                            <p id="captchaMessage" class="mt-2 small fw-bold"></p>
                         </div>
                     </div>
                 </div>
@@ -75,6 +78,7 @@ if (isset($_GET['verif'])) { $success = "Compte validé ! Vous pouvez vous conne
         <a href="inscription.php" class="d-block mt-4 text-success fw-bold text-decoration-none">CRÉER UN COMPTE</a>
     </div>
 </div>
+
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const slider = document.getElementById('captchaSlider');
@@ -87,18 +91,10 @@ document.addEventListener('DOMContentLoaded', function () {
     let targetX = 0; 
     const pieceSize = 50; 
 
- 
-    const puzzleImages = [
-        'img/fond_puzzle_2.jpg',
-        'img/fond_puzzle_3.jpg',
-        'img/fond_puzzle_4.jpg'
-    ];
-
     function initPuzzle() {
         const ctxMain = mainCanvas.getContext('2d');
         const ctxPiece = pieceCanvas.getContext('2d');
         
-      
         fetch('get_captcha_image.php')
             .then(response => response.json())
             .then(data => {
@@ -106,30 +102,25 @@ document.addEventListener('DOMContentLoaded', function () {
                 img.src = data.image; 
                 
                 img.onload = function() {
-                  
                     targetX = Math.floor(Math.random() * 140) + 70; 
                     const targetY = Math.floor(Math.random() * 60) + 20;  
 
-                
                     ctxMain.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
                     ctxPiece.clearRect(0, 0, pieceCanvas.width, pieceCanvas.height);
 
-               
                     ctxMain.drawImage(img, 0, 0, mainCanvas.width, mainCanvas.height);
 
-                   
                     ctxMain.fillStyle = 'rgba(0, 0, 0, 0.5)';
                     ctxMain.fillRect(targetX, targetY, pieceSize, pieceSize);
 
-                  
                     pieceCanvas.width = pieceSize;
                     pieceCanvas.height = pieceSize;
                     pieceCanvas.style.top = targetY + 'px';
                     pieceCanvas.style.transform = 'translateX(0px)';
 
-                   
                     ctxPiece.drawImage(img, targetX, targetY, pieceSize, pieceSize, 0, 0, pieceSize, pieceSize);
                     
+                    slider.disabled = false;
                     slider.value = 0;
                     slider.max = 250; 
                     message.textContent = '';
@@ -139,44 +130,35 @@ document.addEventListener('DOMContentLoaded', function () {
             .catch(error => console.error('Erreur de chargement de l\'image CAPTCHA:', error));
     }
 
-   
     slider.addEventListener('input', function() {
         const xPosition = slider.value;
         pieceCanvas.style.transform = 'translateX(' + xPosition + 'px)';
     });
 
-  
-   
- 
     slider.addEventListener('change', function() {
         const userX = parseInt(slider.value);
         const difference = Math.abs(userX - targetX);
-        const tolerance = 9; 
+        const tolerance = 10; 
+
         if (difference <= tolerance) {
-           
             tokenInput.value = btoa('success_validated_' + Date.now());
-            
-         
-            message.textContent = "✅ Parfait ! Humain validé.";
-            message.className = "mt-2 small text-success";
             
             triggerBtn.innerHTML = "✅ Vérification Réussie";
             triggerBtn.className = "btn btn-success w-100";
             
-           
+            message.textContent = "✅ Parfait ! Humain validé.";
+            message.className = "mt-2 small text-success";
+            
             slider.disabled = true;
-            
-            
+
             setTimeout(() => {
                 const modalEl = document.getElementById('captchaModal');
                 const modalInstance = bootstrap.Modal.getInstance(modalEl);
                 if (modalInstance) {
                     modalInstance.hide();
                 }
-            }, 600);
-
+            }, 500); 
         } else {
-           
             message.textContent = "❌ Mauvais alignement. Réessayez.";
             message.className = "mt-2 small text-danger";
             
@@ -189,7 +171,21 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-  
+    const form = document.querySelector('form');
+    form.addEventListener('submit', function(e) {
+        if (!tokenInput.value) {
+            e.preventDefault(); 
+            alert("Veuillez d'abord réussir le puzzle de sécurité.");
+            
+            const modalEl = document.getElementById('captchaModal');
+            const modalInstance = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+            modalInstance.show();
+        } else {
+            
+            console.log("Jeton envoyé :", tokenInput.value);
+        }
+    });
+
     document.getElementById('captchaModal').addEventListener('shown.bs.modal', initPuzzle);
 });
 </script>

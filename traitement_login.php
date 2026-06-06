@@ -5,17 +5,19 @@ if (session_status() === PHP_SESSION_NONE) { session_start(); }
 $pseudo = trim($_POST['pseudo'] ?? '');
 $mdp = $_POST['mdp'] ?? '';
 
-
 $captcha_token = $_POST['captcha_token'] ?? '';
 
 
 if (empty($captcha_token)) {
-      die("Erreur de sécurité : Le serveur n'a reçu aucun jeton de CAPTCHA. Vérifie que le formulaire transmet bien le champ.");
+    header("Location: login.php?error=captcha");
+    exit();
 }
 
+
 $decoded = base64_decode($captcha_token);
-if (strpos($decoded, 'success_validated_') !== 0) {
-    
+
+
+if (strpos($decoded, 'success') !== 0) {
     header("Location: login.php?error=captcha");
     exit();
 }
