@@ -8,18 +8,29 @@ use Dompdf\Options;
 
 try {
     $host = 'localhost'; 
-    $dbname = 'nom_de_votre_bdd';
-    $username = 'votre_utilisateur';
-    $password = 'votre_mot_de_passe';
+    $dbname = 'biblioccaz'; 
+    $username = 'admin_biblio';
+    $password = 'Esgi_2026_Biblio!';
     
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $username, $password);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
  
-    $query = $pdo->query("SELECT nom, prenom, email, date_inscription FROM utilisateurs ORDER BY date_inscription DESC");
-    $inscrits = $query->fetchAll(PDO::FETCH_ASSOC);
+    $conn = new mysqli($host, $username, $password, $dbname);
+    
+    if ($conn->connect_error) {
+        die("Erreur de connexion : " . $conn->connect_error);
+    }
+    $conn->set_charset("utf8");
 
-} catch (PDOException $e) {
+    
+    $result = $conn->query("SELECT nom, prenom, email  FROM user ORDER BY id DESC");
+    
+    if (!$result) {
+        die("Erreur de requête : " . $conn->error);
+    }
+    
+    $inscrits = $result->fetch_all(MYSQLI_ASSOC);
+    $conn->close();
+
+} catch (Exception $e) {
     die("Erreur de base de données : " . $e->getMessage());
 }
 
