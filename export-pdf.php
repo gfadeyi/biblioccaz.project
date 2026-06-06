@@ -62,7 +62,7 @@ $html = '
                 <th>Nom</th>
                 <th>Prénom</th>
                 <th>Adresse Email</th>
-                <th>Date d\'inscription</th>
+                
             </tr>
         </thead>
         <tbody>';
@@ -73,7 +73,7 @@ foreach ($inscrits as $row) {
         <td>' . htmlspecialchars($row['nom']) . '</td>
         <td>' . htmlspecialchars($row['prenom']) . '</td>
         <td>' . htmlspecialchars($row['email']) . '</td>
-        <td>' . date('d/m/Y', strtotime($row['date_inscription'])) . '</td>
+        
     </tr>';
 }
 
