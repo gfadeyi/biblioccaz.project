@@ -42,10 +42,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $response = curl_exec($ch);
         curl_close($ch);
-
+        
             $urlMail = 'https://api.brevo.com/v3/smtp/email';
         $dataMail = [
-            'sender' => ['name' => 'Biblioccaz', 'email' => 'biblioccaz.noreply@gmail.com'], 
+            'sender' => ['name' => 'Biblioccaz', 'email' => 'contact@biblioccaz.fr'], 
             'to' => [['email' => $email]],
             'subject' => 'Bienvenue dans la newsletter Biblioccaz !',
             'htmlContent' => '<html><body><h1>Merci pour votre inscription !</h1><p>Vous recevrez désormais nos offres.</p></body></html>'
