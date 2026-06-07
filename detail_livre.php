@@ -34,8 +34,9 @@ function formaterEtat($etat) {
     .btn-custom-green { background-color: #274e13; color: white; font-weight: bold; border-radius: 50px; padding: 12px; border: none; }
     .btn-custom-green:hover { background-color: #1a330d; color: white; }
     .btn-admin-green { background-color: #274e13; color: white; border-radius: 50px; font-size: 0.85rem; padding: 10px; }
-    .btn-state-active { background-color: #274e13 !important; color: white !important; border-radius: 50px; padding: 8px 20px; }
-    .btn-state-inactive { border: 1px solid #6c757d; color: #6c757d; border-radius: 50px; padding: 8px 20px; }
+    .btn-state-active { background-color: #274e13 !important; color: white !important; border-radius: 50px; padding: 8px 20px; transition: 0.3s; }
+    .btn-state-inactive { border: 1px solid #274e13; color: #274e13; border-radius: 50px; padding: 8px 20px; transition: 0.3s; }
+    .btn-state-inactive:hover { background-color: #e8f5e9; }
 </style>
 
 <div class="container mt-5 mb-5">
@@ -55,11 +56,12 @@ function formaterEtat($etat) {
                         $is_active = ($index == $offre_index);
                         $etat_label = formaterEtat($offre['etat']);
                     ?>
-                        <div class="<?= $is_active ? 'btn-state-active' : 'btn-state-inactive' ?> d-flex flex-column align-items-center" 
-                             style="border-radius: 50px; padding: 8px 20px; cursor: default;">
+                        <a href="detail_livre.php?id=<?= $id ?>&offre=<?= $index ?>" 
+                           class="<?= $is_active ? 'btn-state-active' : 'btn-state-inactive' ?> text-decoration-none d-flex flex-column align-items-center" 
+                           style="min-width: 90px;">
                             <span class="fw-bold"><?= $etat_label ?></span>
                             <span class="small" style="font-size: 0.75rem;"><?= number_format($offre['prix'], 2) ?> €</span>
-                        </div>
+                        </a>
                     <?php endforeach; ?>
                 </div>
             </div>
@@ -89,7 +91,12 @@ function formaterEtat($etat) {
                     <h2 class="fw-bold text-success"><?= number_format($offre_selectionnee['prix'], 2) ?> €</h2>
                     <p class="text-muted small">Stock : <?= $offre_selectionnee['quantite'] ?></p>
                     
-                    <?php if ($offre_selectionnee['quantite'] > 0): ?>
+                    <?php 
+                    $estConnecte = isset($_SESSION['user_id']);
+                    $estClient = ($estConnecte && isset($_SESSION['role']) && $_SESSION['role'] === 'client');
+                    ?>
+
+                    <?php if ($estClient && $offre_selectionnee['quantite'] > 0): ?>
                         <form action="action_ajouter_panier.php" method="POST">
                             <input type="hidden" name="id_livre" value="<?= $id ?>">
                             <input type="hidden" name="id_exemplaire" value="<?= $offre_selectionnee['id_exemplaire'] ?>">
@@ -100,8 +107,12 @@ function formaterEtat($etat) {
                             <button type="submit" name="action" value="ajouter" class="btn btn-custom-green w-100 mb-2">Ajouter au panier</button>
                             <button type="submit" name="action" value="acheter" class="btn btn-outline-dark w-100 rounded-pill">Acheter</button>
                         </form>
-                    <?php else: ?>
+                    <?php elseif (!$estConnecte): ?>
+                        <a href="login.php" class="btn btn-custom-green w-100 rounded-pill py-2">Connexion pour acheter</a>
+                    <?php elseif ($offre_selectionnee['quantite'] <= 0): ?>
                         <button class="btn btn-secondary w-100 rounded-pill" disabled>Épuisé</button>
+                    <?php else: ?>
+                        <button class="btn btn-warning w-100 rounded-pill" disabled>Accès client requis</button>
                     <?php endif; ?>
                 <?php endif; ?>
                 
