@@ -1,5 +1,5 @@
 <?php
-// On force l'affichage des erreurs au cas où pour le débug sur ton VPS
+
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
@@ -60,7 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $chMail = curl_init('https://api.brevo.com/v3/smtp/email');
         curl_setopt($chMail, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($chMail, CURLOPT_POST, true);
-        curl_setopt($chMail, CURLOPT_POSTFIELDS, json_encode($dataEmail)); // 🟢 Encodé en JSON
+        curl_setopt($chMail, CURLOPT_POSTFIELDS, json_encode($dataEmail)); 
         curl_setopt($chMail, CURLOPT_HTTPHEADER, [
             'Content-Type: application/json',
             'api-key: ' . $apiKey
