@@ -16,6 +16,9 @@ if (!$user) {
 }
 
 $isAdmin = ($user['role'] === 'admin');
+$isClient = ($user['role'] === 'client');
+$isAuteur = ($user['role'] === 'auteur');
+$isGestionnaire = ($user['role'] === 'gestionnaire');
 $points = $user['solde_points'] ?? 0;
 
 include 'header.php';
@@ -24,7 +27,7 @@ include 'header.php';
 <style>
     .profile-bg { background-color: #fcfcfc; min-height: 100vh; padding-bottom: 50px; }
     .section-title { font-weight: 700; font-size: 1.5rem; position: relative; display: inline-block; margin-bottom: 25px; }
-    .section-title::after { content: ""; position: absolute; left: 0; bottom: -5px; width: 60%; height: 3px; background-color: <?= $isAdmin ? '#274e13' : '#ffc107' ?>; border-radius: 2px; }
+    .section-title::after { content: ""; position: absolute; left: 0; bottom: -5px; width: 60%; height: 3px; background-color: #274e13; border-radius: 2px; }
     .info-box { background: white; border-radius: 12px; padding: 30px; border: 1px solid #eee; margin-bottom: 40px; }
     .quick-access-card { background: white; border: 1px solid #f1f1f1; border-radius: 8px; padding: 20px; height: 100%; transition: 0.3s; cursor: pointer; text-decoration: none !important; display: block; }
     .quick-access-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.05); border-color: #274e13; }
@@ -37,7 +40,7 @@ include 'header.php';
 <div class="profile-bg">
     <div class="container pt-4">
         
-        <h2 class="section-title"><?= $isAdmin ? 'Espace Administrateur' : 'Mon Compte' ?></h2>
+        <h2 class="section-title"><?= $isAdmin ? 'Espace Administrateur' : ($isAuteur ? 'Espace Créateur' : ($isGestionnaire ? 'Espace Modérateur' : 'Mon Compte')) ?></h2>
 
         <div class="info-box d-flex flex-column flex-md-row justify-content-between align-items-md-center shadow-sm">
             <div class="d-flex align-items-center mb-3 mb-md-0">
@@ -50,6 +53,10 @@ include 'header.php';
                     
                     <?php if ($isAdmin): ?>
                         <span class="badge bg-danger rounded-pill px-3 small">ADMINISTRATEUR</span>
+                    <?php elseif ($isGestionnaire): ?>
+                        <span class="badge bg-warning text-dark rounded-pill px-3 small">MODÉRATEUR</span>
+                    <?php elseif ($isAuteur): ?>
+                        <span class="badge bg-info text-dark rounded-pill px-3 small">AUTEUR</span>
                     <?php else: ?>
                         <span class="badge bg-success rounded-pill px-3 small"><?= $points ?> Points BIBLIOccaz</span>
                     <?php endif; ?>
@@ -86,6 +93,43 @@ include 'header.php';
                         <div class="card-icon"><i class="bi bi-terminal"></i></div>
                         <div class="card-title">Logs</div>
                         <p class="card-text">Historique système.</p>
+                    </a>
+                </div>
+            <?php elseif ($isGestionnaire): ?>
+                <div class="col-md-4 col-lg-3">
+                    <a href="moderation_catalogue.php" class="quick-access-card">
+                        <div class="card-icon"><i class="bi bi-shield-check"></i></div>
+                        <div class="card-title">Modération</div>
+                        <p class="card-text">Valider les fiches catalogue.</p>
+                    </a>
+                </div>
+                <div class="col-md-4 col-lg-3">
+                    <a href="inventaire_admin.php" class="quick-access-card">
+                        <div class="card-icon"><i class="bi bi-box-seam"></i></div>
+                        <div class="card-title">Suivi des Stocks</div>
+                        <p class="card-text">Vérification de l'inventaire.</p>
+                    </a>
+                </div>
+            <?php elseif ($isAuteur): ?>
+                <div class="col-md-4 col-lg-3">
+                    <a href="dashboard_auteur.php" class="quick-access-card">
+                        <div class="card-icon"><i class="bi bi-layout-text-sidebar-reverse"></i></div>
+                        <div class="card-title">Mon Tableau de bord</div>
+                        <p class="card-text">Suivi de mes œuvres fiches.</p>
+                    </a>
+                </div>
+                <div class="col-md-4 col-lg-3">
+                    <a href="proposer_ouvrage.php" class="quick-access-card">
+                        <div class="card-icon"><i class="bi bi-journal-plus"></i></div>
+                        <div class="card-title">Soumettre un livre</div>
+                        <p class="card-text">Proposer une œuvre au catalogue.</p>
+                    </a>
+                </div>
+                <div class="col-md-4 col-lg-3">
+                    <a href="evenements.php" class="quick-access-card">
+                        <div class="card-icon"><i class="bi bi-calendar-event"></i></div>
+                        <div class="card-title">Événements</div>
+                        <p class="card-text">Consulter les ateliers.</p>
                     </a>
                 </div>
             <?php else: ?>
