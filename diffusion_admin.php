@@ -7,9 +7,8 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
     exit();
 }
 
-
 if (isset($_GET['action']) && isset($_GET['id']) && $_GET['action'] === 'unsubscribe') {
-    $id = $_GET['id'];
+    $id = (int)$_GET['id'];
 
     $stmtEmail = $pdo->prepare("SELECT email FROM user WHERE id = ?");
     $stmtEmail->execute([$id]);
@@ -21,8 +20,8 @@ if (isset($_GET['action']) && isset($_GET['id']) && $_GET['action'] === 'unsubsc
         $stmt = $pdo->prepare("UPDATE user SET is_newsletter = 0 WHERE id = ?");
         $stmt->execute([$id]);
 
-        $apiKey = ''; 
-        $idListe = 2; 
+        $apiKey = '';
+        $idListe = 2;
 
         if (!empty($apiKey)) {
             $url = 'https://api.brevo.com/v3/contacts/lists/' . $idListe . '/contacts/remove';
@@ -32,14 +31,14 @@ if (isset($_GET['action']) && isset($_GET['id']) && $_GET['action'] === 'unsubsc
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($ch, CURLOPT_POST, true);
             curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
-            curl_setopt($ch, CURLOPT_HTTPHEADER = [
+            curl_setopt($ch, CURLOPT_HTTPHEADER, [
                 'Content-Type: application/json',
                 'api-key: ' . $apiKey
             ]);
             curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
             curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
             $response = curl_exec($ch);
-            curl_close($ch);   
+            curl_close($ch);
         }
 
         $log_stmt = $pdo->prepare("INSERT INTO logs (action, details, date_action) VALUES ('Désinscription Newsletter', :details, NOW())");
@@ -52,10 +51,8 @@ if (isset($_GET['action']) && isset($_GET['id']) && $_GET['action'] === 'unsubsc
 
 include 'header.php';
 
-
 $stmt = $pdo->query("SELECT id, pseudo, email, is_newsletter, date_newsletter FROM user WHERE date_newsletter IS NOT NULL ORDER BY date_newsletter DESC");
 $subscribers = $stmt->fetchAll();
-
 
 $active_emails = [];
 foreach ($subscribers as $s) {
@@ -146,7 +143,7 @@ $copy_list = implode('; ', $active_emails);
         <p class="text-muted small">Cette action enverra le mail uniquement aux utilisateurs marqués comme "Inscrit".</p>
         <form method="POST" action="lancer_envoi_newsletter.php">
             <button type="submit" class="btn btn-success rounded-pill px-4 py-2 shadow-sm fw-bold">
-
+                Lancer la campagne maintenant
             </button>
         </form>
     </div>
