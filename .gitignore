@@ -5,3 +5,4 @@ img/*
 !img/default.png
 !img/captcha/biblioccaz.project/
 /nbproject/private/
+config.php
