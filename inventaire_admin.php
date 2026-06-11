@@ -12,7 +12,7 @@ include 'header.php';
 $query = $pdo->query("
     SELECT l.*, SUM(e.quantite) as nb_stock 
     FROM livre l 
-    LEFT JOIN exemplaire e ON l.id_livre = e.id_livre 
+    LEFT JOIN exemplaire e ON l.id_livre = e.id_livre AND e.quantite > 0
     GROUP BY l.id_livre 
     ORDER BY l.id_livre DESC
 ");
@@ -20,25 +20,14 @@ $livres = $query->fetchAll();
 ?>
 
 <div class="container mt-5">
-
-    <?php if (isset($_GET['msg']) && $_GET['msg'] === 'success'): ?>
-        <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm rounded-3 mb-4" role="alert">
-            <i class="bi bi-check-circle-fill me-2"></i>
-            Le livre a été ajouté avec succès au catalogue !
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    <?php endif; ?>
-
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <div class="d-flex align-items-center">
-            <h2 class="fw-bold mb-0 text-dark">Gestion Stock & Inventaire</h2>
-        </div>
+        <h2 class="fw-bold mb-0 text-dark">Gestion Stock & Inventaire</h2>
         <div class="d-flex gap-2">
             <a href="ajouter_livre.php" class="btn btn-success shadow-sm rounded-pill px-4">
                 <i class="bi bi-plus-circle me-2"></i>Nouveau Titre
             </a>
             <a href="admin.php" class="btn btn-outline-secondary rounded-pill px-3">
-                <i class="bi bi-arrow-left me-2"></i>Retour au Dashboard
+                <i class="bi bi-arrow-left me-2"></i>Retour
             </a>
         </div>
     </div>
@@ -78,9 +67,6 @@ $livres = $query->fetchAll();
                             <a href="gerer_exemplaires.php?id=<?= $livre['id_livre']; ?>" class="btn btn-sm btn-outline-success">
                                 <i class="bi bi-box-seam me-1"></i> Stock
                             </a>
-                            <a href="modifier_livre.php?id=<?= $livre['id_livre']; ?>" class="btn btn-sm btn-outline-primary">
-                                <i class="bi bi-pencil"></i>
-                            </a>
                         </div>
                     </td>
                 </tr>
@@ -89,5 +75,4 @@ $livres = $query->fetchAll();
         </table>
     </div>
 </div>
-
 <?php include 'footer.php'; ?>

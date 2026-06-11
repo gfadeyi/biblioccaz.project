@@ -3,6 +3,7 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+<<<<<<< HEAD
 $inactivity_limit = 900; 
 
 if (isset($_SESSION['last_activity'])) {
@@ -17,6 +18,17 @@ if (isset($_SESSION['last_activity'])) {
 $_SESSION['last_activity'] = time();
 
 $isLocal = ($_SERVER['REMOTE_ADDR'] == '127.0.0.1' || $_SERVER['REMOTE_ADDR'] == '::1');
+=======
+$timeout_duration = 300;
+
+if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity'] > $timeout_duration)) {
+    session_unset();
+    session_destroy();
+    header("Location: login.php?msg=inactive");
+    exit();
+}
+$_SESSION['last_activity'] = time();
+>>>>>>> 0b0dda6ffdf718bc4021d80f07028c49a9b948ee
 
 $host = 'localhost';
 $db   = 'biblioccaz';
@@ -35,6 +47,11 @@ try {
     $pdo = new PDO($dsn, $user, $pass, $options);
 } catch (\PDOException $e) {
     die("Erreur de connexion : " . $e->getMessage());
+}
+
+if (isset($_SESSION['user_id'])) {
+    $stmt = $pdo->prepare("UPDATE user SET last_activity = NOW() WHERE id = ?");
+    $stmt->execute([$_SESSION['user_id']]);
 }
 
 function insertLog($type, $message) {
