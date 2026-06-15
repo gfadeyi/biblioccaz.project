@@ -15,11 +15,9 @@ if (is_dir($dir)) {
     }
 }
 
-
 if (empty($images)) {
     $images = ['img/fond_puzzle_2.jpg']; 
 }
-
 
 $chosenImage = $images[array_rand($images)];
 
