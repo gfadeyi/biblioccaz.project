@@ -3,8 +3,7 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-<<<<<<< HEAD
-$inactivity_limit = 900; 
+$inactivity_limit = 960; 
 
 if (isset($_SESSION['last_activity'])) {
     $duration = time() - $_SESSION['last_activity'];
@@ -18,8 +17,7 @@ if (isset($_SESSION['last_activity'])) {
 $_SESSION['last_activity'] = time();
 
 $isLocal = ($_SERVER['REMOTE_ADDR'] == '127.0.0.1' || $_SERVER['REMOTE_ADDR'] == '::1');
-=======
-$timeout_duration = 300;
+$timeout_duration = 360;
 
 if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity'] > $timeout_duration)) {
     session_unset();
@@ -28,7 +26,6 @@ if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity'] > 
     exit();
 }
 $_SESSION['last_activity'] = time();
->>>>>>> 0b0dda6ffdf718bc4021d80f07028c49a9b948ee
 
 $host = 'localhost';
 $db   = 'biblioccaz';
