@@ -28,10 +28,36 @@ if (isset($_GET['verif'])) { $success = "Compte validé ! Vous pouvez vous conne
     .input-recyclivre { border: none !important; border-bottom: 1px solid #ccc !important; padding: 15px 0 !important; background: transparent !important; text-align: center; }
     .btn-continue { background-color: #274e13; color: white; border-radius: 50px; padding: 12px 0; width: 100%; margin-top: 20px; border: none; font-weight: bold; }
     
-    #pieceCanvas {
-        position: absolute !important;
-        left: 0px !important;
-        z-index: 99;
+    #captchaGrid {
+        display: grid;
+        grid-template-columns: repeat(3, 100px);
+        grid-template-rows: repeat(2, 75px);
+        gap: 2px;
+        width: 304px;
+        height: 154px;
+        background-color: #333;
+        margin: 0 auto;
+        border-radius: 4px;
+        overflow: hidden;
+    }
+    .puzzle-tile {
+        width: 100px;
+        height: 75px;
+        cursor: pointer;
+        border: 1px solid rgba(255,255,255,0.2);
+        transition: opacity 0.2s, transform 0.1s;
+        box-sizing: border-box;
+        background-repeat: no-repeat;
+        background-size: 300px 150px;
+        background-color: #555;
+    }
+    .puzzle-tile:hover {
+        opacity: 0.9;
+    }
+    .puzzle-tile.selected {
+        outline: 3px solid #274e13;
+        outline-offset: -3px;
+        transform: scale(0.95);
     }
 </style>
 
@@ -62,25 +88,19 @@ if (isset($_GET['verif'])) { $success = "Compte validé ! Vous pouvez vous conne
                 <input type="hidden" name="captcha_token" id="captchaToken">
             </div>
 
-            <div class="modal fade" id="captchaModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+            <div class="modal fade" id="captchaModal" tabindex="-1" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered">
                     <div class="modal-content">
                         <div class="modal-header bg-light">
-                            <h5 class="modal-title">Faites glisser pour compléter</h5>
+                            <h5 class="modal-title">Reconstituez l'image</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
-                        <div class="modal-body text-center">
+                        <div class="modal-body text-center py-4">
+                            <p class="text-muted small mb-3">Cliquez sur deux cases pour échanger leurs places.</p>
                             
-                            <div class="position-relative d-inline-block shadow-sm rounded overflow-hidden" id="captchaBox" style="width: 300px; height: 150px;">
-                                <canvas id="mainCanvas" width="300" height="150"></canvas>
-                                <canvas id="pieceCanvas" width="50" height="50"></canvas>
-                            </div>
-
-                            <div class="mt-4 px-3">
-                                <input type="range" class="form-range captcha-slider" id="captchaSlider" min="0" max="250" value="0">
-                            </div>
+                            <div id="captchaGrid"></div>
                             
-                            <p id="captchaMessage" class="mt-2 small fw-bold"></p>
+                            <p id="captchaMessage" class="mt-3 small fw-bold mb-0" style="min-height: 20px;"></p>
                         </div>
                     </div>
                 </div>
@@ -93,108 +113,153 @@ if (isset($_GET['verif'])) { $success = "Compte validé ! Vous pouvez vous conne
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    const slider = document.getElementById('captchaSlider');
-    const pieceCanvas = document.getElementById('pieceCanvas');
-    const mainCanvas = document.getElementById('mainCanvas');
+    const grid = document.getElementById('captchaGrid');
     const triggerBtn = document.getElementById('captchaTriggerBtn');
     const tokenInput = document.getElementById('captchaToken');
     const message = document.getElementById('captchaMessage');
     
-    let targetX = 0; 
-    const pieceSize = 50; 
+    const cols = 3;
+    const rows = 2;
+    
+    let tiles = [];
+    let selectedTile = null;
+    let isVerified = false;
+
+    function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+    }
+
+    function buildPuzzle(imgUrl) {
+        tiles = [];
+        for (let r = 0; r < rows; r++) {
+            for (let c = 0; c < cols; c++) {
+                tiles.push({
+                    correctIndex: r * cols + c,
+                    currentIndex: r * cols + c,
+                    posX: -(c * 100),
+                    posY: -(r * 75)
+                });
+            }
+        }
+
+        let attempts = 0;
+        do {
+            shuffleArray(tiles);
+            attempts++;
+        } while (checkWin() && attempts < 10);
+        
+        tiles.forEach((tile, index) => { tile.currentIndex = index; });
+        renderGrid(imgUrl);
+    }
 
     function initPuzzle() {
-        const ctxMain = mainCanvas.getContext('2d');
-        const ctxPiece = pieceCanvas.getContext('2d');
-        
+        isVerified = false;
+        selectedTile = null;
+        grid.innerHTML = '';
+        message.textContent = '';
+        tokenInput.value = '';
+
         fetch('get_captcha_image.php')
             .then(response => response.json())
             .then(data => {
-                const img = new Image();
-                img.src = data.image; 
-                
-                img.onload = function() {
-                    targetX = Math.floor(Math.random() * 140) + 70; 
-                    const targetY = Math.floor(Math.random() * 60) + 20;  
-
-                    ctxMain.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
-                    ctxPiece.clearRect(0, 0, pieceCanvas.width, pieceCanvas.height);
-
-                    ctxMain.drawImage(img, 0, 0, mainCanvas.width, mainCanvas.height);
-
-                    ctxMain.fillStyle = 'rgba(0, 0, 0, 0.5)';
-                    ctxMain.fillRect(targetX, targetY, pieceSize, pieceSize);
-
-                    pieceCanvas.width = pieceSize;
-                    pieceCanvas.height = pieceSize;
-                    pieceCanvas.style.top = targetY + 'px';
-                    pieceCanvas.style.transform = 'translateX(0px)';
-
-                    ctxPiece.drawImage(img, targetX, targetY, pieceSize, pieceSize, 0, 0, pieceSize, pieceSize);
-                    
-                    slider.disabled = false;
-                    slider.value = 0;
-                    slider.max = 250; 
-                    message.textContent = '';
-                    tokenInput.value = ''; 
-                };
+                let imgUrl = (data && data.image) ? data.image : 'img/fond_puzzle_2.jpg';
+                buildPuzzle(imgUrl);
             })
-            .catch(error => console.error('Erreur:', error));
+            .catch(() => {
+                buildPuzzle('img/fond_puzzle_2.jpg');
+            });
     }
 
-    slider.addEventListener('input', function() {
-        const xPosition = slider.value;
-        pieceCanvas.style.transform = 'translateX(' + xPosition + 'px)';
-    });
+    function renderGrid(imgUrl) {
+        grid.innerHTML = '';
+        let currentOrder = [...tiles].sort((a, b) => a.currentIndex - b.currentIndex);
 
-    slider.addEventListener('change', function() {
-        const userX = parseInt(slider.value);
-        const difference = Math.abs(userX - targetX);
-        const tolerance = 10; 
-
-        if (difference <= tolerance) {
-            tokenInput.value = btoa('success_validated_' + Date.now());
+        currentOrder.forEach(tile => {
+            const box = document.createElement('div');
+            box.className = 'puzzle-tile';
+            box.dataset.index = tile.currentIndex;
+            box.style.backgroundImage = 'url(' + imgUrl + ')';
+            box.style.backgroundPosition = tile.posX + 'px ' + tile.posY + 'px';
             
-            triggerBtn.innerHTML = "✅ Vérification Réussie";
-            triggerBtn.className = "btn btn-success w-100";
-            
-            message.textContent = "✅ Parfait ! Humain validé.";
-            message.className = "mt-2 small text-success";
-            
-            slider.disabled = true;
-
-            setTimeout(() => {
-                const modalEl = document.getElementById('captchaModal');
-                const modalInstance = bootstrap.Modal.getInstance(modalEl);
-                if (modalInstance) {
-                    modalInstance.hide();
+            box.addEventListener('click', function() {
+                if (isVerified) return;
+                
+                if (!selectedTile) {
+                    selectedTile = box;
+                    box.classList.add('selected');
+                } else if (selectedTile === box) {
+                    selectedTile.classList.remove('selected');
+                    selectedTile = null;
+                } else {
+                    const idx1 = parseInt(selectedTile.dataset.index);
+                    const idx2 = parseInt(box.dataset.index);
+                    
+                    const t1 = tiles.find(t => t.currentIndex === idx1);
+                    const t2 = tiles.find(t => t.currentIndex === idx2);
+                    
+                    t1.currentIndex = idx2;
+                    t2.currentIndex = idx1;
+                    
+                    selectedTile.classList.remove('selected');
+                    selectedTile = null;
+                    
+                    renderGrid(imgUrl);
+                    
+                    if (checkWin()) {
+                        isVerified = true;
+                        tokenInput.value = btoa('success_validated_' + Date.now());
+                        
+                        triggerBtn.innerHTML = "✅ Vérification Réussie";
+                        triggerBtn.className = "btn btn-success w-100";
+                        
+                        message.textContent = "✅ Parfait ! Image reconstituée.";
+                        message.className = "mt-3 small text-success fw-bold";
+                        
+                        setTimeout(() => {
+                            const modalEl = document.getElementById('captchaModal');
+                            if (window.bootstrap && bootstrap.Modal) {
+                                const modalInstance = bootstrap.Modal.getInstance(modalEl);
+                                if (modalInstance) {
+                                    modalInstance.hide();
+                                    return;
+                                }
+                            }
+                            const fallbackClose = modalEl.querySelector('[data-bs-dismiss="modal"]');
+                            if (fallbackClose) fallbackClose.click();
+                        }, 600);
+                    }
                 }
-            }, 500); 
-        } else {
-            message.textContent = "❌ Mauvais alignement. Réessayez.";
-            message.className = "mt-2 small text-danger";
+            });
             
-            setTimeout(() => {
-                slider.value = 0;
-                pieceCanvas.style.transform = 'translateX(0px)';
-                message.textContent = '';
-                tokenInput.value = '';
-            }, 1000);
-        }
-    });
+            grid.appendChild(box);
+        });
+    }
+
+    function checkWin() {
+        return tiles.every(tile => tile.correctIndex === tile.currentIndex);
+    }
 
     const form = document.querySelector('form');
     form.addEventListener('submit', function(e) {
         if (!tokenInput.value) {
             e.preventDefault(); 
             alert("Veuillez d'abord réussir le puzzle de sécurité.");
+            
             const modalEl = document.getElementById('captchaModal');
-            const modalInstance = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
-            modalInstance.show();
+            if (window.bootstrap && bootstrap.Modal) {
+                const modalInstance = bootstrap.Modal.getOrCreateInstance(modalEl);
+                modalInstance.show();
+            }
         }
     });
 
-    document.getElementById('captchaModal').addEventListener('shown.bs.modal', initPuzzle);
+    const modalElement = document.getElementById('captchaModal');
+    modalElement.addEventListener('shown.bs.modal', function () {
+        initPuzzle();
+    });
 });
 </script>
 <?php include 'footer.php'; ?>
