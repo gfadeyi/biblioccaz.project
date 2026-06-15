@@ -66,7 +66,7 @@ if (isset($_GET['verif'])) { $success = "Compte validé ! Vous pouvez vous conne
         
         <?php if (isset($_GET['msg']) && $_GET['msg'] === 'inactive'): ?>
             <div class="alert alert-warning alert-dismissible fade show mb-4" role="alert">
-                <strong>Déconnexion automatique :</strong> Inactivité prolongée (5 min).
+                <strong>Déconnexion automatique :</strong> Inactivité prolongée (3 min).
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         <?php endif; ?>
