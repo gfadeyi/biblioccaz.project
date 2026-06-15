@@ -3,11 +3,28 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-$inactivity_limit = 900; 
+$inactivity_limit = 300; 
 
 if (isset($_SESSION['last_activity'])) {
     $duration = time() - $_SESSION['last_activity'];
     if ($duration > $inactivity_limit) {
+
+    if (isset($_SESSION['user_id'])) {
+            try {
+                $pdo_auto = new PDO("mysql:host=localhost;dbname=biblioccaz;charset=utf8mb4", "admin_biblio", "Esgi_2026_Biblio!", [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
+                
+                $stmt_u = $pdo_auto->prepare("SELECT last_activity FROM user WHERE id = ?");
+                $stmt_u->execute([$_SESSION['user_id']]);
+                $u_data = $stmt_u->fetch(PDO::FETCH_ASSOC);
+                $date_exacte_deco = $u_data['last_activity'] ?? date('Y-m-d H:i:s');
+
+                $stmt_log = $pdo_auto->prepare("INSERT INTO logs (action_type, description, date_action, adresse_ip, id_user) VALUES ('LOGOUT', 'Déconnexion automatique (inactivité 300s)', ?, ?, ?)");
+                $stmt_log->execute([$date_exacte_deco, $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1', $_SESSION['user_id']]);
+            } catch (\PDOException $e) {
+
+            }
+        }
+
         session_unset();
         session_destroy();
         header("Location: login.php?timeout=1");
