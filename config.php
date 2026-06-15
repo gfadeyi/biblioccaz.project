@@ -3,7 +3,7 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-$inactivity_limit = 960; 
+$inactivity_limit = 900; 
 
 if (isset($_SESSION['last_activity'])) {
     $duration = time() - $_SESSION['last_activity'];
