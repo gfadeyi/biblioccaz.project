@@ -8,70 +8,32 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
 }
 
 try {
-    $sql_moyenne = "
-        SELECT 
-            SEC_TO_TIME(AVG(duree_secondes)) AS duree_moyenne,
-            COUNT(*) AS nombre_sessions,
-            SUM(CASE WHEN est_active = 1 THEN 1 ELSE 0 END) AS sessions_actives
-        FROM (
-            SELECT 
-                login_logs.id_user,
-                login_logs.date_action as login_time,
-                logout_logs.date_action as logout_time,
-                TIMESTAMPDIFF(SECOND, login_logs.date_action, logout_logs.date_action) AS duree_secondes,
-                0 AS est_active
-            FROM logs login_logs
-            JOIN logs logout_logs ON login_logs.id_user = logout_logs.id_user
-            WHERE login_logs.action_type = 'CONNEXION' 
-              AND logout_logs.action_type = 'LOGOUT'
-              AND logout_logs.date_action > login_logs.date_action
-              AND logout_logs.date_action = (
-                  SELECT MIN(date_action) 
-                  FROM logs 
-                  WHERE id_user = login_logs.id_user 
-                    AND action_type = 'LOGOUT' 
-                    AND date_action > login_logs.date_action
-              )
-            
-            UNION ALL
-            
-
-            SELECT 
-                login_logs.id_user,
-                login_logs.date_action as login_time,
-                NOW() as logout_time,
-                TIMESTAMPDIFF(SECOND, login_logs.date_action, NOW()) AS duree_secondes,
-                1 AS est_active
-            FROM logs login_logs
-            WHERE login_logs.action_type = 'CONNEXION'
-              AND NOT EXISTS (
-                  SELECT 1 
-                  FROM logs logout_logs
-                  WHERE logout_logs.id_user = login_logs.id_user
-                    AND logout_logs.action_type = 'LOGOUT'
-                    AND logout_logs.date_action > login_logs.date_action
-              )
-        ) AS sessions
+  $sql_moyenne = "
+        SELECT SEC_TO_TIME(AVG(TIMESTAMPDIFF(SECOND, login_logs.date_action, logout_logs.date_action))) AS duree_moyenne
+        FROM logs login_logs
+        JOIN logs logout_logs ON login_logs.adresse_ip = logout_logs.adresse_ip
+          AND logout_logs.date_action > login_logs.date_action
+        WHERE login_logs.action_type = 'CONNEXION' 
+          AND logout_logs.action_type = 'LOGOUT'
+          -- On associe chaque connexion au premier logout qui la suit pour cette même IP
+          AND logout_logs.date_action = (
+              SELECT MIN(date_action) 
+              FROM logs 
+              WHERE adresse_ip = login_logs.adresse_ip 
+                AND action_type = 'LOGOUT' 
+                AND date_action > login_logs.date_action
+          )
     ";
-    
+
     $stmtMoyenne = $pdo->query($sql_moyenne);
     $resultatMoyenne = $stmtMoyenne->fetch(PDO::FETCH_ASSOC);
     
-    if ($resultatMoyenne && $resultatMoyenne['nombre_sessions'] > 0) {
-        $temps_moyen = $resultatMoyenne['duree_moyenne'];
-        $nb_sessions = $resultatMoyenne['nombre_sessions'];
-        $sessions_actives = $resultatMoyenne['sessions_actives'];
-    } else {
-        $temps_moyen = null;
-        $nb_sessions = 0;
-        $sessions_actives = 0;
-    }
-} catch (\PDOException $e) {
-    $temps_moyen = null;
-    $nb_sessions = 0;
-    $sessions_actives = 0;
-}
+   
+    $temps_moyen = ($resultatMoyenne && $resultatMoyenne['duree_moyenne']) ? $resultatMoyenne['duree_moyenne'] : "00:00:00";
 
+} catch (\PDOException $e) {
+    $temps_moyen = "00:00:00";
+}
 if (isset($_GET['action']) && isset($_GET['id']) && $_GET['action'] === 'unsubscribe') {
     $id = (int)$_GET['id'];
 
@@ -177,7 +139,7 @@ $copy_list = implode('; ', $active_emails);
                     <td class="text-muted small"><?= htmlspecialchars($s['email']) ?></td>
                     
                     <td class="text-center">
-                        <?php if ($s['is_newsletter'] == 1): ?>
+                        <?php if ($s['is_newsletter'] == 1): ?
                             <span class="badge bg-light-success text-success border border-success rounded-pill px-3 py-1 small">Inscrit</span>
                         <?php else: ?>
                             <span class="badge bg-light-danger text-danger border border-danger rounded-pill px-3 py-1 small">Désinscrit</span>
