@@ -7,35 +7,8 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
     exit();
 }
 
-try {
-  $sql_moyenne = "
-        SELECT SEC_TO_TIME(AVG(TIMESTAMPDIFF(SECOND, login_logs.date_action, logout_logs.date_action))) AS duree_moyenne
-        FROM logs login_logs
-        JOIN logs logout_logs ON login_logs.adresse_ip = logout_logs.adresse_ip
-          AND logout_logs.date_action > login_logs.date_action
-        WHERE login_logs.action_type = 'CONNEXION' 
-          AND logout_logs.action_type = 'LOGOUT'
-          -- On associe chaque connexion au premier logout qui la suit pour cette même IP
-          AND logout_logs.date_action = (
-              SELECT MIN(date_action) 
-              FROM logs 
-              WHERE adresse_ip = login_logs.adresse_ip 
-                AND action_type = 'LOGOUT' 
-                AND date_action > login_logs.date_action
-          )
-    ";
-
-    $stmtMoyenne = $pdo->query($sql_moyenne);
-    $resultatMoyenne = $stmtMoyenne->fetch(PDO::FETCH_ASSOC);
-    
-   
-    $temps_moyen = ($resultatMoyenne && $resultatMoyenne['duree_moyenne']) ? $resultatMoyenne['duree_moyenne'] : "00:00:00";
-
-} catch (\PDOException $e) {
-    $temps_moyen = "00:00:00";
-}
 if (isset($_GET['action']) && isset($_GET['id']) && $_GET['action'] === 'unsubscribe') {
-    $id = (int)$_GET['id'];
+    $id = $_GET['id'];
 
     $stmtEmail = $pdo->prepare("SELECT email FROM user WHERE id = ?");
     $stmtEmail->execute([$id]);
@@ -47,8 +20,8 @@ if (isset($_GET['action']) && isset($_GET['id']) && $_GET['action'] === 'unsubsc
         $stmt = $pdo->prepare("UPDATE user SET is_newsletter = 0 WHERE id = ?");
         $stmt->execute([$id]);
 
-        $apiKey = '';
-        $idListe = 2;
+        $apiKey = BREVO_API_KEY; 
+        $idListe = 2; 
 
         if (!empty($apiKey)) {
             $url = 'https://api.brevo.com/v3/contacts/lists/' . $idListe . '/contacts/remove';
@@ -65,7 +38,7 @@ if (isset($_GET['action']) && isset($_GET['id']) && $_GET['action'] === 'unsubsc
             curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
             curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
             $response = curl_exec($ch);
-            curl_close($ch);
+            curl_close($ch);   
         }
 
         $log_stmt = $pdo->prepare("INSERT INTO logs (action, details, date_action) VALUES ('Désinscription Newsletter', :details, NOW())");
@@ -137,19 +110,16 @@ $copy_list = implode('; ', $active_emails);
                         <span class="fw-bold"><?= htmlspecialchars($s['pseudo']) ?></span>
                     </td>
                     <td class="text-muted small"><?= htmlspecialchars($s['email']) ?></td>
-                    
                     <td class="text-center">
-                        <?php if ($s['is_newsletter'] == 1): ?
+                        <?php if ($s['is_newsletter'] == 1): ?>
                             <span class="badge bg-light-success text-success border border-success rounded-pill px-3 py-1 small">Inscrit</span>
                         <?php else: ?>
                             <span class="badge bg-light-danger text-danger border border-danger rounded-pill px-3 py-1 small">Désinscrit</span>
                         <?php endif; ?>
                     </td>
-
                     <td class="text-center small">
                         <?= $s['date_newsletter'] ? date('d/m/Y à H:i', strtotime($s['date_newsletter'])) : '-' ?>
                     </td>
-                    
                     <td class="text-end pe-4">
                         <?php if ($s['is_newsletter'] == 1): ?>
                             <a href="diffusion_admin.php?action=unsubscribe&id=<?= $s['id'] ?>" class="btn btn-sm btn-outline-danger border-0" title="Désabonner de force">
@@ -170,7 +140,7 @@ $copy_list = implode('; ', $active_emails);
         <p class="text-muted small">Cette action enverra le mail uniquement aux utilisateurs marqués comme "Inscrit".</p>
         <form method="POST" action="lancer_envoi_newsletter.php">
             <button type="submit" class="btn btn-success rounded-pill px-4 py-2 shadow-sm fw-bold">
-                Lancer la campagne maintenant
+                <i class="bi bi-rocket-takeoff me-2"></i> Lancer l'envoi de la Newsletter
             </button>
         </form>
     </div>
