@@ -24,6 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     $mail = new PHPMailer(true);
+    $mail->SMTPDebug = 2;
 
     try {
         
