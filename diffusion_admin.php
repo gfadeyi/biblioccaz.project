@@ -20,27 +20,6 @@ if (isset($_GET['action']) && isset($_GET['id']) && $_GET['action'] === 'unsubsc
         $stmt = $pdo->prepare("UPDATE user SET is_newsletter = 0 WHERE id = ?");
         $stmt->execute([$id]);
 
-        $apiKey = BREVO_API_KEY; 
-        $idListe = 2; 
-
-        if (!empty($apiKey)) {
-            $url = 'https://api.brevo.com/v3/contacts/lists/' . $idListe . '/contacts/remove';
-            $data = ['emails' => [$email]];
-
-            $ch = curl_init($url);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_POST, true);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
-            curl_setopt($ch, CURLOPT_HTTPHEADER, [
-                'Content-Type: application/json',
-                'api-key: ' . $apiKey
-            ]);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-            $response = curl_exec($ch);
-            curl_close($ch);   
-        }
-
         $log_stmt = $pdo->prepare("INSERT INTO logs (action, details, date_action) VALUES ('Désinscription Newsletter', :details, NOW())");
         $log_stmt->execute(['details' => "L'admin a désabonné l'adresse : " . $email]);
     }

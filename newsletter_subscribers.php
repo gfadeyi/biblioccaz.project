@@ -1,9 +1,13 @@
 <?php
+require 'vendor/autoload.php';
+require_once 'config.php'; 
+
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-
-require_once 'config.php'; 
+error_reporting(E_ALL); 
 
 if (isset($_POST['email_newsletter']) && !empty($_POST['email_newsletter'])) {
     $email = filter_var($_POST['email_newsletter'], FILTER_VALIDATE_EMAIL);
@@ -29,31 +33,39 @@ if (isset($_POST['email_newsletter']) && !empty($_POST['email_newsletter'])) {
         }
 
 
-        $apiKey = '';
-        $idListe = 2;
+        $mail = new PHPMailer(true);
 
-        if (!empty($apiKey)) {
-            $url = 'https://api.brevo.com/v3/contacts';
-            
-            $data = [
-                'email' => $email,
-                'listIds' => [$idListe],
-                'updateEnabled' => true
-            ];
+        try {
+            $mail->isSMTP();
+            $mail->Host       = 'smtp.gmail.com';
+            $mail->SMTPAuth   = true;
+            $mail->Username   = 'biblioccaz.noreply@gmail.com';  
+            $mail->Password   = 'awwjqhrexgeuqpns';        
+            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+            $mail->Port       = 587;
+            $mail->CharSet    = 'UTF-8';
 
-            $ch = curl_init($url);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_POST, true);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
-            curl_setopt($ch, CURLOPT_HTTPHEADER, [
-                'Content-Type: application/json',
-                'api-key: ' . $apiKey
-            ]);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+            $mail->setFrom('biblioccaz.noreply@gmail.com', 'BIBLIOccaz');
+            $mail->addAddress($email); 
+
+
+            $mail->isHTML(false); 
+            $mail->Subject = "BIBLOccaz - Inscription à la newsletter validée";
             
-            $response = curl_exec($ch);
-            curl_close($ch);
+            $message = "Bonjour,\n\n";
+            $message .= "Merci de vous être inscrit à la newsletter de BIBLIOccaz !\n";
+            $message .= "Vous recevrez désormais nos dernières actualités et nos nouveaux catalogues de livres d'occasion directement dans votre boîte mail.\n\n";
+            $message .= "À très bientôt sur notre plateforme !\n\n";
+            $message .= "---------------\n";
+            $message .= "Ceci est un mail automatique, merci de ne pas y répondre.";
+            
+            $mail->Body = $message;
+
+            
+            $mail->send();
+
+        } catch (Exception $e) {
+
         }
         
         header('Location: index.php?newsletter=success');

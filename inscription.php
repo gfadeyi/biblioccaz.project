@@ -3,6 +3,9 @@ require 'vendor/autoload.php';
 require_once 'config.php';
 include 'header.php';
 
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
 $erreur = "";
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -36,27 +39,45 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
             if ($stmt->execute([$pseudo, $email, $hash, $nom, $prenom, $role, $token])) {
                 
-                $destinataire = $email;
-                $sujet = "BIBLOccaz - Votre compte est activé";
+        $url = "https://biblioccaz.fr/verification_mail.php?token=" . $token;
 
-                $headers = "From:biblioccaz.noreply@gmail.com\r\n";
-                $headers .= "Reply-To: biblioccaz.noreply@gmail.com\r\n";
-                $headers .= "Content-Type: text/plain; charset=UTF-8\r\n";
+        $mail = new PHPMailer(true);
 
-                $url = "https://biblioccaz.fr/index.php/verification_mail.php?token=" . $token;
+try {
+    
+    $mail->isSMTP();
+    $mail->Host       = 'smtp.gmail.com';
+    $mail->SMTPAuth   = true;
+    $mail->Username   = 'biblioccaz.noreply@gmail.com';  
+    $mail->Password   = 'awwjqhrexgeuqpns';      
+    $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+    $mail->Port       = 587;
+    $mail->CharSet    = 'UTF-8';
 
-                $message = "Bienvenue $prenom !\n\n";
-                $message .= "Merci de rejoindre BIBLIOccaz. Pour valider votre compte, veuillez cliquer sur le lien ci-dessous ou le copier/coller dans votre navigateur :\n";
-                $message .= $url . "\n\n";
-                $message .= "---------------\n";
-                $message .= "Ceci est un mail automatique, merci de ne pas y répondre.";
 
-                if (mail($destinataire, $sujet, $message, $headers)){
-                    echo "<script>alert('Un mail de validation a été envoyé à $email'); window.location.href='login.php';</script>";
-                    exit();
-                } else {
-                    $erreur = "Le compte est créé mais le mail n'est pas parti. Erreur : " . $mail->ErrorInfo;
-                }
+    $mail->setFrom('biblioccaz.noreply@gmail.com', 'BIBLIOccaz');
+    $mail->addAddress($email, $prenom . ' ' . $nom);
+    $mail->addReplyTo('biblioccaz.noreply@gmail.com', 'BIBLIOccaz');
+
+  
+    $mail->isHTML(false); 
+    $mail->Subject = "BIBLOccaz - Votre compte est activé";
+    
+    $message = "Bienvenue $prenom !\n\n";
+    $message .= "Merci de rejoindre BIBLIOccaz. Pour valider votre compte, veuillez cliquer sur le lien ci-dessous ou le copier/coller dans votre navigateur :\n";
+    $message .= $url . "\n\n";
+    $message .= "---------------\n";
+    $message .= "Ceci est un mail automatique, merci de ne pas y répondre.";
+    
+    $mail->Body = $message;
+
+    $mail->send();
+    echo "<script>alert('Un mail de validation a été envoyé à $email'); window.location.href='login.php';</script>";
+    exit();
+
+} catch (Exception $e) {
+    $erreur = "Le compte est créé mais le mail n'est pas parti. Erreur : {$mail->ErrorInfo}";
+}
             }
         }
     }

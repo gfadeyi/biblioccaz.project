@@ -1,12 +1,17 @@
 <?php
+require 'vendor/autoload.php';
+require_once 'config.php';
+
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
 
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
-
     $email = trim($_POST['email_newsletter'] ?? '');
 
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
@@ -14,64 +19,63 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit();
     }
 
-
-    $apiKey = ''; 
-    $idListe = 2; 
-
-    if (!empty($apiKey)) {
+    try {
+        $check = $pdo->prepare("SELECT id FROM user WHERE email = ?");
+        $check->execute([$email]);
         
+        if ($check->rowCount() > 0) {
+            $req = $pdo->prepare("UPDATE user SET is_newsletter = 1, date_newsletter = NOW() WHERE email = ?");
+            $req->execute([$email]);
+        } else {
+            $pseudo = explode('@', $email)[0]; 
+            $password_fake = password_hash(uniqid(), PASSWORD_BCRYPT); 
+            
+            $req = $pdo->prepare("INSERT INTO user (pseudo, email, mot_de_passe, role, is_newsletter, date_newsletter) VALUES (?, ?, ?, 'user', 1, NOW())");
+            $req->execute([$pseudo, $email, $password_fake]);
+        }
 
-        $dataContact = [
-            'email' => $email,
-            'listIds' => [$idListe],
-            'updateEnabled' => true
-        ];
-
-        $ch = curl_init('https://api.brevo.com/v3/contacts');
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($dataContact)); 
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            'Content-Type: application/json',
-            'api-key: ' . $apiKey
-        ]);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
         
-        $response = curl_exec($ch);
-        curl_close($ch);
-        
+        $mail = new PHPMailer(true);
 
-        $dataEmail = [
-            'sender' => [
-                'name' => 'BIBLIOccaz', 
-                'email' => 'biblioccaz.noreply@gmail.com' 
-            ],
-            'to' => [
-                ['email' => $email]
-            ],
-            'subject' => 'Bienvenue dans la newsletter BIBLIOccaz !',
-            'htmlContent' => '<html><body>
-                                <h2>Merci pour votre inscription !</h2>
-                                <p>Vous recevrez désormais nos dernières pépites littéraires d\'occasion chaque mois.</p>
-                              </body></html>'
-        ];
-
-        $chMail = curl_init('https://api.brevo.com/v3/smtp/email');
-        curl_setopt($chMail, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($chMail, CURLOPT_POST, true);
-        curl_setopt($chMail, CURLOPT_POSTFIELDS, json_encode($dataEmail)); 
-        curl_setopt($chMail, CURLOPT_HTTPHEADER, [
-            'Content-Type: application/json',
-            'api-key: ' . $apiKey
-        ]);
-        curl_setopt($chMail, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($chMail, CURLOPT_FOLLOWLOCATION, true);
         
-        $responseMail = curl_exec($chMail);
-        curl_close($chMail);
+        $mail->isSMTP();
+        $mail->Host       = 'smtp.gmail.com';
+        $mail->SMTPAuth   = true;
+        $mail->Username   = 'biblioccaz.noreply@gmail.com';  
+        $mail->Password   = 'awwjqhrexgeuqpns';        
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+        $mail->Port       = 587;
+        $mail->CharSet    = 'UTF-8';
+
+        
+        $mail->setFrom('biblioccaz.noreply@gmail.com', 'BIBLIOccaz');
+        $mail->addAddress($email);
+
+        
+        $mail->isHTML(true); 
+        $mail->Subject = 'Bienvenue dans la newsletter BIBLIOccaz !';
+        
+        $mail->Body = '
+        <html>
+        <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+            <div style="max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #b6d7a8; border-radius: 10px;">
+                <h2 style="color: #274e13;">Merci pour votre inscription !</h2>
+                <p>Bonjour,</p>
+                <p>Vous recevrez désormais nos dernières pépites littéraires d\'occasion chaque mois directement dans votre boîte mail.</p>
+                <p>À très bientôt sur notre plateforme !</p>
+                <br>
+                <hr style="border: 0; border-top: 1px solid #93c47d;">
+                <p style="font-size: 0.8rem; color: #777;">Ceci est un mail automatique, merci de ne pas y répondre.</p>
+            </div>
+        </body>
+        </html>';
+
+        $mail->send();
+
+    } catch (Exception $e) {
+    } catch (PDOException $e) {
+        die("Erreur base de données : " . $e->getMessage());
     }
-
 
     header('Location: index.php?newsletter=success');
     exit();
