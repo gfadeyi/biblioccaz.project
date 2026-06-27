@@ -86,14 +86,14 @@ $petitsPrix = $pdo->query("
     </div>
 
     <div class="mb-5">
-        <h3 class="section-title">Nos meilleures ventes</h3>
+        <h1 class="section-title">Nos meilleures ventes</h1>
         <div class="slider-viewport">
             <?php foreach ($meilleuresVentes as $l): include 'partie_carte_livre.php'; endforeach; ?>
         </div>
     </div>
 
     <div class="mb-5">
-        <h3 class="section-title">Livres à petits prix (-10€)</h3>
+        <h1 class="section-title">Livres à petits prix (-10€)</h1>
         <div class="slider-viewport">
             <?php foreach ($petitsPrix as $l): include 'partie_carte_livre.php'; endforeach; ?>
         </div>
