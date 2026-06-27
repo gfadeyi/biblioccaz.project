@@ -29,7 +29,7 @@
 <footer class="bg-white border-top py-5 mt-5" style="border-top: 4px solid var(--border-green) !important;">
     <div class="container text-center">
         <div class="row">
-            <div class="col-md-4 mb-3"><h5>BIBLIOccaz</h5><p class="small"> Donnez une seconde vie à vos lectures.</p></div>
+            <div class="col-md-4 mb-3"><h3>BIBLIOccaz</h3><p class="small"> Donnez une seconde vie à vos lectures.</p></div>
             <div class="col-md-4 mb-3"><h6>Support</h6><ul class="list-unstyled small"><li>Contact</li><li>Mentions légales</li></ul></div>
             <div class="col-md-4 mb-3"><h6>Suivez-nous</h6><i class="bi bi-instagram px-2"></i><i class="bi bi-facebook px-2"></i></div>
         </div>

@@ -6,9 +6,9 @@
         </div>
         
         <div class="card-body">
-            <h6 class="fw-bold mb-1 line-clamp">
+            <h3 class="fw-bold mb-1 line-clamp">
                 <?= htmlspecialchars($l['titre']) ?>
-            </h6>
+            </h3> 
             
             <p class="small text-muted mb-3 text-truncate">
                 <?= htmlspecialchars($l['auteur']) ?>
