@@ -1,10 +1,15 @@
 <?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 
-require 'vendor/autoload.php';
+if (!file_exists(__DIR__ . '/vendor/autoload.php')) {
+    die("Erreur : Le fichier /vendor/autoload.php est introuvable. Veuillez verifier que Composer a bien installe Dompdf dans le meme dossier.");
+}
+require __DIR__ . '/vendor/autoload.php'; 
 
 use Dompdf\Dompdf;
 use Dompdf\Options;
-
 
 try {
     $host = 'localhost'; 
@@ -12,28 +17,20 @@ try {
     $username = 'admin_biblio';
     $password = 'Esgi_2026_Biblio!';
     
- 
-    $conn = new mysqli($host, $username, $password, $dbname);
+    $options_pdo = [
+        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+        PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8",
+        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
+    ];
     
-    if ($conn->connect_error) {
-        die("Erreur de connexion : " . $conn->connect_error);
-    }
-    $conn->set_charset("utf8");
+    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $username, $password, $options_pdo);
 
-    
-    $result = $conn->query("SELECT nom, prenom, email  FROM user ORDER BY id DESC");
-    
-    if (!$result) {
-        die("Erreur de requête : " . $conn->error);
-    }
-    
-    $inscrits = $result->fetch_all(MYSQLI_ASSOC);
-    $conn->close();
+    $query = $pdo->query("SELECT nom, prenom, email FROM user ORDER BY id DESC");
+    $inscrits = $query->fetchAll();
 
-} catch (Exception $e) {
+} catch (PDOException $e) {
     die("Erreur de base de données : " . $e->getMessage());
 }
-
 
 $html = '
 <!DOCTYPE html>
@@ -62,18 +59,19 @@ $html = '
                 <th>Nom</th>
                 <th>Prénom</th>
                 <th>Adresse Email</th>
-                
             </tr>
         </thead>
         <tbody>';
 
-
 foreach ($inscrits as $row) {
+    $nom = htmlspecialchars((string)$row['nom']);
+    $prenom = htmlspecialchars((string)$row['prenom']);
+    $email = htmlspecialchars((string)$row['email']);
+
     $html .= '<tr>
-        <td>' . htmlspecialchars($row['nom']) . '</td>
-        <td>' . htmlspecialchars($row['prenom']) . '</td>
-        <td>' . htmlspecialchars($row['email']) . '</td>
-        
+        <td>' . $nom . '</td>
+        <td>' . $prenom . '</td>
+        <td>' . $email . '</td>
     </tr>';
 }
 
@@ -84,18 +82,13 @@ $html .= '
 </body>
 </html>';
 
-
 $options = new Options();
 $options->set('defaultFont', 'Helvetica');
 $options->set('isRemoteEnabled', true); 
 
 $dompdf = new Dompdf($options);
 $dompdf->loadHtml($html);
-
-
 $dompdf->setPaper('A4', 'portrait');
-
 $dompdf->render();
-
 
 $dompdf->stream("liste_inscrits_" . date('Y-m-d') . ".pdf", ["Attachment" => true]);
