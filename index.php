@@ -100,4 +100,4 @@ $petitsPrix = $pdo->query("
     </div>
 </div>
 
-<?php include 'footer.php'; ?>
+<?php include 'footer.php';  
