@@ -79,7 +79,7 @@ $petitsPrix = $pdo->query("
 
 <div class="container mt-5">
     <div class="mb-5">
-        <h3 class="section-title">Nouveau sur BIBLIOccaz</h3>
+        <h1 class="section-title">Nouveau sur BIBLIOccaz</h1>
         <div class="slider-viewport">
             <?php foreach ($nouveautes as $l): include 'partie_carte_livre.php'; endforeach; ?>
         </div>
