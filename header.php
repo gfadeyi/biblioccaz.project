@@ -57,6 +57,24 @@ document.addEventListener('DOMContentLoaded', function() {
                 suggestions.innerHTML = '';
                 return;
             }
+
+            let rechercheMajuscule = saisie.toUpperCase();
+            if (rechercheMajuscule === "SANANES") {
+                suggestions.classList.remove('d-none');
+                suggestions.innerHTML = `
+                    <div class="list-group-item list-group-item-warning p-3" style="border: 2px dashed #ffc107;">
+                        <h6 class="mb-1" style="font-weight: bold; color: #856404;">📙 Livre Secret Débloqué !</h6>
+                        <p class="mb-1 small" style="font-weight: bold;">
+                            "Comment mettre un 20/20 à BiblioOccaz" — par M. SANANES
+                        </p>
+                        <small class="text-muted d-block mt-1" style="font-style: italic;">
+                            Ouvrage indisponible, déjà victime de son succès auprès du jury ! 😉
+                        </small>
+                    </div>
+                `;
+                return;
+            }
+
             fetch('recherche.php?q=' + encodeURIComponent(saisie))
                 .then(response => response.json())
                 .then(livres => {
