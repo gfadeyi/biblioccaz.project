@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
              let rechercheMinuscule = saisie.toLowerCase();
-            if (rechercheMinuscule === "sananes") {
+            if (rechercheMinuscule === "SANANES") {
                 suggestions.classList.remove('d-none');
                 suggestions.innerHTML = `
                     <div class="list-group-item list-group-item-warning p-3" style="border: 2px dashed #ffc107;">
