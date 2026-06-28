@@ -11,8 +11,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
 
-             let rechercheMinuscule = saisie.toLowerCase();
-            if (rechercheMinuscule === "SANANES") {
+             let rechercheMajuscule = saisie.toUpperCase();
+            if (rechercheMajuscule === "SANANES") {
                 suggestions.classList.remove('d-none');
                 suggestions.innerHTML = `
                     <div class="list-group-item list-group-item-warning p-3" style="border: 2px dashed #ffc107;">
@@ -27,6 +27,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 `;
                 return;
             }
+ 
 
             fetch('recherche.php?q=' + encodeURIComponent(saisie))
                 .then(response => response.json())
