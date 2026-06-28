@@ -2,6 +2,8 @@
 require_once 'config.php';
 include 'header.php';
 
+<script src="recherche.js"></script>
+
 $nouveautes = $pdo->query("
     SELECT l.*, e.prix, e.etat 
     FROM livre l 
@@ -101,4 +103,3 @@ $petitsPrix = $pdo->query("
 </div>
 
 <?php include 'footer.php';  
-<script src="recherche.js"></script>
