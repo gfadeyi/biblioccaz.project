@@ -101,3 +101,4 @@ $petitsPrix = $pdo->query("
 </div>
 
 <?php include 'footer.php';  
+<script src="recherche.js"></script>
