@@ -47,7 +47,30 @@ function formaterEtat($etat) {
 
         <div class="col-md-5">
             <h1 class="fw-bold"><?= htmlspecialchars($livre['titre']) ?></h1>
-            <p class="text-muted h5 mb-4">Par <?= htmlspecialchars($livre['auteur']) ?></p>
+            <p class="text-muted h5 mb-2">Par <?= htmlspecialchars($livre['auteur']) ?></p>
+            <?php
+            // Catégorie et tags (liens vers le catalogue filtré)
+            require_once 'categories_lib.php';
+            $catLivre = null;
+            $tagsLivre = [];
+            try {
+                if (!empty($livre['id_categorie'])) {
+                    $stmtCat = $pdo->prepare("SELECT nom, slug FROM categorie WHERE id_categorie = ?");
+                    $stmtCat->execute([$livre['id_categorie']]);
+                    $catLivre = $stmtCat->fetch();
+                }
+                $tagsLivre = tagsDuLivre($pdo, (int) $livre['id_livre']);
+            } catch (PDOException $e) {
+            }
+            ?>
+            <div class="d-flex flex-wrap gap-2 mb-4">
+                <?php if ($catLivre): ?>
+                    <a href="catalogue.php?categorie=<?= urlencode($catLivre['slug']) ?>" class="badge rounded-pill text-decoration-none" style="background:#274e13;"><?= htmlspecialchars($catLivre['nom']) ?></a>
+                <?php endif; ?>
+                <?php foreach ($tagsLivre as $tl): ?>
+                    <a href="catalogue.php?tag=<?= urlencode($tl['slug']) ?>" class="badge rounded-pill bg-light text-success border border-success text-decoration-none">#<?= htmlspecialchars($tl['nom']) ?></a>
+                <?php endforeach; ?>
+            </div>
             
             <div class="mb-4">
                 <h6 class="fw-bold mb-3">État des exemplaires</h6>

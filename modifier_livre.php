@@ -50,12 +50,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $stmt->execute([$titre, $auteur, $description, $isbn_val, $editeur, $annee, $pages, $poids, $dimensions, $reliure, $id]);
             $message = "success";
         }
+
+        if ($message === "success") {
+            require_once 'categories_lib.php';
+            enregistrerCategorieEtTags($pdo, (int) $id, $_POST);
+        }
     }
 }
 
 $stmt = $pdo->prepare("SELECT * FROM livre WHERE id_livre = ?");
 $stmt->execute([$id]);
 $livre = $stmt->fetch();
+
+require_once 'categories_lib.php';
+$categorieActuelle = $livre['id_categorie'] ?? null;
+$tagsActuels = $livre ? array_column(tagsDuLivre($pdo, (int) $id), 'id_tag') : [];
 
 include 'header.php';
 ?>
@@ -143,6 +152,10 @@ include 'header.php';
                                 <option value="Poche" <?= ($livre['reliure'] == 'Poche') ? 'selected' : '' ?>>Poche</option>
                             </select>
                         </div>
+                    </div>
+
+                    <div class="row g-3 mb-4">
+                        <?php include 'partie_champs_categorie.php'; ?>
                     </div>
 
                     <div class="mb-4">

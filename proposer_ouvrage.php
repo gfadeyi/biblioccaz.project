@@ -44,6 +44,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         $stmt = $pdo->prepare("INSERT INTO livre (titre, auteur, isbn, editeur, annee_parution, dimensions, poids, reliure, nb_pages, description, prix, couverture, is_valide, id_user_auteur) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?)");
         if ($stmt->execute([$titre, $auteur_nom, $isbn, $editeur, $annee_parution, $dimensions, $poids, $reliure, $nb_pages, $description, $prix, $couverture, $_SESSION['user_id']])) {
+            require_once 'categories_lib.php';
+            enregistrerCategorieEtTags($pdo, (int) $pdo->lastInsertId(), $_POST);
             insertLog('AUTEUR', "Proposition du livre '" . $titre . "' par l'auteur ID " . $_SESSION['user_id']);
             $succes = "Votre œuvre a été soumise avec succès ! Elle est désormais en attente de validation par l'équipe de modération.";
         } else {
@@ -120,6 +122,7 @@ include 'header.php';
                             <label class="form-label fw-bold small">Image de couverture</label>
                             <input type="file" name="couverture" class="form-control">
                         </div>
+                        <?php include 'partie_champs_categorie.php'; ?>
                         <div class="col-12">
                             <label class="form-label fw-bold small">Synopsis / Description</label>
                             <textarea name="description" class="form-control" rows="4" placeholder="Décrivez brièvement le contenu ou l'intrigue de votre livre..."></textarea>

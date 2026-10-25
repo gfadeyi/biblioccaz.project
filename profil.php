@@ -93,6 +93,13 @@ include 'header.php';
                     </a>
                 </div>
                 <div class="col-md-4 col-lg-3">
+                    <a href="gestion_categories.php" class="quick-access-card">
+                        <div class="card-icon"><i class="bi bi-tags"></i></div>
+                        <div class="card-title">Catégories & tags</div>
+                        <p class="card-text">Classer le catalogue.</p>
+                    </a>
+                </div>
+                <div class="col-md-4 col-lg-3">
                     <a href="admin_logs.php" class="quick-access-card">
                         <div class="card-icon"><i class="bi bi-terminal"></i></div>
                         <div class="card-title">Logs</div>

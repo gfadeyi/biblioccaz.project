@@ -1,12 +1,6 @@
 <?php
-require_once 'config.php';
-include'header.php';
-
-?>
-<head>
-<h1>BD/Mangas</h1>;
-</head>
-
-<?php
-include'footer.php';
-
+// Page de catégorie : réutilise le catalogue avec un filtre imposé
+$preset = ['categorie' => 'bd-mangas'];
+$titrePage = 'BD & Mangas';
+$sousTitre = 'Bandes dessinées, comics et mangas';
+require 'catalogue.php';

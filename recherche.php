@@ -5,7 +5,7 @@ $search = isset($_GET['q']) ? trim($_GET['q']) : '';
 $results = array();
 
 if (!empty($search)) {
-    $query = "SELECT id_livre as id, titre, auteur FROM livre WHERE titre LIKE ? OR auteur LIKE ?";
+    $query = "SELECT id_livre as id, titre, auteur FROM livre WHERE is_valide = 1 AND (titre LIKE ? OR auteur LIKE ?) ORDER BY titre LIMIT 8";
     $stmt = $pdo->prepare($query);
     $stmt->execute(["%$search%", "%$search%"]);
     $results = $stmt->fetchAll();

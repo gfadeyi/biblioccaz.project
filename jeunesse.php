@@ -1,13 +1,6 @@
 <?php
-require_once 'config.php';
-include 'header.php';
-
-?>
-<head>
-<h1>Jeunesse</h1>;
-</head>
-
-
-<?php
-include'footer.php';
-
+// Page de catégorie : réutilise le catalogue avec un filtre imposé
+$preset = ['categorie' => 'jeunesse'];
+$titrePage = 'Jeunesse';
+$sousTitre = 'Albums, romans ados et premières lectures';
+require 'catalogue.php';

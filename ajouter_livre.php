@@ -56,6 +56,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $sql = "INSERT INTO livre (titre, auteur, description, couverture, isbn, editeur, annee_parution, nb_pages, poids, dimensions, reliure) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
                 $stmt = $pdo->prepare($sql);
                 $stmt->execute([$titre, $auteur, $description, $nom_image, $isbn_val, $editeur, $annee, $pages, $poids, $dimensions, $reliure]);
+
+                require_once 'categories_lib.php';
+                enregistrerCategorieEtTags($pdo, (int) $pdo->lastInsertId(), $_POST);
                 
                 insertLog('CATALOGUE', "Ajout du livre : " . $titre);
 
@@ -146,6 +149,10 @@ include 'header.php';
                                 <option value="Poche">Poche</option>
                             </select>
                         </div>
+                    </div>
+
+                    <div class="row g-3 mb-4">
+                        <?php include 'partie_champs_categorie.php'; ?>
                     </div>
 
                     <div class="mb-4">

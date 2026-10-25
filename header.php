@@ -1,4 +1,8 @@
 <?php
+// Le menu a besoin de la base : on la charge si la page ne l'a pas déjà fait
+if (!isset($pdo)) {
+    require_once __DIR__ . '/config.php';
+}
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
@@ -107,49 +111,63 @@ document.addEventListener('DOMContentLoaded', function() {
 </head>
 <body class="<?= $theme_class ?>">
 
-<nav class="navbar navbar-expand-lg border-bottom bg-white py-2">
-    <div class="container d-flex justify-content-between align-items-center">
-        <div class="d-flex align-items-center">
-            <a class="navbar-brand fw-bold text-success fs-3 mb-0 me-3" href="index.php" style="text-decoration:none;">BIBLIOccaz</a>
+<?php
+// Données du menu des catégories (silencieux si la table n'existe pas encore)
+$menuCategories = [];
+try {
+    $menuCategories = $pdo->query("SELECT nom, slug FROM categorie ORDER BY ordre, nom")->fetchAll();
+} catch (PDOException $e) {
+}
+$pagesCategories = ['roman' => 'roman.php', 'jeunesse' => 'jeunesse.php', 'bd-mangas' => 'bd_mangas.php'];
+$pageActuelle = basename($_SERVER['PHP_SELF']);
+$menuCatActive = $_GET['categorie'] ?? ($preset['categorie'] ?? '');
+$lienCategorie = fn($slug) => $pagesCategories[$slug] ?? 'catalogue.php?categorie=' . urlencode($slug);
+?>
+<header class="entete bg-white border-bottom sticky-top">
+    <!-- Ligne 1 : logo, recherche, actions -->
+    <div class="container-xxl d-flex align-items-center gap-3 py-2">
+        <a class="logo-bibli text-decoration-none" href="index.php">
+            <span class="logo-nom">BIBLIOccaz</span>
+            <span class="logo-slogan">Donnez une seconde vie à vos lectures</span>
+        </a>
+
+        <form action="catalogue.php" method="GET" class="recherche-entete flex-grow-1 position-relative" role="search">
+            <input type="text" id="barre-recherche" name="q" autocomplete="off" class="form-control rounded-pill pe-5"
+                   placeholder="Rechercher par titre, auteur, ISBN..." value="<?= htmlspecialchars($_GET['q'] ?? '') ?>">
+            <button type="submit" class="btn position-absolute top-50 end-0 translate-middle-y me-2 border-0" aria-label="Rechercher">
+                <i class="bi bi-search"></i>
+            </button>
+            <div id="suggestions-recherche" class="list-group position-absolute w-100 mt-1 shadow d-none" style="z-index: 1050; max-height: 300px; overflow-y: auto;"></div>
+        </form>
+
+        <?php if ($userRole === 'auteur'): ?>
+            <a href="proposer_ouvrage.php" class="btn btn-outline-bibli rounded-pill fw-bold d-none d-lg-inline-flex align-items-center gap-2">
+                <i class="bi bi-journal-plus"></i> Proposer une œuvre
+            </a>
+        <?php elseif ($userRole === 'client' || !$connected): ?>
+            <a href="vendre.php" class="btn btn-outline-bibli rounded-pill fw-bold d-none d-lg-inline-flex align-items-center gap-2">
+                <i class="bi bi-arrow-repeat"></i> Donner ou revendre mes livres
+            </a>
+        <?php endif; ?>
+
+        <nav class="d-flex align-items-start gap-1 icones-entete">
             <?php if ($connected && $userRole === 'client'): ?>
-                <span class="badge bg-light text-success border border-success rounded-pill px-3 py-2 small fw-bold">
-                    <i class="bi bi-coin me-1"></i> <?= htmlspecialchars($solde_points) ?> points
-                </span>
-            <?php endif; ?>
-        </div>
-        
-        <div class="flex-grow-1 mx-4" style="max-width: 450px;">
-            <div class="position-relative">
-                <i class="bi bi-search position-absolute" style="left: 15px; top: 50%; transform: translateY(-50%); color: #888;"></i>
-                <input type="text" id="barre-recherche" name="q" autocomplete="off" class="form-control rounded-pill ps-5" placeholder="Rechercher un livre...">
-                <div id="suggestions-recherche" class="list-group position-absolute w-100 mt-1 shadow d-none" style="z-index: 1000; max-height: 300px; overflow-y: auto;"></div>    
-            </div>
-        </div>
-
-        <div class="d-flex align-items-center gap-2">
-            <?php if ($userRole === 'auteur'): ?>
-                <a href="proposer_ouvrage.php" class="btn btn-success rounded-pill px-3 fw-bold btn-sm d-none d-sm-inline-block me-2">Proposer une œuvre</a>
-            <?php elseif ($userRole === 'client' || !$connected): ?>
-                <a href="vendre.php" class="btn btn-success rounded-pill px-3 fw-bold btn-sm d-none d-sm-inline-block me-2">Donner ou revendre</a>
+                <a href="profil.php" class="icone-entete" title="Mes points fidélité">
+                    <i class="bi bi-coin"></i><span><?= htmlspecialchars($solde_points) ?> pts</span>
+                </a>
+                <a href="wishlist.php" class="icone-entete d-none d-sm-flex">
+                    <i class="bi bi-heart"></i><span>Favoris</span>
+                </a>
             <?php endif; ?>
 
-            <div class="dropdown d-inline-block dropdown-hover">
-                <div class="p-2 text-dark">
-                    <?php if ($connected): ?>
-                        <a href="profil.php" class="text-decoration-none text-dark d-flex align-items-center">
-                            <i class="bi bi-person-circle fs-4 me-1"></i>
-                            <span class="fw-medium small d-none d-md-inline-block"><?= htmlspecialchars($_SESSION['pseudo']) ?></span>
-                        </a>
-                        <?php if ($total_notif_admin > 0): ?>
-                            <span class="badge bg-success rounded-pill ms-1" style="font-size: 0.65rem;"><?= $total_notif_admin ?></span>
-                        <?php endif; ?>
-                    <?php else: ?>
-                        <a href="login.php" class="text-decoration-none text-dark d-flex align-items-center">
-                            <i class="bi bi-person-circle fs-4 me-1"></i>
-                            <span class="fw-medium small d-none d-md-inline-block">Connexion</span>
-                        </a>
+            <div class="dropdown dropdown-hover">
+                <a href="<?= $connected ? 'profil.php' : 'login.php' ?>" class="icone-entete position-relative">
+                    <i class="bi bi-person"></i>
+                    <span class="text-truncate" style="max-width: 90px;"><?= $connected ? htmlspecialchars($_SESSION['pseudo']) : 'Connexion' ?></span>
+                    <?php if ($total_notif_admin > 0): ?>
+                        <span class="pastille"><?= $total_notif_admin ?></span>
                     <?php endif; ?>
-                </div>
+                </a>
                 <ul class="dropdown-menu dropdown-menu-end shadow border-0 p-2" style="border-radius: 12px; min-width: 220px;">
                     <?php if ($connected): ?>
                         <li class="px-3 py-2 border-bottom mb-1 text-center bg-light rounded-3">
@@ -160,6 +178,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             <li><a class="dropdown-item small rounded-2 py-2" href="admin.php"><i class="bi bi-speedometer2 me-2 text-success"></i>Dashboard Global</a></li>
                             <li><a class="dropdown-item small rounded-2 py-2" href="moderation_catalogue.php"><i class="bi bi-shield-check me-2 text-success"></i>Modération Livres</a></li>
                             <li><a class="dropdown-item small rounded-2 py-2" href="inventaire_admin.php"><i class="bi bi-box-seam me-2 text-success"></i>Stocks</a></li>
+                            <li><a class="dropdown-item small rounded-2 py-2" href="gestion_categories.php"><i class="bi bi-tags me-2 text-success"></i>Catégories & tags</a></li>
                             <li><a class="dropdown-item small rounded-2 py-2" href="gestion_utilisateurs.php"><i class="bi bi-people me-2 text-success"></i>Membres</a></li>
                         <?php elseif ($userRole === 'gestionnaire'): ?>
                             <li><a class="dropdown-item small rounded-2 py-2" href="dashboard_gestionnaire.php"><i class="bi bi-speedometer me-2 text-success"></i>Dashboard</a></li>
@@ -179,11 +198,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 </ul>
             </div>
 
-            <div class="dropdown d-inline-block dropdown-hover position-relative">
-                <a href="panier.php" class="btn btn-link text-dark p-2 text-decoration-none d-flex align-items-center justify-content-center position-relative" style="width: 40px; height: 40px;">
-                    <i class="bi bi-cart fs-4 text-success"></i>
+            <div class="dropdown dropdown-hover position-relative">
+                <a href="panier.php" class="icone-entete position-relative">
+                    <i class="bi bi-bag"></i><span>Panier</span>
                     <?php if ($totalArticles > 0): ?>
-                        <span class="badge-notify"><?= $totalArticles ?></span>
+                        <span class="pastille"><?= $totalArticles ?></span>
                     <?php endif; ?>
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end p-3 shadow border-0 cart-dropdown-adjust">
@@ -214,6 +233,90 @@ document.addEventListener('DOMContentLoaded', function() {
                     <?php endif; ?>
                 </ul>
             </div>
+        </nav>
+    </div>
+
+    <!-- Ligne 2 : catégories et raccourcis -->
+    <div class="border-top">
+        <div class="container-xxl d-flex align-items-center gap-2 py-2 overflow-auto ligne-raccourcis">
+            <button class="btn btn-bibli rounded-pill fw-bold d-inline-flex align-items-center gap-2 text-nowrap" type="button"
+                    data-bs-toggle="offcanvas" data-bs-target="#menuCategories" aria-controls="menuCategories">
+                <i class="bi bi-list fs-5"></i> Toutes les catégories
+            </button>
+            <a href="nouveauté.php" class="btn btn-outline-bibli rounded-pill fw-bold text-nowrap d-inline-flex align-items-center gap-2 <?= $pageActuelle === 'nouveauté.php' ? 'active' : '' ?>">
+                <i class="bi bi-stars"></i> Nouveau chez nous <i class="bi bi-chevron-right small"></i>
+            </a>
+            <a href="meilleures_ventes.php" class="raccourci <?= $pageActuelle === 'meilleures_ventes.php' ? 'actif' : '' ?>"><i class="bi bi-award"></i> Meilleures ventes</a>
+            <a href="dernière_chance.php" class="raccourci <?= $pageActuelle === 'dernière_chance.php' ? 'actif' : '' ?>"><i class="bi bi-hourglass-split"></i> Dernière chance</a>
+            <a href="petits_prix.php" class="raccourci <?= $pageActuelle === 'petits_prix.php' ? 'actif' : '' ?>"><i class="bi bi-tag"></i> Moins de 10 €</a>
+            <a href="catalogue.php" class="raccourci <?= $pageActuelle === 'catalogue.php' && !$menuCatActive ? 'actif' : '' ?>"><i class="bi bi-grid"></i> Tout le catalogue</a>
         </div>
     </div>
-</nav>
+</header>
+
+<!-- Menu latéral des catégories -->
+<div class="offcanvas offcanvas-start menu-lateral" tabindex="-1" id="menuCategories" aria-labelledby="menuCategoriesTitre">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title fw-bold" id="menuCategoriesTitre" style="color:#274e13;">Catégories</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Fermer"></button>
+    </div>
+    <div class="offcanvas-body p-0">
+        <ul class="list-unstyled mb-0">
+            <?php foreach ($menuCategories as $mc): ?>
+                <li>
+                    <a href="<?= htmlspecialchars($lienCategorie($mc['slug'])) ?>" class="lien-lateral <?= $menuCatActive === $mc['slug'] ? 'actif' : '' ?>">
+                        <?= htmlspecialchars($mc['nom']) ?> <i class="bi bi-chevron-right"></i>
+                    </a>
+                </li>
+            <?php endforeach; ?>
+            <li><a href="catalogue.php" class="lien-lateral">Tout le catalogue <i class="bi bi-chevron-right"></i></a></li>
+        </ul>
+        <hr class="my-2">
+        <ul class="list-unstyled mb-0">
+            <?php if ($userRole === 'auteur'): ?>
+                <li><a href="proposer_ouvrage.php" class="lien-lateral-secondaire"><i class="bi bi-journal-plus"></i> Proposer une œuvre</a></li>
+            <?php else: ?>
+                <li><a href="vendre.php" class="lien-lateral-secondaire"><i class="bi bi-arrow-repeat"></i> Donner ou revendre mes livres</a></li>
+            <?php endif; ?>
+            <li><a href="meilleures_ventes.php" class="lien-lateral-secondaire"><i class="bi bi-award"></i> Meilleures ventes</a></li>
+            <li><a href="nouveauté.php" class="lien-lateral-secondaire"><i class="bi bi-stars"></i> Nouveautés</a></li>
+            <li><a href="petits_prix.php" class="lien-lateral-secondaire"><i class="bi bi-tag"></i> Petits prix</a></li>
+            <?php if ($connected): ?>
+                <li><a href="profil.php" class="lien-lateral-secondaire"><i class="bi bi-person"></i> Mon compte</a></li>
+            <?php else: ?>
+                <li><a href="login.php" class="lien-lateral-secondaire"><i class="bi bi-box-arrow-in-right"></i> Se connecter</a></li>
+            <?php endif; ?>
+        </ul>
+    </div>
+</div>
+
+<style>
+    :root { --bibli-vert: #274e13; --bibli-vert-clair: #f1f8ec; }
+    .logo-bibli { display: flex; flex-direction: column; line-height: 1; flex-shrink: 0; }
+    .logo-nom { font-weight: 800; font-size: 1.7rem; color: var(--bibli-vert); letter-spacing: -.02em; }
+    .logo-slogan { font-size: .62rem; color: #666; margin-top: 2px; }
+    .recherche-entete .form-control { height: 44px; border: 1px solid #bbb; padding-left: 1.2rem; }
+    .recherche-entete .form-control:focus { border-color: var(--bibli-vert); box-shadow: 0 0 0 .2rem rgba(39,78,19,.15); }
+    .btn-bibli { background: var(--bibli-vert); color: #fff; border: none; }
+    .btn-bibli:hover { background: #1a330d; color: #fff; }
+    .btn-outline-bibli { border: 1.5px solid var(--bibli-vert); color: var(--bibli-vert); background: #fff; }
+    .btn-outline-bibli:hover, .btn-outline-bibli.active { background: var(--bibli-vert-clair); color: var(--bibli-vert); border-color: var(--bibli-vert); }
+    .icone-entete { display: flex; flex-direction: column; align-items: center; min-width: 58px; padding: 2px 6px;
+                    color: #222; text-decoration: none; font-size: .75rem; position: relative; }
+    .icone-entete i { font-size: 1.35rem; color: var(--bibli-vert); line-height: 1.2; }
+    .icone-entete:hover { color: var(--bibli-vert); }
+    .pastille { position: absolute; top: -2px; right: 8px; background: #e8590c; color: #fff; border-radius: 50px;
+                font-size: .65rem; font-weight: 700; min-width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; padding: 0 4px; }
+    .ligne-raccourcis::-webkit-scrollbar { display: none; }
+    .raccourci { color: #222; text-decoration: none; font-weight: 600; white-space: nowrap; padding: .35rem .7rem; border-radius: 50px; }
+    .raccourci i { color: var(--bibli-vert); margin-right: .25rem; }
+    .raccourci:hover, .raccourci.actif { background: var(--bibli-vert-clair); color: var(--bibli-vert); }
+    .menu-lateral { width: 360px; }
+    .lien-lateral { display: flex; justify-content: space-between; align-items: center; padding: .8rem 1.25rem; color: #222; text-decoration: none; }
+    .lien-lateral:hover, .lien-lateral.actif { background: var(--bibli-vert-clair); color: var(--bibli-vert); }
+    .lien-lateral i { color: #888; }
+    .lien-lateral-secondaire { display: flex; gap: .7rem; align-items: center; padding: .6rem 1.25rem; color: #333; text-decoration: none; }
+    .lien-lateral-secondaire i { font-size: 1.15rem; color: var(--bibli-vert); }
+    .lien-lateral-secondaire:hover { background: var(--bibli-vert-clair); }
+    @media (max-width: 767px) { .logo-slogan { display: none; } .logo-nom { font-size: 1.3rem; } .icone-entete span { display: none; } .icone-entete { min-width: 40px; } }
+</style>
