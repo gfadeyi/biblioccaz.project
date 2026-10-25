@@ -10,9 +10,16 @@
                 <?= htmlspecialchars($l['titre']) ?>
             </h3> 
             
-            <p class="small text-muted mb-3 text-truncate">
+            <p class="small text-muted mb-<?= isset($l['nb_avis']) ? '1' : '3' ?> text-truncate">
                 <?= htmlspecialchars($l['auteur']) ?>
             </p>
+            <?php if (isset($l['nb_avis'])): ?>
+                <div class="small mb-2" style="min-height: 1.3rem;">
+                    <?php if ($l['nb_avis'] > 0): ?>
+                        <?= etoiles((float) $l['note_moyenne']) ?> <span class="text-muted">(<?= $l['nb_avis'] ?>)</span>
+                    <?php endif; ?>
+                </div>
+            <?php endif; ?>
             
             <div class="mt-auto">
                 <div class="d-flex justify-content-between align-items-center">

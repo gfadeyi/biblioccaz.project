@@ -29,7 +29,13 @@ if ($connected && $userRole === 'admin') {
     $stmtNotifLivres = $pdo->query("SELECT COUNT(*) FROM livre WHERE is_valide = 0");
     $nb_notif_livres = intval($stmtNotifLivres->fetchColumn());
 
-    $total_notif_admin = $nb_notif_modo + $nb_notif_livres;
+    $nb_notif_avis = 0;
+    try {
+        $nb_notif_avis = (int) $pdo->query("SELECT COUNT(DISTINCT id_avis) FROM avis_signalement WHERE traite = 0")->fetchColumn();
+    } catch (PDOException $e) {
+    }
+
+    $total_notif_admin = $nb_notif_modo + $nb_notif_livres + $nb_notif_avis;
 }
 
 $totalArticles = 0;
@@ -177,17 +183,20 @@ $lienCategorie = fn($slug) => $pagesCategories[$slug] ?? 'catalogue.php?categori
                         <?php if ($userRole === 'admin'): ?>
                             <li><a class="dropdown-item small rounded-2 py-2" href="admin.php"><i class="bi bi-speedometer2 me-2 text-success"></i>Dashboard Global</a></li>
                             <li><a class="dropdown-item small rounded-2 py-2" href="moderation_catalogue.php"><i class="bi bi-shield-check me-2 text-success"></i>Modération Livres</a></li>
+                            <li><a class="dropdown-item small rounded-2 py-2" href="moderation_avis.php"><i class="bi bi-chat-square-text me-2 text-success"></i>Modération avis<?php if (!empty($nb_notif_avis)): ?> <span class="badge bg-danger rounded-pill"><?= $nb_notif_avis ?></span><?php endif; ?></a></li>
                             <li><a class="dropdown-item small rounded-2 py-2" href="inventaire_admin.php"><i class="bi bi-box-seam me-2 text-success"></i>Stocks</a></li>
                             <li><a class="dropdown-item small rounded-2 py-2" href="gestion_categories.php"><i class="bi bi-tags me-2 text-success"></i>Catégories & tags</a></li>
                             <li><a class="dropdown-item small rounded-2 py-2" href="gestion_utilisateurs.php"><i class="bi bi-people me-2 text-success"></i>Membres</a></li>
                         <?php elseif ($userRole === 'gestionnaire'): ?>
                             <li><a class="dropdown-item small rounded-2 py-2" href="dashboard_gestionnaire.php"><i class="bi bi-speedometer me-2 text-success"></i>Dashboard</a></li>
                             <li><a class="dropdown-item small rounded-2 py-2" href="moderation_catalogue.php"><i class="bi bi-shield-check me-2 text-success"></i>Modérer</a></li>
+                            <li><a class="dropdown-item small rounded-2 py-2" href="moderation_avis.php"><i class="bi bi-chat-square-text me-2 text-success"></i>Modérer les avis</a></li>
                         <?php elseif ($userRole === 'auteur'): ?>
                             <li><a class="dropdown-item small rounded-2 py-2" href="dashboard_auteur.php"><i class="bi bi-layout-text-sidebar-reverse me-2 text-success"></i>Créateur</a></li>
                         <?php else: ?>
                             <li><a class="dropdown-item small rounded-2 py-2" href="commandes.php"><i class="bi bi-truck me-2 text-success"></i>Mes achats</a></li>
                             <li><a class="dropdown-item small rounded-2 py-2" href="wishlist.php"><i class="bi bi-heart me-2 text-success"></i>Ma liste</a></li>
+                            <li><a class="dropdown-item small rounded-2 py-2" href="avis.php"><i class="bi bi-star me-2 text-success"></i>Mes avis</a></li>
                         <?php endif; ?>
                         <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item small text-danger rounded-2 py-2" href="logout.php"><i class="bi bi-box-arrow-right me-2"></i>Déconnexion</a></li>

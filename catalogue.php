@@ -15,8 +15,8 @@ $sousTitre = $sousTitre ?? '';
 // Filtres : ceux de l'URL, sauf ceux imposés par la page
 $f = array_merge([
     'q' => '', 'categorie' => '', 'tag' => '', 'etat' => '',
-    'prix_min' => '', 'prix_max' => '', 'tri' => 'recent', 'stock_bas' => '',
-], $defauts, array_intersect_key($_GET, array_flip(['q', 'categorie', 'tag', 'etat', 'prix_min', 'prix_max', 'tri'])), $preset);
+    'prix_min' => '', 'prix_max' => '', 'tri' => 'recent', 'stock_bas' => '', 'note_min' => '',
+], $defauts, array_intersect_key($_GET, array_flip(['q', 'categorie', 'tag', 'etat', 'prix_min', 'prix_max', 'tri', 'note_min'])), $preset);
 
 $f = array_map(fn($v) => is_string($v) ? trim($v) : $v, $f);
 $page = max(1, (int) ($_GET['page'] ?? 1));
@@ -27,6 +27,7 @@ $trisPossibles = [
     'prix_asc'  => ['Prix croissant', 'prix ASC, l.titre ASC'],
     'prix_desc' => ['Prix décroissant', 'prix DESC, l.titre ASC'],
     'titre'     => ['Titre (A → Z)', 'l.titre ASC'],
+    'note'      => ['Mieux notés', 'note_moyenne IS NULL, note_moyenne DESC, nb_avis DESC'],
     'ventes'    => ['Meilleures ventes', '(SELECT COALESCE(SUM(cl.quantite), 0) FROM commande_ligne cl WHERE cl.id_livre = l.id_livre) DESC, l.id_livre DESC'],
 ];
 if (!isset($trisPossibles[$f['tri']])) { $f['tri'] = 'recent'; }
@@ -61,6 +62,10 @@ if ($f['prix_max'] !== '' && is_numeric($f['prix_max'])) {
     $having[] = "MIN(e.prix) <= :prix_max";
     $params['prix_max'] = (float) $f['prix_max'];
 }
+if (in_array($f['note_min'], ['3', '4', '4.5'], true)) {
+    $where[] = "av.moyenne >= :note_min";
+    $params['note_min'] = (float) $f['note_min'];
+}
 if (!empty($f['stock_bas'])) {
     $having[] = "SUM(e.quantite) <= 2";   // "Dernière chance" : 1 ou 2 exemplaires restants
 }
@@ -69,8 +74,10 @@ $sqlBase = "
     FROM livre l
     INNER JOIN exemplaire e ON e.id_livre = l.id_livre AND e.quantite > 0 AND e.is_disponible = 1
     LEFT JOIN categorie c ON c.id_categorie = l.id_categorie
+    LEFT JOIN (SELECT id_livre, AVG(note) AS moyenne, COUNT(*) AS nb
+               FROM avis WHERE statut = 'visible' GROUP BY id_livre) av ON av.id_livre = l.id_livre
     WHERE " . implode(' AND ', $where) . "
-    GROUP BY l.id_livre, l.titre, l.auteur, l.couverture, c.nom, c.slug
+    GROUP BY l.id_livre, l.titre, l.auteur, l.couverture, c.nom, c.slug, av.moyenne, av.nb
     " . ($having ? "HAVING " . implode(' AND ', $having) : "");
 
 $stmt = $pdo->prepare("SELECT COUNT(*) FROM (SELECT l.id_livre $sqlBase) AS resultats");
@@ -86,7 +93,8 @@ $stmt = $pdo->prepare("
            c.nom AS categorie_nom, c.slug AS categorie_slug,
            MIN(e.prix) AS prix,
            SUBSTRING_INDEX(GROUP_CONCAT(e.etat ORDER BY e.prix ASC), ',', 1) AS etat,
-           SUM(e.quantite) AS stock
+           SUM(e.quantite) AS stock,
+           av.moyenne AS note_moyenne, COALESCE(av.nb, 0) AS nb_avis
     $sqlBase
     ORDER BY {$trisPossibles[$f['tri']][1]}
     LIMIT " . LIVRES_PAR_PAGE . " OFFSET $offset");
@@ -106,6 +114,8 @@ function lienFiltres(array $f, array $preset, array $changements): string
 }
 
 include 'header.php';
+require_once 'avis_lib.php';
+echo etoilesStyle();
 ?>
 
 <style>
@@ -130,7 +140,7 @@ include 'header.php';
             </p>
         </div>
         <form method="GET" class="d-flex align-items-center gap-2">
-            <?php foreach (['q', 'categorie', 'tag', 'etat', 'prix_min', 'prix_max'] as $k): ?>
+            <?php foreach (['q', 'categorie', 'tag', 'etat', 'prix_min', 'prix_max', 'note_min'] as $k): ?>
                 <?php if ($f[$k] !== '' && !isset($preset[$k])): ?>
                     <input type="hidden" name="<?= $k ?>" value="<?= htmlspecialchars($f[$k]) ?>">
                 <?php endif; ?>
@@ -186,6 +196,16 @@ include 'header.php';
                         </div>
                     </div>
                 <?php endif; ?>
+
+                <div class="mb-3">
+                    <label class="form-label">Note des lecteurs</label>
+                    <select name="note_min" class="form-select form-select-sm">
+                        <option value="">Toutes les notes</option>
+                        <?php foreach (['4.5' => '4,5 ★ et plus', '4' => '4 ★ et plus', '3' => '3 ★ et plus'] as $v => $libelle): ?>
+                            <option value="<?= $v ?>" <?= $f['note_min'] === $v ? 'selected' : '' ?>><?= $libelle ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
 
                 <?php if ($tags): ?>
                     <div class="mb-3">

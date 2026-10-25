@@ -49,6 +49,19 @@ function formaterEtat($etat) {
             <h1 class="fw-bold"><?= htmlspecialchars($livre['titre']) ?></h1>
             <p class="text-muted h5 mb-2">Par <?= htmlspecialchars($livre['auteur']) ?></p>
             <?php
+            require_once 'avis_lib.php';
+            $noteEntete = noteDuLivre($pdo, (int) $livre['id_livre']);
+            ?>
+            <a href="#avis" class="d-inline-flex align-items-center gap-2 text-decoration-none text-muted small mb-2">
+                <?= etoilesStyle() ?>
+                <?php if ($noteEntete['nb']): ?>
+                    <?= etoiles($noteEntete['moyenne']) ?>
+                    <span><?= number_format($noteEntete['moyenne'], 1, ',', '') ?> · <?= $noteEntete['nb'] ?> avis</span>
+                <?php else: ?>
+                    <span><i class="bi bi-chat-square-text"></i> Donner le premier avis</span>
+                <?php endif; ?>
+            </a>
+            <?php
             // Catégorie et tags (liens vers le catalogue filtré)
             require_once 'categories_lib.php';
             $catLivre = null;
@@ -150,5 +163,7 @@ function formaterEtat($etat) {
         </div>
     </div>
 </div>
+
+<?php include 'partie_avis.php'; ?>
 
 <?php include 'footer.php'; ?>

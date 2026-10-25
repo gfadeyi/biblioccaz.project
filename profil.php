@@ -93,6 +93,13 @@ include 'header.php';
                     </a>
                 </div>
                 <div class="col-md-4 col-lg-3">
+                    <a href="moderation_avis.php" class="quick-access-card">
+                        <div class="card-icon"><i class="bi bi-chat-square-text"></i></div>
+                        <div class="card-title">Modération avis</div>
+                        <p class="card-text">Traiter les avis signalés.</p>
+                    </a>
+                </div>
+                <div class="col-md-4 col-lg-3">
                     <a href="gestion_categories.php" class="quick-access-card">
                         <div class="card-icon"><i class="bi bi-tags"></i></div>
                         <div class="card-title">Catégories & tags</div>
@@ -112,6 +119,13 @@ include 'header.php';
                         <div class="card-icon"><i class="bi bi-shield-check"></i></div>
                         <div class="card-title">Modération</div>
                         <p class="card-text">Valider les fiches catalogue.</p>
+                    </a>
+                </div>
+                <div class="col-md-4 col-lg-3">
+                    <a href="moderation_avis.php" class="quick-access-card">
+                        <div class="card-icon"><i class="bi bi-chat-square-text"></i></div>
+                        <div class="card-title">Modération avis</div>
+                        <p class="card-text">Traiter les avis signalés.</p>
                     </a>
                 </div>
                 <div class="col-md-4 col-lg-3">
