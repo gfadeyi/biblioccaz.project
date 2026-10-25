@@ -40,6 +40,10 @@ include 'header.php';
 <div class="profile-bg">
     <div class="container pt-4">
         
+        <?php if (isset($_GET['mdp'])): ?>
+            <div class="alert alert-success rounded-3"><i class="bi bi-check-circle-fill me-2"></i>Votre mot de passe a bien été modifié.</div>
+        <?php endif; ?>
+
         <h2 class="section-title"><?= $isAdmin ? 'Espace Administrateur' : ($isAuteur ? 'Espace Créateur' : ($isGestionnaire ? 'Espace Modérateur' : 'Mon Compte')) ?></h2>
 
         <div class="info-box d-flex flex-column flex-md-row justify-content-between align-items-md-center shadow-sm">

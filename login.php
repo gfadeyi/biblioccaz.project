@@ -21,6 +21,7 @@ if (isset($_GET['error'])) {
 }
 
 if (isset($_GET['verif'])) { $success = "Compte validé ! Vous pouvez vous connecter."; }
+if (isset($_GET['mdp'])) { $success = "Mot de passe modifié ! Vous pouvez vous connecter avec le nouveau."; }
 ?>
 
 <style>
@@ -78,7 +79,10 @@ if (isset($_GET['verif'])) { $success = "Compte validé ! Vous pouvez vous conne
 
         <form action="traitement_login.php" method="POST">
             <input type="text" name="pseudo" class="form-control input-recyclivre mb-3" placeholder="Email ou Pseudo" required>
-            <input type="password" name="mdp" class="form-control input-recyclivre mb-4" placeholder="Mot de passe" required>
+            <input type="password" name="mdp" class="form-control input-recyclivre mb-1" placeholder="Mot de passe" required>
+            <div class="text-end mb-4">
+                <a href="recuparation_mdp.php" class="small text-muted text-decoration-none">Mot de passe oublié ?</a>
+            </div>
 
             <div class="mb-3">
                 <label class="form-label">Vérification de sécurité</label>

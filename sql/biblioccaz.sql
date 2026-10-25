@@ -39,6 +39,8 @@ CREATE TABLE IF NOT EXISTS `user` (
   ville           VARCHAR(100) NULL,
   cp              VARCHAR(10)  NULL,
   solde_points    INT          NOT NULL DEFAULT 0,
+  reset_token_hash CHAR(64)    NULL,
+  reset_expire    DATETIME     NULL,
   date_inscription DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 

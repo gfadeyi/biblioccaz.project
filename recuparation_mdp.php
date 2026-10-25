@@ -1,64 +1,60 @@
 <?php
 require_once 'mailer.php';
 require_once 'config.php';
-include 'header.php';
 
-use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
-
 
 $erreur = "";
 $succes = "";
 
+// Même message que l'adresse existe ou non : on ne révèle pas quels emails ont un compte
+const MESSAGE_ENVOI = "Si cette adresse correspond à un compte, un lien de récupération vient d'être envoyé. Il est valable 1 heure.";
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = trim($_POST['email'] ?? '');
 
-    if (!$email) {
-        $erreur = "Veuillez entrer votre adresse email.";
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $erreur = "Veuillez entrer une adresse email valide.";
     } else {
         $stmt = $pdo->prepare("SELECT id, prenom FROM user WHERE email = ?");
         $stmt->execute([$email]);
         $user = $stmt->fetch();
 
-        if (!$user) {
-            $erreur = "Si cet email correspond à un compte, un mail vous a été envoyé.";
-        } else {
+        if ($user) {
+            // Le jeton part dans le mail ; en base on ne garde que son empreinte SHA-256
             $token = bin2hex(random_bytes(32));
-            
-
-            $stmt = $pdo->prepare("UPDATE user SET email_token = ? WHERE email = ?");
-            $stmt->execute([$token, $email]);
+            $stmt = $pdo->prepare("UPDATE user SET reset_token_hash = ?, reset_expire = DATE_ADD(NOW(), INTERVAL 1 HOUR) WHERE id = ?");
+            $stmt->execute([hash('sha256', $token), $user['id']]);
 
             $url = SITE_URL . "/modifier_mdp.php?token=" . $token;
-            
-            $mail = creerMailer();
 
             try {
-                $mail->isSMTP();
+                $mail = creerMailer();
                 $mail->addAddress($email, $user['prenom']);
+                $mail->isHTML(false);
+                $mail->Subject = "BIBLIOccaz - Récupération de votre mot de passe";
 
-                $mail->isHTML(false); 
-                $mail->Subject = "BIBLOccaz - Récupération de votre mot de passe";
-                
                 $message = "Bonjour " . $user['prenom'] . ",\n\n";
                 $message .= "Vous avez demandé la réinitialisation de votre mot de passe sur BIBLIOccaz.\n";
-                $message .= "Pour changer votre mot de passe, veuillez cliquer sur le lien ci-dessous :\n";
+                $message .= "Pour choisir un nouveau mot de passe, cliquez sur le lien ci-dessous (valable 1 heure) :\n";
                 $message .= $url . "\n\n";
-                $message .= "Si vous n'êtes pas à l'origine de cette demande, vous pouvez ignorer ce mail.\n\n";
+                $message .= "Si vous n'êtes pas à l'origine de cette demande, ignorez ce mail : votre mot de passe actuel reste valable.\n\n";
                 $message .= "---------------\n";
                 $message .= "Ceci est un mail automatique, merci de ne pas y répondre.";
-                
+
                 $mail->Body = $message;
-
                 $mail->send();
-                $succes = "Un lien de récupération a été envoyé à l'adresse email indiquée.";
-
+                insertLog('SECURITE', "Demande de réinitialisation de mot de passe (user #{$user['id']})");
             } catch (Exception $e) {
-                $erreur = "L'envoi du mail a échoué. Erreur technique : {$mail->ErrorInfo}";
+                insertLog('ERREUR', "Echec envoi mail de récupération : " . $e->getMessage());
             }
         }
+
+        $succes = MESSAGE_ENVOI;
     }
 }
+
+include 'header.php';
 ?>
 
 <div class="container my-5" style="max-width: 500px;">
