@@ -1,4 +1,5 @@
-function initCaptchaPuzzle(racine) {
+function initCaptchaPuzzle(racine, fichiers) {
+    const urls = Object.assign({ image: 'get_captcha_image.php', piece: 'captcha_piece.php', verifier: 'captcha_verifier.php' }, fichiers || {});
     const grid = document.getElementById('captchaGrid');
     const triggerBtn = document.getElementById('captchaTriggerBtn');
     const tokenInput = document.getElementById('captchaToken');
@@ -21,7 +22,7 @@ function initCaptchaPuzzle(racine) {
         message.textContent = '';
         tokenInput.value = '';
 
-        fetch(racine + 'get_captcha_image.php', { cache: 'no-store' })
+        fetch(racine + urls.image, { cache: 'no-store' })
             .then(response => response.json())
             .then(data => {
                 ordre = data.pieces || [];
@@ -36,7 +37,7 @@ function initCaptchaPuzzle(racine) {
             const box = document.createElement('div');
             box.className = 'puzzle-tile';
             box.dataset.position = position;
-            box.style.backgroundImage = 'url(' + racine + 'captcha_piece.php?id=' + encodeURIComponent(id) + ')';
+            box.style.backgroundImage = 'url(' + racine + urls.piece + '?id=' + encodeURIComponent(id) + ')';
             box.style.backgroundSize = '100% 100%';
 
             box.addEventListener('click', function () {
@@ -64,7 +65,7 @@ function initCaptchaPuzzle(racine) {
 
     function verifier() {
         const body = new URLSearchParams({ ordre: ordre.join(',') });
-        fetch(racine + 'captcha_verifier.php', { method: 'POST', body: body })
+        fetch(racine + urls.verifier, { method: 'POST', body: body })
             .then(response => response.json())
             .then(data => {
                 if (data.ok) {

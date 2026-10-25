@@ -1,12 +1,21 @@
 <div class="book-card">
     <div class="card h-100 shadow-sm border-0" style="border-radius: 15px; overflow: hidden;">
-        <div class="card-img-container">
+        <div class="card-img-container position-relative">
+            <?php $favori = in_array((int) $l['id_livre'], $idsFavoris ?? [], true); ?>
+            <?php if (isset($_SESSION['user_id'])): ?>
+                <button type="button" class="bouton-coeur <?= $favori ? 'actif' : '' ?>" data-livre="<?= (int) $l['id_livre'] ?>"
+                        aria-pressed="<?= $favori ? 'true' : 'false' ?>" title="<?= $favori ? "Retirer de ma liste d'envies" : "Ajouter à ma liste d'envies" ?>">
+                    <i class="bi bi-heart<?= $favori ? '-fill' : '' ?>"></i>
+                </button>
+            <?php else: ?>
+                <a href="login.php" class="bouton-coeur" title="Connectez-vous pour ajouter ce livre à vos envies"><i class="bi bi-heart"></i></a>
+            <?php endif; ?>
             <?php $img = !empty($l['couverture']) ? $l['couverture'] : 'default.png'; ?>
             <img src="img/<?= rawurlencode($img) ?>" class="img-fluid" style="max-height: 100%; object-fit: contain;">
         </div>
         
         <div class="card-body">
-            <h3 class="fw-bold mb-1 line-clamp">
+            <h3 class="fw-bold mb-1 line-clamp titre-carte">
                 <?= htmlspecialchars($l['titre']) ?>
             </h3> 
             

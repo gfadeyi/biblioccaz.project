@@ -92,10 +92,9 @@ unset($_SESSION['flash_admin']);
                     <span class="badge bg-dark-subtle text-dark-emphasis"><?= ROLES_LIBELLES[$_SESSION['role']] ?? '' ?></span>
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end shadow-sm">
-                    <li><a class="dropdown-item" href="../profil.php"><i class="bi bi-person me-2"></i>Mon profil</a></li>
-                    <li><a class="dropdown-item" href="../modifier_mdp.php"><i class="bi bi-shield-lock me-2"></i>Mot de passe</a></li>
+                    <li><a class="dropdown-item" href="mot_de_passe.php"><i class="bi bi-shield-lock me-2"></i>Changer mon mot de passe</a></li>
                     <li><hr class="dropdown-divider"></li>
-                    <li><a class="dropdown-item text-danger" href="../logout.php?depuis=admin"><i class="bi bi-box-arrow-right me-2"></i>Déconnexion</a></li>
+                    <li><a class="dropdown-item text-danger" href="deconnexion.php"><i class="bi bi-box-arrow-right me-2"></i>Déconnexion</a></li>
                 </ul>
             </div>
         <?php endif; ?>

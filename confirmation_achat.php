@@ -9,13 +9,41 @@ if (!isset($_SESSION['user_id']) || empty($_SESSION['panier']) || $_SERVER['REQU
     exit();
 }
 
-$prenom  = trim($_POST['prenom'] ?? '');
-$nom     = trim($_POST['nom'] ?? '');
-$adresse = trim($_POST['adresse'] ?? '');
+require_once 'compte_lib.php';
 
-if ($prenom === '' || $nom === '' || $adresse === '') {
-    header("Location: achat.php");
-    exit();
+$idAdresse = (int) ($_POST['id_adresse'] ?? 0);
+if ($idAdresse > 0) {
+    $stmtA = $pdo->prepare("SELECT * FROM adresse_livraison WHERE id_adresse = ? AND id_user = ?");
+    $stmtA->execute([$idAdresse, $_SESSION['user_id']]);
+    $choisie = $stmtA->fetch();
+    if (!$choisie) {
+        header("Location: achat.php?erreur=" . urlencode("Adresse introuvable, merci d'en choisir une autre."));
+        exit();
+    }
+    $prenom = $choisie['prenom'];
+    $nom = $choisie['nom'];
+    $adresse = adresseEnLigne($choisie);
+} else {
+    $nouvelle = [];
+    foreach (['prenom', 'nom', 'adresse', 'complement', 'code_postal', 'ville'] as $c) {
+        $nouvelle[$c] = trim($_POST[$c] ?? '');
+    }
+    if ($nouvelle['prenom'] === '' || $nouvelle['nom'] === '' || $nouvelle['adresse'] === '' || $nouvelle['ville'] === '' || !preg_match('/^\d{5}$/', $nouvelle['code_postal'])) {
+        header("Location: achat.php?erreur=" . urlencode("Adresse incomplète : vérifiez la rue, le code postal (5 chiffres) et la ville."));
+        exit();
+    }
+    $prenom = $nouvelle['prenom'];
+    $nom = $nouvelle['nom'];
+    $adresse = adresseEnLigne($nouvelle);
+    if (!empty($_POST['enregistrer']) && count(adressesDe($pdo, (int) $_SESSION['user_id'])) < ADRESSES_MAX) {
+        try {
+            $pdo->prepare("INSERT INTO adresse_livraison (id_user, libelle, prenom, nom, adresse, complement, code_postal, ville, par_defaut)
+                           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)")
+                ->execute([$_SESSION['user_id'], $nouvelle['ville'], $prenom, $nom, $nouvelle['adresse'], $nouvelle['complement'] ?: null,
+                           $nouvelle['code_postal'], $nouvelle['ville'], adressesDe($pdo, (int) $_SESSION['user_id']) ? 0 : 1]);
+        } catch (PDOException $e) {
+        }
+    }
 }
 
 try {

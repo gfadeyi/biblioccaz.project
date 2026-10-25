@@ -1,4 +1,7 @@
 <?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_name('BIBLIOCCAZ_ADMIN');
+}
 require_once __DIR__ . '/../config.php';
 require_once __DIR__ . '/../avis_lib.php';
 

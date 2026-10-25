@@ -125,7 +125,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="../javascript/captcha_puzzle.js"></script>
-<script>initCaptchaPuzzle('../');</script>
+<script src="../javascript/captcha_puzzle.js?v=<?= filemtime(__DIR__ . '/../javascript/captcha_puzzle.js') ?>"></script>
+<script>initCaptchaPuzzle('', { image: 'puzzle_image.php', piece: 'puzzle_piece.php', verifier: 'puzzle_verifier.php' });</script>
 </body>
 </html>

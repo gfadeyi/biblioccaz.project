@@ -17,6 +17,11 @@ if ($connected && $userRole === 'client') {
     $solde_points = $resPoints['solde_points'] ?? 0;
 }
 
+require_once __DIR__ . '/compte_lib.php';
+require_once __DIR__ . '/avis_lib.php';
+$idsFavoris = $connected ? idsFavoris($pdo, (int) $_SESSION['user_id']) : [];
+$nb_favoris = count($idsFavoris);
+
 $nb_notif_modo = 0;
 $nb_notif_livres = 0;
 $nb_notif_avis = 0;
@@ -49,7 +54,8 @@ if (isset($_SESSION['panier'])) {
     <title>BIBLIOccaz</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=<?= filemtime(__DIR__ . '/style.css') ?>">
+    <meta name="csrf" content="<?= jetonCsrf() ?>">
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const barre = document.getElementById('barre-recherche');
@@ -155,8 +161,9 @@ $lienCategorie = fn($slug) => $pagesCategories[$slug] ?? 'catalogue.php?categori
                 <a href="profil.php" class="icone-entete" title="Mes points fidélité">
                     <i class="bi bi-coin"></i><span><?= htmlspecialchars($solde_points) ?> pts</span>
                 </a>
-                <a href="wishlist.php" class="icone-entete d-none d-sm-flex">
+                <a href="wishlist.php" class="icone-entete d-none d-sm-flex position-relative">
                     <i class="bi bi-heart"></i><span>Favoris</span>
+                    <?php if ($nb_favoris > 0): ?><span class="pastille" id="compteur-favoris"><?= $nb_favoris ?></span><?php endif; ?>
                 </a>
             <?php endif; ?>
 
@@ -182,7 +189,9 @@ $lienCategorie = fn($slug) => $pagesCategories[$slug] ?? 'catalogue.php?categori
                             <li><a class="dropdown-item small rounded-2 py-2" href="dashboard_auteur.php"><i class="bi bi-layout-text-sidebar-reverse me-2 text-success"></i>Créateur</a></li>
                         <?php else: ?>
                             <li><a class="dropdown-item small rounded-2 py-2" href="commandes.php"><i class="bi bi-truck me-2 text-success"></i>Mes achats</a></li>
-                            <li><a class="dropdown-item small rounded-2 py-2" href="wishlist.php"><i class="bi bi-heart me-2 text-success"></i>Ma liste</a></li>
+                            <li><a class="dropdown-item small rounded-2 py-2" href="wishlist.php"><i class="bi bi-heart me-2 text-success"></i>Ma liste d'envies</a></li>
+                            <li><a class="dropdown-item small rounded-2 py-2" href="alertes.php"><i class="bi bi-bell me-2 text-success"></i>Mes alertes</a></li>
+                            <li><a class="dropdown-item small rounded-2 py-2" href="adresses.php"><i class="bi bi-geo-alt me-2 text-success"></i>Mes adresses</a></li>
                             <li><a class="dropdown-item small rounded-2 py-2" href="avis.php"><i class="bi bi-star me-2 text-success"></i>Mes avis</a></li>
                             <li><a class="dropdown-item small rounded-2 py-2" href="mes_dons.php"><i class="bi bi-gift me-2 text-success"></i>Mes dons</a></li>
                             <li><a class="dropdown-item small rounded-2 py-2" href="mes_evenements.php"><i class="bi bi-calendar-event me-2 text-success"></i>Mes événements</a></li>

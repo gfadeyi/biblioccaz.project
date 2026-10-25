@@ -67,7 +67,7 @@ if (isset($_GET['mdp'])) { $success = "Mot de passe modifié ! Vous pouvez vous 
         
         <?php if (isset($_GET['timeout']) || (isset($_GET['msg']) && $_GET['msg'] === 'inactive')): ?>
             <div class="alert alert-warning alert-dismissible fade show mb-4" role="alert">
-                <strong>Déconnexion automatique :</strong> Inactivité prolongée (6 min).
+                <strong>Déconnexion automatique :</strong> Inactivité prolongée (10 min).
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         <?php endif; ?>
@@ -115,7 +115,7 @@ if (isset($_GET['mdp'])) { $success = "Mot de passe modifié ! Vous pouvez vous 
     </div>
 </div>
 
-<script src="javascript/captcha_puzzle.js"></script>
+<script src="javascript/captcha_puzzle.js?v=<?= filemtime(__DIR__ . '/javascript/captcha_puzzle.js') ?>"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     initCaptchaPuzzle('');

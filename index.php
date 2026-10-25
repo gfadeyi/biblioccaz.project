@@ -53,28 +53,7 @@ $petitsPrix = $pdo->query("
     .book-card { flex: 0 0 250px; transition: transform 0.3s ease; }
     .book-card:hover { transform: translateY(-5px); }
     
-    .card-img-container { background: #f8f9fa; height: 220px; display: flex; align-items: center; justify-content: center; padding: 15px; }
-
-    .line-clamp {
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;  
-        overflow: hidden;
-        height: 2.8em; 
-        line-height: 1.4em;
-    }
-
-    .book-card .card {
-        min-height: 420px; 
-        display: flex;
-        flex-direction: column;
-    }
-
-    .card-body {
-        display: flex;
-        flex-direction: column;
-        flex-grow: 1;
-    }
+    .book-card .card { min-height: 420px; }
 </style>
 
 <div class="container mt-5">

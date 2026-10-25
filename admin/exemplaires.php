@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/_init.php';
+require_once __DIR__ . '/../compte_lib.php';
 exigerDroit('catalogue');
 
 const ETATS_EXEMPLAIRE = ['neuf' => 'Neuf', 'tres bon' => 'Très bon état', 'bon' => 'Bon état', 'use' => 'Usé'];
@@ -28,12 +29,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $pdo->prepare("INSERT INTO exemplaire (id_livre, etat, prix, type_offre, is_disponible, quantite, id_user) VALUES (?, ?, ?, 'vente', 1, ?, ?)")
             ->execute([$idLivre, $etat, $prix, $quantite, $_SESSION['user_id']]);
         insertLog('STOCK', "Ajout de $quantite ex. ($etat, $prix €) pour le livre #$idLivre");
-        rediriger($retour, 'success', "$quantite exemplaire" . ($quantite > 1 ? 's ajoutés' : ' ajouté') . " au stock.");
+        $prevenus = notifierRetourEnStock($pdo, $idLivre);
+        rediriger($retour, 'success', "$quantite exemplaire" . ($quantite > 1 ? 's ajoutés' : ' ajouté') . " au stock."
+            . ($prevenus ? " $prevenus client" . ($prevenus > 1 ? 's qui attendaient ce livre ont été prévenus' : ' qui attendait ce livre a été prévenu') . " par mail." : ''));
     }
 
     if ($action === 'plus') {
         $pdo->prepare("UPDATE exemplaire SET quantite = quantite + 1 WHERE id_exemplaire = ? AND id_livre = ?")->execute([$idEx, $idLivre]);
         insertLog('STOCK', "Stock +1 pour l'exemplaire #$idEx");
+        notifierRetourEnStock($pdo, $idLivre);
     } elseif ($action === 'moins') {
         $pdo->prepare("UPDATE exemplaire SET quantite = quantite - 1 WHERE id_exemplaire = ? AND id_livre = ? AND quantite > 0")->execute([$idEx, $idLivre]);
         $pdo->prepare("DELETE FROM exemplaire WHERE id_exemplaire = ? AND id_livre = ? AND quantite <= 0")->execute([$idEx, $idLivre]);

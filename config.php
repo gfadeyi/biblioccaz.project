@@ -38,7 +38,7 @@ if (isset($_SESSION['last_activity'])) {
 $_SESSION['last_activity'] = time();
 
 $isLocal = ($_SERVER['REMOTE_ADDR'] == '127.0.0.1' || $_SERVER['REMOTE_ADDR'] == '::1');
-$timeout_duration = 360;
+$timeout_duration = 600;
 
 if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity'] > $timeout_duration)) {
     session_unset();
@@ -96,7 +96,8 @@ $currentPage = strpos($cheminScript, $racineSite . '/') === 0
     ? substr($cheminScript, strlen($racineSite) + 1)
     : basename($_SERVER['PHP_SELF']);
 $ignoredPages = ['admin/logs_donnees.php', 'admin/en_ligne_donnees.php', 'recherche.php',
-                 'get_captcha_image.php', 'captcha_piece.php', 'captcha_verifier.php'];
+                 'get_captcha_image.php', 'captcha_piece.php', 'captcha_verifier.php',
+                 'admin/puzzle_image.php', 'admin/puzzle_piece.php', 'admin/puzzle_verifier.php'];
 
 if (!in_array($currentPage, $ignoredPages) && strpos($currentPage, 'traitement_') === false) {
     insertLog('VISITE', "Consultation de la page : " . $currentPage);

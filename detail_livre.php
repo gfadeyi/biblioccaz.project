@@ -20,6 +20,31 @@ $offres = $stmtEx->fetchAll();
 
 $offre_selectionnee = $offres[$offre_index] ?? null;
 
+require_once 'compte_lib.php';
+require_once 'avis_lib.php';
+$idUserConnecte = (int) ($_SESSION['user_id'] ?? 0);
+$stockTotal = array_sum(array_map(fn($o) => (int) $o['quantite'], $offres));
+$enFavori = false;
+$alerteActive = false;
+try {
+    if ($idUserConnecte) {
+        $enFavori = estFavori($pdo, $idUserConnecte, (int) $livre['id_livre']);
+        $alerteActive = alerteEnAttente($pdo, $idUserConnecte, (int) $livre['id_livre']);
+    }
+} catch (PDOException $e) {
+}
+$flashCompte = $_SESSION['flash_compte'] ?? null;
+unset($_SESSION['flash_compte']);
+
+function formulaireCompte(string $action, int $idLivre, string $contenu, string $classe, string $titre = ''): string
+{
+    return '<form action="compte_action.php" method="POST" class="d-inline">'
+        . '<input type="hidden" name="csrf" value="' . jetonCsrf() . '">'
+        . '<input type="hidden" name="action" value="' . $action . '">'
+        . '<input type="hidden" name="id_livre" value="' . $idLivre . '">'
+        . '<button class="' . $classe . '"' . ($titre ? ' title="' . htmlspecialchars($titre) . '" aria-label="' . htmlspecialchars($titre) . '"' : '') . '>' . $contenu . '</button></form>';
+}
+
 function formaterEtat($etat) {
     $e = strtolower($etat);
     if ($e == 'tres bon' || $e == 'très bon') return 'Très bon';
@@ -37,6 +62,7 @@ function formaterEtat($etat) {
     .btn-state-active { background-color: #274e13 !important; color: white !important; border-radius: 50px; padding: 8px 20px; transition: 0.3s; }
     .btn-state-inactive { border: 1px solid #274e13; color: #274e13; border-radius: 50px; padding: 8px 20px; transition: 0.3s; }
     .btn-state-inactive:hover { background-color: #e8f5e9; }
+    .bouton-favori { width: 44px; height: 44px; flex-shrink: 0; }
 </style>
 
 <div class="container mt-5 mb-5">
@@ -46,7 +72,19 @@ function formaterEtat($etat) {
         </div>
 
         <div class="col-md-5">
-            <h1 class="fw-bold"><?= htmlspecialchars($livre['titre']) ?></h1>
+            <?php if ($flashCompte): ?>
+                <div class="alert alert-<?= htmlspecialchars($flashCompte[0]) ?> rounded-3 py-2 small"><?= htmlspecialchars($flashCompte[1]) ?></div>
+            <?php endif; ?>
+            <div class="d-flex align-items-start gap-3">
+                <h1 class="fw-bold flex-grow-1"><?= htmlspecialchars($livre['titre']) ?></h1>
+                <?php if ($idUserConnecte): ?>
+                    <?= $enFavori
+                        ? formulaireCompte('favori_retirer', (int) $livre['id_livre'], '<i class="bi bi-heart-fill"></i>', 'btn btn-outline-danger rounded-circle bouton-favori', "Retirer de ma liste d'envies")
+                        : formulaireCompte('favori_ajouter', (int) $livre['id_livre'], '<i class="bi bi-heart"></i>', 'btn btn-outline-secondary rounded-circle bouton-favori', "Ajouter à ma liste d'envies") ?>
+                <?php else: ?>
+                    <a href="login.php" class="btn btn-outline-secondary rounded-circle bouton-favori" title="Connectez-vous pour ajouter ce livre à vos envies"><i class="bi bi-heart"></i></a>
+                <?php endif; ?>
+            </div>
             <p class="text-muted h5 mb-2">Par <?= htmlspecialchars($livre['auteur']) ?></p>
             <?php
             require_once 'avis_lib.php';
@@ -145,12 +183,27 @@ function formaterEtat($etat) {
                     <?php elseif (!$estConnecte): ?>
                         <a href="login.php" class="btn btn-custom-green w-100 rounded-pill py-2">Connexion pour acheter</a>
                     <?php elseif ($offre_selectionnee['quantite'] <= 0): ?>
-                        <button class="btn btn-secondary w-100 rounded-pill" disabled>Épuisé</button>
+                        <button class="btn btn-secondary w-100 rounded-pill" disabled>Cet état est épuisé</button>
                     <?php else: ?>
                         <button class="btn btn-warning w-100 rounded-pill" disabled>Accès client requis</button>
                     <?php endif; ?>
                 <?php endif; ?>
-                
+
+                <?php if ($stockTotal <= 0): ?>
+                    <?php if (!$offre_selectionnee): ?>
+                        <h2 class="h5 fw-bold text-secondary">Épuisé</h2>
+                    <?php endif; ?>
+                    <p class="small text-muted mb-2">Ce livre n'est plus en stock pour le moment.</p>
+                    <?php if (!$idUserConnecte): ?>
+                        <a href="login.php" class="btn btn-outline-success w-100 rounded-pill"><i class="bi bi-bell"></i> Se connecter pour être averti</a>
+                    <?php elseif ($alerteActive): ?>
+                        <div class="small text-success mb-2"><i class="bi bi-bell-fill"></i> Vous serez prévenu par mail dès son retour.</div>
+                        <?= formulaireCompte('alerte_retirer', (int) $livre['id_livre'], 'Annuler l\'alerte', 'btn btn-link btn-sm text-muted p-0') ?>
+                    <?php else: ?>
+                        <?= formulaireCompte('alerte_ajouter', (int) $livre['id_livre'], '<i class="bi bi-bell"></i> M\'avertir quand il revient', 'btn btn-outline-success w-100 rounded-pill') ?>
+                    <?php endif; ?>
+                <?php endif; ?>
+
                 <?php
                 $nbDonsLivre = 0;
                 try {

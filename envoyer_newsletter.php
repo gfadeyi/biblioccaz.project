@@ -13,9 +13,12 @@ if (!filter_var($email, FILTER_VALIDATE_EMAIL) || mb_strlen($email) > 150) {
     exit();
 }
 
+require_once 'notifications_lib.php';
 $stmt = $pdo->prepare("SELECT id FROM user WHERE email = ?");
 $stmt->execute([$email]);
-if ($stmt->fetchColumn()) {
+$idMembre = $stmt->fetchColumn();
+journalNewsletter($pdo, $email, $idMembre ? (int) $idMembre : null, true, 'site');
+if ($idMembre) {
     $pdo->prepare("UPDATE user SET is_newsletter = 1, date_newsletter = NOW() WHERE email = ?")->execute([$email]);
 } else {
     $pdo->prepare("

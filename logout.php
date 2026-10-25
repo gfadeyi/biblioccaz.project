@@ -18,6 +18,5 @@ if (isset($_SESSION['user_id'])) {
     }
 }
 session_destroy();
-$retour = (($_GET['depuis'] ?? '') === 'admin') ? 'admin/login.php?deconnecte=1' : 'index.php';
-header("Location: $retour");
+header("Location: index.php");
 exit();

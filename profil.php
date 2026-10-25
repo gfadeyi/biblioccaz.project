@@ -13,6 +13,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'newsl
     $abonner = ($_POST['abonner'] ?? '') === '1';
     $pdo->prepare("UPDATE user SET is_newsletter = ?, date_newsletter = NOW() WHERE id = ?")->execute([$abonner ? 1 : 0, $_SESSION['user_id']]);
     insertLog('NEWSLETTER', $abonner ? "Abonnement à la newsletter depuis le profil" : "Désabonnement de la newsletter depuis le profil");
+    require_once 'notifications_lib.php';
+    $stmtMail = $pdo->prepare("SELECT email FROM user WHERE id = ?");
+    $stmtMail->execute([$_SESSION['user_id']]);
+    $emailMembre = (string) $stmtMail->fetchColumn();
+    journalNewsletter($pdo, $emailMembre, (int) $_SESSION['user_id'], $abonner, 'profil');
+    notifierParMail($emailMembre,
+        $abonner ? "Inscription à la newsletter confirmée" : "Désinscription de la newsletter confirmée",
+        $abonner ? "Merci ! Vous recevrez désormais les nouveautés et pépites d'occasion de BIBLIOccaz.\nVous pouvez vous désabonner à tout moment depuis votre espace : " . SITE_URL . "/profil.php"
+                 : "Vous ne recevrez plus la newsletter de BIBLIOccaz.\nVous pouvez vous réabonner à tout moment depuis votre espace : " . SITE_URL . "/profil.php");
     header("Location: profil.php?newsletter=" . ($abonner ? 'on' : 'off'));
     exit();
 }

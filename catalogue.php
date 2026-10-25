@@ -116,8 +116,6 @@ echo etoilesStyle();
     .catalogue-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 20px; }
     .catalogue-grid .book-card { transition: transform 0.3s ease; }
     .catalogue-grid .book-card:hover { transform: translateY(-5px); }
-    .card-img-container { background: #f8f9fa; height: 220px; display: flex; align-items: center; justify-content: center; padding: 15px; }
-    .line-clamp { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; font-size: 1.05rem; }
     .filtres-box { background: white; border-radius: 15px; border: 1px solid #eee; }
     .filtres-box .form-label { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; color: #274e13; letter-spacing: .03em; }
     .tag-filtre { font-size: 0.8rem; }

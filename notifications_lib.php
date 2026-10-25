@@ -14,3 +14,12 @@ function notifierParMail(string $email, string $sujet, string $texte): void
         insertLog('ERREUR', "Mail non envoyé ($sujet) : " . $e->getMessage());
     }
 }
+
+function journalNewsletter(PDO $pdo, string $email, ?int $idUser, bool $inscription, string $source): void
+{
+    try {
+        $pdo->prepare("INSERT INTO newsletter_historique (email, id_user, action, source) VALUES (?, ?, ?, ?)")
+            ->execute([$email, $idUser, $inscription ? 'inscription' : 'desinscription', $source]);
+    } catch (PDOException $e) {
+    }
+}
