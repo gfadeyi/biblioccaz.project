@@ -49,6 +49,8 @@ try {
             $premiere_connexion_modo = true;
         }
 
+        // Nouvel identifiant de session à chaque connexion (évite la fixation de session)
+        session_regenerate_id(true);
         $_SESSION['user_id'] = $user['id'];
         $_SESSION['pseudo'] = $user['pseudo'];
         $_SESSION['role'] = $user['role'];

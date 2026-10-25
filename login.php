@@ -65,9 +65,9 @@ if (isset($_GET['mdp'])) { $success = "Mot de passe modifié ! Vous pouvez vous 
 <div class="container text-center">
     <div class="login-container">
         
-        <?php if (isset($_GET['msg']) && $_GET['msg'] === 'inactive'): ?>
+        <?php if (isset($_GET['timeout']) || (isset($_GET['msg']) && $_GET['msg'] === 'inactive')): ?>
             <div class="alert alert-warning alert-dismissible fade show mb-4" role="alert">
-                <strong>Déconnexion automatique :</strong> Inactivité prolongée (3 min).
+                <strong>Déconnexion automatique :</strong> Inactivité prolongée (6 min).
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         <?php endif; ?>
@@ -115,127 +115,10 @@ if (isset($_GET['mdp'])) { $success = "Mot de passe modifié ! Vous pouvez vous 
     </div>
 </div>
 
+<script src="javascript/captcha_puzzle.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    const grid = document.getElementById('captchaGrid');
-    const triggerBtn = document.getElementById('captchaTriggerBtn');
-    const tokenInput = document.getElementById('captchaToken');
-    const message = document.getElementById('captchaMessage');
-    
-    // Le puzzle est vérifié côté serveur (captcha_verifier.php) :
-    // le navigateur ne connaît jamais la solution.
-    let ordre = [];
-    let selectedTile = null;
-    let isVerified = false;
-
-    function initPuzzle() {
-        isVerified = false;
-        selectedTile = null;
-        grid.innerHTML = '';
-        message.textContent = '';
-        tokenInput.value = '';
-
-        fetch('get_captcha_image.php', { cache: 'no-store' })
-            .then(response => response.json())
-            .then(data => {
-                ordre = data.pieces || [];
-                renderGrid();
-            })
-            .catch(() => {
-                message.textContent = "Impossible de charger le puzzle, réessayez.";
-                message.className = "mt-3 small text-danger fw-bold";
-            });
-    }
-
-    function renderGrid() {
-        grid.innerHTML = '';
-        ordre.forEach((id, position) => {
-            const box = document.createElement('div');
-            box.className = 'puzzle-tile';
-            box.dataset.position = position;
-            box.style.backgroundImage = 'url(captcha_piece.php?id=' + encodeURIComponent(id) + ')';
-            box.style.backgroundSize = '100% 100%';
-
-            box.addEventListener('click', function () {
-                if (isVerified) return;
-
-                if (!selectedTile) {
-                    selectedTile = box;
-                    box.classList.add('selected');
-                } else if (selectedTile === box) {
-                    selectedTile.classList.remove('selected');
-                    selectedTile = null;
-                } else {
-                    const p1 = parseInt(selectedTile.dataset.position);
-                    const p2 = parseInt(box.dataset.position);
-                    [ordre[p1], ordre[p2]] = [ordre[p2], ordre[p1]];
-                    selectedTile = null;
-                    renderGrid();
-                    verifier();
-                }
-            });
-
-            grid.appendChild(box);
-        });
-    }
-
-    function verifier() {
-        const body = new URLSearchParams({ ordre: ordre.join(',') });
-        fetch('captcha_verifier.php', { method: 'POST', body: body })
-            .then(response => response.json())
-            .then(data => {
-                if (data.ok) {
-                    reussite();
-                } else if (data.expire) {
-                    message.textContent = "Trop d'essais, nouveau puzzle.";
-                    message.className = "mt-3 small text-danger fw-bold";
-                    setTimeout(initPuzzle, 800);
-                }
-            });
-    }
-
-    function reussite() {
-        isVerified = true;
-        tokenInput.value = 'ok'; // simple repère pour le formulaire ; la vraie preuve est en session
-
-        triggerBtn.innerHTML = "✅ Vérification Réussie";
-        triggerBtn.className = "btn btn-success w-100";
-
-        message.textContent = "✅ Parfait ! Image reconstituée.";
-        message.className = "mt-3 small text-success fw-bold";
-
-        setTimeout(() => {
-            const modalEl = document.getElementById('captchaModal');
-            if (window.bootstrap && bootstrap.Modal) {
-                const modalInstance = bootstrap.Modal.getInstance(modalEl);
-                if (modalInstance) {
-                    modalInstance.hide();
-                    return;
-                }
-            }
-            const fallbackClose = modalEl.querySelector('[data-bs-dismiss="modal"]');
-            if (fallbackClose) fallbackClose.click();
-        }, 600);
-    }
-
-    const form = document.querySelector('form');
-    form.addEventListener('submit', function(e) {
-        if (!tokenInput.value) {
-            e.preventDefault(); 
-            alert("Veuillez d'abord réussir le puzzle de sécurité.");
-            
-            const modalEl = document.getElementById('captchaModal');
-            if (window.bootstrap && bootstrap.Modal) {
-                const modalInstance = bootstrap.Modal.getOrCreateInstance(modalEl);
-                modalInstance.show();
-            }
-        }
-    });
-
-    const modalElement = document.getElementById('captchaModal');
-    modalElement.addEventListener('shown.bs.modal', function () {
-        initPuzzle();
-    });
+    initCaptchaPuzzle('');
 });
 </script>
 <?php include 'footer.php'; ?>

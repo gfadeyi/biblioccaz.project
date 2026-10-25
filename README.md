@@ -10,8 +10,11 @@ Projet annuel de 1re année (ESGI, classe 1A1) par **Gaël Fadeyi**, **Jeanny Be
 - **Stock d'occasion** : plusieurs exemplaires par livre, avec état (neuf, très bon, bon, usé) et prix
 - **Panier et commande** : remises automatiques (-5 % dès 30 €, -10 % dès 50 €), livraison offerte dès 20 €, historique des commandes
 - **Points fidélité** : 1 point par euro dépensé
-- **Comptes et rôles** : client, auteur (proposition de livres), modérateur (validation du catalogue), administrateur
-- **Back-office** : gestion du stock, modération, gestion des membres, logs d'activité, export PDF des inscrits
+- **Catégories, tags et filtres** : navigation par catégorie, filtres (prix, état, note), tris, pagination
+- **Avis** : notes et commentaires (badge « achat vérifié »), signalement et modération
+- **Dons de livres** : annonces gratuites avec réservation et retrait validé par QR code
+- **Comptes et rôles** : client, auteur (proposition de livres), modérateur, gestionnaire, administrateur
+- **Back-office séparé** (`admin/`) : tableau de bord, validation des fiches, stock, avis signalés, dons, membres, newsletter, journal d'activité, export PDF des membres
 - **Emails** : vérification d'adresse à l'inscription, récupération de mot de passe, newsletter (PHPMailer)
 - **Captcha puzzle** maison, vérifié côté serveur
 
@@ -37,9 +40,29 @@ PHP 8 · MySQL / MariaDB (PDO) · Bootstrap 5 · JavaScript · PHPMailer · Domp
    ```
 4. Importer `sql/biblioccaz.sql` dans phpMyAdmin (base, utilisateur MySQL, tables et données d'exemple).
 5. Copier `secrets.example.php` en **`secrets.php`** et y renseigner les identifiants (base de données, envoi de mails). Ce fichier n'est jamais envoyé sur GitHub.
-6. Ouvrir http://localhost/projet_web/biblioccaz/
+6. Ouvrir le site client : http://localhost/projet_web/biblioccaz/
+   et le back-office : http://localhost/projet_web/biblioccaz/admin/
 
 Compte administrateur de démonstration : `admin` / `admin123` (à changer).
+
+## Organisation : site client et back-office
+
+Le projet contient deux interfaces qui partagent la même base de données et le même code commun (`config.php`, `mailer.php`, `*_lib.php`) :
+
+| | Site client (front-office) | Back-office |
+|---|---|---|
+| Adresse | `/` | `/admin/` |
+| Public | visiteurs, clients, auteurs | équipe : administrateur, gestionnaire, modérateur |
+| Connexion | `login.php` | `admin/login.php` (refuse les comptes clients) |
+| Mise en page | `header.php` / `footer.php` (catalogue, panier) | `admin/_haut.php` / `admin/_bas.php` (menu latéral) |
+
+Droits dans le back-office (définis dans `admin/_init.php`) :
+
+- **Modérateur** : tableau de bord, validation des fiches livres, avis signalés, dons
+- **Gestionnaire** : + ajout et modification des livres, stock
+- **Administrateur** : tout, dont membres, catégories, newsletter, journal, images du captcha, export PDF
+
+Toutes les actions qui modifient des données passent par des formulaires POST protégés par un jeton anti-CSRF. En production, le dossier `admin/` peut être servi sur son propre sous-domaine (par exemple `admin.biblioccaz.fr`).
 
 ### Emails en local
 

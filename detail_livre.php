@@ -152,11 +152,31 @@ function formaterEtat($etat) {
                     <?php endif; ?>
                 <?php endif; ?>
                 
-                <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
+                <?php
+                // Dons disponibles pour ce livre + invitation à donner le sien
+                $nbDonsLivre = 0;
+                try {
+                    $stmtDons = $pdo->prepare("SELECT COUNT(*) FROM don WHERE id_livre = ? AND statut = 'disponible' AND date_limite >= CURDATE()");
+                    $stmtDons->execute([$id]);
+                    $nbDonsLivre = (int) $stmtDons->fetchColumn();
+                } catch (PDOException $e) {
+                }
+                ?>
+                <hr class="my-3">
+                <?php if ($nbDonsLivre > 0): ?>
+                    <a href="dons.php?q=<?= urlencode($livre['titre']) ?>" class="d-block small fw-bold text-success text-decoration-none mb-2">
+                        <i class="bi bi-gift"></i> <?= $nbDonsLivre ?> exemplaire<?= $nbDonsLivre > 1 ? 's' : '' ?> à récupérer gratuitement
+                    </a>
+                <?php endif; ?>
+                <a href="don_creer.php?livre=<?= $id ?>" class="d-block small text-muted text-decoration-none">
+                    <i class="bi bi-heart"></i> Vous avez ce livre ? Donnez-le
+                </a>
+
+                <?php if (in_array($_SESSION['role'] ?? '', ['admin', 'gestionnaire'], true)): ?>
                     <hr class="my-3">
                     <div class="d-grid gap-2">
-                        <a href="modifier_livre.php?id=<?= $id ?>" class="btn btn-admin-green">Modifier la fiche</a>
-                        <a href="gerer_exemplaires.php?id=<?= $id ?>" class="btn btn-outline-success rounded-pill">Gérer le stock</a>
+                        <a href="admin/livre.php?id=<?= $id ?>" class="btn btn-admin-green">Modifier la fiche</a>
+                        <a href="admin/exemplaires.php?id=<?= $id ?>" class="btn btn-outline-success rounded-pill">Gérer le stock</a>
                     </div>
                 <?php endif; ?>
             </div>

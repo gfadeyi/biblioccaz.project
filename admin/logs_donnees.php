@@ -1,7 +1,10 @@
 <?php
-require_once 'config.php';
+// Données du journal d'activité, lues par logs.php toutes les 5 secondes (réservé à l'admin).
+require_once __DIR__ . '/_init.php';
+exigerDroit('admin', true);
+header('Content-Type: application/json; charset=utf-8');
 
-$logFile = __DIR__ . '/secure_data/logs.txt';
+$logFile = __DIR__ . '/../secure_data/logs.txt';
 $response = [
     'totalConnexions' => 0,
     'sessionMoyenne' => 0,
@@ -20,10 +23,9 @@ if (file_exists($logFile)) {
             $date = "Inconnue";
             if (preg_match('/^\[([^\]]+)\]/', $line, $m)) $date = $m[1];
             
+            // Format d'une ligne : [date] [TYPE] [IP: ...] [USER_ID: ...] - message
             $type = "VISITE";
-            if (strpos($line, '[CONNEXION]') !== false) $type = "CONNEXION";
-            elseif (strpos($line, '[DÉCONNEXION]') !== false) $type = "DÉCONNEXION";
-            elseif (strpos($line, '[MODERATION]') !== false) $type = "MODERATION";
+            if (preg_match('/^\[[^\]]+\] \[([^\]]+)\]/', $line, $m)) $type = $m[1];
             
             $user = "Invité";
             if (preg_match('/USER_ID:\s*([^\]]+)\]/', $line, $m)) {
@@ -32,8 +34,8 @@ if (file_exists($logFile)) {
             }
             
             $desc = "Aucune description";
-            $parts = explode(' - ', $line);
-            if (count($parts) > 1) $desc = end($parts);
+            $pos = strpos($line, '] - ');
+            if ($pos !== false) $desc = substr($line, $pos + 4);
 
             if (count($response['listeLogs']) < 100) {
                 $response['listeLogs'][] = [

@@ -1,0 +1,5 @@
+# Les fichiers qui commencent par "_" (_init.php, _haut.php, _bas.php) sont des morceaux
+# inclus par les autres pages : on interdit de les ouvrir directement dans le navigateur.
+<FilesMatch "^_">
+    Require all denied
+</FilesMatch>

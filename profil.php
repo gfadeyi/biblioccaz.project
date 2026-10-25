@@ -18,7 +18,7 @@ if (!$user) {
 $isAdmin = ($user['role'] === 'admin');
 $isClient = ($user['role'] === 'client');
 $isAuteur = ($user['role'] === 'auteur');
-$isGestionnaire = ($user['role'] === 'gestionnaire');
+$isGestionnaire = in_array($user['role'], ['gestionnaire', 'moderateur'], true);
 $points = $user['solde_points'] ?? 0;
 
 include 'header.php';
@@ -58,7 +58,7 @@ include 'header.php';
                     <?php if ($isAdmin): ?>
                         <span class="badge bg-danger rounded-pill px-3 small">ADMINISTRATEUR</span>
                     <?php elseif ($isGestionnaire): ?>
-                        <span class="badge bg-warning text-dark rounded-pill px-3 small">MODÉRATEUR</span>
+                        <span class="badge bg-warning text-dark rounded-pill px-3 small"><?= $user['role'] === 'gestionnaire' ? 'GESTIONNAIRE' : 'MODÉRATEUR' ?></span>
                     <?php elseif ($isAuteur): ?>
                         <span class="badge bg-info text-dark rounded-pill px-3 small">AUTEUR</span>
                     <?php else: ?>
@@ -67,8 +67,8 @@ include 'header.php';
                 </div>
             </div>
             <div class="d-flex gap-2">
-                <?php if ($isAdmin): ?>
-                    <a href="admin.php" class="btn btn-dark rounded-pill px-4 fw-bold">Dashboard</a>
+                <?php if ($isAdmin || $isGestionnaire): ?>
+                    <a href="admin/index.php" class="btn btn-dark rounded-pill px-4 fw-bold"><i class="bi bi-speedometer2 me-1"></i> Back-office</a>
                 <?php endif; ?>
                 <a href="modifier_profil.php" class="btn btn-outline-success rounded-pill px-4 fw-bold">Modifier le profil</a>
             </div>
@@ -77,64 +77,58 @@ include 'header.php';
         <h2 class="section-title">Accès rapides</h2>
         <div class="row g-3">
             
-            <?php if ($isAdmin): ?>
+            <?php if ($isAdmin || $isGestionnaire): ?>
+                <?php // Les outils de l'équipe sont dans le back-office (dossier admin/) ?>
                 <div class="col-md-4 col-lg-3">
-                    <a href="moderation_catalogue.php" class="quick-access-card">
+                    <a href="admin/moderation_livres.php" class="quick-access-card">
                         <div class="card-icon"><i class="bi bi-shield-check"></i></div>
-                        <div class="card-title">Modération</div>
+                        <div class="card-title">Fiches à valider</div>
                         <p class="card-text">Valider les fiches livres.</p>
                     </a>
                 </div>
                 <div class="col-md-4 col-lg-3">
-                    <a href="gestion_utilisateurs.php" class="quick-access-card">
+                    <a href="admin/moderation_avis.php" class="quick-access-card">
+                        <div class="card-icon"><i class="bi bi-chat-square-text"></i></div>
+                        <div class="card-title">Avis signalés</div>
+                        <p class="card-text">Traiter les avis signalés.</p>
+                    </a>
+                </div>
+                <?php if ($isAdmin || $user['role'] === 'gestionnaire'): ?>
+                <div class="col-md-4 col-lg-3">
+                    <a href="admin/inventaire.php" class="quick-access-card">
+                        <div class="card-icon"><i class="bi bi-box-seam"></i></div>
+                        <div class="card-title">Inventaire</div>
+                        <p class="card-text">Suivre et compléter le stock.</p>
+                    </a>
+                </div>
+                <?php endif; ?>
+                <?php if ($isAdmin): ?>
+                <div class="col-md-4 col-lg-3">
+                    <a href="admin/utilisateurs.php" class="quick-access-card">
                         <div class="card-icon"><i class="bi bi-people"></i></div>
                         <div class="card-title">Membres</div>
                         <p class="card-text">Gérer les comptes.</p>
                     </a>
                 </div>
+                <?php endif; ?>
+                <?php if ($isAdmin): ?>
                 <div class="col-md-4 col-lg-3">
-                    <a href="moderation_avis.php" class="quick-access-card">
-                        <div class="card-icon"><i class="bi bi-chat-square-text"></i></div>
-                        <div class="card-title">Modération avis</div>
-                        <p class="card-text">Traiter les avis signalés.</p>
-                    </a>
-                </div>
-                <div class="col-md-4 col-lg-3">
-                    <a href="gestion_categories.php" class="quick-access-card">
+                    <a href="admin/categories.php" class="quick-access-card">
                         <div class="card-icon"><i class="bi bi-tags"></i></div>
                         <div class="card-title">Catégories & tags</div>
                         <p class="card-text">Classer le catalogue.</p>
                     </a>
                 </div>
+                <?php endif; ?>
+                <?php if ($isAdmin): ?>
                 <div class="col-md-4 col-lg-3">
-                    <a href="admin_logs.php" class="quick-access-card">
+                    <a href="admin/logs.php" class="quick-access-card">
                         <div class="card-icon"><i class="bi bi-terminal"></i></div>
-                        <div class="card-title">Logs</div>
-                        <p class="card-text">Historique système.</p>
+                        <div class="card-title">Journal</div>
+                        <p class="card-text">Historique d'activité.</p>
                     </a>
                 </div>
-            <?php elseif ($isGestionnaire): ?>
-                <div class="col-md-4 col-lg-3">
-                    <a href="moderation_catalogue.php" class="quick-access-card">
-                        <div class="card-icon"><i class="bi bi-shield-check"></i></div>
-                        <div class="card-title">Modération</div>
-                        <p class="card-text">Valider les fiches catalogue.</p>
-                    </a>
-                </div>
-                <div class="col-md-4 col-lg-3">
-                    <a href="moderation_avis.php" class="quick-access-card">
-                        <div class="card-icon"><i class="bi bi-chat-square-text"></i></div>
-                        <div class="card-title">Modération avis</div>
-                        <p class="card-text">Traiter les avis signalés.</p>
-                    </a>
-                </div>
-                <div class="col-md-4 col-lg-3">
-                    <a href="inventaire_admin.php" class="quick-access-card">
-                        <div class="card-icon"><i class="bi bi-box-seam"></i></div>
-                        <div class="card-title">Suivi des Stocks</div>
-                        <p class="card-text">Vérification de l'inventaire.</p>
-                    </a>
-                </div>
+                <?php endif; ?>
             <?php elseif ($isAuteur): ?>
                 <div class="col-md-4 col-lg-3">
                     <a href="dashboard_auteur.php" class="quick-access-card">
@@ -194,7 +188,7 @@ include 'header.php';
                     </a>
                 </div>
                 <div class="col-md-4 col-lg-3">
-                    <a href="vendre.php" class="quick-access-card">
+                    <a href="mes_dons.php" class="quick-access-card">
                         <div class="card-icon"><i class="bi bi-gift"></i></div>
                         <div class="card-title">Mes dons</div>
                         <p class="card-text">Suivre mes partages.</p>

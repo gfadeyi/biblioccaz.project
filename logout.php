@@ -18,5 +18,7 @@ if (isset($_SESSION['user_id'])) {
     }
 }
 session_destroy();
-header("Location: index.php");
+// Depuis le back-office, on revient sur sa page de connexion
+$retour = (($_GET['depuis'] ?? '') === 'admin') ? 'admin/login.php?deconnecte=1' : 'index.php';
+header("Location: $retour");
 exit();

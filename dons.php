@@ -1,0 +1,92 @@
+<?php
+// Liste publique des livres à donner
+require_once 'config.php';
+require_once 'dons_lib.php';
+require_once 'categories_lib.php';
+
+$q = trim($_GET['q'] ?? '');
+$lieu = trim($_GET['lieu'] ?? '');
+$categorie = $_GET['categorie'] ?? '';
+
+$where = ["d.statut = 'disponible'", "d.date_limite >= CURDATE()"];
+$params = [];
+if ($q !== '') {
+    $where[] = "(d.titre LIKE :q1 OR d.auteur LIKE :q2)";
+    $params['q1'] = $params['q2'] = "%$q%";
+}
+if ($lieu !== '') {
+    $where[] = "d.lieu_retrait LIKE :lieu";
+    $params['lieu'] = "%$lieu%";
+}
+if ($categorie !== '') {
+    $where[] = "c.slug = :categorie";
+    $params['categorie'] = $categorie;
+}
+
+$stmt = $pdo->prepare("
+    SELECT d.*, c.nom AS categorie_nom, u.pseudo AS donneur_pseudo
+    FROM don d
+    INNER JOIN user u ON u.id = d.id_donneur
+    LEFT JOIN categorie c ON c.id_categorie = d.id_categorie
+    WHERE " . implode(' AND ', $where) . "
+    ORDER BY d.date_creation DESC
+    LIMIT 60");
+$stmt->execute($params);
+$dons = $stmt->fetchAll();
+$categories = listerCategories($pdo);
+
+include 'header.php';
+?>
+
+<div class="container my-4">
+    <div class="d-flex flex-wrap justify-content-between align-items-end gap-2 mb-4">
+        <div>
+            <h1 class="fw-bold mb-1" style="color:#274e13;"><i class="bi bi-gift"></i> Livres à donner</h1>
+            <p class="text-muted mb-0"><?= count($dons) ?> don<?= count($dons) > 1 ? 's' : '' ?> disponible<?= count($dons) > 1 ? 's' : '' ?> · gratuit, à récupérer en main propre</p>
+        </div>
+        <a href="don_creer.php" class="btn btn-success rounded-pill fw-bold"><i class="bi bi-plus-lg"></i> Donner un livre</a>
+    </div>
+
+    <form method="GET" class="row g-2 mb-4">
+        <div class="col-md-5"><input type="text" name="q" class="form-control" placeholder="Titre ou auteur" value="<?= htmlspecialchars($q) ?>"></div>
+        <div class="col-md-3"><input type="text" name="lieu" class="form-control" placeholder="Ville / lieu" value="<?= htmlspecialchars($lieu) ?>"></div>
+        <div class="col-md-2">
+            <select name="categorie" class="form-select">
+                <option value="">Catégorie</option>
+                <?php foreach ($categories as $c): ?>
+                    <option value="<?= htmlspecialchars($c['slug']) ?>" <?= $categorie === $c['slug'] ? 'selected' : '' ?>><?= htmlspecialchars($c['nom']) ?></option>
+                <?php endforeach; ?>
+            </select>
+        </div>
+        <div class="col-md-2 d-grid"><button class="btn btn-outline-success">Rechercher</button></div>
+    </form>
+
+    <?php if (!$dons): ?>
+        <div class="card p-5 text-center shadow-sm border-0" style="border-radius: 15px;">
+            <i class="bi bi-gift text-muted fs-1 mb-3"></i>
+            <h5 class="text-secondary">Aucun don disponible pour ces critères.</h5>
+            <a href="don_creer.php" class="btn btn-success rounded-pill px-4 mt-3 mx-auto">Soyez le premier à donner un livre</a>
+        </div>
+    <?php else: ?>
+        <div class="row g-3">
+            <?php foreach ($dons as $d): ?>
+                <div class="col-sm-6 col-lg-3">
+                    <a href="don_detail.php?id=<?= $d['id_don'] ?>" class="card h-100 border-0 shadow-sm text-decoration-none text-dark" style="border-radius: 15px; overflow: hidden;">
+                        <div class="bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                            <img src="<?= htmlspecialchars(photoDon($d['photo'])) ?>" alt="" style="max-height: 180px; max-width: 90%; object-fit: contain;">
+                        </div>
+                        <div class="card-body">
+                            <span class="badge bg-success-subtle text-success border border-success-subtle mb-2">Gratuit</span>
+                            <h6 class="fw-bold mb-1"><?= htmlspecialchars($d['titre']) ?></h6>
+                            <?php if ($d['auteur']): ?><div class="small text-muted"><?= htmlspecialchars($d['auteur']) ?></div><?php endif; ?>
+                            <div class="small mt-2"><i class="bi bi-geo-alt text-success"></i> <?= htmlspecialchars($d['lieu_retrait']) ?></div>
+                            <div class="small text-muted">Avant le <?= date('d/m', strtotime($d['date_limite'])) ?> · <?= DON_ETATS[$d['etat']] ?? '' ?></div>
+                        </div>
+                    </a>
+                </div>
+            <?php endforeach; ?>
+        </div>
+    <?php endif; ?>
+</div>
+
+<?php include 'footer.php'; ?>

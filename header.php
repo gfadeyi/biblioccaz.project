@@ -20,21 +20,19 @@ if ($connected && $userRole === 'client') {
 
 $nb_notif_modo = 0;
 $nb_notif_livres = 0;
+$nb_notif_avis = 0;
 $total_notif_admin = 0;
 
-if ($connected && $userRole === 'admin') {
-    $stmtNotifModo = $pdo->query("SELECT COUNT(*) FROM user WHERE statut = 'en_attente_moderateur'");
-    $nb_notif_modo = intval($stmtNotifModo->fetchColumn());
-
-    $stmtNotifLivres = $pdo->query("SELECT COUNT(*) FROM livre WHERE is_valide = 0");
-    $nb_notif_livres = intval($stmtNotifLivres->fetchColumn());
-
-    $nb_notif_avis = 0;
+// Ce qui attend l'équipe (affiché en pastille sur l'icône du compte)
+if ($connected && in_array($userRole, ['admin', 'gestionnaire', 'moderateur'], true)) {
     try {
+        $nb_notif_livres = (int) $pdo->query("SELECT COUNT(*) FROM livre WHERE is_valide = 0")->fetchColumn();
         $nb_notif_avis = (int) $pdo->query("SELECT COUNT(DISTINCT id_avis) FROM avis_signalement WHERE traite = 0")->fetchColumn();
+        if ($userRole === 'admin') {
+            $nb_notif_modo = (int) $pdo->query("SELECT COUNT(*) FROM user WHERE statut = 'en_attente_moderateur'")->fetchColumn();
+        }
     } catch (PDOException $e) {
     }
-
     $total_notif_admin = $nb_notif_modo + $nb_notif_livres + $nb_notif_avis;
 }
 
@@ -180,23 +178,17 @@ $lienCategorie = fn($slug) => $pagesCategories[$slug] ?? 'catalogue.php?categori
                             <strong class="text-dark d-block text-truncate"><?= htmlspecialchars($_SESSION['pseudo']) ?></strong>
                             <a href="profil.php" class="btn btn-sm btn-outline-secondary rounded-pill px-3 mt-1" style="font-size: 0.75rem;">Mon profil</a>
                         </li>
-                        <?php if ($userRole === 'admin'): ?>
-                            <li><a class="dropdown-item small rounded-2 py-2" href="admin.php"><i class="bi bi-speedometer2 me-2 text-success"></i>Dashboard Global</a></li>
-                            <li><a class="dropdown-item small rounded-2 py-2" href="moderation_catalogue.php"><i class="bi bi-shield-check me-2 text-success"></i>Modération Livres</a></li>
-                            <li><a class="dropdown-item small rounded-2 py-2" href="moderation_avis.php"><i class="bi bi-chat-square-text me-2 text-success"></i>Modération avis<?php if (!empty($nb_notif_avis)): ?> <span class="badge bg-danger rounded-pill"><?= $nb_notif_avis ?></span><?php endif; ?></a></li>
-                            <li><a class="dropdown-item small rounded-2 py-2" href="inventaire_admin.php"><i class="bi bi-box-seam me-2 text-success"></i>Stocks</a></li>
-                            <li><a class="dropdown-item small rounded-2 py-2" href="gestion_categories.php"><i class="bi bi-tags me-2 text-success"></i>Catégories & tags</a></li>
-                            <li><a class="dropdown-item small rounded-2 py-2" href="gestion_utilisateurs.php"><i class="bi bi-people me-2 text-success"></i>Membres</a></li>
-                        <?php elseif ($userRole === 'gestionnaire'): ?>
-                            <li><a class="dropdown-item small rounded-2 py-2" href="dashboard_gestionnaire.php"><i class="bi bi-speedometer me-2 text-success"></i>Dashboard</a></li>
-                            <li><a class="dropdown-item small rounded-2 py-2" href="moderation_catalogue.php"><i class="bi bi-shield-check me-2 text-success"></i>Modérer</a></li>
-                            <li><a class="dropdown-item small rounded-2 py-2" href="moderation_avis.php"><i class="bi bi-chat-square-text me-2 text-success"></i>Modérer les avis</a></li>
+                        <?php if (in_array($userRole, ['admin', 'gestionnaire', 'moderateur'], true)): ?>
+                            <li><a class="dropdown-item small rounded-2 py-2 fw-bold" href="admin/index.php"><i class="bi bi-speedometer2 me-2 text-success"></i>Back-office<?php if ($total_notif_admin > 0): ?> <span class="badge bg-danger rounded-pill"><?= $total_notif_admin ?></span><?php endif; ?></a></li>
+                            <li><a class="dropdown-item small rounded-2 py-2" href="admin/moderation_livres.php"><i class="bi bi-shield-check me-2 text-success"></i>Fiches à valider<?php if ($nb_notif_livres > 0): ?> <span class="badge bg-danger rounded-pill"><?= $nb_notif_livres ?></span><?php endif; ?></a></li>
+                            <li><a class="dropdown-item small rounded-2 py-2" href="admin/moderation_avis.php"><i class="bi bi-chat-square-text me-2 text-success"></i>Avis signalés<?php if ($nb_notif_avis > 0): ?> <span class="badge bg-danger rounded-pill"><?= $nb_notif_avis ?></span><?php endif; ?></a></li>
                         <?php elseif ($userRole === 'auteur'): ?>
                             <li><a class="dropdown-item small rounded-2 py-2" href="dashboard_auteur.php"><i class="bi bi-layout-text-sidebar-reverse me-2 text-success"></i>Créateur</a></li>
                         <?php else: ?>
                             <li><a class="dropdown-item small rounded-2 py-2" href="commandes.php"><i class="bi bi-truck me-2 text-success"></i>Mes achats</a></li>
                             <li><a class="dropdown-item small rounded-2 py-2" href="wishlist.php"><i class="bi bi-heart me-2 text-success"></i>Ma liste</a></li>
                             <li><a class="dropdown-item small rounded-2 py-2" href="avis.php"><i class="bi bi-star me-2 text-success"></i>Mes avis</a></li>
+                            <li><a class="dropdown-item small rounded-2 py-2" href="mes_dons.php"><i class="bi bi-gift me-2 text-success"></i>Mes dons</a></li>
                         <?php endif; ?>
                         <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item small text-danger rounded-2 py-2" href="logout.php"><i class="bi bi-box-arrow-right me-2"></i>Déconnexion</a></li>
@@ -258,6 +250,7 @@ $lienCategorie = fn($slug) => $pagesCategories[$slug] ?? 'catalogue.php?categori
             <a href="meilleures_ventes.php" class="raccourci <?= $pageActuelle === 'meilleures_ventes.php' ? 'actif' : '' ?>"><i class="bi bi-award"></i> Meilleures ventes</a>
             <a href="dernière_chance.php" class="raccourci <?= $pageActuelle === 'dernière_chance.php' ? 'actif' : '' ?>"><i class="bi bi-hourglass-split"></i> Dernière chance</a>
             <a href="petits_prix.php" class="raccourci <?= $pageActuelle === 'petits_prix.php' ? 'actif' : '' ?>"><i class="bi bi-tag"></i> Moins de 10 €</a>
+            <a href="dons.php" class="raccourci <?= in_array($pageActuelle, ['dons.php', 'don_detail.php'], true) ? 'actif' : '' ?>"><i class="bi bi-gift"></i> Livres à donner</a>
             <a href="catalogue.php" class="raccourci <?= $pageActuelle === 'catalogue.php' && !$menuCatActive ? 'actif' : '' ?>"><i class="bi bi-grid"></i> Tout le catalogue</a>
         </div>
     </div>
@@ -287,6 +280,7 @@ $lienCategorie = fn($slug) => $pagesCategories[$slug] ?? 'catalogue.php?categori
             <?php else: ?>
                 <li><a href="vendre.php" class="lien-lateral-secondaire"><i class="bi bi-arrow-repeat"></i> Donner ou revendre mes livres</a></li>
             <?php endif; ?>
+            <li><a href="dons.php" class="lien-lateral-secondaire"><i class="bi bi-gift"></i> Livres à donner</a></li>
             <li><a href="meilleures_ventes.php" class="lien-lateral-secondaire"><i class="bi bi-award"></i> Meilleures ventes</a></li>
             <li><a href="nouveauté.php" class="lien-lateral-secondaire"><i class="bi bi-stars"></i> Nouveautés</a></li>
             <li><a href="petits_prix.php" class="lien-lateral-secondaire"><i class="bi bi-tag"></i> Petits prix</a></li>

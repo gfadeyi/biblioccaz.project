@@ -91,8 +91,15 @@ function insertLog($type, $message) {
     file_put_contents($logFile, $logLine, FILE_APPEND);
 }
 
-$currentPage = basename($_SERVER['PHP_SELF']);
-$ignoredPages = ['get_stats_logs.php', 'action_admin.php', 'modifier_statut.php'];
+// Chemin de la page depuis la racine du site (ex. "panier.php" ou "admin/index.php")
+$cheminScript = str_replace('\\', '/', realpath($_SERVER['SCRIPT_FILENAME']) ?: '');
+$racineSite = str_replace('\\', '/', __DIR__);
+$currentPage = strpos($cheminScript, $racineSite . '/') === 0
+    ? substr($cheminScript, strlen($racineSite) + 1)
+    : basename($_SERVER['PHP_SELF']);
+// Pages appelées en boucle par JavaScript : on ne les note pas dans le journal
+$ignoredPages = ['admin/logs_donnees.php', 'admin/en_ligne_donnees.php', 'recherche.php',
+                 'get_captcha_image.php', 'captcha_piece.php', 'captcha_verifier.php'];
 
 if (!in_array($currentPage, $ignoredPages) && strpos($currentPage, 'traitement_') === false) {
     insertLog('VISITE', "Consultation de la page : " . $currentPage);

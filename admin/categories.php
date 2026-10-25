@@ -1,18 +1,14 @@
 <?php
 // Administration des catégories et des tags (admin uniquement)
-require_once 'config.php';
-require_once 'categories_lib.php';
-if (session_status() === PHP_SESSION_NONE) { session_start(); }
-
-if (($_SESSION['role'] ?? '') !== 'admin') {
-    header("Location: login.php");
-    exit();
-}
+require_once __DIR__ . '/_init.php';
+require_once __DIR__ . '/../categories_lib.php';
+exigerDroit('admin');
 
 $message = '';
 $erreur = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    exigerPost('categories.php');
     $type = $_POST['type'] ?? '';           // 'categorie' ou 'tag'
     $action = $_POST['action'] ?? '';       // 'ajouter', 'renommer', 'supprimer'
     $table = $type === 'categorie' ? 'categorie' : ($type === 'tag' ? 'tag' : null);
@@ -50,6 +46,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } catch (PDOException $e) {
         $erreur = $e->getCode() == 23000 ? "Ce nom existe déjà." : "Erreur : " . $e->getMessage();
     }
+    if ($erreur === '') {
+        rediriger('categories.php', 'success', $message);
+    }
 }
 
 $categories = $pdo->query("
@@ -62,14 +61,17 @@ $tags = $pdo->query("
     GROUP BY t.id_tag ORDER BY t.nom")->fetchAll();
 $sansCategorie = (int) $pdo->query("SELECT COUNT(*) FROM livre WHERE id_categorie IS NULL")->fetchColumn();
 
-include 'header.php';
+$titrePage = 'Catégories & tags';
+$pageActive = 'categories';
+include __DIR__ . '/_haut.php';
 
 function blocListe(string $type, string $titre, array $elements, string $cle): void { ?>
-    <div class="card border-0 shadow-sm h-100" style="border-radius: 15px;">
-        <div class="card-body p-4">
-            <h4 class="fw-bold mb-3" style="color:#274e13;"><?= $titre ?></h4>
+    <div class="carte h-100">
+        <div class="p-4">
+            <h2 class="h5 fw-bold mb-3" style="color:#274e13;"><?= $titre ?></h2>
 
             <form method="POST" class="d-flex gap-2 mb-4">
+                <?= champCsrf() ?>
                 <input type="hidden" name="type" value="<?= $type ?>">
                 <input type="hidden" name="action" value="ajouter">
                 <input type="text" name="nom" class="form-control form-control-sm" placeholder="Nouveau nom..." maxlength="100" required>
@@ -83,6 +85,7 @@ function blocListe(string $type, string $titre, array $elements, string $cle): v
             <?php foreach ($elements as $el): ?>
                 <div class="d-flex align-items-center gap-2 mb-2">
                     <form method="POST" class="d-flex gap-2 flex-grow-1">
+                        <?= champCsrf() ?>
                         <input type="hidden" name="type" value="<?= $type ?>">
                         <input type="hidden" name="action" value="renommer">
                         <input type="hidden" name="id" value="<?= $el[$cle] ?>">
@@ -90,7 +93,8 @@ function blocListe(string $type, string $titre, array $elements, string $cle): v
                         <button class="btn btn-outline-secondary btn-sm" title="Enregistrer le nom"><i class="bi bi-check-lg"></i></button>
                     </form>
                     <span class="badge bg-light text-dark border" title="Livres concernés"><?= $el['nb_livres'] ?> livre<?= $el['nb_livres'] > 1 ? 's' : '' ?></span>
-                    <form method="POST" onsubmit="return confirm('Supprimer « <?= htmlspecialchars(addslashes($el['nom'])) ?> » ? Les livres concernés seront simplement retirés de ce classement.');">
+                    <form method="POST" data-confirmer="Supprimer « <?= e($el['nom']) ?> » ? Les livres concernés seront simplement retirés de ce classement.">
+                        <?= champCsrf() ?>
                         <input type="hidden" name="type" value="<?= $type ?>">
                         <input type="hidden" name="action" value="supprimer">
                         <input type="hidden" name="id" value="<?= $el[$cle] ?>">
@@ -103,25 +107,17 @@ function blocListe(string $type, string $titre, array $elements, string $cle): v
 <?php }
 ?>
 
-<div class="container mt-5 mb-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="fw-bold mb-0">Catégories & tags</h2>
-        <a href="admin.php" class="btn btn-outline-secondary btn-sm rounded-pill px-3"><i class="bi bi-arrow-left me-2"></i>Dashboard</a>
+<?php if ($erreur): ?><div class="alert alert-danger"><?= e($erreur) ?></div><?php endif; ?>
+<?php if ($sansCategorie > 0): ?>
+    <div class="alert alert-warning small">
+        <i class="bi bi-info-circle me-1"></i> <?= $sansCategorie ?> livre<?= $sansCategorie > 1 ? 's n\'ont' : ' n\'a' ?> pas de catégorie.
+        Classez-les depuis <a href="inventaire.php">l'inventaire</a> (bouton « Modifier la fiche »).
     </div>
+<?php endif; ?>
 
-    <?php if ($message): ?><div class="alert alert-success rounded-3"><?= htmlspecialchars($message) ?></div><?php endif; ?>
-    <?php if ($erreur): ?><div class="alert alert-danger rounded-3"><?= htmlspecialchars($erreur) ?></div><?php endif; ?>
-    <?php if ($sansCategorie > 0): ?>
-        <div class="alert alert-warning rounded-3 small">
-            <i class="bi bi-info-circle me-1"></i> <?= $sansCategorie ?> livre<?= $sansCategorie > 1 ? 's n\'ont' : ' n\'a' ?> pas de catégorie.
-            Classe-les depuis <a href="inventaire_admin.php">l'inventaire</a> (bouton « Modifier la fiche » sur la page du livre).
-        </div>
-    <?php endif; ?>
-
-    <div class="row g-4">
-        <div class="col-lg-6"><?php blocListe('categorie', 'Catégories', $categories, 'id_categorie'); ?></div>
-        <div class="col-lg-6"><?php blocListe('tag', 'Tags (thèmes)', $tags, 'id_tag'); ?></div>
-    </div>
+<div class="row g-4">
+    <div class="col-lg-6"><?php blocListe('categorie', 'Catégories', $categories, 'id_categorie'); ?></div>
+    <div class="col-lg-6"><?php blocListe('tag', 'Tags (thèmes)', $tags, 'id_tag'); ?></div>
 </div>
 
-<?php include 'footer.php'; ?>
+<?php include __DIR__ . '/_bas.php'; ?>
