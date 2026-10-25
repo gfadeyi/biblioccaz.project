@@ -7,13 +7,16 @@ if (!isset($_SESSION['user_id']) || empty($_SESSION['panier'])) {
     exit();
 }
 
-$sousTotal = 0;
-foreach ($_SESSION['panier'] as $item) {
-    $sousTotal += $item['prix'] * $item['quantite'];
-}
+require_once 'panier_calcul.php';
 
-$fraisLivraison = ($sousTotal > 0 && $sousTotal < 20) ? 1.99 : 0;
-$totalFinal = $sousTotal + $fraisLivraison;
+// Même calcul que le panier (avant, la remise -5% / -10% était oubliée ici)
+$totaux = calculerTotauxPanier($_SESSION['panier']);
+$totalFinal = $totaux['total'];
+
+// Pré-remplir l'adresse avec les infos du compte
+$stmtU = $pdo->prepare("SELECT nom, prenom FROM user WHERE id = ?");
+$stmtU->execute([$_SESSION['user_id']]);
+$infosUser = $stmtU->fetch() ?: [];
 
 include 'header.php';
 ?>
@@ -25,8 +28,8 @@ include 'header.php';
                 <h4 class="fw-bold mb-4">Adresse de livraison</h4>
                 <form id="form-achat" action="confirmation_achat.php" method="POST">
                     <div class="row g-3">
-                        <div class="col-md-6"><input type="text" name="prenom" class="form-control" placeholder="Prénom" required></div>
-                        <div class="col-md-6"><input type="text" name="nom" class="form-control" placeholder="Nom" required></div>
+                        <div class="col-md-6"><input type="text" name="prenom" class="form-control" placeholder="Prénom" value="<?= htmlspecialchars($infosUser['prenom'] ?? '') ?>" required></div>
+                        <div class="col-md-6"><input type="text" name="nom" class="form-control" placeholder="Nom" value="<?= htmlspecialchars($infosUser['nom'] ?? '') ?>" required></div>
                         <div class="col-12"><input type="text" name="adresse" class="form-control" placeholder="Adresse" required></div>
                     </div>
                     <button type="submit" class="btn btn-success w-100 mt-4 py-3 rounded-pill">Payer <?= number_format($totalFinal, 2) ?> €</button>
@@ -48,10 +51,29 @@ include 'header.php';
                     </div>
                 <?php endforeach; ?>
                 <hr>
+                <div class="d-flex justify-content-between small text-secondary mb-1">
+                    <span>Sous-total</span>
+                    <span><?= number_format($totaux['sous_total'], 2) ?> €</span>
+                </div>
+                <?php if ($totaux['remise'] > 0): ?>
+                    <div class="d-flex justify-content-between small text-danger mb-1">
+                        <span>Remise automatique</span>
+                        <span>-<?= number_format($totaux['remise'], 2) ?> €</span>
+                    </div>
+                <?php endif; ?>
+                <div class="d-flex justify-content-between small text-secondary mb-2">
+                    <span>Livraison</span>
+                    <span><?= $totaux['frais_livraison'] > 0 ? number_format($totaux['frais_livraison'], 2) . ' €' : 'Gratuite' ?></span>
+                </div>
                 <div class="d-flex justify-content-between">
                     <span>Total</span>
                     <span class="fw-bold fs-4 text-success"><?= number_format($totalFinal, 2) ?> €</span>
                 </div>
+                <?php if ($totaux['points'] > 0): ?>
+                    <div class="text-end small text-success mt-1">
+                        <i class="bi bi-coin me-1"></i> +<?= $totaux['points'] ?> points fidélité
+                    </div>
+                <?php endif; ?>
             </div>
         </div>
     </div>

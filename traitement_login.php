@@ -5,19 +5,12 @@ if (session_status() === PHP_SESSION_NONE) { session_start(); }
 $pseudo = trim($_POST['pseudo'] ?? '');
 $mdp = $_POST['mdp'] ?? '';
 
-$captcha_token = $_POST['captcha_token'] ?? '';
+// Le captcha doit avoir été réussi côté serveur (voir captcha_verifier.php),
+// il y a moins de 5 minutes, et il ne sert qu'une seule fois.
+$captcha = $_SESSION['captcha'] ?? null;
+unset($_SESSION['captcha']);
 
-
-if (empty($captcha_token)) {
-    header("Location: login.php?error=captcha");
-    exit();
-}
-
-
-$decoded = base64_decode($captcha_token);
-
-
-if (strpos($decoded, 'success') !== 0) {
+if (!$captcha || empty($captcha['valide']) || time() - $captcha['valide_le'] > 300) {
     header("Location: login.php?error=captcha");
     exit();
 }

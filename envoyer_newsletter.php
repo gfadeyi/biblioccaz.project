@@ -1,5 +1,5 @@
 <?php
-require 'vendor/autoload.php';
+require_once 'mailer.php';
 require_once 'config.php';
 
 use PHPMailer\PHPMailer\PHPMailer;
@@ -35,20 +35,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         
-        $mail = new PHPMailer(true);
+        $mail = creerMailer();
 
         
         $mail->isSMTP();
-        $mail->Host       = 'smtp.gmail.com';
-        $mail->SMTPAuth   = true;
-        $mail->Username   = 'biblioccaz.noreply@gmail.com';  
-        $mail->Password   = '***SUPPRIME***';        
-        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-        $mail->Port       = 587;
-        $mail->CharSet    = 'UTF-8';
-
-        
-        $mail->setFrom('biblioccaz.noreply@gmail.com', 'BIBLIOccaz');
         $mail->addAddress($email);
 
         

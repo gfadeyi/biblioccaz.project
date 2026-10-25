@@ -2,28 +2,14 @@
 require_once 'config.php';
 if (session_status() === PHP_SESSION_NONE) { session_start(); }
 
-$sousTotal = 0;
-$totalArticles = 0;
-if (isset($_SESSION['panier'])) {
-    foreach ($_SESSION['panier'] as $item) {
-        $sousTotal += $item['prix'] * $item['quantite'];
-        $totalArticles += $item['quantite'];
-    }
-}
+require_once 'panier_calcul.php';
 
-$remise = 0;
-if ($sousTotal >= 50) {
-    $remise = $sousTotal * 0.10;
-} elseif ($sousTotal >= 30) {
-    $remise = $sousTotal * 0.05;
-}
-
-$fraisLivraison = 0;
-if ($sousTotal > 0 && $sousTotal < 20) {
-    $fraisLivraison = 1.99;
-}
-
-$totalFinal = $sousTotal - $remise + $fraisLivraison;
+$totaux = calculerTotauxPanier($_SESSION['panier'] ?? []);
+$sousTotal = $totaux['sous_total'];
+$totalArticles = $totaux['nb_articles'];
+$remise = $totaux['remise'];
+$fraisLivraison = $totaux['frais_livraison'];
+$totalFinal = $totaux['total'];
 
 include 'header.php';
 ?>
@@ -47,6 +33,10 @@ include 'header.php';
     <div class="row g-4">
         <div class="col-lg-7">
             <h2 class="fw-bold mb-4">Mon panier</h2>
+
+            <?php if (!empty($_GET['error'])): ?>
+                <div class="alert alert-danger rounded-3"><i class="bi bi-exclamation-triangle-fill me-2"></i><?= htmlspecialchars($_GET['error']) ?></div>
+            <?php endif; ?>
 
             <div class="card border-success p-3 mb-4 bg-white" style="border-radius: 12px; border-width: 2px !important;">
                 <div class="d-flex align-items-center">
@@ -98,7 +88,14 @@ include 'header.php';
                 <div class="row g-3">
                     <?php
                     $current_id = !empty($_SESSION['panier']) ? reset($_SESSION['panier'])['id_livre'] : 0;
-                    $stmtSug = $pdo->prepare("SELECT id_livre, titre, couverture, auteur FROM livre WHERE id_livre != ? ORDER BY RAND() LIMIT 3");
+                    // Suggestions : uniquement des livres en stock, avec leur vrai prix le plus bas
+                    $stmtSug = $pdo->prepare("
+                        SELECT l.id_livre, l.titre, l.couverture, l.auteur, MIN(e.prix) AS prix_min
+                        FROM livre l
+                        INNER JOIN exemplaire e ON e.id_livre = l.id_livre AND e.quantite > 0
+                        WHERE l.id_livre != ?
+                        GROUP BY l.id_livre, l.titre, l.couverture, l.auteur
+                        ORDER BY RAND() LIMIT 3");
                     $stmtSug->execute([$current_id]);
                     $suggestions = $stmtSug->fetchAll();
                     foreach ($suggestions as $sug):
@@ -112,7 +109,7 @@ include 'header.php';
                                         <div class="small fw-bold text-dark text-truncate mb-1"><?= htmlspecialchars($sug['titre']) ?></div>
                                         <div class="text-muted small text-truncate mb-2"><?= htmlspecialchars($sug['auteur']) ?></div>
                                     </div>
-                                    <div class="fw-bold text-success mt-2">1,79 €</div>
+                                    <div class="fw-bold text-success mt-2">dès <?= number_format($sug['prix_min'], 2, ',', ' ') ?> €</div>
                                 </div>
                             </a>
                         </div>
@@ -155,10 +152,18 @@ include 'header.php';
                     </div>
                 <?php endif; ?>
 
-                <div class="d-flex justify-content-between align-items-center pt-3 border-top mb-4">
+                <div class="d-flex justify-content-between align-items-center pt-3 border-top mb-2">
                     <span class="fw-bold text-dark fs-5">Total</span>
                     <span class="fw-bold fs-4 text-success"><?= number_format($totalFinal, 2) ?> €</span>
                 </div>
+
+                <?php if ($totaux['points'] > 0): ?>
+                    <div class="text-end small text-success mb-4">
+                        <i class="bi bi-coin me-1"></i> +<?= $totaux['points'] ?> points fidélité avec cette commande
+                    </div>
+                <?php else: ?>
+                    <div class="mb-4"></div>
+                <?php endif; ?>
 
                 <div class="d-grid">
                     <?php if (!empty($_SESSION['panier'])): ?>

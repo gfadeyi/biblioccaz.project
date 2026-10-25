@@ -12,10 +12,11 @@ use Dompdf\Dompdf;
 use Dompdf\Options;
 
 try {
-    $host = 'localhost'; 
-    $dbname = 'biblioccaz'; 
-    $username = 'admin_biblio';
-    $password = '***SUPPRIME***';
+    require_once __DIR__ . '/secrets.php';
+    $host = DB_HOST;
+    $dbname = DB_NAME;
+    $username = DB_USER;
+    $password = DB_PASS;
     
     $options_pdo = [
         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,

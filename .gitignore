@@ -5,4 +5,6 @@ img/*
 !img/default.png
 !img/captcha/biblioccaz.project/
 /nbproject/private/
-config.php
+
+# Identifiants locaux (base de données, mails) - jamais sur GitHub
+secrets.php

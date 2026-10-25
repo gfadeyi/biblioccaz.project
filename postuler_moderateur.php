@@ -37,7 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $headers .= "Reply-To: biblioccaz.noreply@gmail.com\r\n";
                 $headers .= "Content-Type: text/plain; charset=UTF-8\r\n";
 
-                $url = "http://***SUPPRIME***/verification_mail.php?token=" . $token . "&email=" . urlencode($email);
+                $url = SITE_URL . "/verification_mail.php?token=" . $token . "&email=" . urlencode($email);
 
                 $message = "Bonjour $prenom !\n\n";
                 $message .= "Merci pour l'intérêt que vous portez à BIBLIOccaz. Pour valider votre candidature et confirmer votre adresse email, veuillez cliquer sur le lien ci-dessous :\n";

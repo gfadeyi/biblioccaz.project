@@ -1,5 +1,5 @@
 <?php
-require 'vendor/autoload.php';
+require_once 'mailer.php';
 require_once 'config.php';
 
 use PHPMailer\PHPMailer\PHPMailer;
@@ -23,22 +23,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit();
     }
 
-    $mail = new PHPMailer(true);
-    $mail->SMTPDebug = 2;
+    $mail = creerMailer();
 
     try {
         
         $mail->isSMTP();
-        $mail->Host       = 'smtp.gmail.com';
-        $mail->SMTPAuth   = true;
-        $mail->Username   = 'biblioccaz.noreply@gmail.com'; 
-        $mail->Password   = '***SUPPRIME***';        
-        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-        $mail->Port       = 587;
-        $mail->CharSet    = 'UTF-8';
-
-    
-        $mail->setFrom('biblioccaz.noreply@gmail.com', 'BIBLIOccaz');
         $mail->Subject = "Des nouvelles fraîches de BIBLIOccaz ! 📚";
 
         
@@ -46,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $mail->addBCC($s['email']);
         }
 
-        $mail->addAddress('biblioccaz.noreply@gmail.com', 'Abonnés BIBLIOccaz');
+        $mail->addAddress(MAIL_FROM, 'Abonnés BIBLIOccaz');
 
         $mail->isHTML(true); 
         

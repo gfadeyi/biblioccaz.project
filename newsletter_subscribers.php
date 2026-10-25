@@ -1,5 +1,5 @@
 <?php
-require 'vendor/autoload.php';
+require_once 'mailer.php';
 require_once 'config.php'; 
 
 use PHPMailer\PHPMailer\PHPMailer;
@@ -33,19 +33,10 @@ if (isset($_POST['email_newsletter']) && !empty($_POST['email_newsletter'])) {
         }
 
 
-        $mail = new PHPMailer(true);
+        $mail = creerMailer();
 
         try {
             $mail->isSMTP();
-            $mail->Host       = 'smtp.gmail.com';
-            $mail->SMTPAuth   = true;
-            $mail->Username   = 'biblioccaz.noreply@gmail.com';  
-            $mail->Password   = '***SUPPRIME***';        
-            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-            $mail->Port       = 587;
-            $mail->CharSet    = 'UTF-8';
-
-            $mail->setFrom('biblioccaz.noreply@gmail.com', 'BIBLIOccaz');
             $mail->addAddress($email); 
 
 

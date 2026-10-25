@@ -2,45 +2,67 @@
 if (session_status() === PHP_SESSION_NONE) { session_start(); }
 require_once 'config.php';
 
-if (isset($_POST['id_livre'], $_POST['id_exemplaire'], $_POST['prix'], $_POST['titre'], $_POST['image'])) {
-    $idLivre = $_POST['id_livre'];
-    $idExemplaire = $_POST['id_exemplaire'];
-    $etat = $_POST['etat'];
-    $prix = floatval($_POST['prix']);
-    $titre = $_POST['titre'];
-    $image = $_POST['image'];
-    $action = $_POST['action'] ?? 'ajouter';
+// Seul l'identifiant de l'exemplaire est pris dans le formulaire.
+// Prix, titre, état et image sont relus en base : un client ne peut plus
+// modifier le prix dans son navigateur avant d'ajouter au panier.
+$idExemplaire = (int) ($_POST['id_exemplaire'] ?? 0);
+$action = $_POST['action'] ?? 'ajouter';
 
-    if (!isset($_SESSION['panier'])) {
-        $_SESSION['panier'] = [];
-    }
+$estAjax = !empty($_SERVER['HTTP_X_REQUESTED_WITH'])
+    && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
 
-    $cleUnique = 'ex_' . $idExemplaire;
+$stmt = $pdo->prepare("
+    SELECT e.id_exemplaire, e.id_livre, e.etat, e.prix, e.quantite, l.titre, l.couverture
+    FROM exemplaire e
+    INNER JOIN livre l ON l.id_livre = e.id_livre
+    WHERE e.id_exemplaire = ? AND e.is_disponible = 1");
+$stmt->execute([$idExemplaire]);
+$ex = $stmt->fetch();
 
-    if (isset($_SESSION['panier'][$cleUnique])) {
-        $_SESSION['panier'][$cleUnique]['quantite'] += 1;
-    } else {
-        $_SESSION['panier'][$cleUnique] = [
-            'id_livre' => $idLivre,
-            'id_exemplaire' => $idExemplaire,
-            'titre' => $titre,
-            'etat' => $etat,
-            'prix' => $prix,
-            'quantite' => 1,
-            'image' => $image
-        ];
-    }
-
-    if ($action === 'acheter') {
-        header("Location: panier.php");
-        exit();
-    } else {
-        if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
-            http_response_code(200);
-            exit();
-        }
-        header("Location: " . $_SERVER['HTTP_REFERER']);
-        exit();
-    }
+if (!$ex || $ex['quantite'] <= 0) {
+    if ($estAjax) { http_response_code(409); exit(); }
+    header("Location: panier.php?error=" . urlencode("Cet exemplaire n'est plus disponible."));
+    exit();
 }
-?>
+
+if (!isset($_SESSION['panier'])) {
+    $_SESSION['panier'] = [];
+}
+
+$cleUnique = 'ex_' . $ex['id_exemplaire'];
+$dejaDansPanier = $_SESSION['panier'][$cleUnique]['quantite'] ?? 0;
+
+if ($dejaDansPanier >= $ex['quantite']) {
+    if ($estAjax) { http_response_code(409); exit(); }
+    header("Location: panier.php?error=" . urlencode("Stock maximum atteint pour « " . $ex['titre'] . " »."));
+    exit();
+}
+
+$_SESSION['panier'][$cleUnique] = [
+    'id_livre'      => $ex['id_livre'],
+    'id_exemplaire' => $ex['id_exemplaire'],
+    'titre'         => $ex['titre'],
+    'etat'          => $ex['etat'],
+    'prix'          => (float) $ex['prix'],
+    'quantite'      => $dejaDansPanier + 1,
+    'image'         => $ex['couverture'] ?: 'default.png',
+];
+
+if ($action === 'acheter') {
+    header("Location: panier.php");
+    exit();
+}
+
+if ($estAjax) {
+    http_response_code(200);
+    exit();
+}
+
+// Retour à la page précédente, seulement si elle est sur ce site
+$retour = $_SERVER['HTTP_REFERER'] ?? '';
+$hoteSite = parse_url('http://' . ($_SERVER['HTTP_HOST'] ?? ''), PHP_URL_HOST);
+if (!$retour || parse_url($retour, PHP_URL_HOST) !== $hoteSite) {
+    $retour = 'index.php';
+}
+header("Location: " . $retour);
+exit();

@@ -118,42 +118,11 @@ document.addEventListener('DOMContentLoaded', function () {
     const tokenInput = document.getElementById('captchaToken');
     const message = document.getElementById('captchaMessage');
     
-    const cols = 3;
-    const rows = 2;
-    
-    let tiles = [];
+    // Le puzzle est vérifié côté serveur (captcha_verifier.php) :
+    // le navigateur ne connaît jamais la solution.
+    let ordre = [];
     let selectedTile = null;
     let isVerified = false;
-
-    function shuffleArray(array) {
-        for (let i = array.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [array[i], array[j]] = [array[j], array[i]];
-        }
-    }
-
-    function buildPuzzle(imgUrl) {
-        tiles = [];
-        for (let r = 0; r < rows; r++) {
-            for (let c = 0; c < cols; c++) {
-                tiles.push({
-                    correctIndex: r * cols + c,
-                    currentIndex: r * cols + c,
-                    posX: -(c * 100),
-                    posY: -(r * 75)
-                });
-            }
-        }
-
-        let attempts = 0;
-        do {
-            shuffleArray(tiles);
-            attempts++;
-        } while (checkWin() && attempts < 10);
-        
-        tiles.forEach((tile, index) => { tile.currentIndex = index; });
-        renderGrid(imgUrl);
-    }
 
     function initPuzzle() {
         isVerified = false;
@@ -162,31 +131,30 @@ document.addEventListener('DOMContentLoaded', function () {
         message.textContent = '';
         tokenInput.value = '';
 
-        fetch('get_captcha_image.php')
+        fetch('get_captcha_image.php', { cache: 'no-store' })
             .then(response => response.json())
             .then(data => {
-                let imgUrl = (data && data.image) ? data.image : 'img/fond_puzzle_2.jpg';
-                buildPuzzle(imgUrl);
+                ordre = data.pieces || [];
+                renderGrid();
             })
             .catch(() => {
-                buildPuzzle('img/fond_puzzle_2.jpg');
+                message.textContent = "Impossible de charger le puzzle, réessayez.";
+                message.className = "mt-3 small text-danger fw-bold";
             });
     }
 
-    function renderGrid(imgUrl) {
+    function renderGrid() {
         grid.innerHTML = '';
-        let currentOrder = [...tiles].sort((a, b) => a.currentIndex - b.currentIndex);
-
-        currentOrder.forEach(tile => {
+        ordre.forEach((id, position) => {
             const box = document.createElement('div');
             box.className = 'puzzle-tile';
-            box.dataset.index = tile.currentIndex;
-            box.style.backgroundImage = 'url(' + imgUrl + ')';
-            box.style.backgroundPosition = tile.posX + 'px ' + tile.posY + 'px';
-            
-            box.addEventListener('click', function() {
+            box.dataset.position = position;
+            box.style.backgroundImage = 'url(captcha_piece.php?id=' + encodeURIComponent(id) + ')';
+            box.style.backgroundSize = '100% 100%';
+
+            box.addEventListener('click', function () {
                 if (isVerified) return;
-                
+
                 if (!selectedTile) {
                     selectedTile = box;
                     box.classList.add('selected');
@@ -194,52 +162,56 @@ document.addEventListener('DOMContentLoaded', function () {
                     selectedTile.classList.remove('selected');
                     selectedTile = null;
                 } else {
-                    const idx1 = parseInt(selectedTile.dataset.index);
-                    const idx2 = parseInt(box.dataset.index);
-                    
-                    const t1 = tiles.find(t => t.currentIndex === idx1);
-                    const t2 = tiles.find(t => t.currentIndex === idx2);
-                    
-                    t1.currentIndex = idx2;
-                    t2.currentIndex = idx1;
-                    
-                    selectedTile.classList.remove('selected');
+                    const p1 = parseInt(selectedTile.dataset.position);
+                    const p2 = parseInt(box.dataset.position);
+                    [ordre[p1], ordre[p2]] = [ordre[p2], ordre[p1]];
                     selectedTile = null;
-                    
-                    renderGrid(imgUrl);
-                    
-                    if (checkWin()) {
-                        isVerified = true;
-                        tokenInput.value = btoa('success_validated_' + Date.now());
-                        
-                        triggerBtn.innerHTML = "✅ Vérification Réussie";
-                        triggerBtn.className = "btn btn-success w-100";
-                        
-                        message.textContent = "✅ Parfait ! Image reconstituée.";
-                        message.className = "mt-3 small text-success fw-bold";
-                        
-                        setTimeout(() => {
-                            const modalEl = document.getElementById('captchaModal');
-                            if (window.bootstrap && bootstrap.Modal) {
-                                const modalInstance = bootstrap.Modal.getInstance(modalEl);
-                                if (modalInstance) {
-                                    modalInstance.hide();
-                                    return;
-                                }
-                            }
-                            const fallbackClose = modalEl.querySelector('[data-bs-dismiss="modal"]');
-                            if (fallbackClose) fallbackClose.click();
-                        }, 600);
-                    }
+                    renderGrid();
+                    verifier();
                 }
             });
-            
+
             grid.appendChild(box);
         });
     }
 
-    function checkWin() {
-        return tiles.every(tile => tile.correctIndex === tile.currentIndex);
+    function verifier() {
+        const body = new URLSearchParams({ ordre: ordre.join(',') });
+        fetch('captcha_verifier.php', { method: 'POST', body: body })
+            .then(response => response.json())
+            .then(data => {
+                if (data.ok) {
+                    reussite();
+                } else if (data.expire) {
+                    message.textContent = "Trop d'essais, nouveau puzzle.";
+                    message.className = "mt-3 small text-danger fw-bold";
+                    setTimeout(initPuzzle, 800);
+                }
+            });
+    }
+
+    function reussite() {
+        isVerified = true;
+        tokenInput.value = 'ok'; // simple repère pour le formulaire ; la vraie preuve est en session
+
+        triggerBtn.innerHTML = "✅ Vérification Réussie";
+        triggerBtn.className = "btn btn-success w-100";
+
+        message.textContent = "✅ Parfait ! Image reconstituée.";
+        message.className = "mt-3 small text-success fw-bold";
+
+        setTimeout(() => {
+            const modalEl = document.getElementById('captchaModal');
+            if (window.bootstrap && bootstrap.Modal) {
+                const modalInstance = bootstrap.Modal.getInstance(modalEl);
+                if (modalInstance) {
+                    modalInstance.hide();
+                    return;
+                }
+            }
+            const fallbackClose = modalEl.querySelector('[data-bs-dismiss="modal"]');
+            if (fallbackClose) fallbackClose.click();
+        }, 600);
     }
 
     const form = document.querySelector('form');

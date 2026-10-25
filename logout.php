@@ -1,11 +1,12 @@
 <?php
+require_once __DIR__ . '/secrets.php';
 session_start();
 if (isset($_SESSION['user_id'])) {
     $id_user = $_SESSION['user_id'];
     $ip = $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
 
     try {
-        $pdo_logout = new PDO("mysql:host=localhost;dbname=biblioccaz;charset=utf8mb4", "admin_biblio", "***SUPPRIME***", [
+        $pdo_logout = new PDO("mysql:host=" . DB_HOST . ";dbname=" . DB_NAME . ";charset=utf8mb4", DB_USER, DB_PASS, [
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
         ]);
         

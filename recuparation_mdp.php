@@ -1,5 +1,5 @@
 <?php
-require 'vendor/autoload.php';
+require_once 'mailer.php';
 require_once 'config.php';
 include 'header.php';
 
@@ -29,22 +29,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt = $pdo->prepare("UPDATE user SET email_token = ? WHERE email = ?");
             $stmt->execute([$token, $email]);
 
-            $url = "https://biblioccaz.fr/modifier_mdp.php?token=" . $token;
+            $url = SITE_URL . "/modifier_mdp.php?token=" . $token;
             
-            $mail = new PHPMailer(true);
+            $mail = creerMailer();
 
             try {
                 $mail->isSMTP();
-                $mail->Host       = 'smtp.gmail.com';
-                $mail->SMTPAuth   = true;
-                $mail->Username   = 'biblioccaz.noreply@gmail.com';  
-                $mail->Password   = '***SUPPRIME***';  
-                $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-                $mail->Port       = 587;
-                $mail->CharSet    = 'UTF-8';
-
-
-                $mail->setFrom('biblioccaz.noreply@gmail.com', 'BIBLIOccaz');
                 $mail->addAddress($email, $user['prenom']);
 
                 $mail->isHTML(false); 
