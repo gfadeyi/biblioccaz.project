@@ -1,5 +1,4 @@
 <?php
-// Administration des catégories et des tags (admin uniquement)
 require_once __DIR__ . '/_init.php';
 require_once __DIR__ . '/../categories_lib.php';
 exigerDroit('admin');
@@ -9,8 +8,8 @@ $erreur = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     exigerPost('categories.php');
-    $type = $_POST['type'] ?? '';           // 'categorie' ou 'tag'
-    $action = $_POST['action'] ?? '';       // 'ajouter', 'renommer', 'supprimer'
+    $type = $_POST['type'] ?? '';
+    $action = $_POST['action'] ?? '';
     $table = $type === 'categorie' ? 'categorie' : ($type === 'tag' ? 'tag' : null);
     $cle = $type === 'categorie' ? 'id_categorie' : 'id_tag';
     $nom = trim($_POST['nom'] ?? '');
@@ -32,13 +31,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 insertLog('CATALOGUE', "Ajout $type : $nom");
                 $message = ucfirst($type) . " « $nom » ajouté" . ($type === 'categorie' ? 'e' : '') . ".";
             } else {
-                // Renommer garde le même slug : les liens existants restent valides
                 $pdo->prepare("UPDATE $table SET nom = ? WHERE $cle = ?")->execute([$nom, $id]);
                 insertLog('CATALOGUE', "Renommage $type #$id : $nom");
                 $message = "Modification enregistrée.";
             }
         } elseif ($action === 'supprimer') {
-            // Les livres liés perdent simplement leur catégorie/tag (clés étrangères SET NULL / CASCADE)
             $pdo->prepare("DELETE FROM $table WHERE $cle = ?")->execute([$id]);
             insertLog('CATALOGUE', "Suppression $type #$id");
             $message = "Suppression effectuée.";

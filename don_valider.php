@@ -1,11 +1,7 @@
 <?php
-// Validation du retrait d'un don.
-// - Le QR code ouvre cette page avec ?code=... (code long)
-// - Sans scan, on peut saisir le code court à 6 caractères
-// La confirmation se fait par un bouton (POST), jamais à la simple ouverture du lien.
 require_once 'config.php';
 require_once 'dons_lib.php';
-require_once 'avis_lib.php';   // jetonCsrf / verifierCsrf
+require_once 'avis_lib.php';
 if (session_status() === PHP_SESSION_NONE) { session_start(); }
 
 $idUser = (int) ($_SESSION['user_id'] ?? 0);
@@ -36,7 +32,6 @@ if ($don && $idUser && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['co
     } elseif (!($statut === 'reserve' && (int) $don['id_beneficiaire'] === $idUser) && $statut !== 'disponible') {
         $erreur = "Ce don n'est plus disponible (statut : " . DON_STATUTS[$statut][0] . ").";
     } else {
-        // Réservé par moi, ou encore disponible (retrait direct sans réservation préalable)
         $maj = $pdo->prepare("
             UPDATE don SET statut = 'recupere', id_beneficiaire = ?, date_recuperation = NOW(),
                            date_reservation = COALESCE(date_reservation, NOW())
@@ -75,7 +70,6 @@ include 'header.php';
             <a href="login.php" class="btn btn-success rounded-pill">Se connecter</a>
 
         <?php elseif ($don && !$erreur && in_array(statutDon($don), ['disponible', 'reserve'], true)): ?>
-            <!-- Étape de confirmation -->
             <div class="bg-light rounded-3 p-3 mb-3 text-start">
                 <div class="fw-bold"><?= htmlspecialchars($don['titre']) ?></div>
                 <div class="small text-muted">Don de <?= htmlspecialchars($don['donneur_pseudo']) ?> · <?= htmlspecialchars($don['lieu_retrait']) ?></div>

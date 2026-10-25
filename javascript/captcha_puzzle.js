@@ -1,10 +1,3 @@
-// Puzzle CAPTCHA partagé par la connexion client (login.php) et celle du back-office (admin/login.php).
-// Le puzzle est vérifié côté serveur (captcha_verifier.php) : le navigateur ne connaît jamais la solution.
-//
-// Utilisation : initCaptchaPuzzle('')      depuis la racine du site
-//               initCaptchaPuzzle('../')   depuis le dossier admin/
-// Éléments attendus dans la page : #captchaModal, #captchaGrid, #captchaMessage,
-// #captchaTriggerBtn et le champ caché #captchaToken placé dans le formulaire de connexion.
 function initCaptchaPuzzle(racine) {
     const grid = document.getElementById('captchaGrid');
     const triggerBtn = document.getElementById('captchaTriggerBtn');
@@ -85,7 +78,7 @@ function initCaptchaPuzzle(racine) {
 
     function reussite() {
         isVerified = true;
-        tokenInput.value = 'ok'; // simple repère pour le formulaire ; la vraie preuve est en session
+        tokenInput.value = 'ok';
 
         triggerBtn.innerHTML = '✅ Vérification réussie';
         triggerBtn.className = 'btn btn-success w-100';
@@ -97,8 +90,6 @@ function initCaptchaPuzzle(racine) {
         }, 600);
     }
 
-    // On cible le formulaire qui contient le champ du captcha
-    // (pas le premier formulaire de la page, qui peut être la barre de recherche)
     tokenInput.form.addEventListener('submit', function (e) {
         if (!tokenInput.value) {
             e.preventDefault();

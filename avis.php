@@ -1,5 +1,4 @@
 <?php
-// "Mes avis" : liste des avis laissés par l'utilisateur connecté
 require_once 'config.php';
 require_once 'avis_lib.php';
 if (session_status() === PHP_SESSION_NONE) { session_start(); }

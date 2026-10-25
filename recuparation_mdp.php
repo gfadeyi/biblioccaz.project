@@ -7,7 +7,6 @@ use PHPMailer\PHPMailer\Exception;
 $erreur = "";
 $succes = "";
 
-// Même message que l'adresse existe ou non : on ne révèle pas quels emails ont un compte
 const MESSAGE_ENVOI = "Si cette adresse correspond à un compte, un lien de récupération vient d'être envoyé. Il est valable 1 heure.";
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -21,7 +20,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $user = $stmt->fetch();
 
         if ($user) {
-            // Le jeton part dans le mail ; en base on ne garde que son empreinte SHA-256
             $token = bin2hex(random_bytes(32));
             $stmt = $pdo->prepare("UPDATE user SET reset_token_hash = ?, reset_expire = DATE_ADD(NOW(), INTERVAL 1 HOUR) WHERE id = ?");
             $stmt->execute([hash('sha256', $token), $user['id']]);

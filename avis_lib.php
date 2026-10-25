@@ -1,7 +1,6 @@
 <?php
-// Fonctions communes pour les avis et les notes.
 
-const AVIS_POINTS = 5;                 // points fidélité gagnés pour un nouvel avis (clients)
+const AVIS_POINTS = 5;
 const AVIS_COMMENTAIRE_MIN = 10;
 const AVIS_COMMENTAIRE_MAX = 2000;
 const AVIS_MOTIFS = [
@@ -12,7 +11,6 @@ const AVIS_MOTIFS = [
     'autre'     => 'Autre',
 ];
 
-// Note moyenne et nombre d'avis visibles d'un livre
 function noteDuLivre(PDO $pdo, int $idLivre): array
 {
     $stmt = $pdo->prepare("SELECT AVG(note) AS moyenne, COUNT(*) AS nb FROM avis WHERE id_livre = ? AND statut = 'visible'");
@@ -21,7 +19,6 @@ function noteDuLivre(PDO $pdo, int $idLivre): array
     return ['moyenne' => $r['nb'] ? round((float) $r['moyenne'], 1) : 0, 'nb' => (int) $r['nb']];
 }
 
-// Affichage en étoiles (gère les demi-étoiles)
 function etoiles(float $note, string $classe = ''): string
 {
     $html = '<span class="etoiles ' . $classe . '" title="' . number_format($note, 1, ',', '') . ' / 5">';
@@ -37,7 +34,6 @@ function etoiles(float $note, string $classe = ''): string
     return $html . '</span>';
 }
 
-// Jeton anti-CSRF : empêche un autre site d'envoyer des formulaires à la place de l'utilisateur
 function jetonCsrf(): string
 {
     if (session_status() === PHP_SESSION_NONE) { session_start(); }

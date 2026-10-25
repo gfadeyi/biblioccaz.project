@@ -1,5 +1,4 @@
 <?php
-// Stock d'un livre : exemplaires par état et prix (ajout, +1 / -1, suppression).
 require_once __DIR__ . '/_init.php';
 exigerDroit('catalogue');
 
@@ -32,13 +31,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         rediriger($retour, 'success', "$quantite exemplaire" . ($quantite > 1 ? 's ajoutés' : ' ajouté') . " au stock.");
     }
 
-    // Les actions sur un exemplaire vérifient qu'il appartient bien à ce livre
     if ($action === 'plus') {
         $pdo->prepare("UPDATE exemplaire SET quantite = quantite + 1 WHERE id_exemplaire = ? AND id_livre = ?")->execute([$idEx, $idLivre]);
         insertLog('STOCK', "Stock +1 pour l'exemplaire #$idEx");
     } elseif ($action === 'moins') {
         $pdo->prepare("UPDATE exemplaire SET quantite = quantite - 1 WHERE id_exemplaire = ? AND id_livre = ? AND quantite > 0")->execute([$idEx, $idLivre]);
-        // Une offre vide disparaît (uniquement celle-ci, pas celles des autres livres)
         $pdo->prepare("DELETE FROM exemplaire WHERE id_exemplaire = ? AND id_livre = ? AND quantite <= 0")->execute([$idEx, $idLivre]);
         insertLog('STOCK', "Stock -1 pour l'exemplaire #$idEx");
     } elseif ($action === 'supprimer') {

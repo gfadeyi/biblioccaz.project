@@ -1,5 +1,4 @@
 <?php
-// Newsletter : abonnés, désabonnement manuel et envoi d'une campagne.
 require_once __DIR__ . '/_init.php';
 exigerDroit('admin');
 
@@ -30,7 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $mail = creerMailer();
             $mail->addAddress(MAIL_FROM, 'Abonnés ' . MAIL_FROM_NAME);
             foreach ($abonnes as $email) {
-                $mail->addBCC($email);   // copie cachée : les abonnés ne voient pas les adresses des autres
+                $mail->addBCC($email);
             }
             $mail->isHTML(true);
             $mail->Subject = $sujet;

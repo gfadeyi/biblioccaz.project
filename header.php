@@ -1,5 +1,4 @@
 <?php
-// Le menu a besoin de la base : on la charge si la page ne l'a pas déjà fait
 if (!isset($pdo)) {
     require_once __DIR__ . '/config.php';
 }
@@ -23,7 +22,6 @@ $nb_notif_livres = 0;
 $nb_notif_avis = 0;
 $total_notif_admin = 0;
 
-// Ce qui attend l'équipe (affiché en pastille sur l'icône du compte)
 if ($connected && in_array($userRole, ['admin', 'gestionnaire', 'moderateur'], true)) {
     try {
         $nb_notif_livres = (int) $pdo->query("SELECT COUNT(*) FROM livre WHERE is_valide = 0")->fetchColumn();
@@ -116,7 +114,6 @@ document.addEventListener('DOMContentLoaded', function() {
 <body class="<?= $theme_class ?>">
 
 <?php
-// Données du menu des catégories (silencieux si la table n'existe pas encore)
 $menuCategories = [];
 try {
     $menuCategories = $pdo->query("SELECT nom, slug FROM categorie ORDER BY ordre, nom")->fetchAll();
@@ -128,7 +125,6 @@ $menuCatActive = $_GET['categorie'] ?? ($preset['categorie'] ?? '');
 $lienCategorie = fn($slug) => $pagesCategories[$slug] ?? 'catalogue.php?categorie=' . urlencode($slug);
 ?>
 <header class="entete bg-white border-bottom sticky-top">
-    <!-- Ligne 1 : logo, recherche, actions -->
     <div class="container-xxl d-flex align-items-center gap-3 py-2">
         <a class="logo-bibli text-decoration-none" href="index.php">
             <span class="logo-nom">BIBLIOccaz</span>
@@ -237,7 +233,6 @@ $lienCategorie = fn($slug) => $pagesCategories[$slug] ?? 'catalogue.php?categori
         </nav>
     </div>
 
-    <!-- Ligne 2 : catégories et raccourcis -->
     <div class="border-top">
         <div class="container-xxl d-flex align-items-center gap-2 py-2 overflow-auto ligne-raccourcis">
             <button class="btn btn-bibli rounded-pill fw-bold d-inline-flex align-items-center gap-2 text-nowrap" type="button"
@@ -256,7 +251,6 @@ $lienCategorie = fn($slug) => $pagesCategories[$slug] ?? 'catalogue.php?categori
     </div>
 </header>
 
-<!-- Menu latéral des catégories -->
 <div class="offcanvas offcanvas-start menu-lateral" tabindex="-1" id="menuCategories" aria-labelledby="menuCategoriesTitre">
     <div class="offcanvas-header">
         <h5 class="offcanvas-title fw-bold" id="menuCategoriesTitre" style="color:#274e13;">Catégories</h5>

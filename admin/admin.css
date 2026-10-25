@@ -1,4 +1,3 @@
-/* Back-office BIBLIOccaz : menu latéral + contenu */
 :root {
     --vert: #274e13;
     --vert-clair: #d9ead3;
@@ -13,9 +12,7 @@ body.admin {
     min-height: 100vh;
 }
 
-/* ----- Menu latéral ----- */
 .admin-menu { color: var(--menu-texte); }
-/* Bootstrap rend le fond de .offcanvas-lg transparent sur grand écran : on colore l'intérieur */
 .admin-menu .offcanvas-header { color: #fff; background: var(--menu-fond); }
 
 @media (min-width: 992px) {
@@ -84,7 +81,6 @@ body.admin {
 .admin-menu-lien.actif { background: var(--vert); color: #fff; font-weight: 600; }
 .admin-menu-site { margin-top: auto; border-top: 1px solid rgba(255, 255, 255, .1); border-radius: 0; padding-top: 1rem; }
 
-/* ----- Barre du haut ----- */
 .admin-barre {
     position: sticky;
     top: 0;
@@ -104,7 +100,6 @@ body.admin {
     .admin-barre, .admin-contenu { padding-left: 1rem; padding-right: 1rem; }
 }
 
-/* ----- Composants ----- */
 .carte {
     background: #fff;
     border: 1px solid #e3e7e1;
@@ -155,7 +150,6 @@ a.stat:hover { border-color: var(--vert); }
 .btn-vert { background: var(--vert); color: #fff; border: none; }
 .btn-vert:hover { background: #1a330d; color: #fff; }
 
-/* ----- Page de connexion ----- */
 .connexion-admin {
     min-height: 100vh;
     display: grid;
@@ -165,7 +159,6 @@ a.stat:hover { border-color: var(--vert); }
 }
 .connexion-admin .carte { width: 100%; max-width: 420px; padding: 2rem; }
 
-/* Puzzle CAPTCHA (même style que la connexion client) */
 #captchaGrid {
     display: grid;
     grid-template-columns: repeat(3, 100px);

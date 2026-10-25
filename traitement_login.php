@@ -5,8 +5,6 @@ if (session_status() === PHP_SESSION_NONE) { session_start(); }
 $pseudo = trim($_POST['pseudo'] ?? '');
 $mdp = $_POST['mdp'] ?? '';
 
-// Le captcha doit avoir été réussi côté serveur (voir captcha_verifier.php),
-// il y a moins de 5 minutes, et il ne sert qu'une seule fois.
 $captcha = $_SESSION['captcha'] ?? null;
 unset($_SESSION['captcha']);
 
@@ -49,7 +47,6 @@ try {
             $premiere_connexion_modo = true;
         }
 
-        // Nouvel identifiant de session à chaque connexion (évite la fixation de session)
         session_regenerate_id(true);
         $_SESSION['user_id'] = $user['id'];
         $_SESSION['pseudo'] = $user['pseudo'];

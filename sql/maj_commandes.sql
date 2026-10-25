@@ -1,9 +1,3 @@
--- =====================================================================
--- BIBLIOccaz - Mise à jour : enregistrement des commandes
--- À importer UNE FOIS dans phpMyAdmin (base biblioccaz > Importer)
--- Ne touche pas aux données existantes.
--- =====================================================================
-
 USE biblioccaz;
 
 CREATE TABLE IF NOT EXISTS commande (
@@ -22,8 +16,6 @@ CREATE TABLE IF NOT EXISTS commande (
     REFERENCES `user`(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- Titre, état et prix sont recopiés : la commande reste lisible
--- même si le livre ou l'exemplaire est supprimé plus tard.
 CREATE TABLE IF NOT EXISTS commande_ligne (
   id_ligne        INT AUTO_INCREMENT PRIMARY KEY,
   id_commande     INT          NOT NULL,

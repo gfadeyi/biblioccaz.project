@@ -27,7 +27,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 `;
                 return;
             }
- 
 
             fetch('recherche.php?q=' + encodeURIComponent(saisie))
                 .then(response => response.json())

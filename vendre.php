@@ -1,5 +1,4 @@
 <?php
-// Page d'accueil "Donner ou revendre mes livres"
 require_once 'config.php';
 require_once 'dons_lib.php';
 

@@ -1,5 +1,4 @@
 <?php
-// Validation des fiches livres proposées par les auteurs (is_valide = 0).
 require_once __DIR__ . '/_init.php';
 exigerDroit('moderation');
 

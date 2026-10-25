@@ -1,5 +1,4 @@
 <?php
-// Membres actifs dans les 5 dernières minutes, lus par en_ligne.php (réservé à l'admin).
 require_once __DIR__ . '/_init.php';
 exigerDroit('admin', true);
 header('Content-Type: application/json; charset=utf-8');

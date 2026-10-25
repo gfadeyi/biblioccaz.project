@@ -8,7 +8,6 @@ if (isset($_GET['action'], $_GET['key'])) {
 
     if (isset($_SESSION['panier'][$key])) {
         if ($action === 'plus') {
-            // On ne dépasse pas le stock réel de l'exemplaire
             $stmt = $pdo->prepare("SELECT quantite FROM exemplaire WHERE id_exemplaire = ?");
             $stmt->execute([$_SESSION['panier'][$key]['id_exemplaire']]);
             $stock = (int) $stmt->fetchColumn();

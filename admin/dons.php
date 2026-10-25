@@ -1,5 +1,4 @@
 <?php
-// Suivi de tous les dons de livres, avec annulation par l'équipe (annonce abusive, doublon...).
 require_once __DIR__ . '/_init.php';
 require_once __DIR__ . '/../dons_lib.php';
 exigerDroit('equipe');
@@ -55,7 +54,7 @@ try {
     $stmt->execute($params);
     $dons = $stmt->fetchAll();
 } catch (PDOException $e) {
-    $tablePresente = false;  // sql/maj_dons.sql pas encore importé
+    $tablePresente = false;
 }
 
 $titrePage = 'Dons';

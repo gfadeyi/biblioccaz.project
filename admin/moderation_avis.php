@@ -1,5 +1,4 @@
 <?php
-// Modération des avis : avis signalés et liste complète.
 require_once __DIR__ . '/_init.php';
 exigerDroit('moderation');
 

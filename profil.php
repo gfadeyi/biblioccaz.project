@@ -78,7 +78,7 @@ include 'header.php';
         <div class="row g-3">
             
             <?php if ($isAdmin || $isGestionnaire): ?>
-                <?php // Les outils de l'équipe sont dans le back-office (dossier admin/) ?>
+                <?php ?>
                 <div class="col-md-4 col-lg-3">
                     <a href="admin/moderation_livres.php" class="quick-access-card">
                         <div class="card-icon"><i class="bi bi-shield-check"></i></div>

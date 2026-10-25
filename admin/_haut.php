@@ -1,13 +1,9 @@
 <?php
-// Ce fichier est inclus par les pages du back-office : on refuse de l'ouvrir directement.
 if (!function_exists('estEquipe')) { http_response_code(404); exit(); }
-// Haut de page du back-office : menu latéral + barre du haut.
-// Variables attendues : $titrePage, $pageActive (clé du lien à surligner).
 $titrePage = $titrePage ?? 'Back-office';
 $pageActive = $pageActive ?? '';
 $compteurs = estEquipe() ? compteursEquipe($pdo) : ['livres' => 0, 'avis' => 0, 'candidatures' => 0];
 
-// [clé, lien, icône, libellé, droit nécessaire, compteur]
 $menu = [
     'Pilotage' => [
         ['index', 'index.php', 'speedometer2', 'Tableau de bord', 'equipe', 0],

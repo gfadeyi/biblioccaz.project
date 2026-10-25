@@ -1,5 +1,4 @@
 <?php
-// Données du journal d'activité, lues par logs.php toutes les 5 secondes (réservé à l'admin).
 require_once __DIR__ . '/_init.php';
 exigerDroit('admin', true);
 header('Content-Type: application/json; charset=utf-8');
@@ -23,7 +22,6 @@ if (file_exists($logFile)) {
             $date = "Inconnue";
             if (preg_match('/^\[([^\]]+)\]/', $line, $m)) $date = $m[1];
             
-            // Format d'une ligne : [date] [TYPE] [IP: ...] [USER_ID: ...] - message
             $type = "VISITE";
             if (preg_match('/^\[[^\]]+\] \[([^\]]+)\]/', $line, $m)) $type = $m[1];
             

@@ -1,18 +1,14 @@
 <?php
-// Catalogue avec recherche, filtres, tri et pagination.
-// Les pages roman.php, jeunesse.php, petits_prix.php... incluent ce fichier
-// en définissant $preset (filtres imposés) et $titrePage avant.
 require_once 'config.php';
 require_once 'categories_lib.php';
 
 const LIVRES_PAR_PAGE = 12;
 
-$preset = $preset ?? [];      // filtres imposés (non modifiables)
-$defauts = $defauts ?? [];    // valeurs par défaut (modifiables)
+$preset = $preset ?? [];
+$defauts = $defauts ?? [];
 $titrePage = $titrePage ?? 'Catalogue';
 $sousTitre = $sousTitre ?? '';
 
-// Filtres : ceux de l'URL, sauf ceux imposés par la page
 $f = array_merge([
     'q' => '', 'categorie' => '', 'tag' => '', 'etat' => '',
     'prix_min' => '', 'prix_max' => '', 'tri' => 'recent', 'stock_bas' => '', 'note_min' => '',
@@ -32,7 +28,6 @@ $trisPossibles = [
 ];
 if (!isset($trisPossibles[$f['tri']])) { $f['tri'] = 'recent'; }
 
-// ---- Construction de la requête -------------------------------------------
 $where = ["l.is_valide = 1"];
 $having = [];
 $params = [];
@@ -67,7 +62,7 @@ if (in_array($f['note_min'], ['3', '4', '4.5'], true)) {
     $params['note_min'] = (float) $f['note_min'];
 }
 if (!empty($f['stock_bas'])) {
-    $having[] = "SUM(e.quantite) <= 2";   // "Dernière chance" : 1 ou 2 exemplaires restants
+    $having[] = "SUM(e.quantite) <= 2";
 }
 
 $sqlBase = "
@@ -104,11 +99,10 @@ $livres = $stmt->fetchAll();
 $categories = listerCategories($pdo);
 $tags = listerTags($pdo);
 
-// Lien qui garde les filtres actuels en en changeant certains
 function lienFiltres(array $f, array $preset, array $changements): string
 {
     $p = array_merge($f, $changements);
-    foreach ($preset as $cle => $v) { unset($p[$cle]); }   // déjà imposés par la page
+    foreach ($preset as $cle => $v) { unset($p[$cle]); }
     $p = array_filter($p, fn($v) => $v !== '' && $v !== null);
     return basename($_SERVER['PHP_SELF']) . ($p ? '?' . http_build_query($p) : '');
 }
@@ -155,7 +149,6 @@ echo etoilesStyle();
     </div>
 
     <div class="row g-4">
-        <!-- Filtres -->
         <div class="col-lg-3">
             <form method="GET" class="filtres-box p-3 shadow-sm">
                 <input type="hidden" name="tri" value="<?= htmlspecialchars($f['tri']) ?>">
@@ -230,7 +223,6 @@ echo etoilesStyle();
             </form>
         </div>
 
-        <!-- Résultats -->
         <div class="col-lg-9">
             <?php if (!$livres): ?>
                 <div class="card p-5 text-center shadow-sm border-0" style="border-radius: 15px;">

@@ -1,5 +1,4 @@
 <?php
-// Traitement des formulaires d'avis : publier/modifier, supprimer, signaler.
 require_once 'config.php';
 require_once 'avis_lib.php';
 if (session_status() === PHP_SESSION_NONE) { session_start(); }
@@ -66,7 +65,6 @@ try {
         $stmt = $pdo->prepare("DELETE FROM avis WHERE id_avis = ? AND id_user = ?");
         $stmt->execute([(int) ($_POST['id_avis'] ?? 0), $idUser]);
         if ($stmt->rowCount() && ($_SESSION['role'] ?? '') === 'client') {
-            // On retire les points gagnés, pour éviter de supprimer/republier en boucle
             $pdo->prepare("UPDATE user SET solde_points = GREATEST(0, solde_points - ?) WHERE id = ?")->execute([AVIS_POINTS, $idUser]);
         }
         insertLog('AVIS', "Avis supprimé par son auteur (livre #$idLivre)");
@@ -78,7 +76,6 @@ try {
         if (!isset(AVIS_MOTIFS[$motif])) {
             finir($urlRetour, 'danger', "Choisissez un motif de signalement.");
         }
-        // On ne peut pas signaler son propre avis
         $stmt = $pdo->prepare("INSERT IGNORE INTO avis_signalement (id_avis, id_user, motif)
                                SELECT id_avis, ?, ? FROM avis WHERE id_avis = ? AND id_user <> ?");
         $stmt->execute([$idUser, $motif, $idAvis, $idUser]);

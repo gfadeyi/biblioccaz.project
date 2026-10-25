@@ -62,7 +62,6 @@ function formaterEtat($etat) {
                 <?php endif; ?>
             </a>
             <?php
-            // Catégorie et tags (liens vers le catalogue filtré)
             require_once 'categories_lib.php';
             $catLivre = null;
             $tagsLivre = [];
@@ -153,7 +152,6 @@ function formaterEtat($etat) {
                 <?php endif; ?>
                 
                 <?php
-                // Dons disponibles pour ce livre + invitation à donner le sien
                 $nbDonsLivre = 0;
                 try {
                     $stmtDons = $pdo->prepare("SELECT COUNT(*) FROM don WHERE id_livre = ? AND statut = 'disponible' AND date_limite >= CURDATE()");

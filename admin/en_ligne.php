@@ -1,5 +1,4 @@
 <?php
-// Membres connectés en ce moment, actualisé toutes les 5 secondes.
 require_once __DIR__ . '/_init.php';
 exigerDroit('admin');
 

@@ -1,9 +1,4 @@
 <?php
-// Calcul des totaux du panier : une seule source de vérité
-// pour panier.php, achat.php et confirmation_achat.php.
-//  - Remise : -5% dès 30 €, -10% dès 50 €
-//  - Livraison : 1,99 € en dessous de 20 €, offerte au-delà
-//  - Points fidélité : 1 point par euro payé (hors livraison)
 
 const POINTS_PAR_EURO = 1;
 

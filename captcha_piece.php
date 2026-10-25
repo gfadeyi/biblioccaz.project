@@ -1,10 +1,8 @@
 <?php
-// Renvoie l'image d'UNE pièce du puzzle, découpée côté serveur.
-// Le navigateur ne peut donc pas deviner la solution à partir du code de la page.
 
 if (session_status() === PHP_SESSION_NONE) { session_start(); }
 
-const LARGEUR = 300;   // taille du puzzle complet
+const LARGEUR = 300;
 const HAUTEUR = 150;
 const COLS = 3;
 const ROWS = 2;
@@ -23,7 +21,6 @@ if (!$source) {
     exit();
 }
 
-// Redimensionne l'image en 300x150 (recadrage centré, sans déformation)
 $sw = imagesx($source);
 $sh = imagesy($source);
 $ratio = max(LARGEUR / $sw, HAUTEUR / $sh);
@@ -36,7 +33,6 @@ $puzzle = imagecreatetruecolor(LARGEUR, HAUTEUR);
 imagefill($puzzle, 0, 0, imagecolorallocate($puzzle, 255, 255, 255));
 imagecopyresampled($puzzle, $source, 0, 0, $cx, $cy, LARGEUR, HAUTEUR, $cw, $ch);
 
-// Découpe la pièce demandée
 $index = $captcha['pieces'][$id];
 $pw = LARGEUR / COLS;
 $ph = HAUTEUR / ROWS;

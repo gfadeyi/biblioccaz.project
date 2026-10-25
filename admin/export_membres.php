@@ -1,5 +1,4 @@
 <?php
-// Export PDF de la liste des membres (réservé à l'admin : contient des données personnelles).
 require_once __DIR__ . '/_init.php';
 exigerDroit('admin');
 
@@ -44,7 +43,7 @@ $html = '<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><style>
 
 $options = new Options();
 $options->set('defaultFont', 'Helvetica');
-$options->set('isRemoteEnabled', false);   // aucune ressource externe nécessaire
+$options->set('isRemoteEnabled', false);
 
 $dompdf = new Dompdf($options);
 $dompdf->loadHtml($html);

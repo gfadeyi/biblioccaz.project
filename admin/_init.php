@@ -1,18 +1,14 @@
 <?php
-// Socle commun du back-office : base de données, session, droits d'accès, sécurité des formulaires.
-// Chaque page de admin/ commence par :  require_once __DIR__ . '/_init.php';  puis exigerDroit('...');
 require_once __DIR__ . '/../config.php';
-require_once __DIR__ . '/../avis_lib.php';   // jetonCsrf() / verifierCsrf()
+require_once __DIR__ . '/../avis_lib.php';
 
-// Rôles qui ont accès au back-office
 const ROLES_EQUIPE = ['admin', 'gestionnaire', 'moderateur'];
 
-// Qui peut faire quoi
 const DROITS = [
-    'equipe'     => ['admin', 'gestionnaire', 'moderateur'],   // tableau de bord, dons
-    'moderation' => ['admin', 'gestionnaire', 'moderateur'],   // fiches livres, avis
-    'catalogue'  => ['admin', 'gestionnaire'],                 // ajout/modif de livres, stock
-    'admin'      => ['admin'],                                 // membres, catégories, logs, newsletter...
+    'equipe'     => ['admin', 'gestionnaire', 'moderateur'],
+    'moderation' => ['admin', 'gestionnaire', 'moderateur'],
+    'catalogue'  => ['admin', 'gestionnaire'],
+    'admin'      => ['admin'],
 ];
 
 const ROLES_LIBELLES = [
@@ -21,7 +17,7 @@ const ROLES_LIBELLES = [
     'moderateur'   => 'Modérateur',
     'auteur'       => 'Auteur',
     'client'       => 'Client',
-    'user'         => 'Abonné newsletter',   // compte créé par l'inscription à la newsletter
+    'user'         => 'Abonné newsletter',
 ];
 
 function estEquipe(): bool
@@ -34,7 +30,6 @@ function aLeDroit(string $droit): bool
     return in_array($_SESSION['role'] ?? '', DROITS[$droit] ?? [], true);
 }
 
-// À appeler en haut de chaque page. $json = true pour les adresses appelées en JavaScript.
 function exigerDroit(string $droit, bool $json = false): void
 {
     if (aLeDroit($droit)) {
@@ -50,7 +45,7 @@ function exigerDroit(string $droit, bool $json = false): void
         header('Location: login.php');
         exit();
     }
-    global $pdo;   // _haut.php en a besoin pour les compteurs du menu
+    global $pdo;
     http_response_code(403);
     $titrePage = 'Accès refusé';
     $pageActive = '';
@@ -60,7 +55,6 @@ function exigerDroit(string $droit, bool $json = false): void
     exit();
 }
 
-// Message affiché une seule fois après une redirection
 function flash(string $type, string $texte): void
 {
     $_SESSION['flash_admin'] = [$type, $texte];
@@ -75,7 +69,6 @@ function rediriger(string $url, ?string $type = null, ?string $texte = null): vo
     exit();
 }
 
-// Toute action qui modifie quelque chose passe par un formulaire POST avec le jeton CSRF
 function exigerPost(string $retour): void
 {
     if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !verifierCsrf()) {
@@ -83,7 +76,6 @@ function exigerPost(string $retour): void
     }
 }
 
-// Champ caché à mettre dans chaque formulaire POST
 function champCsrf(): string
 {
     return '<input type="hidden" name="csrf" value="' . jetonCsrf() . '">';
@@ -99,8 +91,6 @@ function imageLivre(?string $fichier): string
     return '../img/' . rawurlencode($fichier ?: 'default.png');
 }
 
-// Enregistre une image de couverture envoyée par formulaire.
-// Retourne [nom du fichier ou null si aucun envoi, message d'erreur ou ''].
 function enregistrerCouverture(string $champ = 'image'): array
 {
     if (empty($_FILES[$champ]) || $_FILES[$champ]['error'] === UPLOAD_ERR_NO_FILE) {
@@ -113,7 +103,6 @@ function enregistrerCouverture(string $champ = 'image'): array
     if ($f['size'] > 2 * 1024 * 1024) {
         return [null, "L'image est trop lourde (2 Mo maximum)."];
     }
-    // On se fie au contenu réel du fichier, pas à son nom
     $types = [IMAGETYPE_JPEG => 'jpg', IMAGETYPE_PNG => 'png', IMAGETYPE_WEBP => 'webp'];
     $info = @getimagesize($f['tmp_name']);
     if (!$info || !isset($types[$info[2]])) {
@@ -126,7 +115,6 @@ function enregistrerCouverture(string $champ = 'image'): array
     return [$nom, ''];
 }
 
-// Compteurs affichés dans le menu (ce qui attend une action de l'équipe)
 function compteursEquipe(PDO $pdo): array
 {
     $c = ['livres' => 0, 'avis' => 0, 'candidatures' => 0];
@@ -135,7 +123,6 @@ function compteursEquipe(PDO $pdo): array
         $c['avis'] = (int) $pdo->query("SELECT COUNT(DISTINCT id_avis) FROM avis_signalement WHERE traite = 0")->fetchColumn();
         $c['candidatures'] = (int) $pdo->query("SELECT COUNT(*) FROM user WHERE statut = 'en_attente_moderateur'")->fetchColumn();
     } catch (PDOException $e) {
-        // tables pas encore créées : on affiche simplement 0
     }
     return $c;
 }

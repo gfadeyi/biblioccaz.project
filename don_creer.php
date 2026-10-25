@@ -1,5 +1,4 @@
 <?php
-// Création d'un don
 require_once 'config.php';
 require_once 'dons_lib.php';
 require_once 'categories_lib.php';
@@ -17,7 +16,6 @@ $v = array_merge([
     'date_limite' => date('Y-m-d', strtotime('+14 days')),
 ], array_map('trim', array_filter($_POST, 'is_string')));
 
-// Pré-remplissage depuis une fiche du catalogue (?livre=ID)
 if ($_SERVER['REQUEST_METHOD'] !== 'POST' && !empty($_GET['livre'])) {
     $stmt = $pdo->prepare("SELECT id_livre, titre, auteur, id_categorie FROM livre WHERE id_livre = ? AND is_valide = 1");
     $stmt->execute([(int) $_GET['livre']]);
@@ -38,7 +36,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $erreurs[] = "La date limite doit être entre aujourd'hui et dans " . DON_DUREE_MAX_JOURS . " jours.";
     }
 
-    // Photo facultative
     $photo = null;
     if (!empty($_FILES['photo']['name']) && $_FILES['photo']['error'] === UPLOAD_ERR_OK) {
         $ext = strtolower(pathinfo($_FILES['photo']['name'], PATHINFO_EXTENSION));
@@ -56,7 +53,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    // Fiche du catalogue liée : seulement si elle existe vraiment
     $idLivre = null;
     if ($v['id_livre'] !== '') {
         $stmt = $pdo->prepare("SELECT id_livre FROM livre WHERE id_livre = ?");
@@ -83,7 +79,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Liste des livres du catalogue pour l'autocomplétion
 $livresCatalogue = $pdo->query("SELECT id_livre, titre, auteur, id_categorie FROM livre WHERE is_valide = 1 ORDER BY titre")->fetchAll();
 $categories = listerCategories($pdo);
 
@@ -168,7 +163,6 @@ include 'header.php';
 </div>
 
 <script>
-// Si le titre correspond à un livre du catalogue, on le lie et on complète auteur/catégorie
 const livres = <?= json_encode(array_map(fn($l) => ['id' => $l['id_livre'], 't' => $l['titre'], 'a' => $l['auteur'], 'c' => $l['id_categorie']], $livresCatalogue), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG) ?>;
 document.getElementById('don_titre').addEventListener('input', function () {
     const trouve = livres.find(l => l.t.toLowerCase() === this.value.trim().toLowerCase());

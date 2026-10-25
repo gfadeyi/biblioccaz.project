@@ -1,5 +1,4 @@
 <?php
-// Connexion au back-office : réservée à l'équipe (admin, gestionnaire, modérateur).
 require_once __DIR__ . '/_init.php';
 
 if (estEquipe()) {
@@ -13,7 +12,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $identifiant = trim($_POST['identifiant'] ?? '');
     $mdp = $_POST['mdp'] ?? '';
 
-    // Même CAPTCHA que la connexion client : réussi il y a moins de 5 minutes, utilisable une fois
     $captcha = $_SESSION['captcha'] ?? null;
     unset($_SESSION['captcha']);
 
@@ -27,7 +25,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $erreur = "Identifiants incorrects.";
         insertLog('SECURITE', "Échec de connexion au back-office pour « $identifiant »");
     } elseif (!in_array($user['role'], ROLES_EQUIPE, true)) {
-        // Un client garde son accès au site, mais pas au back-office
         $erreur = "Ce compte n'a pas accès au back-office.";
         insertLog('SECURITE', "Tentative d'accès au back-office par un compte non autorisé (user #{$user['id']})");
     } elseif ((int) $user['email_verifie'] === 0) {
@@ -35,12 +32,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif (in_array($user['statut'], ['refuse_temporaire', 'refuse_definitif', 'banni'], true)) {
         $erreur = "Ce compte est suspendu.";
     } else {
-        // Premier passage d'un modérateur tout juste accepté : son compte devient actif
         if ($user['role'] === 'moderateur' && $user['statut'] === 'valide_moderateur') {
             $pdo->prepare("UPDATE user SET statut = 'actif' WHERE id = ?")->execute([$user['id']]);
         }
 
-        // Nouvel identifiant de session à chaque connexion (évite la fixation de session)
         session_regenerate_id(true);
         $_SESSION['user_id'] = $user['id'];
         $_SESSION['pseudo'] = $user['pseudo'];

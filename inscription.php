@@ -49,7 +49,6 @@ try {
     $mail->addAddress($email, $prenom . ' ' . $nom);
     $mail->addReplyTo(MAIL_FROM, MAIL_FROM_NAME);
 
-  
     $mail->isHTML(false); 
     $mail->Subject = "BIBLOccaz - Votre compte est activé";
     

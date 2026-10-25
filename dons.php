@@ -1,5 +1,4 @@
 <?php
-// Liste publique des livres à donner
 require_once 'config.php';
 require_once 'dons_lib.php';
 require_once 'categories_lib.php';

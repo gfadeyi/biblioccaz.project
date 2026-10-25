@@ -1,12 +1,10 @@
 <?php
-// Vérifie côté serveur si les pièces sont dans le bon ordre.
-// Reçoit : POST ordre = identifiants des pièces séparés par des virgules.
 
 if (session_status() === PHP_SESSION_NONE) { session_start(); }
 header('Content-Type: application/json');
 header('Cache-Control: no-store');
 
-const MAX_TENTATIVES = 40;   // au-delà, il faut un nouveau puzzle (anti force brute)
+const MAX_TENTATIVES = 40;
 
 $captcha = $_SESSION['captcha'] ?? null;
 if (!$captcha || $_SERVER['REQUEST_METHOD'] !== 'POST') {

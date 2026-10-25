@@ -1,5 +1,4 @@
 <?php
-// Les identifiants (base de données, mails...) sont dans secrets.php, qui n'est pas sur GitHub.
 if (!file_exists(__DIR__ . '/secrets.php')) {
     die("Configuration manquante : copie secrets.example.php en secrets.php et remplis-le.");
 }
@@ -8,7 +7,7 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-$inactivity_limit = 360; 
+$inactivity_limit = 600; 
 
 if (isset($_SESSION['last_activity'])) {
     $duration = time() - $_SESSION['last_activity'];
@@ -91,13 +90,11 @@ function insertLog($type, $message) {
     file_put_contents($logFile, $logLine, FILE_APPEND);
 }
 
-// Chemin de la page depuis la racine du site (ex. "panier.php" ou "admin/index.php")
 $cheminScript = str_replace('\\', '/', realpath($_SERVER['SCRIPT_FILENAME']) ?: '');
 $racineSite = str_replace('\\', '/', __DIR__);
 $currentPage = strpos($cheminScript, $racineSite . '/') === 0
     ? substr($cheminScript, strlen($racineSite) + 1)
     : basename($_SERVER['PHP_SELF']);
-// Pages appelées en boucle par JavaScript : on ne les note pas dans le journal
 $ignoredPages = ['admin/logs_donnees.php', 'admin/en_ligne_donnees.php', 'recherche.php',
                  'get_captcha_image.php', 'captcha_piece.php', 'captcha_verifier.php'];
 

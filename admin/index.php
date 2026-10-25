@@ -1,5 +1,4 @@
 <?php
-// Tableau de bord du back-office : chiffres clés et ce qui attend une action.
 require_once __DIR__ . '/_init.php';
 exigerDroit('equipe');
 
@@ -8,7 +7,7 @@ function compter(PDO $pdo, string $sql): float
     try {
         return (float) $pdo->query($sql)->fetchColumn();
     } catch (PDOException $e) {
-        return 0; // table pas encore créée (migration non importée)
+        return 0;
     }
 }
 
@@ -41,7 +40,6 @@ $titrePage = 'Tableau de bord';
 $pageActive = 'index';
 include __DIR__ . '/_haut.php';
 
-// [valeur, libellé, icône, lien, droit, alerte ?]
 $cartes = [
     [$compteurs['livres'], 'Fiches à valider', 'shield-exclamation', 'moderation_livres.php', 'moderation', $compteurs['livres'] > 0],
     [$compteurs['avis'], 'Avis signalés', 'flag', 'moderation_avis.php', 'moderation', $compteurs['avis'] > 0],

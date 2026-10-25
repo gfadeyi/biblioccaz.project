@@ -88,7 +88,6 @@ include 'header.php';
                 <div class="row g-3">
                     <?php
                     $current_id = !empty($_SESSION['panier']) ? reset($_SESSION['panier'])['id_livre'] : 0;
-                    // Suggestions : uniquement des livres en stock, avec leur vrai prix le plus bas
                     $stmtSug = $pdo->prepare("
                         SELECT l.id_livre, l.titre, l.couverture, l.auteur, MIN(e.prix) AS prix_min
                         FROM livre l

@@ -1,6 +1,4 @@
 <?php
-// Champs "Catégorie" + "Tags" à inclure dans les formulaires de livre.
-// Variables attendues : $pdo ; optionnelles : $categorieActuelle (int), $tagsActuels (tableau d'id).
 require_once __DIR__ . '/categories_lib.php';
 
 $listeCategories = listerCategories($pdo);

@@ -1,5 +1,4 @@
 <?php
-// Historique : les dons que j'ai faits et les livres que j'ai réservés / récupérés
 require_once 'config.php';
 require_once 'dons_lib.php';
 if (session_status() === PHP_SESSION_NONE) { session_start(); }

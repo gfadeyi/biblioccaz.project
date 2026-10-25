@@ -1,6 +1,4 @@
 <?php
-// Création d'un PHPMailer déjà configuré à partir de secrets.php.
-// Utilisation : $mail = creerMailer(); puis addAddress / Subject / Body / send().
 
 require_once __DIR__ . '/vendor/autoload.php';
 require_once __DIR__ . '/secrets.php';

@@ -9,11 +9,9 @@ if (!isset($_SESSION['user_id']) || empty($_SESSION['panier'])) {
 
 require_once 'panier_calcul.php';
 
-// Même calcul que le panier (avant, la remise -5% / -10% était oubliée ici)
 $totaux = calculerTotauxPanier($_SESSION['panier']);
 $totalFinal = $totaux['total'];
 
-// Pré-remplir l'adresse avec les infos du compte
 $stmtU = $pdo->prepare("SELECT nom, prenom FROM user WHERE id = ?");
 $stmtU->execute([$_SESSION['user_id']]);
 $infosUser = $stmtU->fetch() ?: [];

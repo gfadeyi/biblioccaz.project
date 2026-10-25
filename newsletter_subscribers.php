@@ -32,13 +32,11 @@ if (isset($_POST['email_newsletter']) && !empty($_POST['email_newsletter'])) {
             $req->execute([$pseudo, $email, $password_fake]);
         }
 
-
         $mail = creerMailer();
 
         try {
             $mail->isSMTP();
             $mail->addAddress($email); 
-
 
             $mail->isHTML(false); 
             $mail->Subject = "BIBLOccaz - Inscription à la newsletter validée";
@@ -52,7 +50,6 @@ if (isset($_POST['email_newsletter']) && !empty($_POST['email_newsletter'])) {
             
             $mail->Body = $message;
 
-            
             $mail->send();
 
         } catch (Exception $e) {

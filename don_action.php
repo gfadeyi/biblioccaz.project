@@ -1,8 +1,7 @@
 <?php
-// Actions sur un don : réserver, annuler sa réservation, libérer, annuler le don
 require_once 'config.php';
 require_once 'dons_lib.php';
-require_once 'avis_lib.php';   // verifierCsrf()
+require_once 'avis_lib.php';
 if (session_status() === PHP_SESSION_NONE) { session_start(); }
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !isset($_SESSION['user_id'])) {
@@ -46,7 +45,6 @@ switch ($_POST['action'] ?? '') {
         if ((int) $nb->fetchColumn() >= DON_MAX_RESERVATIONS) {
             terminer($retour, 'danger', "Vous avez déjà " . DON_MAX_RESERVATIONS . " réservations en cours. Récupérez-les ou annulez-en une avant d'en faire une autre.");
         }
-        // La condition sur le statut évite que deux personnes réservent en même temps
         $maj = $pdo->prepare("UPDATE don SET statut = 'reserve', id_beneficiaire = ?, date_reservation = NOW()
                               WHERE id_don = ? AND statut = 'disponible' AND date_limite >= CURDATE()");
         $maj->execute([$idUser, $idDon]);

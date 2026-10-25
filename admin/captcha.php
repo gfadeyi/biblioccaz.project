@@ -1,5 +1,4 @@
 <?php
-// Images utilisées comme fond du puzzle CAPTCHA (dossier img/captcha/).
 require_once __DIR__ . '/_init.php';
 exigerDroit('admin');
 
@@ -23,7 +22,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (!is_dir($dossier)) {
             mkdir($dossier, 0755, true);
         }
-        // Nom de fichier nettoyé : seulement lettres, chiffres, tirets
         $base = preg_replace('/[^A-Za-z0-9_-]+/', '-', pathinfo($f['name'], PATHINFO_FILENAME)) ?: 'image';
         $nom = substr($base, 0, 40) . '_' . bin2hex(random_bytes(3)) . '.' . $types[$info[2]];
         if (move_uploaded_file($f['tmp_name'], $dossier . $nom)) {
@@ -34,7 +32,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if ($action === 'supprimer') {
-        // basename() empêche de remonter dans d'autres dossiers (../../config.php...)
         $nom = basename($_POST['fichier'] ?? '');
         if (preg_match('/\.(jpe?g|png)$/i', $nom) && is_file($dossier . $nom)) {
             unlink($dossier . $nom);

@@ -2,9 +2,6 @@
 if (session_status() === PHP_SESSION_NONE) { session_start(); }
 require_once 'config.php';
 
-// Seul l'identifiant de l'exemplaire est pris dans le formulaire.
-// Prix, titre, état et image sont relus en base : un client ne peut plus
-// modifier le prix dans son navigateur avant d'ajouter au panier.
 $idExemplaire = (int) ($_POST['id_exemplaire'] ?? 0);
 $action = $_POST['action'] ?? 'ajouter';
 
@@ -58,7 +55,6 @@ if ($estAjax) {
     exit();
 }
 
-// Retour à la page précédente, seulement si elle est sur ce site
 $retour = $_SERVER['HTTP_REFERER'] ?? '';
 $hoteSite = parse_url('http://' . ($_SERVER['HTTP_HOST'] ?? ''), PHP_URL_HOST);
 if (!$retour || parse_url($retour, PHP_URL_HOST) !== $hoteSite) {

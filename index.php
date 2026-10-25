@@ -2,8 +2,6 @@
 require_once 'config.php';
 include 'header.php';
 
-
-
 $nouveautes = $pdo->query("
     SELECT l.*, e.prix, e.etat 
     FROM livre l 

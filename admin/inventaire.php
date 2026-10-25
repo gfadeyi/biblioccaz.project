@@ -1,5 +1,4 @@
 <?php
-// Inventaire : tous les titres avec leur stock, recherche et suppression.
 require_once __DIR__ . '/_init.php';
 exigerDroit('catalogue');
 
@@ -11,7 +10,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->execute([$id]);
         $titre = $stmt->fetchColumn();
         if ($titre !== false) {
-            // Exemplaires, avis et tags partent avec (ON DELETE CASCADE) ; les commandes gardent leur copie du titre
             $pdo->prepare("DELETE FROM livre WHERE id_livre = ?")->execute([$id]);
             insertLog('CATALOGUE', "Suppression du livre #$id : $titre");
             rediriger('inventaire.php', 'success', "« $titre » a été supprimé du catalogue.");

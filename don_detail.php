@@ -1,8 +1,7 @@
 <?php
-// Fiche d'un don : infos, réservation, QR code (pour le donneur), contacts après réservation
 require_once 'config.php';
 require_once 'dons_lib.php';
-require_once 'avis_lib.php';   // pour jetonCsrf()
+require_once 'avis_lib.php';
 if (session_status() === PHP_SESSION_NONE) { session_start(); }
 
 $stmt = $pdo->prepare("
@@ -90,7 +89,6 @@ function boutonActionDon(string $action, int $idDon, string $csrf, string $libel
             <div class="card border-0 shadow-sm p-4" style="border-radius: 15px;">
 
                 <?php if ($estDonneur): ?>
-                    <!-- Vue du donneur : QR code à faire scanner au retrait -->
                     <h6 class="fw-bold text-center">QR code du don</h6>
                     <div id="qr-don" class="text-center my-2" data-url="<?= htmlspecialchars(urlValidationDon($don)) ?>"></div>
                     <div class="text-center small text-muted">Code de secours</div>
@@ -113,7 +111,6 @@ function boutonActionDon(string $action, int $idDon, string $csrf, string $libel
                     <?php endif; ?>
 
                 <?php elseif ($estBeneficiaire && $statut === 'reserve'): ?>
-                    <!-- Vue du bénéficiaire -->
                     <h6 class="fw-bold"><i class="bi bi-bookmark-check text-success"></i> Vous avez réservé ce livre</h6>
                     <p class="small">Contactez <strong><?= htmlspecialchars($don['donneur_pseudo']) ?></strong> pour convenir du retrait :<br>
                         <a href="mailto:<?= htmlspecialchars($don['donneur_email']) ?>"><?= htmlspecialchars($don['donneur_email']) ?></a></p>
@@ -149,7 +146,6 @@ function boutonActionDon(string $action, int $idDon, string $csrf, string $libel
 <?php if ($estDonneur): ?>
     <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
     <script>
-    // Le QR code contient l'adresse de la page de validation du retrait
     (function () {
         const zone = document.getElementById('qr-don');
         if (!zone || typeof qrcode === 'undefined') return;

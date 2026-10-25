@@ -1,7 +1,4 @@
 <?php
-// Changement de mot de passe, dans deux cas :
-//  1. Mot de passe oublié : on arrive avec ?token=... depuis le mail de récupération
-//  2. Utilisateur connecté : on doit saisir son mot de passe actuel
 require_once 'config.php';
 if (session_status() === PHP_SESSION_NONE) { session_start(); }
 
@@ -13,7 +10,6 @@ $user = null;
 $mode = null;
 
 if ($token !== '') {
-    // On ne stocke que l'empreinte (hash) du jeton en base, jamais le jeton lui-même
     $stmt = $pdo->prepare("SELECT id, prenom FROM user WHERE reset_token_hash = ? AND reset_expire > NOW()");
     $stmt->execute([hash('sha256', $token)]);
     $user = $stmt->fetch();
@@ -41,7 +37,6 @@ if ($user && $_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif ($nouveau !== $confirmation) {
         $erreur = "Les deux mots de passe ne correspondent pas.";
     } else {
-        // Nouveau mot de passe + le lien de récupération devient inutilisable
         $stmt = $pdo->prepare("UPDATE user SET mot_de_passe = ?, reset_token_hash = NULL, reset_expire = NULL WHERE id = ?");
         $stmt->execute([password_hash($nouveau, PASSWORD_DEFAULT), $user['id']]);
 

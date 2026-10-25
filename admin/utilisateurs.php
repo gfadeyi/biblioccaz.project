@@ -1,5 +1,4 @@
 <?php
-// Membres : candidatures modérateur, rôles, suspension et suppression des comptes.
 require_once __DIR__ . '/_init.php';
 exigerDroit('admin');
 
@@ -8,7 +7,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $idUser = (int) ($_POST['user_id'] ?? 0);
     $action = $_POST['action'] ?? '';
 
-    // On ne peut pas changer son propre rôle, se suspendre ou se supprimer (risque de se bloquer dehors)
     if ($idUser === (int) $_SESSION['user_id']) {
         rediriger('utilisateurs.php', 'warning', "Vous ne pouvez pas modifier votre propre compte ici.");
     }

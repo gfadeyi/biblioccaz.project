@@ -1,5 +1,4 @@
 <?php
-// Fonctions communes pour les catégories et les tags.
 
 function listerCategories(PDO $pdo): array
 {
@@ -21,7 +20,6 @@ function tagsDuLivre(PDO $pdo, int $idLivre): array
     return $stmt->fetchAll();
 }
 
-// Enregistre la catégorie et les tags envoyés par le formulaire (partie_champs_categorie.php)
 function enregistrerCategorieEtTags(PDO $pdo, int $idLivre, array $post): void
 {
     $idCategorie = !empty($post['id_categorie']) ? (int) $post['id_categorie'] : null;
@@ -34,7 +32,6 @@ function enregistrerCategorieEtTags(PDO $pdo, int $idLivre, array $post): void
     }
 }
 
-// "Science-fiction & Fantasy" -> "science-fiction-fantasy"
 function creerSlug(string $texte): string
 {
     $texte = iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $texte);

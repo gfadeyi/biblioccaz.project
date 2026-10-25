@@ -21,8 +21,6 @@ if ($prenom === '' || $nom === '' || $adresse === '') {
 try {
     $pdo->beginTransaction();
 
-    // 1. On relit chaque exemplaire en base (prix réel + stock), en le verrouillant
-    //    pour éviter que deux clients achètent le dernier exemplaire en même temps.
     $stmtEx = $pdo->prepare("
         SELECT e.id_exemplaire, e.id_livre, e.prix, e.etat, e.quantite, l.titre
         FROM exemplaire e
@@ -45,14 +43,13 @@ try {
             'id_livre'      => $ex['id_livre'],
             'titre'         => $ex['titre'],
             'etat'          => $ex['etat'],
-            'prix'          => (float) $ex['prix'],   // prix de la base, pas celui envoyé par le navigateur
+            'prix'          => (float) $ex['prix'],
             'quantite'      => $qte,
         ];
     }
 
     $totaux = calculerTotauxPanier($lignes);
 
-    // 2. Enregistrement de la commande
     $stmtCmd = $pdo->prepare("
         INSERT INTO commande (id_user, prenom, nom, adresse, sous_total, remise, frais_livraison, total, points_gagnes)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
@@ -62,7 +59,6 @@ try {
     ]);
     $idCommande = (int) $pdo->lastInsertId();
 
-    // 3. Lignes de commande + mise à jour du stock
     $stmtLigne = $pdo->prepare("
         INSERT INTO commande_ligne (id_commande, id_livre, titre, etat, prix_unitaire, quantite)
         VALUES (?, ?, ?, ?, ?, ?)");
@@ -76,7 +72,6 @@ try {
 
     $pdo->exec("DELETE FROM exemplaire WHERE quantite <= 0");
 
-    // 4. Points fidélité
     if ($totaux['points'] > 0) {
         $pdo->prepare("UPDATE user SET solde_points = solde_points + ? WHERE id = ?")
             ->execute([$totaux['points'], $_SESSION['user_id']]);

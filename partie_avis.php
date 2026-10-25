@@ -1,6 +1,4 @@
 <?php
-// Section "Avis des lecteurs" de la fiche livre (incluse dans detail_livre.php).
-// Variables attendues : $pdo, $livre (ligne de la table livre)
 require_once __DIR__ . '/avis_lib.php';
 
 $idLivreAvis = (int) $livre['id_livre'];
@@ -17,13 +15,11 @@ $triAvis = isset($trisAvis[$_GET['tri_avis'] ?? '']) ? $_GET['tri_avis'] : 'rece
 
 $resume = noteDuLivre($pdo, $idLivreAvis);
 
-// Répartition des notes (5 → 1)
 $repartition = array_fill(1, 5, 0);
 $stmt = $pdo->prepare("SELECT note, COUNT(*) AS nb FROM avis WHERE id_livre = ? AND statut = 'visible' GROUP BY note");
 $stmt->execute([$idLivreAvis]);
 foreach ($stmt->fetchAll() as $r) { $repartition[(int) $r['note']] = (int) $r['nb']; }
 
-// Avis visibles + "achat vérifié" si l'auteur de l'avis a commandé ce livre
 $stmt = $pdo->prepare("
     SELECT a.*, u.pseudo,
            EXISTS (SELECT 1 FROM commande_ligne cl INNER JOIN commande c ON c.id_commande = cl.id_commande
@@ -34,7 +30,6 @@ $stmt = $pdo->prepare("
 $stmt->execute([$idLivreAvis]);
 $listeAvis = $stmt->fetchAll();
 
-// Avis de l'utilisateur connecté (même s'il est masqué par la modération)
 $monAvis = null;
 if ($idUserCourant) {
     $stmt = $pdo->prepare("SELECT * FROM avis WHERE id_livre = ? AND id_user = ?");
@@ -42,7 +37,6 @@ if ($idUserCourant) {
     $monAvis = $stmt->fetch() ?: null;
 }
 
-// Avis déjà signalés par l'utilisateur
 $dejaSignales = [];
 if ($idUserCourant) {
     $stmt = $pdo->prepare("SELECT s.id_avis FROM avis_signalement s INNER JOIN avis a ON a.id_avis = s.id_avis WHERE s.id_user = ? AND a.id_livre = ?");
@@ -74,7 +68,6 @@ $lienTri = fn($t) => 'detail_livre.php?' . http_build_query(['id' => $idLivreAvi
     <?php endif; ?>
 
     <div class="row g-4">
-        <!-- Résumé des notes -->
         <div class="col-lg-4">
             <div class="card border-0 shadow-sm p-4" style="border-radius: 15px;">
                 <?php if ($resume['nb']): ?>
@@ -98,7 +91,6 @@ $lienTri = fn($t) => 'detail_livre.php?' . http_build_query(['id' => $idLivreAvi
                 <?php endif; ?>
             </div>
 
-            <!-- Formulaire : donner / modifier son avis -->
             <div class="card border-0 shadow-sm p-4 mt-3" style="border-radius: 15px;">
                 <?php if (!$idUserCourant): ?>
                     <p class="mb-2 small text-muted">Connectez-vous pour donner votre avis sur ce livre.</p>
@@ -140,7 +132,6 @@ $lienTri = fn($t) => 'detail_livre.php?' . http_build_query(['id' => $idLivreAvi
             </div>
         </div>
 
-        <!-- Liste des avis -->
         <div class="col-lg-8">
             <?php if ($listeAvis): ?>
                 <div class="d-flex justify-content-end gap-1 mb-3 small">

@@ -1,5 +1,4 @@
 <?php
-// Journal d'activité (fichier secure_data/logs.txt), actualisé toutes les 5 secondes.
 require_once __DIR__ . '/_init.php';
 exigerDroit('admin');
 
@@ -56,7 +55,6 @@ const couleurs = {
 const filtre = document.getElementById('filtreType');
 let derniersLogs = [];
 
-// Les journaux contiennent du texte saisi par les visiteurs : on l'insère comme texte, jamais comme HTML
 function cellule(texte, classe) {
     const td = document.createElement('td');
     if (classe) td.className = classe;
@@ -106,7 +104,6 @@ async function charger() {
         document.getElementById('statMois').textContent = Math.round(moyenne * 30);
 
         derniersLogs = data.listeLogs || [];
-        // Met à jour la liste des types proposés dans le filtre
         [...new Set(derniersLogs.map(l => l.type))].sort().forEach(type => {
             if (![...filtre.options].some(o => o.value === type)) filtre.add(new Option(type, type));
         });

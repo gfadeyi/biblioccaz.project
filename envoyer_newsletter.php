@@ -9,7 +9,6 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     $email = trim($_POST['email_newsletter'] ?? '');
@@ -34,14 +33,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $req->execute([$pseudo, $email, $password_fake]);
         }
 
-        
         $mail = creerMailer();
 
-        
         $mail->isSMTP();
         $mail->addAddress($email);
 
-        
         $mail->isHTML(true); 
         $mail->Subject = 'Bienvenue dans la newsletter BIBLIOccaz !';
         

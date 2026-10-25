@@ -1,5 +1,4 @@
 <?php
-// Ajout (livre.php) ou modification (livre.php?id=12) d'une fiche livre.
 require_once __DIR__ . '/_init.php';
 require_once __DIR__ . '/../categories_lib.php';
 exigerDroit('catalogue');
@@ -74,7 +73,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Pour partie_champs_categorie.php
 $categorieActuelle = $_POST['id_categorie'] ?? ($livre['id_categorie'] ?? null);
 $tagsActuels = $_POST['tags'] ?? ($livre ? array_column(tagsDuLivre($pdo, $id), 'id_tag') : []);
 
