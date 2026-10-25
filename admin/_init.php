@@ -18,8 +18,9 @@ const ROLES_LIBELLES = [
     'moderateur'   => 'Modérateur',
     'auteur'       => 'Auteur',
     'client'       => 'Client',
-    'user'         => 'Abonné newsletter',
 ];
+
+const ROLES_ATTRIBUABLES = ['gestionnaire', 'moderateur', 'auteur', 'client'];
 
 function estEquipe(): bool
 {

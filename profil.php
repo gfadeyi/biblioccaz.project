@@ -7,6 +7,16 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 
+require_once 'avis_lib.php';
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'newsletter' && verifierCsrf()) {
+    $abonner = ($_POST['abonner'] ?? '') === '1';
+    $pdo->prepare("UPDATE user SET is_newsletter = ?, date_newsletter = NOW() WHERE id = ?")->execute([$abonner ? 1 : 0, $_SESSION['user_id']]);
+    insertLog('NEWSLETTER', $abonner ? "Abonnement à la newsletter depuis le profil" : "Désabonnement de la newsletter depuis le profil");
+    header("Location: profil.php?newsletter=" . ($abonner ? 'on' : 'off'));
+    exit();
+}
+
 $stmt = $pdo->prepare("SELECT * FROM user WHERE id = ?");
 $stmt->execute([$_SESSION['user_id']]);
 $user = $stmt->fetch();
@@ -40,6 +50,9 @@ include 'header.php';
 <div class="profile-bg">
     <div class="container pt-4">
         
+        <?php if (isset($_GET['newsletter'])): ?>
+            <div class="alert alert-success rounded-3"><i class="bi bi-check-circle-fill me-2"></i><?= $_GET['newsletter'] === 'on' ? 'Vous êtes abonné à la newsletter.' : 'Vous êtes désabonné de la newsletter.' ?></div>
+        <?php endif; ?>
         <?php if (isset($_GET['mdp'])): ?>
             <div class="alert alert-success rounded-3"><i class="bi bi-check-circle-fill me-2"></i>Votre mot de passe a bien été modifié.</div>
         <?php endif; ?>
@@ -66,7 +79,14 @@ include 'header.php';
                     <?php endif; ?>
                 </div>
             </div>
-            <div class="d-flex gap-2">
+            <div class="d-flex flex-wrap align-items-center gap-2">
+                <form method="POST" class="d-flex align-items-center gap-2 me-2">
+                    <input type="hidden" name="csrf" value="<?= jetonCsrf() ?>">
+                    <input type="hidden" name="action" value="newsletter">
+                    <input type="hidden" name="abonner" value="<?= $user['is_newsletter'] ? '0' : '1' ?>">
+                    <span class="small text-muted"><i class="bi bi-envelope-paper"></i> Newsletter : <?= $user['is_newsletter'] ? '<strong class="text-success">abonné</strong>' : 'non abonné' ?></span>
+                    <button class="btn btn-sm <?= $user['is_newsletter'] ? 'btn-link text-muted' : 'btn-outline-success rounded-pill' ?>"><?= $user['is_newsletter'] ? 'Se désabonner' : "S'abonner" ?></button>
+                </form>
                 <?php if ($isAdmin || $isGestionnaire): ?>
                     <a href="admin/index.php" class="btn btn-dark rounded-pill px-4 fw-bold"><i class="bi bi-speedometer2 me-1"></i> Back-office</a>
                 <?php endif; ?>

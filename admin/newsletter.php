@@ -7,9 +7,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
 
     if ($action === 'desabonner') {
-        $id = (int) ($_POST['user_id'] ?? 0);
-        $pdo->prepare("UPDATE user SET is_newsletter = 0, date_newsletter = NOW() WHERE id = ?")->execute([$id]);
-        insertLog('ADMIN', "Désinscription newsletter forcée pour le compte #$id");
+        $id = (int) ($_POST['id'] ?? 0);
+        if (($_POST['origine'] ?? '') === 'membre') {
+            $pdo->prepare("UPDATE user SET is_newsletter = 0, date_newsletter = NOW() WHERE id = ?")->execute([$id]);
+            insertLog('ADMIN', "Désinscription newsletter forcée pour le compte #$id");
+        } else {
+            $pdo->prepare("UPDATE newsletter_abonne SET actif = 0, date_desinscription = NOW() WHERE id_abonne = ?")->execute([$id]);
+            insertLog('ADMIN', "Désinscription newsletter forcée pour l'abonné sans compte #$id");
+        }
         rediriger('newsletter.php', 'success', "Abonné retiré de la newsletter.");
     }
 
@@ -19,7 +24,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($sujet === '' || $message === '') {
             rediriger('newsletter.php', 'danger', "Le sujet et le message sont obligatoires.");
         }
-        $abonnes = $pdo->query("SELECT email FROM user WHERE is_newsletter = 1")->fetchAll(PDO::FETCH_COLUMN);
+        $abonnes = array_values(array_unique(array_merge(
+            $pdo->query("SELECT email FROM user WHERE is_newsletter = 1")->fetchAll(PDO::FETCH_COLUMN),
+            $pdo->query("SELECT email FROM newsletter_abonne WHERE actif = 1")->fetchAll(PDO::FETCH_COLUMN)
+        )));
         if (!$abonnes) {
             rediriger('newsletter.php', 'warning', "Aucun abonné actif.");
         }
@@ -49,8 +57,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     rediriger('newsletter.php');
 }
 
-$abonnes = $pdo->query("SELECT id, pseudo, email, is_newsletter, date_newsletter FROM user WHERE date_newsletter IS NOT NULL ORDER BY date_newsletter DESC")->fetchAll();
-$actifs = array_filter($abonnes, fn($a) => (int) $a['is_newsletter'] === 1);
+$abonnes = $pdo->query("
+    SELECT 'membre' AS origine, id, pseudo, role, email, is_newsletter AS actif, date_newsletter AS depuis
+    FROM user WHERE date_newsletter IS NOT NULL
+    UNION ALL
+    SELECT 'externe', id_abonne, NULL, NULL, email, actif, COALESCE(date_desinscription, date_inscription)
+    FROM newsletter_abonne
+    ORDER BY depuis DESC")->fetchAll();
+$actifs = array_filter($abonnes, fn($a) => (int) $a['actif'] === 1);
 
 $titrePage = 'Newsletter';
 $pageActive = 'newsletter';
@@ -85,22 +99,30 @@ L'équipe BIBLIOccaz</textarea>
             <div class="carte-entete">Historique des abonnements (<?= count($abonnes) ?>)</div>
             <div class="table-responsive">
                 <table class="table align-middle small">
-                    <thead class="table-light text-uppercase"><tr><th>Membre</th><th>Statut</th><th>Depuis le</th><th class="text-end"></th></tr></thead>
+                    <thead class="table-light text-uppercase"><tr><th>Abonné</th><th>Statut</th><th>Depuis le</th><th class="text-end"></th></tr></thead>
                     <tbody>
                         <?php if (!$abonnes): ?>
                             <tr><td colspan="4" class="text-center text-muted py-4">Aucun abonné pour l'instant.</td></tr>
                         <?php endif; ?>
                         <?php foreach ($abonnes as $a): ?>
                             <tr>
-                                <td><div class="fw-bold">@<?= e($a['pseudo']) ?></div><div class="text-muted"><?= e($a['email']) ?></div></td>
-                                <td><?= $a['is_newsletter'] ? '<span class="badge bg-success">Inscrit</span>' : '<span class="badge bg-secondary">Désinscrit</span>' ?></td>
-                                <td class="text-muted"><?= date('d/m/Y', strtotime($a['date_newsletter'])) ?></td>
+                                <td>
+                                    <?php if ($a['origine'] === 'membre'): ?>
+                                        <div class="fw-bold">@<?= e($a['pseudo']) ?> <span class="badge bg-light text-dark border fw-normal"><?= ROLES_LIBELLES[$a['role']] ?? e($a['role']) ?></span></div>
+                                    <?php else: ?>
+                                        <div class="fw-bold text-muted">Sans compte</div>
+                                    <?php endif; ?>
+                                    <div class="text-muted"><?= e($a['email']) ?></div>
+                                </td>
+                                <td><?= $a['actif'] ? '<span class="badge bg-success">Inscrit</span>' : '<span class="badge bg-secondary">Désinscrit</span>' ?></td>
+                                <td class="text-muted"><?= date('d/m/Y', strtotime($a['depuis'])) ?></td>
                                 <td class="text-end">
-                                    <?php if ($a['is_newsletter']): ?>
+                                    <?php if ($a['actif']): ?>
                                         <form method="POST" data-confirmer="Désabonner <?= e($a['email']) ?> ?">
                                             <?= champCsrf() ?>
                                             <input type="hidden" name="action" value="desabonner">
-                                            <input type="hidden" name="user_id" value="<?= $a['id'] ?>">
+                                            <input type="hidden" name="origine" value="<?= $a['origine'] ?>">
+                                            <input type="hidden" name="id" value="<?= $a['id'] ?>">
                                             <button class="btn btn-sm btn-outline-danger" title="Désabonner"><i class="bi bi-x-circle"></i></button>
                                         </form>
                                     <?php endif; ?>

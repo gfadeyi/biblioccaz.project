@@ -11,11 +11,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         rediriger('utilisateurs.php', 'warning', "Vous ne pouvez pas modifier votre propre compte ici.");
     }
 
-    $stmt = $pdo->prepare("SELECT pseudo FROM user WHERE id = ?");
+    $stmt = $pdo->prepare("SELECT pseudo, role FROM user WHERE id = ?");
     $stmt->execute([$idUser]);
-    $pseudo = $stmt->fetchColumn();
-    if ($pseudo === false) {
+    $cible = $stmt->fetch();
+    if (!$cible) {
         rediriger('utilisateurs.php', 'warning', "Ce compte n'existe pas.");
+    }
+    $pseudo = $cible['pseudo'];
+    if ($cible['role'] === 'admin') {
+        rediriger('utilisateurs.php', 'warning', "Un compte administrateur ne peut pas être modifié, suspendu ou supprimé depuis cette page.");
     }
 
     switch ($action) {
@@ -33,7 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         case 'changer_role':
             $role = $_POST['nouveau_role'] ?? '';
-            if (!isset(ROLES_LIBELLES[$role])) {
+            if (!in_array($role, ROLES_ATTRIBUABLES, true)) {
                 rediriger('utilisateurs.php', 'danger', "Rôle inconnu.");
             }
             $pdo->prepare("UPDATE user SET role = ? WHERE id = ?")->execute([$role, $idUser]);
@@ -71,9 +75,9 @@ if (isset(ROLES_LIBELLES[$filtreRole])) {
     $params[] = $filtreRole;
 }
 $stmt = $pdo->prepare("
-    SELECT id, pseudo, email, nom, prenom, role, statut, email_verifie, date_inscription, last_activity
+    SELECT id, pseudo, email, nom, prenom, role, statut, email_verifie, is_newsletter, date_inscription, last_activity
     FROM user WHERE " . implode(' AND ', $where) . "
-    ORDER BY FIELD(role, 'admin', 'gestionnaire', 'moderateur', 'auteur', 'client', 'user'), pseudo");
+    ORDER BY FIELD(role, 'admin', 'gestionnaire', 'moderateur', 'auteur', 'client'), pseudo");
 $stmt->execute($params);
 $membres = $stmt->fetchAll();
 
@@ -156,26 +160,28 @@ include __DIR__ . '/_haut.php';
                 <?php endif; ?>
                 <?php foreach ($membres as $m): ?>
                     <?php $moi = (int) $m['id'] === (int) $_SESSION['user_id']; ?>
+                    <?php $verrouille = $moi || $m['role'] === 'admin'; ?>
                     <?php $suspendu = in_array($m['statut'], ['refuse_definitif', 'refuse_temporaire', 'banni'], true); ?>
                     <tr>
                         <td>
                             <div class="fw-bold">@<?= e($m['pseudo']) ?> <?php if ($moi): ?><span class="badge bg-secondary">vous</span><?php endif; ?></div>
                             <div class="small text-muted">
                                 <?= e(trim($m['prenom'] . ' ' . $m['nom'])) ?> · <?= e($m['email']) ?>
+                                <?php if ($m['is_newsletter']): ?><span class="badge bg-success-subtle text-success border border-success-subtle"><i class="bi bi-envelope-paper"></i> newsletter</span><?php endif; ?>
                                 <?php if (!$m['email_verifie']): ?><span class="badge bg-light text-muted border">email non confirmé</span><?php endif; ?>
                             </div>
                         </td>
                         <td>
-                            <?php if ($moi): ?>
-                                <?= ROLES_LIBELLES[$m['role']] ?? e($m['role']) ?>
+                            <?php if ($verrouille): ?>
+                                <span class="badge <?= $m['role'] === 'admin' ? 'bg-danger' : 'bg-secondary' ?>" title="Rôle non modifiable"><i class="bi bi-lock-fill"></i> <?= ROLES_LIBELLES[$m['role']] ?? e($m['role']) ?></span>
                             <?php else: ?>
                                 <form method="POST" class="d-flex gap-1">
                                     <?= champCsrf() ?>
                                     <input type="hidden" name="user_id" value="<?= $m['id'] ?>">
                                     <input type="hidden" name="action" value="changer_role">
                                     <select name="nouveau_role" class="form-select form-select-sm" style="width: auto;" aria-label="Rôle de @<?= e($m['pseudo']) ?>">
-                                        <?php foreach (ROLES_LIBELLES as $cle => $libelle): ?>
-                                            <option value="<?= $cle ?>" <?= $m['role'] === $cle ? 'selected' : '' ?>><?= $libelle ?></option>
+                                        <?php foreach (ROLES_ATTRIBUABLES as $cle): ?>
+                                            <option value="<?= $cle ?>" <?= $m['role'] === $cle ? 'selected' : '' ?>><?= ROLES_LIBELLES[$cle] ?></option>
                                         <?php endforeach; ?>
                                     </select>
                                     <button class="btn btn-sm btn-outline-secondary" title="Appliquer"><i class="bi bi-check-lg"></i></button>
@@ -185,7 +191,7 @@ include __DIR__ . '/_haut.php';
                         <td><?= badgeStatut($m['statut']) ?></td>
                         <td class="small text-muted"><?= date('d/m/Y', strtotime($m['date_inscription'])) ?></td>
                         <td class="text-end text-nowrap">
-                            <?php if (!$moi): ?>
+                            <?php if (!$verrouille): ?>
                                 <?= $suspendu
                                     ? boutonAction($m['id'], 'reactiver', '<i class="bi bi-unlock"></i> Réactiver', 'btn-outline-success')
                                     : boutonAction($m['id'], 'suspendre', '<i class="bi bi-slash-circle"></i> Suspendre', 'btn-outline-warning', 'Suspendre ce compte ? La personne ne pourra plus se connecter.') ?>
