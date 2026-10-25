@@ -8,6 +8,7 @@ const DROITS = [
     'equipe'     => ['admin', 'gestionnaire', 'moderateur'],
     'moderation' => ['admin', 'gestionnaire', 'moderateur'],
     'catalogue'  => ['admin', 'gestionnaire'],
+    'evenements' => ['admin', 'gestionnaire'],
     'admin'      => ['admin'],
 ];
 
@@ -42,6 +43,9 @@ function exigerDroit(string $droit, bool $json = false): void
         exit();
     }
     if (!estEquipe()) {
+        if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+            $_SESSION['admin_retour'] = basename($_SERVER['SCRIPT_NAME']) . (empty($_SERVER['QUERY_STRING']) ? '' : '?' . $_SERVER['QUERY_STRING']);
+        }
         header('Location: login.php');
         exit();
     }

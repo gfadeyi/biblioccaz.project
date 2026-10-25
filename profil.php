@@ -181,10 +181,10 @@ include 'header.php';
                     </a>
                 </div>
                 <div class="col-md-4 col-lg-3">
-                    <a href="evenements.php" class="quick-access-card">
+                    <a href="mes_evenements.php" class="quick-access-card">
                         <div class="card-icon"><i class="bi bi-calendar-event"></i></div>
-                        <div class="card-title">Événements</div>
-                        <p class="card-text">Mes réservations ateliers.</p>
+                        <div class="card-title">Mes événements</div>
+                        <p class="card-text">Mes inscriptions et billets.</p>
                     </a>
                 </div>
                 <div class="col-md-4 col-lg-3">

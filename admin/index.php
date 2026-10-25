@@ -19,6 +19,7 @@ $stats = [
     'cmd_mois'   => compter($pdo, "SELECT COUNT(*) FROM commande WHERE date_commande >= DATE_FORMAT(NOW(), '%Y-%m-01')"),
     'ca_mois'    => compter($pdo, "SELECT COALESCE(SUM(total), 0) FROM commande WHERE date_commande >= DATE_FORMAT(NOW(), '%Y-%m-01')"),
     'dons'       => compter($pdo, "SELECT COUNT(*) FROM don WHERE statut IN ('disponible', 'reserve') AND date_limite >= CURDATE()"),
+    'evenements' => compter($pdo, "SELECT COUNT(*) FROM evenement WHERE statut = 'publie' AND date_fin >= NOW()"),
     'rupture'    => compter($pdo, "SELECT COUNT(*) FROM livre l WHERE l.is_valide = 1 AND NOT EXISTS
                                    (SELECT 1 FROM exemplaire e WHERE e.id_livre = l.id_livre AND e.quantite > 0)"),
 ];
@@ -52,6 +53,7 @@ $cartes = [
     [$stats['cmd_mois'], 'Commandes ce mois-ci', 'bag-check', null, 'admin', false],
     [number_format($stats['ca_mois'], 2, ',', ' ') . ' €', "Chiffre d'affaires du mois", 'currency-euro', null, 'admin', false],
     [$stats['dons'], 'Dons en cours', 'gift', 'dons.php', 'equipe', false],
+    [$stats['evenements'], 'Événements à venir', 'calendar-event', 'evenements.php', 'evenements', false],
 ];
 ?>
 
@@ -110,6 +112,9 @@ $cartes = [
                 <?php endif; ?>
                 <a href="moderation_livres.php" class="list-group-item list-group-item-action"><i class="bi bi-shield-check me-2 text-success"></i>Valider les fiches proposées par les auteurs</a>
                 <a href="moderation_avis.php" class="list-group-item list-group-item-action"><i class="bi bi-chat-square-text me-2 text-success"></i>Traiter les avis signalés</a>
+                <?php if (aLeDroit('evenements')): ?>
+                    <a href="evenement.php" class="list-group-item list-group-item-action"><i class="bi bi-calendar-plus me-2 text-success"></i>Créer un événement</a>
+                <?php endif; ?>
                 <?php if (aLeDroit('admin')): ?>
                     <a href="export_membres.php" class="list-group-item list-group-item-action"><i class="bi bi-file-earmark-pdf me-2 text-success"></i>Exporter la liste des membres (PDF)</a>
                     <a href="newsletter.php" class="list-group-item list-group-item-action"><i class="bi bi-megaphone me-2 text-success"></i>Envoyer la newsletter</a>

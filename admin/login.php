@@ -45,7 +45,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['connexion_time'] = time();
 
         insertLog('CONNEXION', "Connexion au back-office");
-        rediriger('index.php');
+        $retour = $_SESSION['admin_retour'] ?? '';
+        unset($_SESSION['admin_retour']);
+        rediriger(preg_match('/^[a-z_]+\.php(\?[A-Za-z0-9_=&%-]*)?$/', $retour) ? $retour : 'index.php');
     }
 }
 ?>

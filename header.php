@@ -185,6 +185,7 @@ $lienCategorie = fn($slug) => $pagesCategories[$slug] ?? 'catalogue.php?categori
                             <li><a class="dropdown-item small rounded-2 py-2" href="wishlist.php"><i class="bi bi-heart me-2 text-success"></i>Ma liste</a></li>
                             <li><a class="dropdown-item small rounded-2 py-2" href="avis.php"><i class="bi bi-star me-2 text-success"></i>Mes avis</a></li>
                             <li><a class="dropdown-item small rounded-2 py-2" href="mes_dons.php"><i class="bi bi-gift me-2 text-success"></i>Mes dons</a></li>
+                            <li><a class="dropdown-item small rounded-2 py-2" href="mes_evenements.php"><i class="bi bi-calendar-event me-2 text-success"></i>Mes événements</a></li>
                         <?php endif; ?>
                         <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item small text-danger rounded-2 py-2" href="logout.php"><i class="bi bi-box-arrow-right me-2"></i>Déconnexion</a></li>
@@ -246,6 +247,7 @@ $lienCategorie = fn($slug) => $pagesCategories[$slug] ?? 'catalogue.php?categori
             <a href="dernière_chance.php" class="raccourci <?= $pageActuelle === 'dernière_chance.php' ? 'actif' : '' ?>"><i class="bi bi-hourglass-split"></i> Dernière chance</a>
             <a href="petits_prix.php" class="raccourci <?= $pageActuelle === 'petits_prix.php' ? 'actif' : '' ?>"><i class="bi bi-tag"></i> Moins de 10 €</a>
             <a href="dons.php" class="raccourci <?= in_array($pageActuelle, ['dons.php', 'don_detail.php'], true) ? 'actif' : '' ?>"><i class="bi bi-gift"></i> Livres à donner</a>
+            <a href="evenements.php" class="raccourci <?= in_array($pageActuelle, ['evenements.php', 'evenement.php', 'mes_evenements.php'], true) ? 'actif' : '' ?>"><i class="bi bi-calendar-event"></i> Événements</a>
             <a href="catalogue.php" class="raccourci <?= $pageActuelle === 'catalogue.php' && !$menuCatActive ? 'actif' : '' ?>"><i class="bi bi-grid"></i> Tout le catalogue</a>
         </div>
     </div>
@@ -275,6 +277,7 @@ $lienCategorie = fn($slug) => $pagesCategories[$slug] ?? 'catalogue.php?categori
                 <li><a href="vendre.php" class="lien-lateral-secondaire"><i class="bi bi-arrow-repeat"></i> Donner ou revendre mes livres</a></li>
             <?php endif; ?>
             <li><a href="dons.php" class="lien-lateral-secondaire"><i class="bi bi-gift"></i> Livres à donner</a></li>
+            <li><a href="evenements.php" class="lien-lateral-secondaire"><i class="bi bi-calendar-event"></i> Événements</a></li>
             <li><a href="meilleures_ventes.php" class="lien-lateral-secondaire"><i class="bi bi-award"></i> Meilleures ventes</a></li>
             <li><a href="nouveauté.php" class="lien-lateral-secondaire"><i class="bi bi-stars"></i> Nouveautés</a></li>
             <li><a href="petits_prix.php" class="lien-lateral-secondaire"><i class="bi bi-tag"></i> Petits prix</a></li>

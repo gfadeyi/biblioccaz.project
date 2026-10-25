@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/notifications_lib.php';
 
 const DON_POINTS = 20;
 const DON_MAX_RESERVATIONS = 3;
@@ -49,19 +50,4 @@ function urlValidationDon(array $don): string
 function photoDon(?string $photo): string
 {
     return $photo ? 'img/dons/' . rawurlencode($photo) : 'img/default.png';
-}
-
-function notifierParMail(string $email, string $sujet, string $texte): void
-{
-    try {
-        require_once __DIR__ . '/mailer.php';
-        $mail = creerMailer();
-        $mail->addAddress($email);
-        $mail->isHTML(false);
-        $mail->Subject = "BIBLIOccaz - " . $sujet;
-        $mail->Body = $texte . "\n\n---------------\nCeci est un mail automatique, merci de ne pas y répondre.";
-        $mail->send();
-    } catch (\Throwable $e) {
-        insertLog('ERREUR', "Mail non envoyé ($sujet) : " . $e->getMessage());
-    }
 }

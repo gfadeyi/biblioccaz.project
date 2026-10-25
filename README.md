@@ -13,6 +13,7 @@ Projet annuel de 1re année (ESGI, classe 1A1) par **Gaël Fadeyi**, **Jeanny Be
 - **Catégories, tags et filtres** : navigation par catégorie, filtres (prix, état, note), tris, pagination
 - **Avis** : notes et commentaires (badge « achat vérifié »), signalement et modération
 - **Dons de livres** : annonces gratuites avec réservation et retrait validé par QR code
+- **Événements** : dédicaces, rencontres et ateliers avec calendrier filtrable, inscriptions, liste d'attente, billets à QR code, contrôle des présences et export PDF des participants
 - **Comptes et rôles** : client, auteur (proposition de livres), modérateur, gestionnaire, administrateur
 - **Back-office séparé** (`admin/`) : tableau de bord, validation des fiches, stock, avis signalés, dons, membres, newsletter, journal d'activité, export PDF des membres
 - **Emails** : vérification d'adresse à l'inscription, récupération de mot de passe, newsletter (PHPMailer)
@@ -59,7 +60,7 @@ Le projet contient deux interfaces qui partagent la même base de données et le
 Droits dans le back-office (définis dans `admin/_init.php`) :
 
 - **Modérateur** : tableau de bord, validation des fiches livres, avis signalés, dons
-- **Gestionnaire** : + ajout et modification des livres, stock
+- **Gestionnaire** : + ajout et modification des livres, stock, événements
 - **Administrateur** : tout, dont membres, catégories, newsletter, journal, images du captcha, export PDF
 
 Toutes les actions qui modifient des données passent par des formulaires POST protégés par un jeton anti-CSRF. En production, le dossier `admin/` peut être servi sur son propre sous-domaine (par exemple `admin.biblioccaz.fr`).
