@@ -1,79 +1,146 @@
 # BIBLIOccaz
 
-Site e-commerce de vente de livres d'occasion, réalisé en PHP / MySQL.
+Librairie en ligne de livres d'occasion, pensée comme une vraie boutique de quartier : on y achète des livres vérifiés à petit prix, on donne ceux qu'on a lus, on se retrouve à des dédicaces et des ateliers, et chaque action rapporte des points.
 
-Projet annuel de 1re année (ESGI, classe 1A1) par **Gaël Fadeyi**, **Jeanny Benon** et **David Radom**, repris et maintenu par Gaël Fadeyi.
+Site complet en PHP et MySQL, sans framework : catalogue rangé par univers, panier et commandes, dons avec QR code, événements avec billets, avis modérés, programme de fidélité, et un back-office séparé pour l'équipe.
+
+![Page d'accueil](docs/apercu/accueil.png)
+
+## Le projet
+
+BIBLIOccaz est né comme **projet annuel de 1re année à l'ESGI** (classe 1A1), réalisé en groupe par **Gaël Fadeyi**, **Jeanny Benon** et **David Radom** : catalogue, panier, comptes, dons et premier back-office.
+
+Je l'ai ensuite **repris et largement étendu** : refonte visuelle complète, univers et méga-menu, événements, programme de points et de badges, back-office repensé, sécurité (requêtes préparées, jetons CSRF, uploads vérifiés), accessibilité, données de démonstration et documentation.
+
+## Aperçu
+
+| Catalogue et filtres | Fiche d'un livre |
+|---|---|
+| ![Catalogue](docs/apercu/catalogue.png) | ![Fiche livre](docs/apercu/fiche-livre.png) |
+
+| Points, niveaux et badges | Événements |
+|---|---|
+| ![Points et badges](docs/apercu/points-badges.png) | ![Événement](docs/apercu/evenement.png) |
+
+| Back-office | Sur téléphone |
+|---|---|
+| ![Tableau de bord du back-office](docs/apercu/back-office.png) | ![Version mobile](docs/apercu/mobile.png) |
+
+Les couvertures visibles sur ces captures sont générées pour l'aperçu : les couvertures d'éditeurs ne sont pas diffusées dans le dépôt.
 
 ## Fonctionnalités
 
-- **Catalogue** : nouveautés, meilleures ventes, petits prix, recherche, fiche détaillée de chaque livre
-- **Stock d'occasion** : plusieurs exemplaires par livre, avec état (neuf, très bon, bon, usé) et prix
-- **Panier et commande** : remises automatiques (-5 % dès 30 €, -10 % dès 50 €), livraison offerte dès 20 €, historique des commandes
-- **Points, niveaux et badges** : 1 point par euro payé, points pour les avis validés, les dons récupérés et les présences aux événements ; bons de réduction de 5 € à 38 € à utiliser au paiement ; six niveaux de lecteur (bonus de points, livraison offerte plus tôt, priorité sur les listes d'attente, bon d'anniversaire) ; badges bronze, argent, or et badges rares ; page « Mes points et badges » avec historique
-- **Validation des avis** : avis publiés tout de suite, points crédités après validation par un modérateur
-- **Commandes dans le back-office** : liste filtrable (numéro, client, statut, période) avec chiffre d'affaires et panier moyen, fiche détaillée (livres, stock actuel de chaque offre, client, points, historique) et annulation confirmée : livres remis en stock (clients en attente prévenus), points du bon rendus, points gagnés retirés, mail au client ; les offres épuisées restent en base avec un stock à 0 pour garder l'historique
-- **Univers, catégories, tags et filtres** : catalogue rangé en 6 univers et leurs catégories (méga-menu, fil d'Ariane, puces de catégories), tags en trois familles (thèmes & ambiances, public, particularités) combinables avec le nombre de livres par tag, filtres (prix, état, note) repliés derrière un bouton « Filtrer » sur téléphone avec puces des filtres actifs, tris, pagination ; univers, catégories et tags gérés depuis le back-office ; anciennes adresses de catégories redirigées (301)
-- **Avis** : notes et commentaires (badge « achat vérifié »), signalement et modération ; page « Mes avis » (modifier ou supprimer, état des points de chaque avis)
-- **Dons de livres** : annonces gratuites avec réservation et retrait validé par QR code
-- **Événements** : dédicaces, rencontres et ateliers avec calendrier filtrable, inscriptions, liste d'attente, billets à QR code, contrôle des présences et export PDF des participants
-- **Événements proposés par les auteurs** : depuis l'espace créateur, un auteur propose une dédicace, une rencontre ou un atelier (date, horaires, lieu, places, image, jusqu'à 5 livres associés), peut la modifier ou la retirer tant qu'elle est en attente ; file « Proposés » avec compteur dans le back-office, validation, correction ou refus motivé, mail à l'auteur à chaque décision ; une fois publié, l'événement affiche « Proposé par … » et ses livres, et l'auteur suit ses inscrits (prénom et initiale, sans email)
-- **Comptes et rôles** : client, auteur (proposition de livres), modérateur, gestionnaire, administrateur
-- **Candidatures à la modération** : formulaire avec motivations enregistrées, page « Candidatures » dans le back-office (motivations, email confirmé ou non, acceptation ou refus avec message facultatif, mail au candidat, historique des décisions) ; un refus laisse le compte lecteur actif
-- **Espace « Mon compte »** : identité, niveau et points, dernières commandes, favoris, alertes, événements à venir, dons et newsletter sur une seule page, adaptée au rôle (client, auteur, équipe) ; photo de profil (JPG, PNG ou WebP, 2 Mo maximum, aperçu avant d'enregistrer, recadrée et convertie en WebP) affichée dans l'en-tête, le menu du compte et les avis, avec retour possible à l'initiale sur fond coloré
-- **Fenêtre de confirmation** du site pour toutes les suppressions et annulations côté client (avis, adresses, dons, événements), sans boîte de dialogue du navigateur
-- **Back-office séparé** (`admin/`) aux couleurs du site : tableau de bord (indicateurs avec tendance, ventes sur 30 jours et par univers, liste « À traiter », activité récente), inventaire lisible (stock par état, prix à partir de, filtres par univers, tri par colonne, alertes de stock bas et de rupture), validation des fiches, avis signalés, dons, membres, newsletter, journal d'activité, export PDF des membres ; confirmations dans une fenêtre propre, fil d'Ariane sur chaque page
-- **Emails** (PHPMailer) : gabarit commun aux couleurs du site avec version texte, pour la vérification d'adresse, la récupération de mot de passe, la confirmation de commande, les notifications, les réponses aux candidatures et la newsletter
-- **Page 404** aux couleurs du site (redirection dans `.htaccess`), avec recherche et liens utiles
-- **Captcha puzzle** maison, vérifié côté serveur
-- **Données de démonstration** (`sql/donnees_demo.sql`, rejouable, dates calculées à partir du jour de l'import pour que les événements restent à venir) : une cinquantaine de livres aux ISBN vérifiés avec éditeur, collection, pages et format, offres par état, une cinquantaine de lecteurs à tous les niveaux, commandes sur plusieurs mois, avis, dons, événements, favoris et alertes ; couverture par défaut (`img/default.png`) quand l'image d'un livre est absente, et rayon vide présenté avec un message, les catégories voisines et des suggestions
+### Boutique
+- **Catalogue en 6 univers** (BD, Manga & Jeunesse, Littérature, Art & Culture, Scolaire & Études, Savoirs & Pro, Vie pratique) et un rayon Bons plans, avec méga-menu, fil d'Ariane, catégories, tags en trois familles (thèmes, public, particularités), filtres (prix, état, note), tris et pagination ; filtres repliés dans un volet sur téléphone
+- **Fiche livre** : caractéristiques complètes, choix de l'état (neuf, très bon, bon, usé) avec le prix et le stock de chacun, avis des lecteurs, suggestions
+- **Panier et commande** : remises automatiques (-5 % dès 30 €, -10 % dès 50 €), livraison offerte dès 20 €, carnet d'adresses, bons de réduction, mail de confirmation ; prix et stocks toujours relus en base, commande verrouillée en transaction
+- **Liste d'envies** et **alertes de retour en stock** par mail
+- **Recherche** avec suggestions instantanées
+
+### Communauté
+- **Dons de livres** : annonce gratuite avec lieu et date limite de retrait, réservation par un autre lecteur, retrait validé par QR code ou code court
+- **Événements** (dédicaces, rencontres, ateliers) : calendrier filtrable, inscription dans la limite des places, liste d'attente automatique ou manuelle, billet avec QR code, contrôle des présences le jour J, export PDF des participants, mails en cas d'annulation
+- **Événements proposés par les auteurs**, validés ou refusés par l'équipe avec un message
+- **Avis** : note, titre et commentaire, un avis par livre, badge « achat vérifié », tri, signalement, modération (un avis masqué reste archivé), page « Mes avis »
+- **Newsletter** avec ou sans compte
+
+### Programme de fidélité
+- **Points** : 1 point par euro payé, points pour les avis validés, les dons récupérés, les présences aux événements, le premier achat et les badges
+- **Bons de réduction** de 5 € à 38 €, utilisables au paiement selon des règles claires (un par commande, plafond de 50 % des livres)
+- **Six niveaux de lecteur** avec avantages (livraison offerte plus tôt, priorité sur les listes d'attente, bon d'anniversaire) et **badges** bronze, argent, or et rares
+- Page « Mes points et badges » avec la progression et l'historique de chaque mouvement
+
+### Comptes
+- Inscription avec confirmation par mail, connexion protégée par un **puzzle captcha** maison vérifié côté serveur, mot de passe oublié avec lien à usage unique valable 1 heure
+- Rôles : lecteur, auteur, modérateur, gestionnaire, administrateur ; **candidatures à la modération** avec motivations, étudiées depuis le back-office
+- Espace « Mon compte » : profil, photo (recadrée et convertie en WebP), commandes, favoris, alertes, adresses, dons, événements, avis
+- Déconnexion automatique après 10 minutes d'inactivité
+
+### Back-office (`admin/`)
+- Session séparée du site, droits par rôle, menu latéral et fil d'Ariane
+- **Tableau de bord** : chiffre d'affaires, commandes, nouveaux membres, stock, ventes sur 30 jours et par univers, liste « À traiter »
+- **Catalogue** : fiches, exemplaires par état, inventaire avec alertes de rupture, catégories et tags, validation des livres proposés par les auteurs
+- **Commandes** : liste filtrable, fiche détaillée, annulation (stock remis, points rendus, client prévenu)
+- **Communauté** : avis à valider et signalés, dons, événements et présences, niveaux et badges des membres, membres (rôles, suspension), candidatures, utilisateurs en ligne, newsletter
+- **Système** : journal d'activité, images du captcha, export PDF des membres
+
+### Qualité
+- Requêtes préparées partout, échappement de toutes les sorties, **jeton CSRF** sur chaque formulaire qui modifie des données, uploads vérifiés (contenu réel, taille, renommage)
+- Mails au **gabarit commun** aux couleurs du site, avec version texte
+- Responsive du téléphone au grand écran, menus qui restent toujours dans l'écran
+- Accessibilité : contrastes suffisants, libellés reliés aux champs, textes alternatifs, focus visible au clavier, zones tactiles d'au moins 44 px sur écran tactile
+- Page 404 aux couleurs du site
 
 ## Technologies
 
-PHP 8 · MySQL / MariaDB (PDO) · Bootstrap 5 · JavaScript · PHPMailer · Dompdf · Composer
+PHP 8.2 (PDO) · MySQL / MariaDB · HTML, CSS et JavaScript sans framework · Bootstrap 5 · PHPMailer · Dompdf · Composer · Git
 
-## Installation en local (Windows + XAMPP)
+## Installation pas à pas (Windows + XAMPP)
 
-1. Installer [XAMPP](https://www.apachefriends.org) et [Composer](https://getcomposer.org). Dans `C:\xampp\php\php.ini`, activer l'extension **GD** (retirer le `;` devant `extension=gd`, utilisée par le captcha), puis démarrer **Apache** et **MySQL**.
-2. Cloner le projet dans `htdocs` :
-   ```bash
-   cd /c/xampp/htdocs/projet_web
-   git clone https://github.com/gfadeyi/biblioccaz.project.git biblioccaz
-   cd biblioccaz
-   composer install
-   ```
-3. Créer les dossiers non versionnés :
-   ```bash
-   mkdir -p secure_data img/captcha
-   touch secure_data/logs.txt
-   cp "img/Biblioccaz_Logo_New.png" img/captcha/
-   ```
-4. Importer `sql/biblioccaz.sql` dans phpMyAdmin (base, utilisateur MySQL, tables et données d'exemple).
-   Pour un site rempli, importer ensuite `sql/donnees_demo.sql` avec `mysql --default-character-set=utf8mb4`. Les couvertures de démonstration ne sont pas versionnées : les livres affichent alors la couverture par défaut.
-5. Copier `secrets.example.php` en **`secrets.php`** et y renseigner les identifiants (base de données, envoi de mails). Ce fichier n'est jamais envoyé sur GitHub.
-6. Ouvrir le site client : http://localhost/projet_web/biblioccaz/
-   et le back-office : http://localhost/projet_web/biblioccaz/admin/
+### 1. Prérequis
+- [XAMPP](https://www.apachefriends.org) (PHP 8.2, MariaDB) et [Composer](https://getcomposer.org)
+- Dans `C:\xampp\php\php.ini`, activer l'extension **GD** (retirer le `;` devant `extension=gd`) : elle sert au captcha et aux photos de profil
+- Démarrer **Apache** et **MySQL** depuis le panneau XAMPP
 
-Compte administrateur de démonstration : `admin` / `admin123` (à changer).
+### 2. Récupérer le projet
+```bash
+cd /c/xampp/htdocs
+mkdir -p projet_web && cd projet_web
+git clone https://github.com/gfadeyi/biblioccaz.project.git biblioccaz
+cd biblioccaz
+composer install
+mkdir -p secure_data img/captcha
+touch secure_data/logs.txt
+cp img/Biblioccaz_Logo_New.png img/captcha/
+```
 
-## Organisation : site client et back-office
+### 3. Créer la base
+`sql/biblioccaz.sql` crée la base `biblioccaz`, son utilisateur MySQL et toutes les tables (il contient déjà toutes les migrations) :
+```bash
+/c/xampp/mysql/bin/mysql.exe -u root --default-character-set=utf8mb4 < sql/biblioccaz.sql
+```
+L'option `--default-character-set=utf8mb4` est importante : sans elle, les accents sont abîmés.
 
-Le projet contient deux interfaces qui partagent la même base de données et le même code commun (`config.php`, `mailer.php`, `*_lib.php`) :
+### 4. Ajouter les données de démonstration (facultatif)
+Une cinquantaine de livres aux ISBN vérifiés, des lecteurs à tous les niveaux, des commandes, des avis, des dons et des événements, avec des dates calculées à partir du jour de l'import :
+```bash
+/c/xampp/mysql/bin/mysql.exe -u root --default-character-set=utf8mb4 biblioccaz < sql/donnees_demo.sql
+/c/xampp/php/php.exe sql/verifier_encodage.php
+```
+Les couvertures d'éditeurs ne sont pas versionnées : les livres concernés affichent la couverture par défaut.
 
-| | Site client (front-office) | Back-office |
+### 5. Configurer
+Copier `secrets.example.php` en `secrets.php` et y renseigner l'accès à la base, l'adresse du site et l'envoi des mails. Ce fichier est ignoré par Git.
+
+### 6. Recevoir les mails en local
+Lancer [Mailpit](https://github.com/axllent/mailpit) : les mails du site (confirmation d'inscription, commande, mot de passe…) sont capturés sur http://localhost:8025, sans rien envoyer réellement. C'est la configuration par défaut de `secrets.example.php` (SMTP `localhost:1025`).
+
+### 7. Ouvrir le site
+- Site : http://localhost/projet_web/biblioccaz/
+- Back-office : http://localhost/projet_web/biblioccaz/admin/
+
+Le compte administrateur créé par `sql/biblioccaz.sql` est `admin` / `admin123` : à changer dès la première connexion.
+
+Si le projet est installé dans un autre dossier que `/projet_web/biblioccaz/`, adapter le chemin de la page 404 dans `.htaccess` et `SITE_URL` dans `secrets.php`.
+
+### Mettre à jour une base existante
+Chaque évolution de structure a sa migration `sql/maj_<sujet>.sql`, rejouable sans erreur :
+```bash
+/c/xampp/mysql/bin/mysql.exe -u root --default-character-set=utf8mb4 biblioccaz < sql/maj_candidatures.sql
+```
+
+## Organisation du code
+
+| | Site | Back-office |
 |---|---|---|
 | Adresse | `/` | `/admin/` |
-| Public | visiteurs, clients, auteurs | équipe : administrateur, gestionnaire, modérateur |
-| Connexion | `login.php` | `admin/login.php` (refuse les comptes clients) |
-| Mise en page | `header.php` / `footer.php` (catalogue, panier) | `admin/_haut.php` / `admin/_bas.php` (menu latéral) |
+| Public | visiteurs, lecteurs, auteurs | administrateur, gestionnaire, modérateur |
+| Connexion | `login.php` | `admin/login.php` (session séparée) |
+| Mise en page | `header.php` / `footer.php` | `admin/_haut.php` / `admin/_bas.php` |
 
-Droits dans le back-office (définis dans `admin/_init.php`) :
+Code partagé : `config.php` (connexion, session), `mailer.php` (mails), bibliothèques `*_lib.php` (points, dons, événements, avis, commandes…), `style.css` et `javascript/`.
 
-- **Modérateur** : tableau de bord, validation des fiches livres, avis signalés, dons
-- **Gestionnaire** : + ajout et modification des livres, stock, événements
-- **Administrateur** : tout, dont membres, candidatures à la modération, catégories, newsletter, journal, images du captcha, export PDF
-
-Toutes les actions qui modifient des données passent par des formulaires POST protégés par un jeton anti-CSRF. En production, le dossier `admin/` peut être servi sur son propre sous-domaine (par exemple `admin.biblioccaz.fr`).
-
-### Emails en local
-
-Avec [Mailpit](https://github.com/axllent/mailpit), les mails envoyés par le site sont capturés et lisibles sur http://localhost:8025, sans rien envoyer réellement. C'est la configuration par défaut de `secrets.example.php`.
+Droits dans le back-office (`admin/_init.php`) :
+- **Modérateur** : tableau de bord, fiches à valider, avis, dons
+- **Gestionnaire** : en plus, livres, stock, commandes et événements
+- **Administrateur** : tout, dont membres, candidatures, catégories, newsletter, journal, captcha et export PDF
