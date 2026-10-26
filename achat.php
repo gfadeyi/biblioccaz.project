@@ -9,9 +9,23 @@ if (!isset($_SESSION['user_id']) || empty($_SESSION['panier'])) {
 
 require_once 'panier_calcul.php';
 require_once 'compte_lib.php';
+require_once 'points_lib.php';
+require_once 'avis_lib.php';
 
-$totaux = calculerTotauxPanier($_SESSION['panier']);
+$idUser = (int) $_SESSION['user_id'];
+$niveau = niveauMembre($pdo, $idUser);
+attribuerBonAnniversaire($pdo, $idUser, $niveau);
+$solde = soldePoints($pdo, $idUser);
+$totaux = calculerTotauxPanier($_SESSION['panier'], 0, $niveau['livraison_des']);
+$options = optionsReduction($pdo, $idUser, $totaux, $solde);
+$scenarios = ['' => $totaux];
+foreach ($options as $cle => $option) {
+    if ($option['possible']) {
+        $scenarios[$cle] = calculerTotauxPanier($_SESSION['panier'], $option['montant'], $niveau['livraison_des']);
+    }
+}
 $totalFinal = $totaux['total'];
+$csrf = jetonCsrf();
 
 $stmtU = $pdo->prepare("SELECT nom, prenom FROM user WHERE id = ?");
 $stmtU->execute([$_SESSION['user_id']]);
@@ -31,6 +45,7 @@ include 'header.php';
                     <div class="alert alert-danger small py-2"><?= htmlspecialchars($erreurAdresse) ?></div>
                 <?php endif; ?>
                 <form id="form-achat" action="confirmation_achat.php" method="POST">
+                    <input type="hidden" name="csrf" value="<?= htmlspecialchars($csrf) ?>">
                     <?php if ($adresses): ?>
                         <div class="d-flex flex-column gap-2 mb-3">
                             <?php foreach ($adresses as $a): ?>
@@ -65,7 +80,30 @@ include 'header.php';
                             </div>
                         </div>
                     </div>
-                    <button type="submit" class="btn btn-success w-100 mt-4 py-3 rounded-pill">Payer <?= number_format($totalFinal, 2) ?> €</button>
+                    <fieldset class="bloc-points mt-4">
+                        <legend class="bloc-points__titre">
+                            <?= iconeDessin('medaille') ?>
+                            <span>Utiliser mes points</span>
+                            <span class="bloc-points__solde"><?= $solde ?> point<?= $solde > 1 ? 's' : '' ?> disponible<?= $solde > 1 ? 's' : '' ?></span>
+                        </legend>
+                        <p class="bloc-points__aide">Un seul bon par commande, dès <?= BON_MINIMUM_LIVRES ?> € de livres, dans la limite de 50 % des livres (hors livraison).</p>
+                        <div class="choix-bons">
+                            <label class="choix-bon">
+                                <input type="radio" name="bon" value="" checked data-scenario="<?= htmlspecialchars(json_encode($scenarios[''])) ?>">
+                                <span class="choix-bon__montant">Aucun</span>
+                                <span class="choix-bon__detail">Garder mes points</span>
+                            </label>
+                            <?php foreach ($options as $cle => $option): ?>
+                                <label class="choix-bon <?= $option['possible'] ? '' : 'indisponible' ?>">
+                                    <input type="radio" name="bon" value="<?= htmlspecialchars($cle) ?>" <?= $option['possible'] ? 'data-scenario="' . htmlspecialchars(json_encode($scenarios[$cle])) . '"' : 'disabled' ?>>
+                                    <span class="choix-bon__montant">-<?= formaterEuros($option['montant']) ?></span>
+                                    <span class="choix-bon__detail"><?= htmlspecialchars($option['libelle']) ?></span>
+                                    <?php if (!$option['possible']): ?><span class="choix-bon__raison"><?= htmlspecialchars($option['raison']) ?></span><?php endif; ?>
+                                </label>
+                            <?php endforeach; ?>
+                        </div>
+                    </fieldset>
+                    <button type="submit" class="btn btn-bibli w-100 mt-4 py-3 rounded-pill fw-bold" id="bouton-payer">Payer <?= formaterEuros($totalFinal) ?></button>
                 </form>
             </div>
         </div>
@@ -75,38 +113,43 @@ include 'header.php';
                 <h4 class="fw-bold mb-4">Résumé de la commande</h4>
                 <?php foreach ($_SESSION['panier'] as $item): ?>
                     <div class="d-flex align-items-center mb-3">
-                        <img src="img/<?= htmlspecialchars($item['image']) ?>" style="width: 40px; height: 50px; object-fit: cover;">
+                        <img src="img/<?= htmlspecialchars($item['image']) ?>" alt="" loading="lazy" style="width: 40px; height: 50px; object-fit: cover;">
                         <div class="ms-3">
                             <h6 class="mb-0 fw-bold"><?= htmlspecialchars($item['titre']) ?></h6>
                             <small class="text-muted">Qté : <?= $item['quantite'] ?> - <?= htmlspecialchars($item['etat']) ?></small>
                         </div>
-                        <div class="ms-auto fw-bold"><?= number_format($item['prix'] * $item['quantite'], 2) ?> €</div>
+                        <div class="ms-auto ps-2 fw-bold text-nowrap"><?= formaterEuros($item['prix'] * $item['quantite']) ?></div>
                     </div>
                 <?php endforeach; ?>
                 <hr>
-                <div class="d-flex justify-content-between small text-secondary mb-1">
+                <div class="ligne-recap">
                     <span>Sous-total</span>
-                    <span><?= number_format($totaux['sous_total'], 2) ?> €</span>
+                    <span><?= formaterEuros($totaux['sous_total']) ?></span>
                 </div>
                 <?php if ($totaux['remise'] > 0): ?>
-                    <div class="d-flex justify-content-between small text-danger mb-1">
-                        <span>Remise automatique</span>
-                        <span>-<?= number_format($totaux['remise'], 2) ?> €</span>
+                    <div class="ligne-recap remise">
+                        <span>Remise panier</span>
+                        <span>-<?= formaterEuros($totaux['remise']) ?></span>
                     </div>
                 <?php endif; ?>
-                <div class="d-flex justify-content-between small text-secondary mb-2">
-                    <span>Livraison</span>
-                    <span><?= $totaux['frais_livraison'] > 0 ? number_format($totaux['frais_livraison'], 2) . ' €' : 'Gratuite' ?></span>
+                <div class="ligne-recap remise" id="recap-bon" hidden>
+                    <span>Bon de points</span>
+                    <span data-recap="reduction"></span>
                 </div>
-                <div class="d-flex justify-content-between">
+                <div class="ligne-recap">
+                    <span>Livraison<?= $niveau['livraison_des'] < 20 ? ' <small class="avantage-niveau">avantage ' . htmlspecialchars($niveau['nom']) . '</small>' : '' ?></span>
+                    <span><?= $totaux['frais_livraison'] > 0 ? formaterEuros($totaux['frais_livraison']) : 'Offerte' ?></span>
+                </div>
+                <div class="ligne-recap total">
                     <span>Total</span>
-                    <span class="fw-bold fs-4 text-success"><?= number_format($totalFinal, 2) ?> €</span>
+                    <span data-recap="total"><?= formaterEuros($totalFinal) ?></span>
                 </div>
-                <?php if ($totaux['points'] > 0): ?>
-                    <div class="text-end small text-success mt-1">
-                        <i class="bi bi-coin me-1"></i> +<?= $totaux['points'] ?> points fidélité
-                    </div>
-                <?php endif; ?>
+                <div class="gain-points" data-bonus="<?= (int) $niveau['bonus'] ?>">
+                    <?= iconeDessin('medaille') ?>
+                    <span>Vous gagnerez <strong data-recap="points"><?= $totaux['points'] + bonusNiveau($totaux['points'], $niveau) ?></strong> points
+                        <?php if ($niveau['bonus'] > 0): ?><small>(dont +<?= $niveau['bonus'] ?> % de bonus <?= htmlspecialchars($niveau['nom']) ?>)</small><?php endif; ?>
+                    </span>
+                </div>
             </div>
         </div>
     </div>
@@ -127,6 +170,21 @@ include 'header.php';
     }
     choix.forEach(c => c.addEventListener('change', majAffichage));
     majAffichage();
+
+    const euros = new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' });
+    const bonusNiveau = parseInt(document.querySelector('.gain-points').dataset.bonus, 10) || 0;
+    function majRecap() {
+        const choisi = document.querySelector('input[name="bon"]:checked');
+        if (!choisi || !choisi.dataset.scenario) return;
+        const scenario = JSON.parse(choisi.dataset.scenario);
+        document.getElementById('recap-bon').hidden = scenario.reduction <= 0;
+        document.querySelector('[data-recap="reduction"]').textContent = '-' + euros.format(scenario.reduction);
+        document.querySelector('[data-recap="total"]').textContent = euros.format(scenario.total);
+        document.querySelector('[data-recap="points"]').textContent = scenario.points + Math.floor(scenario.points * bonusNiveau / 100);
+        document.getElementById('bouton-payer').textContent = 'Payer ' + euros.format(scenario.total);
+    }
+    document.querySelectorAll('input[name="bon"]').forEach(c => c.addEventListener('change', majRecap));
+    majRecap();
 })();
 </script>
 <?php include 'footer.php'; ?>

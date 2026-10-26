@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/_init.php';
+require_once __DIR__ . '/../points_lib.php';
 require_once __DIR__ . '/../evenements_lib.php';
 exigerDroit('evenements');
 
@@ -15,6 +16,7 @@ function validerPresence(PDO $pdo, array $inscription, array $evt, bool $present
 {
     $pdo->prepare("UPDATE evenement_inscription SET present = ?, date_presence = " . ($present ? "NOW()" : "NULL") . " WHERE id_inscription = ?")
         ->execute([$present ? 1 : 0, $inscription['id_inscription']]);
+    pointsPresence($pdo, $inscription, $evt['titre'], $present);
     insertLog('EVENEMENT', "Présence " . ($present ? 'validée' : 'retirée') . " pour l'inscription #{$inscription['id_inscription']} (événement #{$evt['id_evenement']})");
 }
 
@@ -73,7 +75,7 @@ $stmt = $pdo->prepare("
     SELECT i.*, u.pseudo, u.nom, u.prenom, u.email
     FROM evenement_inscription i INNER JOIN user u ON u.id = i.id_user
     WHERE i.id_evenement = ? AND i.statut IN ('inscrit', 'attente')
-    ORDER BY i.statut = 'attente', i.date_inscription, i.id_inscription");
+    ORDER BY i.statut = 'attente', i.prioritaire DESC, i.date_inscription, i.id_inscription");
 $stmt->execute([$id]);
 $personnes = $stmt->fetchAll();
 $inscrits = array_values(array_filter($personnes, fn($p) => $p['statut'] === 'inscrit'));

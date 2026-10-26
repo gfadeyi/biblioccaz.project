@@ -2,7 +2,7 @@
 
 const POINTS_PAR_EURO = 1;
 
-function calculerTotauxPanier(array $panier): array
+function calculerTotauxPanier(array $panier, float $reductionDemandee = 0, int $seuilLivraisonOfferte = 20): array
 {
     $sousTotal = 0;
     $nbArticles = 0;
@@ -19,16 +19,21 @@ function calculerTotauxPanier(array $panier): array
     }
     $remise = round($remise, 2);
 
-    $fraisLivraison = ($sousTotal > 0 && $sousTotal < 20) ? 1.99 : 0;
+    $montantLivres = $sousTotal - $remise;
+    $reduction = round(max(0, min($reductionDemandee, $montantLivres)), 2);
 
-    $total = round($sousTotal - $remise + $fraisLivraison, 2);
-    $points = (int) floor(($sousTotal - $remise) * POINTS_PAR_EURO);
+    $fraisLivraison = ($sousTotal > 0 && $sousTotal < $seuilLivraisonOfferte) ? 1.99 : 0;
+
+    $total = round($montantLivres - $reduction + $fraisLivraison, 2);
+    $points = (int) floor(round($montantLivres - $reduction, 2) * POINTS_PAR_EURO);
 
     return [
         'sous_total'      => round($sousTotal, 2),
         'nb_articles'     => $nbArticles,
         'remise'          => $remise,
+        'reduction'       => $reduction,
         'frais_livraison' => $fraisLivraison,
+        'seuil_livraison' => $seuilLivraisonOfferte,
         'total'           => $total,
         'points'          => $points,
     ];

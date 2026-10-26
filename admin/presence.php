@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/_init.php';
+require_once __DIR__ . '/../points_lib.php';
 require_once __DIR__ . '/../evenements_lib.php';
 exigerDroit('evenements');
 
@@ -27,6 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     exigerPost("presence.php?code=$code");
     if ($probleme === '' && !$inscription['present']) {
         $pdo->prepare("UPDATE evenement_inscription SET present = 1, date_presence = NOW() WHERE id_inscription = ?")->execute([$inscription['id_inscription']]);
+        pointsPresence($pdo, $inscription, $evt['titre'], true);
         insertLog('EVENEMENT', "Présence validée par QR code pour l'inscription #{$inscription['id_inscription']} (événement #{$evt['id_evenement']})");
         rediriger($retour, 'success', "Présence validée pour @{$inscription['pseudo']}.");
     }

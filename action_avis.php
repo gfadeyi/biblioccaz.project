@@ -1,6 +1,7 @@
 <?php
 require_once 'config.php';
 require_once 'avis_lib.php';
+require_once 'points_lib.php';
 if (session_status() === PHP_SESSION_NONE) { session_start(); }
 
 $idLivre = (int) ($_POST['id_livre'] ?? 0);
@@ -56,16 +57,26 @@ try {
 
         $message = "Merci, votre avis est publié !";
         if (($_SESSION['role'] ?? '') === 'client') {
-            $pdo->prepare("UPDATE user SET solde_points = solde_points + ? WHERE id = ?")->execute([AVIS_POINTS, $idUser]);
-            $message .= " +" . AVIS_POINTS . " points fidélité.";
+            $stmt = $pdo->prepare("SELECT titre FROM livre WHERE id_livre = ?");
+            $stmt->execute([$idLivre]);
+            $message .= match (proposerPointsAvis($pdo, $idUser, $idLivre, (string) $stmt->fetchColumn())) {
+                'en_attente' => " " . AVIS_POINTS . " points en attente de validation par notre équipe.",
+                'non_achete' => " Les points sont réservés aux avis sur un livre acheté sur le site.",
+                'deja_paye' => " Ce livre a déjà rapporté des points pour un avis.",
+                'quota' => " Vous avez atteint les " . AVIS_PAYES_PAR_MOIS . " avis rémunérés ce mois-ci.",
+                default => '',
+            };
         }
         finir($urlRetour, 'success', $message);
 
     } elseif ($action === 'supprimer') {
+        $stmt = $pdo->prepare("SELECT id_livre FROM avis WHERE id_avis = ? AND id_user = ?");
+        $stmt->execute([(int) ($_POST['id_avis'] ?? 0), $idUser]);
+        $idLivreSupprime = (int) $stmt->fetchColumn();
         $stmt = $pdo->prepare("DELETE FROM avis WHERE id_avis = ? AND id_user = ?");
         $stmt->execute([(int) ($_POST['id_avis'] ?? 0), $idUser]);
-        if ($stmt->rowCount() && ($_SESSION['role'] ?? '') === 'client') {
-            $pdo->prepare("UPDATE user SET solde_points = GREATEST(0, solde_points - ?) WHERE id = ?")->execute([AVIS_POINTS, $idUser]);
+        if ($stmt->rowCount() && $idLivreSupprime) {
+            changerStatutMouvement($pdo, $idUser, 'avis', 'livre:' . $idLivreSupprime, ['en_attente', 'valide'], 'annule');
         }
         insertLog('AVIS', "Avis supprimé par son auteur (livre #$idLivre)");
         finir($urlRetour, 'success', "Votre avis a été supprimé.");

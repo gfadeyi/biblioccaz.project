@@ -15,7 +15,9 @@ $menu = [
         ['categories', 'categories.php', 'tags', 'Catégories & tags', 'admin', 0],
     ],
     'Communauté' => [
+        ['avis_a_valider', 'avis_a_valider.php', 'patch-check', 'Avis à valider', 'moderation', $compteurs['avis_a_valider'] ?? 0],
         ['moderation_avis', 'moderation_avis.php', 'chat-square-text', 'Avis signalés', 'moderation', $compteurs['avis']],
+        ['membres_points', 'membres_points.php', 'award', 'Niveaux & badges', 'equipe', 0],
         ['dons', 'dons.php', 'gift', 'Dons', 'equipe', 0],
         ['evenements', 'evenements.php', 'calendar-event', 'Événements', 'evenements', 0],
         ['utilisateurs', 'utilisateurs.php', 'people', 'Membres', 'admin', $compteurs['candidatures']],

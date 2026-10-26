@@ -9,7 +9,8 @@ Projet annuel de 1re année (ESGI, classe 1A1) par **Gaël Fadeyi**, **Jeanny Be
 - **Catalogue** : nouveautés, meilleures ventes, petits prix, recherche, fiche détaillée de chaque livre
 - **Stock d'occasion** : plusieurs exemplaires par livre, avec état (neuf, très bon, bon, usé) et prix
 - **Panier et commande** : remises automatiques (-5 % dès 30 €, -10 % dès 50 €), livraison offerte dès 20 €, historique des commandes
-- **Points fidélité** : 1 point par euro dépensé
+- **Points, niveaux et badges** : 1 point par euro payé, points pour les avis validés, les dons récupérés et les présences aux événements ; bons de réduction de 5 € à 38 € à utiliser au paiement ; six niveaux de lecteur (bonus de points, livraison offerte plus tôt, priorité sur les listes d'attente, bon d'anniversaire) ; badges bronze, argent, or et badges rares ; page « Mes points et badges » avec historique
+- **Validation des avis** : avis publiés tout de suite, points crédités après validation par un modérateur
 - **Univers, catégories, tags et filtres** : catalogue rangé en 6 univers et leurs catégories (méga-menu, fil d'Ariane, puces de catégories), tags en trois familles (thèmes & ambiances, public, particularités) combinables avec le nombre de livres par tag, filtres (prix, état, note) repliés derrière un bouton « Filtrer » sur téléphone avec puces des filtres actifs, tris, pagination ; univers, catégories et tags gérés depuis le back-office ; anciennes adresses de catégories redirigées (301)
 - **Avis** : notes et commentaires (badge « achat vérifié »), signalement et modération
 - **Dons de livres** : annonces gratuites avec réservation et retrait validé par QR code

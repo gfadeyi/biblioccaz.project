@@ -311,3 +311,27 @@ a.stat:hover, a.stat:focus-visible { translate: 0 -3px; box-shadow: var(--ombre-
 .bg-warning { background-color: var(--vert-100) !important; color: var(--vert-fonce) !important; }
 .text-warning { color: var(--encre-douce) !important; }
 .etiquette-compteur { min-width: 4.6rem; justify-content: center; }
+
+.repartition-niveaux { list-style: none; margin: 0; padding: 0; display: grid; gap: .35rem; }
+.repartition-niveaux a { display: grid; grid-template-columns: minmax(170px, 15rem) minmax(0, 1fr) 2.5rem; align-items: center; gap: .9rem; padding: .4rem .6rem; border-radius: var(--rayon); color: var(--encre); text-decoration: none;
+                         transition: background-color var(--duree-rapide) var(--courbe); }
+.repartition-niveaux a:hover { background: var(--vert-50); }
+.repartition-niveaux a.actif { background: var(--vert-50); box-shadow: inset 3px 0 0 var(--vert); }
+.repartition-niveaux__nom { font-weight: 600; font-size: .92rem; }
+.repartition-niveaux__nom small { display: block; font-weight: 400; color: var(--encre-douce); font-size: .78rem; }
+.repartition-niveaux__barre { height: 10px; border-radius: var(--rayon-pilule); background: var(--vert-50); overflow: hidden; }
+.repartition-niveaux__barre span { display: block; height: 100%; min-width: 2px; border-radius: inherit; background: var(--vert-500); }
+.repartition-niveaux strong { text-align: right; font-variant-numeric: tabular-nums; }
+.mini-jauge { display: block; width: 100px; height: 4px; margin-top: .35rem; border-radius: var(--rayon-pilule); background: var(--vert-50); overflow: hidden; }
+.mini-jauge span { display: block; height: 100%; background: var(--vert-400); border-radius: inherit; }
+.badges-mini { display: inline-flex; flex-wrap: wrap; gap: .25rem; }
+.badge-mini { display: inline-grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: var(--vert-50); border: 2px solid var(--vert-200); color: var(--vert-500); }
+.badge-mini .icone-dessin { width: 15px; height: 15px; }
+.badge-mini.palier-2 { border-color: var(--vert-400); background: var(--vert-100); }
+.badge-mini.palier-3 { border-color: var(--vert); background: var(--vert); color: #fff; }
+.badge-mini.palier-rare { border-style: double; border-width: 3px; border-color: var(--vert); }
+.avis-a-valider { border-left: 3px solid var(--vert-200); }
+@media (max-width: 575.98px) {
+    .repartition-niveaux a { grid-template-columns: minmax(0, 1fr) 2rem; }
+    .repartition-niveaux__barre { grid-column: 1 / -1; grid-row: 2; }
+}

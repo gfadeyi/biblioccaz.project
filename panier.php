@@ -6,7 +6,23 @@ require_once 'panier_calcul.php';
 require_once 'livres_lib.php';
 
 $panier = $_SESSION['panier'] ?? [];
-$totaux = calculerTotauxPanier($panier);
+$idUserPanier = (int) ($_SESSION['user_id'] ?? 0);
+$niveauPanier = null;
+$meilleurBon = null;
+if ($idUserPanier) {
+    require_once 'avis_lib.php';
+    require_once 'points_lib.php';
+    $niveauPanier = niveauMembre($pdo, $idUserPanier);
+}
+$totaux = calculerTotauxPanier($panier, 0, $niveauPanier['livraison_des'] ?? 20);
+if ($idUserPanier && $panier) {
+    foreach (optionsReduction($pdo, $idUserPanier, $totaux, soldePoints($pdo, $idUserPanier)) as $option) {
+        if ($option['possible'] && (!$meilleurBon || $option['montant'] > $meilleurBon['montant'])) {
+            $meilleurBon = $option;
+        }
+    }
+}
+$pointsPanier = $totaux['points'] + ($niveauPanier ? bonusNiveau($totaux['points'], $niveauPanier) : 0);
 $sousTotal = $totaux['sous_total'];
 
 $idsDansPanier = array_values(array_unique(array_map(fn($item) => (int) $item['id_livre'], $panier)));
@@ -105,8 +121,16 @@ include 'header.php';
                         </div>
                         <div class="recap-panier__total"><dt>Total</dt><dd><?= formatPrix($totaux['total']) ?></dd></div>
                     </dl>
-                    <?php if ($totaux['points'] > 0): ?>
-                        <p class="recap-panier__points"><i class="bi bi-coin"></i> +<?= $totaux['points'] ?> points fidélité avec cette commande</p>
+                    <?php if ($pointsPanier > 0): ?>
+                        <p class="recap-panier__points"><i class="bi bi-coin" aria-hidden="true"></i>
+                            <?= $idUserPanier ? 'Environ ' . $pointsPanier . ' points à gagner' : '<a href="login.php">Connectez-vous</a> pour gagner environ ' . $pointsPanier . ' points' ?>
+                            <?php if ($niveauPanier && $niveauPanier['bonus'] > 0): ?><small class="d-block">dont +<?= $niveauPanier['bonus'] ?> % de bonus <?= htmlspecialchars($niveauPanier['nom']) ?></small><?php endif; ?>
+                        </p>
+                    <?php endif; ?>
+                    <?php if ($meilleurBon): ?>
+                        <p class="rappel-points"><i class="bi bi-ticket-perforated" aria-hidden="true"></i>
+                            <span>Un bon jusqu'à <strong>-<?= formaterEuros($meilleurBon['montant']) ?></strong> est disponible : vous pourrez l'utiliser à l'étape suivante.</span>
+                        </p>
                     <?php endif; ?>
                     <a href="achat.php" class="bouton bouton-action w-100"><i class="bi bi-lock"></i> Valider mon panier</a>
                     <ul class="recap-panier__garanties">

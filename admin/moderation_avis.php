@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/_init.php';
+require_once __DIR__ . '/../points_lib.php';
 exigerDroit('moderation');
 
 $onglet = ($_GET['onglet'] ?? 'signales') === 'tous' ? 'tous' : 'signales';
@@ -9,10 +10,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     exigerPost($retour);
     $idAvis = (int) ($_POST['id_avis'] ?? 0);
     $action = $_POST['action'] ?? '';
+    $stmtAvis = $pdo->prepare("SELECT id_user, id_livre FROM avis WHERE id_avis = ?");
+    $stmtAvis->execute([$idAvis]);
+    $avisCible = $stmtAvis->fetch();
 
     if ($action === 'masquer' || $action === 'afficher') {
         $pdo->prepare("UPDATE avis SET statut = ? WHERE id_avis = ?")->execute([$action === 'masquer' ? 'masque' : 'visible', $idAvis]);
         $pdo->prepare("UPDATE avis_signalement SET traite = 1 WHERE id_avis = ?")->execute([$idAvis]);
+        if ($avisCible && $action === 'masquer') {
+            changerStatutMouvement($pdo, (int) $avisCible['id_user'], 'avis', 'livre:' . $avisCible['id_livre'], ['en_attente'], 'refuse');
+        }
         insertLog('MODERATION', "Avis #$idAvis " . ($action === 'masquer' ? 'masqué' : 'réaffiché'));
         rediriger($retour, 'success', $action === 'masquer' ? "Avis masqué (il reste archivé)." : "Avis de nouveau visible.");
     }
@@ -23,6 +30,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     if ($action === 'supprimer' && aLeDroit('admin')) {
         $pdo->prepare("DELETE FROM avis WHERE id_avis = ?")->execute([$idAvis]);
+        if ($avisCible) {
+            changerStatutMouvement($pdo, (int) $avisCible['id_user'], 'avis', 'livre:' . $avisCible['id_livre'], ['en_attente', 'valide'], 'annule');
+        }
         insertLog('MODERATION', "Avis #$idAvis supprimé définitivement");
         rediriger($retour, 'success', "Avis supprimé définitivement.");
     }

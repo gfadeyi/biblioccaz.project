@@ -125,11 +125,12 @@ function enregistrerCouverture(string $champ = 'image'): array
 
 function compteursEquipe(PDO $pdo): array
 {
-    $c = ['livres' => 0, 'avis' => 0, 'candidatures' => 0];
+    $c = ['livres' => 0, 'avis' => 0, 'candidatures' => 0, 'avis_a_valider' => 0];
     try {
         $c['livres'] = (int) $pdo->query("SELECT COUNT(*) FROM livre WHERE is_valide = 0")->fetchColumn();
         $c['avis'] = (int) $pdo->query("SELECT COUNT(DISTINCT id_avis) FROM avis_signalement WHERE traite = 0")->fetchColumn();
         $c['candidatures'] = (int) $pdo->query("SELECT COUNT(*) FROM user WHERE statut = 'en_attente_moderateur'")->fetchColumn();
+        $c['avis_a_valider'] = (int) $pdo->query("SELECT COUNT(*) FROM avis WHERE statut = 'visible' AND date_validation IS NULL")->fetchColumn();
     } catch (PDOException $e) {
     }
     return $c;

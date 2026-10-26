@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/points_lib.php';
 require_once __DIR__ . '/notifications_lib.php';
 
 const EVT_TYPES = [
@@ -106,8 +107,9 @@ function positionAttente(PDO $pdo, array $inscription): int
     $stmt = $pdo->prepare("
         SELECT COUNT(*) FROM evenement_inscription
         WHERE id_evenement = ? AND statut = 'attente'
-          AND (date_inscription < ? OR (date_inscription = ? AND id_inscription <= ?))");
-    $stmt->execute([$inscription['id_evenement'], $inscription['date_inscription'], $inscription['date_inscription'], $inscription['id_inscription']]);
+          AND (prioritaire > ? OR (prioritaire = ? AND (date_inscription < ? OR (date_inscription = ? AND id_inscription <= ?))))");
+    $prioritaire = (int) ($inscription['prioritaire'] ?? 0);
+    $stmt->execute([$inscription['id_evenement'], $prioritaire, $prioritaire, $inscription['date_inscription'], $inscription['date_inscription'], $inscription['id_inscription']]);
     return (int) $stmt->fetchColumn();
 }
 
@@ -131,12 +133,13 @@ function inscrireAEvenement(PDO $pdo, int $idEvt, int $idUser): array
         }
 
         $statut = placesRestantes($evt) > 0 ? 'inscrit' : 'attente';
+        $prioritaire = niveauMembre($pdo, $idUser)['prioritaire'] ? 1 : 0;
         if ($existante) {
-            $pdo->prepare("UPDATE evenement_inscription SET statut = ?, date_inscription = NOW(), present = 0, date_presence = NULL WHERE id_inscription = ?")
-                ->execute([$statut, $existante['id_inscription']]);
+            $pdo->prepare("UPDATE evenement_inscription SET statut = ?, prioritaire = ?, date_inscription = NOW(), present = 0, date_presence = NULL WHERE id_inscription = ?")
+                ->execute([$statut, $prioritaire, $existante['id_inscription']]);
         } else {
-            $pdo->prepare("INSERT INTO evenement_inscription (id_evenement, id_user, statut, code, code_court) VALUES (?, ?, ?, ?, ?)")
-                ->execute([$idEvt, $idUser, $statut, bin2hex(random_bytes(16)), genererCodeBillet($pdo)]);
+            $pdo->prepare("INSERT INTO evenement_inscription (id_evenement, id_user, statut, prioritaire, code, code_court) VALUES (?, ?, ?, ?, ?, ?)")
+                ->execute([$idEvt, $idUser, $statut, $prioritaire, bin2hex(random_bytes(16)), genererCodeBillet($pdo)]);
         }
         $pdo->commit();
     } catch (Throwable $e) {
@@ -201,7 +204,7 @@ function promouvoirListeAttente(PDO $pdo, int $idEvt, ?int $idInscription = null
         $stmt = $pdo->prepare("
             SELECT i.id_inscription, u.email FROM evenement_inscription i INNER JOIN user u ON u.id = i.id_user
             WHERE i.id_evenement = ? AND i.statut = 'attente'
-            ORDER BY i.date_inscription, i.id_inscription LIMIT $places");
+            ORDER BY i.prioritaire DESC, i.date_inscription, i.id_inscription LIMIT $places");
         $stmt->execute([$idEvt]);
     }
     $promus = $stmt->fetchAll();

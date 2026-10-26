@@ -45,6 +45,7 @@ if ($connected && in_array($userRole, ['admin', 'gestionnaire', 'moderateur'], t
 $liensMenuCompte = [];
 if ($resumeCompte) {
     $liensMenuCompte = [
+        ['points_badges.php', 'medaille', 'Mes points et badges', 0],
         ['commandes.php', 'colis', 'Mes achats', $resumeCompte['commandes']],
         ['wishlist.php', 'marque-page', 'Mes favoris', $nb_favoris],
         ['alertes.php', 'clochette', 'Mes alertes', $resumeCompte['alertes']],
@@ -137,7 +138,7 @@ $classeRaccourci = fn(array $pages) => in_array($pageActuelle, $pages, true) ? '
 
         <nav class="d-flex align-items-start gap-1" aria-label="Mon compte">
             <?php if ($connected && $userRole === 'client'): ?>
-                <a href="profil.php" class="icone-entete" title="Mes points fidélité">
+                <a href="points_badges.php" class="icone-entete" title="Mes points et badges">
                     <?= iconeDessin('medaille') ?><span><?= htmlspecialchars($solde_points) ?> pts</span>
                 </a>
                 <a href="wishlist.php" class="icone-entete d-none d-sm-flex">
@@ -165,11 +166,11 @@ $classeRaccourci = fn(array $pages) => in_array($pageActuelle, $pages, true) ? '
                         </li>
                         <?php if ($resumeCompte): ?>
                             <li class="menu-entete__points">
-                                <span class="menu-entete__solde"><?= iconeDessin('medaille') ?><strong><?= (int) $solde_points ?></strong> points à utiliser</span>
+                                <a href="points_badges.php" class="menu-entete__solde"><?= iconeDessin('medaille') ?><strong><?= (int) $solde_points ?></strong> points à utiliser</a>
                                 <span class="jauge-niveau" style="--progression: <?= round($resumeCompte['niveau']['progression'], 3) ?>;"><span></span></span>
                                 <small>
                                     <?php if ($resumeCompte['niveau']['prochain']): ?>
-                                        Encore <?= $resumeCompte['niveau']['reste'] ?> pts pour devenir « <?= htmlspecialchars($resumeCompte['niveau']['prochain']) ?> »
+                                        Encore <?= $resumeCompte['niveau']['reste'] ?> pts pour devenir « <?= htmlspecialchars($resumeCompte['niveau']['prochain']['nom']) ?> »
                                     <?php else: ?>
                                         Niveau maximum atteint, bravo !
                                     <?php endif; ?>
