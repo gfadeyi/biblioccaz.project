@@ -8,3 +8,7 @@ img/*
 
 # Identifiants locaux (base de données, mails) - jamais sur GitHub
 secrets.php
+
+
+# Captures d'inspiration (sites tiers, non diffusées)
+docs/inspiration/
