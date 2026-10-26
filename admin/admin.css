@@ -335,3 +335,34 @@ a.stat:hover, a.stat:focus-visible { translate: 0 -3px; box-shadow: var(--ombre-
     .repartition-niveaux a { grid-template-columns: minmax(0, 1fr) 2rem; }
     .repartition-niveaux__barre { grid-column: 1 / -1; grid-row: 2; }
 }
+
+.lignes-commande { list-style: none; margin: 0 0 1rem; padding: 0; }
+.lignes-commande li { display: grid; grid-template-columns: 48px minmax(0, 1fr) auto; align-items: center; gap: .9rem; padding: .7rem 0; border-bottom: 1px solid var(--trait); }
+.lignes-commande li:first-child { padding-top: 0; }
+.lignes-commande img, .lignes-commande__sans-image { width: 48px; height: 68px; object-fit: cover; border-radius: 6px; box-shadow: 0 1px 3px rgba(0, 0, 0, .12); }
+.lignes-commande__sans-image { display: grid; place-items: center; background: var(--vert-50); color: var(--vert-500); box-shadow: none; }
+.lignes-commande__infos a.fw-bold { color: var(--encre); text-decoration: none; }
+.lignes-commande__infos a.fw-bold:hover { color: var(--vert); text-decoration: underline; }
+.lignes-commande__stock { color: var(--encre-douce); text-decoration: none; }
+.lignes-commande__stock:hover { color: var(--vert); }
+.lignes-commande__prix { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.recap-commande { margin: 0; }
+.recap-commande > div { display: flex; justify-content: space-between; gap: 1rem; padding: .3rem 0; font-size: .92rem; }
+.recap-commande dt { font-weight: 400; color: var(--encre-douce); }
+.recap-commande dd { margin: 0; font-variant-numeric: tabular-nums; }
+.recap-commande__total { border-top: 1px solid var(--trait); margin-top: .4rem; padding-top: .7rem !important; }
+.recap-commande__total dt { color: var(--encre); font-weight: 700; }
+.recap-commande__total dd { font-family: var(--police-titre); font-size: 1.35rem; font-weight: 700; color: var(--vert-nuit); }
+.historique-commande { list-style: none; margin: 0; padding: 0 0 0 1.1rem; border-left: 2px solid var(--vert-100); }
+.historique-commande li { position: relative; display: grid; grid-template-columns: 8.5rem minmax(0, 1fr) auto; gap: .8rem; align-items: baseline; padding: .45rem 0; font-size: .9rem; }
+.historique-commande li::before { content: ""; position: absolute; left: calc(-1.1rem - 6px); top: .85rem; width: 10px; height: 10px; border-radius: 50%; background: var(--surface); border: 2px solid var(--vert-400); }
+.historique-commande li .bi { color: var(--vert-500); margin-right: .25rem; }
+.historique-commande__date { color: var(--encre-douce); font-size: .8rem; font-variant-numeric: tabular-nums; }
+.historique-commande__annulation::before { border-color: var(--rouge) !important; }
+.historique-commande__annulation .bi { color: var(--rouge) !important; }
+.carte-annulation { border-color: #f0c3c9; }
+.ligne-annulee td { color: var(--encre-douce); }
+@media (max-width: 575.98px) {
+    .historique-commande li { grid-template-columns: minmax(0, 1fr) auto; }
+    .historique-commande__date { grid-column: 1 / -1; }
+}

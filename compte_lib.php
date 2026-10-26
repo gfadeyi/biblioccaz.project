@@ -97,6 +97,9 @@ function creerAlerte(PDO $pdo, int $idUser, int $idLivre): void
 
 function notifierRetourEnStock(PDO $pdo, int $idLivre): int
 {
+    if (stockDuLivre($pdo, $idLivre) <= 0) {
+        return 0;
+    }
     try {
         $stmt = $pdo->prepare("
             SELECT a.id_alerte, u.email, l.titre

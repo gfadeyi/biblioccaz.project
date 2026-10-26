@@ -14,6 +14,9 @@ $menu = [
         ['livre', 'livre.php', 'plus-circle', 'Ajouter un livre', 'catalogue', 0],
         ['categories', 'categories.php', 'tags', 'Catégories & tags', 'admin', 0],
     ],
+    'Ventes' => [
+        ['commandes', 'commandes.php', 'bag-check', 'Commandes', 'catalogue', 0],
+    ],
     'Communauté' => [
         ['avis_a_valider', 'avis_a_valider.php', 'patch-check', 'Avis à valider', 'moderation', $compteurs['avis_a_valider'] ?? 0],
         ['moderation_avis', 'moderation_avis.php', 'chat-square-text', 'Avis signalés', 'moderation', $compteurs['avis']],

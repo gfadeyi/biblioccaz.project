@@ -356,7 +356,7 @@ function attribuerBonAnniversaire(PDO $pdo, int $idUser, array $niveau): void
     }
 }
 
-function annulerPointsCommande(PDO $pdo, array $commande): void
+function annulerPointsCommande(PDO $pdo, array $commande): array
 {
     $idUser = (int) $commande['id_user'];
     $idCommande = (int) $commande['id_commande'];
@@ -379,6 +379,7 @@ function annulerPointsCommande(PDO $pdo, array $commande): void
     if (!empty($commande['id_bon_cadeau'])) {
         $pdo->prepare("UPDATE bon_cadeau SET date_utilisation = NULL, id_commande = NULL WHERE id_bon = ?")->execute([$commande['id_bon_cadeau']]);
     }
+    return ['rendus' => (int) $commande['points_utilises'], 'retires' => $gagnes];
 }
 
 function pointsPresence(PDO $pdo, array $inscription, string $titreEvenement, bool $present): void

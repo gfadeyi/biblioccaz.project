@@ -130,17 +130,15 @@ try {
     $reference = 'commande:' . $idCommande;
 
     $stmtLigne = $pdo->prepare("
-        INSERT INTO commande_ligne (id_commande, id_livre, titre, etat, prix_unitaire, quantite)
-        VALUES (?, ?, ?, ?, ?, ?)");
+        INSERT INTO commande_ligne (id_commande, id_livre, id_exemplaire, titre, etat, prix_unitaire, quantite)
+        VALUES (?, ?, ?, ?, ?, ?, ?)");
     $stmtStock = $pdo->prepare("UPDATE exemplaire SET quantite = quantite - ? WHERE id_exemplaire = ?");
 
     foreach ($lignes as $l) {
-        $stmtLigne->execute([$idCommande, $l['id_livre'], $l['titre'], $l['etat'], $l['prix'], $l['quantite']]);
+        $stmtLigne->execute([$idCommande, $l['id_livre'], $l['id_exemplaire'], $l['titre'], $l['etat'], $l['prix'], $l['quantite']]);
         $stmtStock->execute([$l['quantite'], $l['id_exemplaire']]);
         insertLog('ACHAT', "Commande #$idCommande : {$l['quantite']} x livre ID #{$l['id_livre']}. Stock mis a jour.");
     }
-
-    $pdo->exec("DELETE FROM exemplaire WHERE quantite <= 0");
 
     if ($option && $option['type'] === 'points') {
         crediterPoints($pdo, $idUser, -$option['points'], 'depense', 'Bon de ' . formaterEuros($option['montant']) . " (commande n° $idCommande)", $reference);

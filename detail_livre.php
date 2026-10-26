@@ -14,7 +14,7 @@ if (!$livre) {
     include 'footer.php'; exit;
 }
 
-$stmtEx = $pdo->prepare("SELECT id_exemplaire, etat, prix, quantite FROM exemplaire WHERE id_livre = ? ORDER BY prix ASC");
+$stmtEx = $pdo->prepare("SELECT id_exemplaire, etat, prix, quantite FROM exemplaire WHERE id_livre = ? AND is_disponible = 1 AND quantite > 0 ORDER BY prix ASC");
 $stmtEx->execute([$id]);
 $offres = $stmtEx->fetchAll();
 

@@ -59,11 +59,14 @@ include 'header.php';
                         <span class="fw-bold">Commande n°<?= $cmd['id_commande'] ?></span>
                         <span class="text-muted small ms-2"><?= date('d/m/Y à H:i', strtotime($cmd['date_commande'])) ?></span>
                     </div>
+                    <?php $annulee = ($cmd['statut'] ?? 'validee') === 'annulee'; ?>
                     <div class="d-flex align-items-center gap-3">
-                        <?php if ($cmd['points_gagnes'] > 0): ?>
+                        <?php if ($annulee): ?>
+                            <span class="badge bg-danger-subtle text-danger border border-danger-subtle rounded-pill"><i class="bi bi-x-circle" aria-hidden="true"></i> Annulée le <?= date('d/m/Y', strtotime($cmd['date_annulation'])) ?></span>
+                        <?php elseif ($cmd['points_gagnes'] > 0): ?>
                             <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill">+<?= $cmd['points_gagnes'] ?> points</span>
                         <?php endif; ?>
-                        <span class="fw-bold text-success fs-5"><?= number_format($cmd['total'], 2) ?> €</span>
+                        <span class="fw-bold fs-5 <?= $annulee ? 'text-muted text-decoration-line-through' : 'text-success' ?>"><?= number_format($cmd['total'], 2, ',', ' ') ?> €</span>
                     </div>
                 </div>
                 <div class="card-body p-3">
@@ -76,15 +79,22 @@ include 'header.php';
                             <?php endif; ?>
                             <div class="ms-3">
                                 <div class="fw-bold small"><?= htmlspecialchars($l['titre']) ?></div>
-                                <div class="text-muted small"><?= etatLisible($l['etat']) ?> · <?= $l['quantite'] ?> × <?= number_format($l['prix_unitaire'], 2) ?> €</div>
+                                <div class="text-muted small"><?= etatLisible($l['etat']) ?> · <?= $l['quantite'] ?> × <?= number_format($l['prix_unitaire'], 2, ',', ' ') ?> €</div>
                             </div>
-                            <div class="ms-auto fw-medium small"><?= number_format($l['prix_unitaire'] * $l['quantite'], 2) ?> €</div>
+                            <div class="ms-auto fw-medium small"><?= number_format($l['prix_unitaire'] * $l['quantite'], 2, ',', ' ') ?> €</div>
                         </div>
                     <?php endforeach; ?>
                     <hr class="my-2">
                     <div class="small text-secondary">
-                        <?php if ($cmd['remise'] > 0): ?>Remise : -<?= number_format($cmd['remise'], 2) ?> € · <?php endif; ?>
-                        Livraison : <?= $cmd['frais_livraison'] > 0 ? number_format($cmd['frais_livraison'], 2) . ' €' : 'offerte' ?>
+                        <?php if ($annulee): ?>
+                            <div class="text-danger mb-1">
+                                <?php if (!empty($cmd['motif_annulation'])): ?><strong>Motif de l'annulation :</strong> <?= htmlspecialchars($cmd['motif_annulation']) ?><br><?php endif; ?>
+                                Le montant payé vous est remboursé et vos points ont été rétablis.
+                            </div>
+                        <?php endif; ?>
+                        <?php if ($cmd['remise'] > 0): ?>Remise : -<?= number_format($cmd['remise'], 2, ',', ' ') ?> € · <?php endif; ?>
+                        <?php if (($cmd['reduction_points'] ?? 0) > 0): ?>Bon de réduction : -<?= number_format($cmd['reduction_points'], 2, ',', ' ') ?> € · <?php endif; ?>
+                        Livraison : <?= $cmd['frais_livraison'] > 0 ? number_format($cmd['frais_livraison'], 2, ',', ' ') . ' €' : 'offerte' ?>
                         · Livré à <?= htmlspecialchars($cmd['prenom'] . ' ' . $cmd['nom']) ?>, <?= htmlspecialchars($cmd['adresse']) ?>
                     </div>
                 </div>
