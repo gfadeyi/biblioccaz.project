@@ -1,12 +1,11 @@
 <?php
 require_once 'mailer.php';
 require_once 'config.php';
-include 'header.php';
 
-use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
 $erreur = "";
+$saisie = ['prenom' => '', 'nom' => '', 'pseudo' => '', 'email' => '', 'role' => 'client'];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $pseudo = trim($_POST['pseudo'] ?? '');
@@ -15,11 +14,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $confirmation = $_POST['confirmation'] ?? '';
     $nom = trim($_POST['nom'] ?? '');
     $prenom = trim($_POST['prenom'] ?? '');
-    
-    $role = 'client';
-    if (isset($_POST['role']) && $_POST['role'] === 'auteur') {
-        $role = 'auteur';
-    }
+    $role = ($_POST['role'] ?? '') === 'auteur' ? 'auteur' : 'client';
+    $saisie = ['prenom' => $prenom, 'nom' => $nom, 'pseudo' => $pseudo, 'email' => $email, 'role' => $role];
 
     if (!$pseudo || !$email || !$mdp || !$nom || !$prenom) {
         $erreur = "Veuillez remplir tous les champs obligatoires.";
@@ -36,116 +32,96 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $token = bin2hex(random_bytes(32));
 
             $stmt = $pdo->prepare("INSERT INTO user (pseudo, email, mot_de_passe, nom, prenom, role, email_token, email_verifie) VALUES (?, ?, ?, ?, ?, ?, ?, 0)");
-            
+
             if ($stmt->execute([$pseudo, $email, $hash, $nom, $prenom, $role, $token])) {
-                
-        $url = SITE_URL . "/verification_mail.php?token=" . $token;
-
-        $mail = creerMailer();
-
-try {
-    
-    $mail->isSMTP();
-    $mail->addAddress($email, $prenom . ' ' . $nom);
-    $mail->addReplyTo(MAIL_FROM, MAIL_FROM_NAME);
-
-    $mail->isHTML(false); 
-    $mail->Subject = "BIBLOccaz - Votre compte est activé";
-    
-    $message = "Bienvenue $prenom !\n\n";
-    $message .= "Merci de rejoindre BIBLIOccaz. Pour valider votre compte, veuillez cliquer sur le lien ci-dessous ou le copier/coller dans votre navigateur :\n";
-    $message .= $url . "\n\n";
-    $message .= "---------------\n";
-    $message .= "Ceci est un mail automatique, merci de ne pas y répondre.";
-    
-    $mail->Body = $message;
-
-    $mail->send();
-    echo "<script>alert('Un mail de validation a été envoyé à $email'); window.location.href='login.php';</script>";
-    exit();
-
-} catch (Exception $e) {
-    $erreur = "Le compte est créé mais le mail n'est pas parti. Erreur : {$mail->ErrorInfo}";
-}
+                $url = SITE_URL . "/verification_mail.php?token=" . $token;
+                $mail = creerMailer();
+                try {
+                    $mail->addAddress($email, $prenom . ' ' . $nom);
+                    $mail->addReplyTo(MAIL_FROM, MAIL_FROM_NAME);
+                    habillerMail($mail, "Confirmez votre adresse email",
+                        "Bienvenue $prenom !\n\nMerci de rejoindre BIBLIOccaz. Pour activer votre compte, confirmez votre adresse email avec le bouton ci-dessous.\n\nSi le bouton ne fonctionne pas, copiez ce lien dans votre navigateur :\n$url",
+                        $url, "Confirmer mon adresse");
+                    $mail->send();
+                    header('Location: login.php?inscription=1');
+                    exit();
+                } catch (Exception $e) {
+                    insertLog('ERREUR', "Mail de validation non envoyé : " . $mail->ErrorInfo);
+                    $erreur = "Le compte est créé mais le mail de validation n'a pas pu partir. Réessayez plus tard ou contactez-nous.";
+                }
             }
         }
     }
 }
+
+include 'header.php';
 ?>
 
-<div class="container my-5" style="max-width: 550px;">
-    <div class="card shadow" style="border: 2px solid #b6d7a8; border-radius: 15px;">
-        <div class="card-body p-4">
-            <h2 class="fw-bold text-bibli-green text-center mb-4">
-                <i class="bi bi-person-plus"></i> Créer un compte
-            </h2>
-            <?php if ($erreur): ?>
-                <div class="alert alert-danger py-2 small"><?= htmlspecialchars($erreur) ?></div>
-            <?php endif; ?>
-            <form method="POST">
-                <div class="row g-3">
-                    <div class="col-md-6">
-                        <label class="form-label fw-bold">Prénom *</label>
-                        <input type="text" name="prenom" class="form-control" required>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label fw-bold">Nom *</label>
-                        <input type="text" name="nom" class="form-control" required>
-                    </div>
-                    <div class="col-12">
-                        <label class="form-label fw-bold">Pseudo *</label>
-                        <input type="text" name="pseudo" class="form-control" required>
-                    </div>
-                    <div class="col-12">
-                        <label class="form-label fw-bold">Email *</label>
-                        <input type="email" name="email" class="form-control" required>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label fw-bold">Mot de passe *</label>
-                        <input type="password" name="mot_de_passe" class="form-control" required>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label fw-bold">Confirmation *</label>
-                        <input type="password" name="confirmation" class="form-control" required>
-                    </div>
-                    
-                    <div class="col-12">
-                        <label class="form-label fw-bold">Type de compte *</label>
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="role" id="roleClient" value="client" checked>
-                            <label class="form-check-label" for="roleClient">
-                                Client (Acheter / Vendre / Emprunter des livres)
-                            </label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="role" id="roleAuteur" value="auteur">
-                            <label class="form-check-label" for="roleAuteur">
-                                Auteur (Proposer mes propres œuvres au catalogue)
-                            </label>
-                        </div>
-                    </div>
+<main class="page-formulaire">
+    <div class="carte-formulaire carte-formulaire--large">
+        <div class="carte-formulaire__icone"><?= iconeDessin('lecteur') ?></div>
+        <h1>Créer un compte</h1>
+        <p class="carte-formulaire__intro">Achetez, donnez et retrouvez la communauté des lecteurs BIBLIOccaz.</p>
 
-                    <div class="col-12 mt-3 text-center">
-                        <div class="p-3 rounded-3 bg-light border">
-                            <p class="small text-muted mb-2">Vous souhaitez aider à faire grandir la communauté ?</p>
-                            <a href="postuler_moderateur.php" class="btn btn-sm btn-outline-warning fw-bold text-dark rounded-pill px-3">
-                                <i class="bi bi-shield-plus me-1"></i> Rejoindre l'équipe en tant que modérateur
-                            </a>
-                        </div>
-                    </div>
+        <?php if ($erreur): ?>
+            <div class="alert alert-danger small" role="alert"><?= htmlspecialchars($erreur) ?></div>
+        <?php endif; ?>
 
-                    <div class="col-12 text-center mt-4">
-                        <button type="submit" class="btn btn-bibli w-100 py-2">S'INSCRIRE</button>
+        <form method="POST">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label for="prenom" class="form-label">Prénom *</label>
+                    <input type="text" id="prenom" name="prenom" class="form-control" autocomplete="given-name" value="<?= htmlspecialchars($saisie['prenom']) ?>" required>
+                </div>
+                <div class="col-md-6">
+                    <label for="nom" class="form-label">Nom *</label>
+                    <input type="text" id="nom" name="nom" class="form-control" autocomplete="family-name" value="<?= htmlspecialchars($saisie['nom']) ?>" required>
+                </div>
+                <div class="col-12">
+                    <label for="pseudo" class="form-label">Pseudo *</label>
+                    <input type="text" id="pseudo" name="pseudo" class="form-control" autocomplete="nickname" value="<?= htmlspecialchars($saisie['pseudo']) ?>" required>
+                </div>
+                <div class="col-12">
+                    <label for="email" class="form-label">Email *</label>
+                    <input type="email" id="email" name="email" class="form-control" autocomplete="email" value="<?= htmlspecialchars($saisie['email']) ?>" required>
+                </div>
+                <div class="col-md-6">
+                    <label for="mot-de-passe" class="form-label">Mot de passe *</label>
+                    <input type="password" id="mot-de-passe" name="mot_de_passe" class="form-control" autocomplete="new-password" required>
+                </div>
+                <div class="col-md-6">
+                    <label for="confirmation" class="form-label">Confirmation *</label>
+                    <input type="password" id="confirmation" name="confirmation" class="form-control" autocomplete="new-password" required>
+                </div>
+
+                <fieldset class="col-12">
+                    <legend class="form-label">Type de compte *</legend>
+                    <div class="choix-role">
+                        <label>
+                            <input class="form-check-input" type="radio" name="role" value="client" <?= $saisie['role'] === 'client' ? 'checked' : '' ?>>
+                            <span><strong>Lecteur</strong><span>Acheter, donner des livres et participer aux événements</span></span>
+                        </label>
+                        <label>
+                            <input class="form-check-input" type="radio" name="role" value="auteur" <?= $saisie['role'] === 'auteur' ? 'checked' : '' ?>>
+                            <span><strong>Auteur</strong><span>Proposer mes propres œuvres et mes événements</span></span>
+                        </label>
+                    </div>
+                </fieldset>
+
+                <div class="col-12">
+                    <div class="carte-formulaire__encart">
+                        <p>Vous souhaitez aider à faire grandir la communauté ?</p>
+                        <a href="postuler_moderateur.php" class="bouton bouton-contour bouton-petit"><i class="bi bi-shield-plus" aria-hidden="true"></i> Rejoindre l'équipe de modération</a>
                     </div>
                 </div>
-            </form>
-            <hr style="color: #93c47d;" class="my-3">
-            <p class="text-center mb-0" style="font-size: 0.9rem;">
-                Déjà un compte ?
-                <a href="login.php" style="color: #274e13; font-weight: bold;">Se connecter</a>
-            </p>
-        </div>
+
+                <div class="col-12 mt-4">
+                    <button type="submit" class="bouton bouton-principal">Créer mon compte</button>
+                </div>
+            </div>
+        </form>
+        <p class="carte-formulaire__pied">Déjà un compte ? <a href="login.php">Se connecter</a></p>
     </div>
-</div>
+</main>
 
 <?php include 'footer.php'; ?>

@@ -66,8 +66,8 @@ include 'header.php';
     </div>
 
     <ul class="nav nav-pills mb-3">
-        <li class="nav-item"><a class="nav-link <?= $periode === 'a_venir' ? 'active bg-success' : 'text-success' ?>" href="evenements.php">À venir</a></li>
-        <li class="nav-item"><a class="nav-link <?= $periode === 'passes' ? 'active bg-success' : 'text-success' ?>" href="evenements.php?periode=passes">Passés</a></li>
+        <li class="nav-item"><a class="nav-link <?= $periode === 'a_venir' ? 'active' : '' ?>" href="evenements.php">À venir</a></li>
+        <li class="nav-item"><a class="nav-link <?= $periode === 'passes' ? 'active' : '' ?>" href="evenements.php?periode=passes">Passés</a></li>
     </ul>
 
     <form method="GET" class="row g-2 mb-4">

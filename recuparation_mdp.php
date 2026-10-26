@@ -29,18 +29,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             try {
                 $mail = creerMailer();
                 $mail->addAddress($email, $user['prenom']);
-                $mail->isHTML(false);
-                $mail->Subject = "BIBLIOccaz - Récupération de votre mot de passe";
-
-                $message = "Bonjour " . $user['prenom'] . ",\n\n";
-                $message .= "Vous avez demandé la réinitialisation de votre mot de passe sur BIBLIOccaz.\n";
-                $message .= "Pour choisir un nouveau mot de passe, cliquez sur le lien ci-dessous (valable 1 heure) :\n";
-                $message .= $url . "\n\n";
-                $message .= "Si vous n'êtes pas à l'origine de cette demande, ignorez ce mail : votre mot de passe actuel reste valable.\n\n";
-                $message .= "---------------\n";
-                $message .= "Ceci est un mail automatique, merci de ne pas y répondre.";
-
-                $mail->Body = $message;
+                habillerMail($mail, "Récupération de votre mot de passe",
+                    "Bonjour " . $user['prenom'] . ",\n\nVous avez demandé la réinitialisation de votre mot de passe sur BIBLIOccaz. Le lien ci-dessous est valable 1 heure.\n\nSi le bouton ne fonctionne pas, copiez ce lien dans votre navigateur :\n$url\n\nSi vous n'êtes pas à l'origine de cette demande, ignorez ce mail : votre mot de passe actuel reste valable.",
+                    $url, "Choisir un nouveau mot de passe");
                 $mail->send();
                 insertLog('SECURITE', "Demande de réinitialisation de mot de passe (user #{$user['id']})");
             } catch (Exception $e) {
@@ -55,35 +46,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 include 'header.php';
 ?>
 
-<div class="container my-5" style="max-width: 500px;">
-    <div class="card shadow" style="border: 2px solid #b6d7a8; border-radius: 15px;">
-        <div class="card-body p-4">
-            <h2 class="fw-bold text-bibli-green text-center mb-4">
-                <i class="bi bi-key"></i> Mot de passe oublié
-            </h2>
-            
-            <?php if ($erreur): ?>
-                <div class="alert alert-danger py-2 small"><?= htmlspecialchars($erreur) ?></div>
-            <?php endif; ?>
-            
-            <?php if ($succes): ?>
-                <div class="alert alert-success py-2 small"><?= htmlspecialchars($succes) ?></div>
-            <?php endif; ?>
+<main class="page-formulaire">
+    <div class="carte-formulaire">
+        <div class="carte-formulaire__icone"><i class="bi bi-key" aria-hidden="true"></i></div>
+        <h1>Mot de passe oublié</h1>
+        <p class="carte-formulaire__intro">Indiquez votre adresse email : nous vous envoyons un lien pour choisir un nouveau mot de passe.</p>
 
-            <form method="POST">
-                <div class="mb-3">
-                    <label class="form-label fw-bold">Saisissez votre adresse email *</label>
-                    <input type="email" name="email" class="form-control" placeholder="exemple@mail.com" required>
-                </div>
-                <button type="submit" class="btn btn-bibli w-100 py-2">RECEVOIR LE LIEN</button>
-            </form>
-            
-            <hr style="color: #93c47d;" class="my-3">
-            <p class="text-center mb-0" style="font-size: 0.9rem;">
-                <a href="login.php" style="color: #274e13; font-weight: bold;">Retour à la connexion</a>
-            </p>
-        </div>
+        <?php if ($erreur): ?>
+            <div class="alert alert-danger small" role="alert"><?= htmlspecialchars($erreur) ?></div>
+        <?php endif; ?>
+        <?php if ($succes): ?>
+            <div class="alert alert-success small" role="status"><?= htmlspecialchars($succes) ?></div>
+        <?php endif; ?>
+
+        <form method="POST">
+            <div class="mb-4">
+                <label for="email" class="form-label">Adresse email *</label>
+                <input type="email" id="email" name="email" class="form-control" placeholder="exemple@mail.com" autocomplete="email" required>
+            </div>
+            <button type="submit" class="bouton bouton-principal">Recevoir le lien</button>
+        </form>
+        <p class="carte-formulaire__pied"><a href="login.php">Retour à la connexion</a></p>
     </div>
-</div>
+</main>
 
 <?php include 'footer.php'; ?>

@@ -22,103 +22,68 @@ if (isset($_GET['error'])) {
 
 if (isset($_GET['verif'])) { $success = "Compte validé ! Vous pouvez vous connecter."; }
 if (isset($_GET['mdp'])) { $success = "Mot de passe modifié ! Vous pouvez vous connecter avec le nouveau."; }
+if (isset($_GET['inscription'])) { $success = "Compte créé ! Un mail de validation vient de vous être envoyé : cliquez sur son lien avant de vous connecter."; }
 ?>
 
-<style>
-    .login-container { max-width: 450px; margin: 80px auto; }
-    .input-recyclivre { border: none !important; border-bottom: 1px solid #ccc !important; padding: 15px 0 !important; background: transparent !important; text-align: center; }
-    .btn-continue { background-color: #274e13; color: white; border-radius: 50px; padding: 12px 0; width: 100%; margin-top: 20px; border: none; font-weight: bold; }
-    
-    #captchaGrid {
-        display: grid;
-        grid-template-columns: repeat(3, 100px);
-        grid-template-rows: repeat(2, 75px);
-        gap: 2px;
-        width: 304px;
-        height: 154px;
-        background-color: #333;
-        margin: 0 auto;
-        border-radius: 4px;
-        overflow: hidden;
-    }
-    .puzzle-tile {
-        width: 100px;
-        height: 75px;
-        cursor: pointer;
-        border: 1px solid rgba(255,255,255,0.2);
-        transition: opacity 0.2s, transform 0.1s;
-        box-sizing: border-box;
-        background-repeat: no-repeat;
-        background-size: 300px 150px;
-        background-color: #555;
-    }
-    .puzzle-tile:hover {
-        opacity: 0.9;
-    }
-    .puzzle-tile.selected {
-        outline: 3px solid #274e13;
-        outline-offset: -3px;
-        transform: scale(0.95);
-    }
-</style>
+<main class="page-formulaire">
+    <div class="carte-formulaire">
+        <div class="carte-formulaire__icone"><?= iconeDessin('lecteur') ?></div>
+        <h1>Se connecter</h1>
+        <p class="carte-formulaire__intro">Retrouvez vos favoris, vos points et vos commandes.</p>
 
-<div class="container text-center">
-    <div class="login-container">
-        
         <?php if (isset($_GET['timeout']) || (isset($_GET['msg']) && $_GET['msg'] === 'inactive')): ?>
-            <div class="alert alert-warning alert-dismissible fade show mb-4" role="alert">
-                <strong>Déconnexion automatique :</strong> Inactivité prolongée (10 min).
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
+            <div class="alert alert-info small" role="status"><strong>Déconnexion automatique</strong> après 10 minutes d'inactivité.</div>
         <?php endif; ?>
-
-        <h1 class="fw-bold mb-4">Se connecter</h1>
-        
-        <?php if ($error): ?><div class="alert alert-danger small"><?= $error ?></div><?php endif; ?>
-        <?php if ($success): ?><div class="alert alert-success small"><?= $success ?></div><?php endif; ?>
+        <?php if ($error): ?><div class="alert alert-danger small" role="alert"><?= htmlspecialchars($error) ?></div><?php endif; ?>
+        <?php if ($success): ?><div class="alert alert-success small" role="status"><?= htmlspecialchars($success) ?></div><?php endif; ?>
 
         <form action="traitement_login.php" method="POST">
-            <input type="text" name="pseudo" class="form-control input-recyclivre mb-3" placeholder="Email ou Pseudo" required>
-            <input type="password" name="mdp" class="form-control input-recyclivre mb-1" placeholder="Mot de passe" required>
+            <div class="mb-3">
+                <label for="identifiant" class="form-label">Email ou pseudo</label>
+                <input type="text" id="identifiant" name="pseudo" class="form-control" autocomplete="username" required>
+            </div>
+            <div class="mb-2">
+                <label for="mot-de-passe" class="form-label">Mot de passe</label>
+                <input type="password" id="mot-de-passe" name="mdp" class="form-control" autocomplete="current-password" required>
+            </div>
             <div class="text-end mb-4">
-                <a href="recuparation_mdp.php" class="small text-muted text-decoration-none">Mot de passe oublié ?</a>
+                <a href="recuparation_mdp.php" class="carte-formulaire__lien-discret">Mot de passe oublié ?</a>
             </div>
 
-            <div class="mb-3">
-                <label class="form-label">Vérification de sécurité</label>
-                <button type="button" class="btn btn-outline-secondary w-100" data-bs-toggle="modal" data-bs-target="#captchaModal" id="captchaTriggerBtn">
-                    <i class="bi bi-puzzle"></i> Cliquez pour vérifier
+            <div class="mb-4">
+                <span class="form-label d-block">Vérification de sécurité</span>
+                <button type="button" class="bouton-captcha" data-bs-toggle="modal" data-bs-target="#captchaModal" id="captchaTriggerBtn">
+                    <i class="bi bi-puzzle" aria-hidden="true"></i> Cliquez pour vérifier
                 </button>
                 <input type="hidden" name="captcha_token" id="captchaToken">
             </div>
 
-            <div class="modal fade" id="captchaModal" tabindex="-1" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered">
-                    <div class="modal-content">
-                        <div class="modal-header bg-light">
-                            <h1 class="modal-title">Reconstituez l'image</h1> 
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body text-center py-4">
-                            <p class="text-muted small mb-3">Cliquez sur deux cases pour échanger leurs places.</p>
-                            
-                            <div id="captchaGrid"></div>
-                            
-                            <p id="captchaMessage" class="mt-3 small fw-bold mb-0" style="min-height: 20px;"></p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <button type="submit" class="btn-continue">CONTINUER</button>
+            <button type="submit" class="bouton bouton-principal">Se connecter</button>
         </form>
-        <a href="inscription.php" class="d-block mt-4 text-success fw-bold text-decoration-none">CRÉER UN COMPTE</a>
+        <p class="carte-formulaire__pied">Pas encore de compte ? <a href="inscription.php">Créer un compte</a></p>
+    </div>
+</main>
+
+<div class="modal fade" id="captchaModal" tabindex="-1" aria-labelledby="titreCaptcha" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title h5 fw-bold" id="titreCaptcha">Reconstituez l'image</h2>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+            </div>
+            <div class="modal-body text-center py-4">
+                <p class="text-muted small mb-3">Cliquez sur deux cases pour échanger leurs places.</p>
+                <div id="captchaGrid"></div>
+                <p id="captchaMessage" class="mt-3 small fw-bold mb-0" style="min-height: 20px;" aria-live="polite"></p>
+            </div>
+        </div>
     </div>
 </div>
 
 <script src="javascript/captcha_puzzle.js?v=<?= filemtime(__DIR__ . '/javascript/captcha_puzzle.js') ?>"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    initCaptchaPuzzle('');
+initCaptchaPuzzle('');
 });
 </script>
 <?php include 'footer.php'; ?>

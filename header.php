@@ -102,7 +102,8 @@ $classeRaccourci = fn(array $pages) => in_array($pageActuelle, $pages, true) ? '
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BIBLIOccaz</title>
+    <?php if (!empty($adresseBase)): ?><base href="<?= htmlspecialchars($adresseBase) ?>"><?php endif; ?>
+    <title><?= htmlspecialchars(isset($titreDocument) ? $titreDocument . ' - BIBLIOccaz' : 'BIBLIOccaz') ?></title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
@@ -113,6 +114,7 @@ $classeRaccourci = fn(array $pages) => in_array($pageActuelle, $pages, true) ? '
     <script src="javascript/recherche.js?v=<?= filemtime(__DIR__ . '/javascript/recherche.js') ?>" defer></script>
     <script src="javascript/raccourcis.js?v=<?= filemtime(__DIR__ . '/javascript/raccourcis.js') ?>" defer></script>
     <script src="javascript/menu_univers.js?v=<?= filemtime(__DIR__ . '/javascript/menu_univers.js') ?>" defer></script>
+    <script src="javascript/menu_compte.js?v=<?= filemtime(__DIR__ . '/javascript/menu_compte.js') ?>" defer></script>
 </head>
 <body>
 
@@ -152,15 +154,17 @@ $classeRaccourci = fn(array $pages) => in_array($pageActuelle, $pages, true) ? '
                 </a>
             <?php endif; ?>
 
-            <div class="dropdown dropdown-hover">
-                <a href="<?= $connected ? 'profil.php' : 'login.php' ?>" class="icone-entete">
+            <div class="dropdown dropdown-hover zone-menu-compte" data-menu-compte>
+                <a href="<?= $connected ? 'profil.php' : 'login.php' ?>" class="icone-entete" aria-haspopup="true" aria-expanded="false" aria-controls="menu-compte">
                     <?= $connected && cheminPhotoMembre($photoMembre) ? avatarMembre($_SESSION['pseudo'], $photoMembre, 'entete') : iconeDessin('lecteur') ?>
                     <span class="text-truncate" style="max-width: 90px;"><?= $connected ? htmlspecialchars(pseudoAffiche($_SESSION['pseudo'])) : 'Connexion' ?></span>
                     <?php if ($total_notif_admin > 0): ?>
                         <span class="pastille"><?= $total_notif_admin ?></span>
                     <?php endif; ?>
                 </a>
-                <ul class="dropdown-menu dropdown-menu-end shadow border-0 menu-entete">
+                <div class="voile-menu-compte" hidden></div>
+                <ul class="dropdown-menu dropdown-menu-end shadow border-0 menu-entete" id="menu-compte">
+                    <li class="menu-entete__fermer"><button type="button" class="bouton-fermer-menu" aria-label="Fermer le menu du compte"><i class="bi bi-x-lg" aria-hidden="true"></i></button></li>
                     <?php if ($connected): ?>
                         <li class="menu-entete__profil">
                             <?= avatarMembre($_SESSION['pseudo'], $photoMembre) ?>

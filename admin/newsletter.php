@@ -48,13 +48,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             foreach ($abonnes as $email) {
                 $mail->addBCC($email);
             }
-            $mail->isHTML(true);
-            $mail->Subject = $sujet;
-            $mail->Body = '<div style="font-family: Arial, sans-serif; color: #333;">'
-                . nl2br(e($message))
-                . '<hr><p style="font-size: 12px; color: gray;">Vous recevez ce message car vous êtes inscrit à la newsletter '
-                . e(MAIL_FROM_NAME) . '. Pour vous désabonner, rendez-vous dans votre espace profil.</p></div>';
-            $mail->AltBody = $message;
+            habillerMail($mail, $sujet, $message, SITE_URL, "Découvrir les nouveautés",
+                "Vous recevez ce message car vous êtes inscrit à la newsletter " . MAIL_FROM_NAME . ". Pour vous désabonner, rendez-vous dans votre espace profil.");
             $mail->send();
 
             insertLog('ADMIN', "Newsletter « $sujet » envoyée à " . count($abonnes) . " abonnés");

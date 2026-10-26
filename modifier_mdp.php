@@ -57,60 +57,51 @@ if ($user && $_SERVER['REQUEST_METHOD'] === 'POST') {
 include 'header.php';
 ?>
 
-<div class="container my-5" style="max-width: 500px;">
-    <div class="card shadow" style="border: 2px solid #b6d7a8; border-radius: 15px;">
-        <div class="card-body p-4">
-            <h2 class="fw-bold text-bibli-green text-center mb-4">
-                <i class="bi bi-shield-lock"></i> <?= $mode === 'reset' ? 'Nouveau mot de passe' : 'Changer mon mot de passe' ?>
-            </h2>
+<main class="page-formulaire">
+    <div class="carte-formulaire">
+        <div class="carte-formulaire__icone"><i class="bi bi-shield-lock" aria-hidden="true"></i></div>
+        <h1><?= $mode === 'reset' ? 'Nouveau mot de passe' : 'Changer mon mot de passe' ?></h1>
 
-            <?php if ($lienInvalide): ?>
-                <div class="alert alert-warning small">
-                    Ce lien n'est plus valide : il a déjà été utilisé ou il a expiré (validité : 1 heure).
-                </div>
-                <a href="recuparation_mdp.php" class="btn btn-bibli w-100 py-2">DEMANDER UN NOUVEAU LIEN</a>
-            <?php else: ?>
+        <?php if ($lienInvalide): ?>
+            <p class="carte-formulaire__intro">Ce lien n'est plus valide : il a déjà été utilisé ou il a expiré (validité : 1 heure).</p>
+            <a href="recuparation_mdp.php" class="bouton bouton-principal">Demander un nouveau lien</a>
+        <?php else: ?>
+            <p class="carte-formulaire__intro">
+                <?= $mode === 'reset' ? 'Bonjour ' . htmlspecialchars($user['prenom'] ?? '') . ', choisissez votre nouveau mot de passe.' : 'Pour votre sécurité, confirmez d\'abord votre mot de passe actuel.' ?>
+            </p>
 
-                <?php if ($erreur): ?>
-                    <div class="alert alert-danger py-2 small"><?= htmlspecialchars($erreur) ?></div>
-                <?php endif; ?>
-
-                <?php if ($mode === 'reset'): ?>
-                    <p class="text-muted small">Bonjour <?= htmlspecialchars($user['prenom'] ?? '') ?>, choisissez votre nouveau mot de passe.</p>
-                <?php endif; ?>
-
-                <form method="POST">
-                    <input type="hidden" name="csrf" value="<?= jetonCsrf() ?>">
-                    <?php if ($mode === 'reset'): ?>
-                        <input type="hidden" name="token" value="<?= htmlspecialchars($token) ?>">
-                    <?php else: ?>
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">Mot de passe actuel *</label>
-                            <input type="password" name="mdp_actuel" class="form-control" required autocomplete="current-password">
-                        </div>
-                    <?php endif; ?>
-
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Nouveau mot de passe *</label>
-                        <input type="password" name="nouveau_mdp" class="form-control" minlength="<?= MDP_LONGUEUR_MIN ?>" required autocomplete="new-password">
-                        <div class="form-text">Au moins <?= MDP_LONGUEUR_MIN ?> caractères.</div>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Confirmer le nouveau mot de passe *</label>
-                        <input type="password" name="confirmation" class="form-control" minlength="<?= MDP_LONGUEUR_MIN ?>" required autocomplete="new-password">
-                    </div>
-                    <button type="submit" class="btn btn-bibli w-100 py-2">ENREGISTRER</button>
-                </form>
+            <?php if ($erreur): ?>
+                <div class="alert alert-danger small" role="alert"><?= htmlspecialchars($erreur) ?></div>
             <?php endif; ?>
 
-            <hr style="color: #93c47d;" class="my-3">
-            <p class="text-center mb-0" style="font-size: 0.9rem;">
-                <a href="<?= $mode === 'connecte' ? 'profil.php' : 'login.php' ?>" style="color: #274e13; font-weight: bold;">
-                    <?= $mode === 'connecte' ? 'Retour à mon compte' : 'Retour à la connexion' ?>
-                </a>
-            </p>
-        </div>
+            <form method="POST">
+                <input type="hidden" name="csrf" value="<?= jetonCsrf() ?>">
+                <?php if ($mode === 'reset'): ?>
+                    <input type="hidden" name="token" value="<?= htmlspecialchars($token) ?>">
+                <?php else: ?>
+                    <div class="mb-3">
+                        <label for="mdp-actuel" class="form-label">Mot de passe actuel *</label>
+                        <input type="password" id="mdp-actuel" name="mdp_actuel" class="form-control" required autocomplete="current-password">
+                    </div>
+                <?php endif; ?>
+
+                <div class="mb-3">
+                    <label for="nouveau-mdp" class="form-label">Nouveau mot de passe *</label>
+                    <input type="password" id="nouveau-mdp" name="nouveau_mdp" class="form-control" minlength="<?= MDP_LONGUEUR_MIN ?>" required autocomplete="new-password" aria-describedby="aide-mdp">
+                    <div class="form-text" id="aide-mdp">Au moins <?= MDP_LONGUEUR_MIN ?> caractères.</div>
+                </div>
+                <div class="mb-4">
+                    <label for="confirmation-mdp" class="form-label">Confirmer le nouveau mot de passe *</label>
+                    <input type="password" id="confirmation-mdp" name="confirmation" class="form-control" minlength="<?= MDP_LONGUEUR_MIN ?>" required autocomplete="new-password">
+                </div>
+                <button type="submit" class="bouton bouton-principal">Enregistrer</button>
+            </form>
+        <?php endif; ?>
+
+        <p class="carte-formulaire__pied">
+            <a href="<?= $mode === 'connecte' ? 'profil.php' : 'login.php' ?>"><?= $mode === 'connecte' ? 'Retour à mon compte' : 'Retour à la connexion' ?></a>
+        </p>
     </div>
-</div>
+</main>
 
 <?php include 'footer.php'; ?>

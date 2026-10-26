@@ -193,7 +193,7 @@ function formaterEtat($etat) {
                     <?php elseif ($offre_selectionnee['quantite'] <= 0): ?>
                         <button class="btn btn-secondary w-100 rounded-pill" disabled>Cet état est épuisé</button>
                     <?php else: ?>
-                        <button class="btn btn-warning w-100 rounded-pill" disabled>Accès client requis</button>
+                        <button class="btn btn-outline-secondary w-100 rounded-pill" disabled>Achat réservé aux comptes lecteurs</button>
                     <?php endif; ?>
                 <?php endif; ?>
 

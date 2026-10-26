@@ -412,3 +412,4 @@ a.stat:hover, a.stat:focus-visible { translate: 0 -3px; box-shadow: var(--ombre-
 .pagination-site .page-link:focus-visible { outline: 3px solid var(--vert-400); outline-offset: 2px; box-shadow: none; }
 .pagination-site .active > .page-link { background: var(--vert); border-color: var(--vert); color: #fff; }
 .pagination-site .disabled > .page-link { background: transparent; border-color: transparent; color: var(--encre-douce); }
+#captchaTriggerBtn.valide { color: var(--vert); border-color: var(--vert-400); background: var(--vert-50); }

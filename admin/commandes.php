@@ -112,7 +112,7 @@ $filtresActifs = $recherche !== '' || $statutFiltre !== '' || $periode !== '';
     </div>
 <?php else: ?>
     <p class="small text-muted mb-2"><?= $total ?> commande<?= $total > 1 ? 's' : '' ?></p>
-    <div class="carte">
+    <div class="carte table-responsive">
         <table class="table table-hover align-middle mb-0 table-cartes">
             <thead>
                 <tr>

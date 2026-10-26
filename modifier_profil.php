@@ -9,22 +9,33 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 $user_id = $_SESSION['user_id'];
-$message = "";
+$erreur = "";
+$succes = isset($_GET['enregistre']);
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && !verifierCsrf()) {
-    $message = "error";
-} elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $nom = $_POST['nom'];
-    $prenom = $_POST['prenom'];
-    $email = $_POST['email'];
-    $ville = $_POST['ville'];
-    $cp = $_POST['cp'];
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $nom = trim($_POST['nom'] ?? '');
+    $prenom = trim($_POST['prenom'] ?? '');
+    $email = trim($_POST['email'] ?? '');
+    $ville = trim($_POST['ville'] ?? '');
+    $cp = trim($_POST['cp'] ?? '');
 
-    $stmt = $pdo->prepare("UPDATE user SET nom = ?, prenom = ?, email = ?, ville = ?, cp = ? WHERE id = ?");
-    if ($stmt->execute([$nom, $prenom, $email, $ville, $cp, $user_id])) {
-        $message = "success";
+    if (!verifierCsrf()) {
+        $erreur = "La session a expiré, merci de renvoyer le formulaire.";
+    } elseif (!$nom || !$prenom || !$ville || !$cp) {
+        $erreur = "Veuillez remplir tous les champs.";
+    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $erreur = "Veuillez entrer une adresse email valide.";
     } else {
-        $message = "error";
+        $stmt = $pdo->prepare("SELECT id FROM user WHERE email = ? AND id <> ?");
+        $stmt->execute([$email, $user_id]);
+        if ($stmt->fetch()) {
+            $erreur = "Cette adresse email est déjà utilisée par un autre compte.";
+        } else {
+            $stmt = $pdo->prepare("UPDATE user SET nom = ?, prenom = ?, email = ?, ville = ?, cp = ? WHERE id = ?");
+            $stmt->execute([$nom, $prenom, $email, $ville, $cp, $user_id]);
+            header('Location: modifier_profil.php?enregistre=1');
+            exit();
+        }
     }
 }
 
@@ -32,72 +43,58 @@ $stmt = $pdo->prepare("SELECT * FROM user WHERE id = ?");
 $stmt->execute([$user_id]);
 $user = $stmt->fetch();
 
+if ($erreur) {
+    $user = array_merge($user, ['nom' => $nom, 'prenom' => $prenom, 'email' => $email, 'ville' => $ville, 'cp' => $cp]);
+}
+
 include 'header.php';
 ?>
 
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-8 col-lg-6">
-            <div class="d-flex align-items-center mb-4">
-                <a href="profil.php" class="btn btn-outline-secondary btn-sm rounded-circle me-3">
-                    <i class="bi bi-arrow-left"></i>
-                </a>
-                <h2 class="fw-bold mb-0">Modifier mes infos</h2>
-            </div>
+<main class="page-formulaire">
+    <div class="carte-formulaire carte-formulaire--large">
+        <div class="carte-formulaire__icone"><i class="bi bi-person-gear" aria-hidden="true"></i></div>
+        <h1>Modifier mes infos</h1>
+        <p class="carte-formulaire__intro">Ces informations servent à vos commandes et à vous écrire.</p>
 
-            <?php if ($message === "success"): ?>
-                <div class="alert alert-success border-0 shadow-sm mb-4">
-                    <i class="bi bi-check-circle me-2"></i> Vos informations ont été mises à jour !
+        <?php if ($succes): ?>
+            <div class="alert alert-success small" role="status"><i class="bi bi-check-circle" aria-hidden="true"></i> Vos informations ont été mises à jour.</div>
+        <?php endif; ?>
+        <?php if ($erreur): ?>
+            <div class="alert alert-danger small" role="alert"><?= htmlspecialchars($erreur) ?></div>
+        <?php endif; ?>
+
+        <form action="modifier_profil.php" method="POST">
+            <input type="hidden" name="csrf" value="<?= jetonCsrf() ?>">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label for="prenom" class="form-label">Prénom *</label>
+                    <input type="text" id="prenom" name="prenom" class="form-control" autocomplete="given-name" value="<?= htmlspecialchars($user['prenom'] ?? '') ?>" required>
                 </div>
-            <?php elseif ($message === "error"): ?>
-                <div class="alert alert-danger border-0 shadow-sm mb-4">
-                    <i class="bi bi-exclamation-triangle me-2"></i> Une erreur est survenue.
+                <div class="col-md-6">
+                    <label for="nom" class="form-label">Nom *</label>
+                    <input type="text" id="nom" name="nom" class="form-control" autocomplete="family-name" value="<?= htmlspecialchars($user['nom'] ?? '') ?>" required>
                 </div>
-            <?php endif; ?>
-
-            <div class="card border-0 shadow-sm p-4" style="border-radius: 15px;">
-                <form action="modifier_profil.php" method="POST">
-                    <input type="hidden" name="csrf" value="<?= jetonCsrf() ?>">
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label small fw-bold text-muted text-uppercase">Prénom</label>
-                            <input type="text" name="prenom" class="form-control" value="<?= htmlspecialchars($user['prenom'] ?? '') ?>" required>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label small fw-bold text-muted text-uppercase">Nom</label>
-                            <input type="text" name="nom" class="form-control" value="<?= htmlspecialchars($user['nom'] ?? '') ?>" required>
-                        </div>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label small fw-bold text-muted text-uppercase">Adresse E-mail</label>
-                        <input type="email" name="email" class="form-control" value="<?= htmlspecialchars($user['email'] ?? '') ?>" required>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-4 mb-3">
-                            <label class="form-label small fw-bold text-muted text-uppercase">Code Postal</label>
-                            <input type="text" name="cp" class="form-control" value="<?= htmlspecialchars($user['cp'] ?? '') ?>" required>
-                        </div>
-                        <div class="col-md-8 mb-4">
-                            <label class="form-label small fw-bold text-muted text-uppercase">Ville</label>
-                            <input type="text" name="ville" class="form-control" value="<?= htmlspecialchars($user['ville'] ?? '') ?>" required>
-                        </div>
-                    </div>
-
-                    <button type="submit" class="btn btn-success w-100 py-3 fw-bold rounded-pill" style="background-color: #274e13; border: none;">
-                        ENREGISTRER LES MODIFICATIONS
-                    </button>
-                </form>
+                <div class="col-12">
+                    <label for="email" class="form-label">Adresse email *</label>
+                    <input type="email" id="email" name="email" class="form-control" autocomplete="email" value="<?= htmlspecialchars($user['email'] ?? '') ?>" required>
+                </div>
+                <div class="col-md-4">
+                    <label for="cp" class="form-label">Code postal *</label>
+                    <input type="text" id="cp" name="cp" class="form-control" autocomplete="postal-code" inputmode="numeric" value="<?= htmlspecialchars($user['cp'] ?? '') ?>" required>
+                </div>
+                <div class="col-md-8">
+                    <label for="ville" class="form-label">Ville *</label>
+                    <input type="text" id="ville" name="ville" class="form-control" autocomplete="address-level2" value="<?= htmlspecialchars($user['ville'] ?? '') ?>" required>
+                </div>
+                <div class="col-12 mt-4">
+                    <button type="submit" class="bouton bouton-principal">Enregistrer les modifications</button>
+                </div>
             </div>
-
-            <div class="mt-4 text-center">
-                <a href="modifier_mdp.php" class="text-decoration-none text-muted small">
-                    <i class="bi bi-lock me-1"></i> Souhaitez-vous changer votre mot de passe ?
-                </a>
-            </div>
-        </div>
+        </form>
+        <p class="carte-formulaire__pied">
+            <a href="profil.php">Retour à mon compte</a> · <a href="modifier_mdp.php">Changer mon mot de passe</a>
+        </p>
     </div>
-</div>
+</main>
 
 <?php include 'footer.php'; ?>

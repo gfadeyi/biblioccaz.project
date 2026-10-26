@@ -1,8 +1,5 @@
 <?php
 require_once 'config.php';
-include 'header.php';
-
-echo '<div class="container my-5 text-center" style="max-width: 600px;">';
 
 $status = "error";
 $message = "";
@@ -37,42 +34,24 @@ if (!empty($token)) {
 } else {
     $message = "Aucun paramètre de vérification n'a été fourni.";
 }
+
+$etats = [
+    "success" => ["bi-check-circle", "", "Compte activé", "login.php", "Se connecter", "bouton-principal"],
+    "already_verified" => ["bi-info-circle", "", "Adresse déjà validée", "login.php", "Aller à la connexion", "bouton-principal"],
+    "error" => ["bi-exclamation-triangle", " alerte", "Lien de validation invalide", "inscription.php", "Retour à l'inscription", "bouton-contour"],
+];
+[$icone, $classeIcone, $titre, $lien, $libelleLien, $classeBouton] = $etats[$status];
+
+include 'header.php';
 ?>
 
-<div class="card shadow border-0 p-5 mt-4" style="border-radius: 15px;">
-    <?php if ($status === "success"): ?>
-        <div class="text-success mb-4">
-            <i class="bi bi-check-circle-fill" style="font-size: 4rem;"></i>
-        </div>
-        <h2 class="fw-bold text-dark mb-3">Compte Activé !</h2>
-        <p class="text-muted mb-4"><?= htmlspecialchars($message) ?></p>
-        <div class="d-grid">
-            <a href="login.php" class="btn btn-success btn-lg rounded-pill fw-bold py-2 shadow-sm">Se connecter</a>
-        </div>
+<main class="page-formulaire">
+    <div class="carte-formulaire text-center">
+        <div class="carte-formulaire__icone<?= $classeIcone ?>"><i class="bi <?= $icone ?>" aria-hidden="true"></i></div>
+        <h1><?= $titre ?></h1>
+        <p class="carte-formulaire__intro"><?= htmlspecialchars($message) ?></p>
+        <a href="<?= $lien ?>" class="bouton <?= $classeBouton ?>"><?= $libelleLien ?></a>
+    </div>
+</main>
 
-    <?php elseif ($status === "already_verified"): ?>
-        <div class="text-warning mb-4">
-            <i class="bi bi-info-circle-fill" style="font-size: 4rem;"></i>
-        </div>
-        <h2 class="fw-bold text-dark mb-3">Déjà validé !</h2>
-        <p class="text-muted mb-4"><?= htmlspecialchars($message) ?></p>
-        <div class="d-grid">
-            <a href="login.php" class="btn btn-warning btn-lg rounded-pill fw-bold py-2 text-white shadow-sm">Aller à la page de connexion</a>
-        </div>
-
-    <?php else: ?>
-        <div class="text-danger mb-4">
-            <i class="bi bi-exclamation-triangle-fill" style="font-size: 4rem;"></i>
-        </div>
-        <h2 class="fw-bold text-dark mb-3">Erreur de validation</h2>
-        <p class="text-muted mb-4"><?= htmlspecialchars($message) ?></p>
-        <div class="d-grid">
-            <a href="inscription.php" class="btn btn-outline-secondary rounded-pill fw-bold py-2">Retour à l'inscription</a>
-        </div>
-    <?php endif; ?>
-</div>
-
-<?php
-echo '</div>';
-include 'footer.php';
-?>
+<?php include 'footer.php'; ?>

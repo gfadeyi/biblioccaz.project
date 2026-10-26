@@ -36,21 +36,10 @@ insertLog('NEWSLETTER', "Inscription à la newsletter");
 try {
     $mail = creerMailer();
     $mail->addAddress($email);
-    $mail->isHTML(true);
-    $mail->Subject = 'Bienvenue dans la newsletter BIBLIOccaz !';
-    $mail->Body = '
-    <html>
-    <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
-        <div style="max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #b6d7a8; border-radius: 10px;">
-            <h2 style="color: #274e13;">Merci pour votre inscription !</h2>
-            <p>Bonjour,</p>
-            <p>Vous recevrez désormais nos dernières pépites littéraires d\'occasion chaque mois directement dans votre boîte mail.</p>
-            <p>À très bientôt sur notre plateforme !</p>
-            <hr style="border: 0; border-top: 1px solid #93c47d;">
-            <p style="font-size: 0.8rem; color: #777;">Ceci est un mail automatique, merci de ne pas y répondre.</p>
-        </div>
-    </body>
-    </html>';
+    habillerMail($mail, "Bienvenue dans la newsletter BIBLIOccaz !",
+        "Bonjour,\n\nMerci pour votre inscription ! Vous recevrez désormais nos dernières pépites d'occasion, les dons à récupérer et les événements, une fois par mois, directement dans votre boîte mail.\n\nÀ très bientôt sur BIBLIOccaz !",
+        SITE_URL . "/catalogue.php", "Parcourir le catalogue",
+        "Vous pouvez vous désabonner à tout moment depuis votre espace profil.");
     $mail->send();
 } catch (\Throwable $e) {
     insertLog('ERREUR', "Mail de bienvenue newsletter non envoyé : " . $e->getMessage());

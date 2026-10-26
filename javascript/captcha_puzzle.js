@@ -5,6 +5,7 @@ function initCaptchaPuzzle(racine, fichiers) {
     const tokenInput = document.getElementById('captchaToken');
     const message = document.getElementById('captchaMessage');
     const modalEl = document.getElementById('captchaModal');
+    if (modalEl && modalEl.parentElement !== document.body) document.body.appendChild(modalEl);
 
     let ordre = [];
     let selectedTile = null;
@@ -81,9 +82,9 @@ function initCaptchaPuzzle(racine, fichiers) {
         isVerified = true;
         tokenInput.value = 'ok';
 
-        triggerBtn.innerHTML = '✅ Vérification réussie';
-        triggerBtn.className = 'btn btn-success w-100';
-        afficherMessage('✅ Parfait ! Image reconstituée.', 'text-success');
+        triggerBtn.innerHTML = '<i class="bi bi-check-circle-fill" aria-hidden="true"></i> Vérification réussie';
+        triggerBtn.classList.add('valide');
+        afficherMessage('Parfait ! Image reconstituée.', 'text-success');
 
         setTimeout(() => {
             const modal = window.bootstrap && bootstrap.Modal.getInstance(modalEl);
