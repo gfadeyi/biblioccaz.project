@@ -1,5 +1,6 @@
 <?php
 require_once 'config.php';
+require_once 'avis_lib.php';
 if (session_status() === PHP_SESSION_NONE) { session_start(); }
 
 const MDP_LONGUEUR_MIN = 8;
@@ -30,7 +31,9 @@ if ($user && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $nouveau = $_POST['nouveau_mdp'] ?? '';
     $confirmation = $_POST['confirmation'] ?? '';
 
-    if ($mode === 'connecte' && !password_verify($_POST['mdp_actuel'] ?? '', $user['mot_de_passe'])) {
+    if (!verifierCsrf()) {
+        $erreur = "Session expirée, merci de réessayer.";
+    } elseif ($mode === 'connecte' && !password_verify($_POST['mdp_actuel'] ?? '', $user['mot_de_passe'])) {
         $erreur = "Votre mot de passe actuel est incorrect.";
     } elseif (mb_strlen($nouveau) < MDP_LONGUEUR_MIN) {
         $erreur = "Le nouveau mot de passe doit contenir au moins " . MDP_LONGUEUR_MIN . " caractères.";
@@ -77,6 +80,7 @@ include 'header.php';
                 <?php endif; ?>
 
                 <form method="POST">
+                    <input type="hidden" name="csrf" value="<?= jetonCsrf() ?>">
                     <?php if ($mode === 'reset'): ?>
                         <input type="hidden" name="token" value="<?= htmlspecialchars($token) ?>">
                     <?php else: ?>

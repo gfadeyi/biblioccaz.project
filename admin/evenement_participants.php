@@ -9,6 +9,9 @@ $evt = chargerEvenement($pdo, $id);
 if (!$evt) {
     rediriger('evenements.php', 'warning', "Cet événement n'existe pas.");
 }
+if (!in_array($evt['statut'], ['publie', 'annule'], true)) {
+    rediriger($evt['statut'] === 'en_attente' ? "evenement.php?id=$id" : 'evenements.php?onglet=refuses');
+}
 $retour = "evenement_participants.php?id=$id";
 $presencesOuvertes = $evt['statut'] === 'publie' && date('Y-m-d') >= substr($evt['date_debut'], 0, 10);
 

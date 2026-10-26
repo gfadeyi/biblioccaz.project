@@ -2,6 +2,8 @@
 require_once 'config.php';
 require_once 'dons_lib.php';
 require_once 'categories_lib.php';
+require_once 'avis_lib.php';
+require_once 'upload_lib.php';
 if (session_status() === PHP_SESSION_NONE) { session_start(); }
 
 if (!isset($_SESSION['user_id'])) {
@@ -25,6 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST' && !empty($_GET['livre'])) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!verifierCsrf()) { $erreurs[] = "Session expirée, merci de réessayer."; }
     if ($v['titre'] === '' || mb_strlen($v['titre']) > 255) { $erreurs[] = "Indiquez le titre du livre."; }
     if (!isset(DON_ETATS[$v['etat']])) { $erreurs[] = "Choisissez l'état du livre."; }
     if ($v['lieu_retrait'] === '') { $erreurs[] = "Indiquez où récupérer le livre (ville, quartier, lieu public...)."; }
@@ -37,19 +40,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     $photo = null;
-    if (!empty($_FILES['photo']['name']) && $_FILES['photo']['error'] === UPLOAD_ERR_OK) {
-        $ext = strtolower(pathinfo($_FILES['photo']['name'], PATHINFO_EXTENSION));
-        if (!in_array($ext, ['jpg', 'jpeg', 'png', 'webp'], true) || !@getimagesize($_FILES['photo']['tmp_name'])) {
-            $erreurs[] = "La photo doit être une image JPG, PNG ou WEBP.";
-        } elseif ($_FILES['photo']['size'] > 2 * 1024 * 1024) {
-            $erreurs[] = "La photo est trop lourde (2 Mo maximum).";
-        } else {
-            $dossier = __DIR__ . '/img/dons/';
-            if (!is_dir($dossier)) { mkdir($dossier, 0775, true); }
-            $photo = time() . '_' . bin2hex(random_bytes(4)) . '.' . $ext;
-            if (!move_uploaded_file($_FILES['photo']['tmp_name'], $dossier . $photo)) {
-                $photo = null;
-            }
+    if (!$erreurs) {
+        [$photo, $erreurPhoto] = enregistrerCouverture('photo', 'dons/');
+        if ($erreurPhoto !== '') {
+            $erreurs[] = $erreurPhoto;
         }
     }
 
@@ -94,6 +88,7 @@ include 'header.php';
     <?php endif; ?>
 
     <form method="POST" enctype="multipart/form-data" class="card border-0 shadow-sm p-4" style="border-radius: 20px;">
+        <input type="hidden" name="csrf" value="<?= jetonCsrf() ?>">
         <h5 class="fw-bold mb-3">Le livre</h5>
         <div class="row g-3">
             <div class="col-12">

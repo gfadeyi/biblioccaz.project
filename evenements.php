@@ -29,8 +29,10 @@ if ($mois !== '') {
 
 $stmt = $pdo->prepare("
     SELECT e.*,
-           (SELECT COUNT(*) FROM evenement_inscription i WHERE i.id_evenement = e.id_evenement AND i.statut = 'inscrit') AS nb_inscrits
+           (SELECT COUNT(*) FROM evenement_inscription i WHERE i.id_evenement = e.id_evenement AND i.statut = 'inscrit') AS nb_inscrits,
+           IF(e.date_validation IS NULL, NULL, COALESCE(NULLIF(TRIM(CONCAT_WS(' ', u.prenom, u.nom)), ''), u.pseudo)) AS propose_par
     FROM evenement e
+    LEFT JOIN user u ON u.id = e.id_createur
     WHERE " . implode(' AND ', $where) . "
     ORDER BY e.date_debut " . ($periode === 'passes' ? 'DESC' : 'ASC') . "
     LIMIT 100");
@@ -124,7 +126,7 @@ include 'header.php';
                         <div class="date-evenement text-center flex-shrink-0">
                             <div class="small text-uppercase"><?= mb_substr(EVT_JOURS[(int) date('w', $t)], 0, 3) ?></div>
                             <div class="fs-2 fw-bold lh-1"><?= date('j', $t) ?></div>
-                            <div class="small"><?= mb_substr(EVT_MOIS[(int) date('n', $t) - 1], 0, 4) ?></div>
+                            <div class="small"><?= EVT_MOIS_COURTS[(int) date('n', $t) - 1] ?></div>
                         </div>
                         <div class="flex-grow-1 min-w-0">
                             <div class="d-flex flex-wrap gap-2 mb-1"><?= badgeTypeEvenement($e['type']) ?> <?= badgeEvenement($e) ?></div>
@@ -133,6 +135,7 @@ include 'header.php';
                                 <i class="bi bi-clock"></i> <?= date('G\hi', $t) ?> – <?= date('G\hi', strtotime($e['date_fin'])) ?>
                                 <span class="mx-1">·</span><i class="bi bi-geo-alt"></i> <?= htmlspecialchars($e['lieu']) ?>
                                 <?php if ($e['auteurs']): ?><span class="mx-1">·</span><i class="bi bi-person"></i> <?= htmlspecialchars($e['auteurs']) ?><?php endif; ?>
+                                <?php if ($e['propose_par']): ?><span class="mx-1">·</span><i class="bi bi-pen"></i> Proposé par <?= htmlspecialchars($e['propose_par']) ?><?php endif; ?>
                             </div>
                         </div>
                         <?php if ($periode === 'a_venir'): ?>
@@ -140,7 +143,7 @@ include 'header.php';
                                 <?php if ($restantes > 0): ?>
                                     <strong class="text-success"><?= $restantes ?></strong> place<?= $restantes > 1 ? 's' : '' ?><br><span class="text-muted">sur <?= $e['places_max'] ?></span>
                                 <?php else: ?>
-                                    <span class="text-warning-emphasis fw-bold">Complet</span><br><span class="text-muted">liste d'attente</span>
+                                    <span class="fw-bold text-body-secondary">Complet</span><br><span class="text-muted">liste d'attente</span>
                                 <?php endif; ?>
                             </div>
                         <?php endif; ?>

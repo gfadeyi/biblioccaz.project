@@ -22,7 +22,7 @@ $menu = [
         ['moderation_avis', 'moderation_avis.php', 'chat-square-text', 'Avis signalés', 'moderation', $compteurs['avis']],
         ['membres_points', 'membres_points.php', 'award', 'Niveaux & badges', 'equipe', 0],
         ['dons', 'dons.php', 'gift', 'Dons', 'equipe', 0],
-        ['evenements', 'evenements.php', 'calendar-event', 'Événements', 'evenements', 0],
+        ['evenements', 'evenements.php', 'calendar-event', 'Événements', 'evenements', $compteurs['evenements_proposes'] ?? 0],
         ['utilisateurs', 'utilisateurs.php', 'people', 'Membres', 'admin', $compteurs['candidatures']],
         ['en_ligne', 'en_ligne.php', 'broadcast', 'En ligne', 'admin', 0],
         ['newsletter', 'newsletter.php', 'megaphone', 'Newsletter', 'admin', 0],

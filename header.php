@@ -56,7 +56,11 @@ if ($resumeCompte) {
         ['mes_evenements.php', 'ticket', 'Mes événements', $resumeCompte['evenements']],
     ];
 } elseif ($connected && $userRole === 'auteur') {
-    $liensMenuCompte = [['dashboard_auteur.php', 'plume', 'Espace créateur', 0]];
+    $liensMenuCompte = [
+        ['dashboard_auteur.php', 'plume', 'Espace créateur', 0],
+        ['proposer_evenement.php', 'ticket', 'Proposer un événement', 0],
+        ['proposer_ouvrage.php', 'livre-ouvert', 'Proposer un livre', 0],
+    ];
 } elseif ($connected) {
     $liensMenuCompte = [
         ['admin/index.php', 'livre-ouvert', 'Back-office', $total_notif_admin],
@@ -309,6 +313,7 @@ $classeRaccourci = fn(array $pages) => in_array($pageActuelle, $pages, true) ? '
         <ul class="list-unstyled mb-0 liens-secondaires">
             <?php if ($userRole === 'auteur'): ?>
                 <li><a href="proposer_ouvrage.php" class="lien-lateral-secondaire"><i class="bi bi-journal-plus"></i> Proposer une œuvre</a></li>
+                <li><a href="proposer_evenement.php" class="lien-lateral-secondaire"><i class="bi bi-calendar-plus"></i> Proposer un événement</a></li>
             <?php else: ?>
                 <li><a href="vendre.php" class="lien-lateral-secondaire"><i class="bi bi-arrow-repeat"></i> Donner ou revendre mes livres</a></li>
             <?php endif; ?>

@@ -4,6 +4,7 @@ secure_data/*
 img/*
 !img/default.png
 !img/icones.svg
+!img/.htaccess
 !img/captcha/biblioccaz.project/
 !img/profils/
 img/profils/*

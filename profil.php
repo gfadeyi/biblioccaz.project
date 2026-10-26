@@ -117,6 +117,9 @@ if ($estEquipe) {
         ['admin/avis_a_valider.php', 'patch-check', 'Avis à valider', "SELECT COUNT(*) FROM avis WHERE statut = 'visible' AND date_validation IS NULL"],
         ['admin/moderation_avis.php', 'flag', 'Avis signalés', "SELECT COUNT(DISTINCT id_avis) FROM avis_signalement WHERE traite = 0"],
     ];
+    if (in_array($role, ['admin', 'gestionnaire'], true)) {
+        $aTraiterEquipe[] = ['admin/evenements.php?onglet=proposes', 'calendar-plus', 'Événements proposés', "SELECT COUNT(*) FROM evenement WHERE statut = 'en_attente'"];
+    }
     foreach ($aTraiterEquipe as $index => $tache) {
         try {
             $aTraiterEquipe[$index][3] = (int) $pdo->query($tache[3])->fetchColumn();
@@ -230,11 +233,12 @@ include 'header.php';
 
         <?php if ($estAuteur): ?>
             <section class="carte-compte">
-                <h2 class="carte-compte__titre"><?= iconeDessin('plume') ?> Mes ouvrages</h2>
-                <p class="texte-profil">Suivez vos fiches de livres et proposez de nouvelles œuvres au catalogue.</p>
+                <h2 class="carte-compte__titre"><?= iconeDessin('plume') ?> Espace créateur</h2>
+                <p class="texte-profil">Proposez vos livres et vos rencontres, suivez leur validation et les inscriptions à vos événements.</p>
                 <div class="d-flex flex-wrap gap-2">
-                    <a href="dashboard_auteur.php" class="bouton bouton-principal bouton-petit">Mon tableau de bord</a>
-                    <a href="proposer_ouvrage.php" class="bouton bouton-contour bouton-petit">Proposer un livre</a>
+                    <a href="dashboard_auteur.php" class="bouton bouton-principal bouton-petit">Mon espace créateur</a>
+                    <a href="proposer_evenement.php" class="bouton bouton-contour bouton-petit">Proposer un événement</a>
+                    <a href="proposer_ouvrage.php" class="bouton bouton-discret bouton-petit">Proposer un livre</a>
                 </div>
             </section>
         <?php endif; ?>

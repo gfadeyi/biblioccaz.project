@@ -4,6 +4,7 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 require_once __DIR__ . '/../config.php';
 require_once __DIR__ . '/../avis_lib.php';
+require_once __DIR__ . '/../upload_lib.php';
 
 const ROLES_EQUIPE = ['admin', 'gestionnaire', 'moderateur'];
 
@@ -99,38 +100,15 @@ function imageLivre(?string $fichier): string
     return '../img/' . rawurlencode($fichier ?: 'default.png');
 }
 
-function enregistrerCouverture(string $champ = 'image'): array
-{
-    if (empty($_FILES[$champ]) || $_FILES[$champ]['error'] === UPLOAD_ERR_NO_FILE) {
-        return [null, ''];
-    }
-    $f = $_FILES[$champ];
-    if ($f['error'] !== UPLOAD_ERR_OK) {
-        return [null, "L'envoi de l'image a échoué."];
-    }
-    if ($f['size'] > 2 * 1024 * 1024) {
-        return [null, "L'image est trop lourde (2 Mo maximum)."];
-    }
-    $types = [IMAGETYPE_JPEG => 'jpg', IMAGETYPE_PNG => 'png', IMAGETYPE_WEBP => 'webp'];
-    $info = @getimagesize($f['tmp_name']);
-    if (!$info || !isset($types[$info[2]])) {
-        return [null, "Format d'image non supporté (JPG, PNG ou WEBP)."];
-    }
-    $nom = time() . '_' . bin2hex(random_bytes(4)) . '.' . $types[$info[2]];
-    if (!move_uploaded_file($f['tmp_name'], __DIR__ . '/../img/' . $nom)) {
-        return [null, "Impossible d'enregistrer l'image (droits du dossier img/ ?)."];
-    }
-    return [$nom, ''];
-}
-
 function compteursEquipe(PDO $pdo): array
 {
-    $c = ['livres' => 0, 'avis' => 0, 'candidatures' => 0, 'avis_a_valider' => 0];
+    $c = ['livres' => 0, 'avis' => 0, 'candidatures' => 0, 'avis_a_valider' => 0, 'evenements_proposes' => 0];
     try {
         $c['livres'] = (int) $pdo->query("SELECT COUNT(*) FROM livre WHERE is_valide = 0")->fetchColumn();
         $c['avis'] = (int) $pdo->query("SELECT COUNT(DISTINCT id_avis) FROM avis_signalement WHERE traite = 0")->fetchColumn();
         $c['candidatures'] = (int) $pdo->query("SELECT COUNT(*) FROM user WHERE statut = 'en_attente_moderateur'")->fetchColumn();
         $c['avis_a_valider'] = (int) $pdo->query("SELECT COUNT(*) FROM avis WHERE statut = 'visible' AND date_validation IS NULL")->fetchColumn();
+        $c['evenements_proposes'] = (int) $pdo->query("SELECT COUNT(*) FROM evenement WHERE statut = 'en_attente'")->fetchColumn();
     } catch (PDOException $e) {
     }
     return $c;

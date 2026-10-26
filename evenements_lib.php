@@ -8,6 +8,7 @@ const EVT_TYPES = [
     'atelier'   => ['Atelier', 'easel'],
 ];
 const EVT_MOIS = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
+const EVT_MOIS_COURTS = ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.'];
 const EVT_JOURS = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'];
 
 function chargerEvenement(PDO $pdo, int $id, bool $verrou = false): ?array
@@ -39,20 +40,20 @@ function etatEvenement(array $evt): string
 
 function badgeEvenement(array $evt): string
 {
-    [$libelle, $classe] = match (etatEvenement($evt)) {
-        'annule'   => ['Annulé', 'bg-danger'],
-        'termine'  => ['Terminé', 'bg-secondary'],
-        'en_cours' => ['En cours', 'bg-info text-dark'],
-        'complet'  => ['Complet', 'bg-warning text-dark'],
-        default    => ['Places disponibles', 'bg-success'],
+    [$libelle, $classe, $icone] = match (etatEvenement($evt)) {
+        'annule'   => ['Annulé', 'annule', 'x-octagon'],
+        'termine'  => ['Terminé', 'termine', 'flag'],
+        'en_cours' => ['En cours', 'en-cours', 'broadcast'],
+        'complet'  => ['Complet', 'complet', 'hourglass-split'],
+        default    => ['Places disponibles', 'ouvert', 'check2-circle'],
     };
-    return "<span class=\"badge rounded-pill $classe\">$libelle</span>";
+    return "<span class=\"pastille-evt $classe\"><i class=\"bi bi-$icone\" aria-hidden=\"true\"></i> $libelle</span>";
 }
 
 function badgeTypeEvenement(string $type): string
 {
     [$libelle, $icone] = EVT_TYPES[$type] ?? [ucfirst($type), 'calendar-event'];
-    return "<span class=\"badge rounded-pill bg-success-subtle text-success border border-success-subtle\"><i class=\"bi bi-$icone\"></i> $libelle</span>";
+    return "<span class=\"pastille-evt type\"><i class=\"bi bi-$icone\" aria-hidden=\"true\"></i> $libelle</span>";
 }
 
 function dateLongue(string $date): string
@@ -245,4 +246,208 @@ function emailUtilisateur(PDO $pdo, int $idUser): string
     $stmt = $pdo->prepare("SELECT email FROM user WHERE id = ?");
     $stmt->execute([$idUser]);
     return (string) $stmt->fetchColumn();
+}
+
+const EVT_STATUTS = [
+    'en_attente' => ['En attente de validation', 'attente', 'hourglass-split'],
+    'publie'     => ['Publié', '', 'check2-circle'],
+    'refuse'     => ['Refusé', 'annulee', 'x-circle'],
+    'retire'     => ['Retiré', 'attente', 'arrow-counterclockwise'],
+    'annule'     => ['Annulé', 'annulee', 'x-octagon'],
+];
+const EVT_LIVRES_MAX = 5;
+const EVT_PLACES_MAX = 500;
+const EVT_MOTIF_MAX = 500;
+
+function erreurEvenement(array $valeurs, ?array $evt): string
+{
+    $debut = strtotime((string) $valeurs['date_debut']);
+    $fin = strtotime((string) $valeurs['date_fin']);
+    $places = (int) $valeurs['places_max'];
+    $doitEtreFutur = !$evt || $evt['statut'] === 'en_attente';
+
+    if ($valeurs['titre'] === '' || $valeurs['description'] === '' || $valeurs['lieu'] === '') {
+        return "Le titre, la description et le lieu sont obligatoires.";
+    }
+    if (mb_strlen($valeurs['titre']) > 200 || mb_strlen($valeurs['lieu']) > 255 || mb_strlen((string) $valeurs['auteurs']) > 255) {
+        return "Le titre (200 caractères), le lieu ou les intervenants (255 caractères) sont trop longs.";
+    }
+    if (!isset(EVT_TYPES[$valeurs['type']])) {
+        return "Choisissez un type d'événement.";
+    }
+    if (!$debut || !$fin || $fin <= $debut) {
+        return "L'heure de fin doit être après l'heure de début.";
+    }
+    if ($doitEtreFutur && $debut <= time()) {
+        return "La date de début doit être dans le futur.";
+    }
+    if ($places < 1 || $places > EVT_PLACES_MAX) {
+        return "Le nombre de places doit être compris entre 1 et " . EVT_PLACES_MAX . ".";
+    }
+    if ($evt && $places < (int) $evt['nb_inscrits']) {
+        return "Il y a déjà {$evt['nb_inscrits']} inscrits : impossible de descendre à $places places. Retirez d'abord des participants.";
+    }
+    return '';
+}
+
+function estPropositionAuteur(array $evt): bool
+{
+    return in_array($evt['statut'], ['en_attente', 'refuse', 'retire'], true) || !empty($evt['date_validation']);
+}
+
+function proposeurEvenement(PDO $pdo, array $evt): ?array
+{
+    if (!estPropositionAuteur($evt) || empty($evt['id_createur'])) {
+        return null;
+    }
+    $stmt = $pdo->prepare("SELECT id, pseudo, prenom, nom, email FROM user WHERE id = ?");
+    $stmt->execute([$evt['id_createur']]);
+    $proposeur = $stmt->fetch();
+    if (!$proposeur) {
+        return null;
+    }
+    $nomComplet = trim(($proposeur['prenom'] ?? '') . ' ' . ($proposeur['nom'] ?? ''));
+    $proposeur['nom_affiche'] = $nomComplet !== '' ? $nomComplet : $proposeur['pseudo'];
+    return $proposeur;
+}
+
+function libelleStatutEvenement(array $evt): string
+{
+    [$libelle, $classe, $icone] = EVT_STATUTS[$evt['statut']] ?? [ucfirst($evt['statut']), 'attente', 'circle'];
+    if ($evt['statut'] === 'publie' && $evt['date_fin'] < date('Y-m-d H:i:s')) {
+        [$libelle, $classe, $icone] = ['Terminé', 'attente', 'flag'];
+    }
+    return '<span class="etiquette-profil ' . $classe . '"><i class="bi bi-' . $icone . '" aria-hidden="true"></i> ' . $libelle . '</span>';
+}
+
+function livresEvenement(PDO $pdo, int $idEvt): array
+{
+    try {
+        $stmt = $pdo->prepare("
+            SELECT l.id_livre, l.titre, l.auteur, l.couverture
+            FROM evenement_livre el INNER JOIN livre l ON l.id_livre = el.id_livre
+            WHERE el.id_evenement = ? AND l.is_valide = 1
+            ORDER BY l.titre");
+        $stmt->execute([$idEvt]);
+        return $stmt->fetchAll();
+    } catch (PDOException $e) {
+        return [];
+    }
+}
+
+function livresAssociables(PDO $pdo, int $idAuteur = 0): array
+{
+    $stmt = $pdo->prepare("
+        SELECT id_livre, titre, auteur, couverture, (id_user_auteur <=> ?) AS est_a_moi
+        FROM livre WHERE is_valide = 1
+        ORDER BY est_a_moi DESC, titre");
+    $stmt->execute([$idAuteur ?: null]);
+    return $stmt->fetchAll();
+}
+
+function livresChoisis(PDO $pdo, mixed $saisie): array
+{
+    $ids = array_values(array_unique(array_filter(array_map('intval', is_array($saisie) ? $saisie : []), fn($id) => $id > 0)));
+    if (count($ids) > EVT_LIVRES_MAX) {
+        return [[], "Choisissez au maximum " . EVT_LIVRES_MAX . " livres."];
+    }
+    if (!$ids) {
+        return [[], ''];
+    }
+    $marqueurs = implode(',', array_fill(0, count($ids), '?'));
+    $stmt = $pdo->prepare("SELECT id_livre FROM livre WHERE is_valide = 1 AND id_livre IN ($marqueurs)");
+    $stmt->execute($ids);
+    return [array_map('intval', $stmt->fetchAll(PDO::FETCH_COLUMN)), ''];
+}
+
+function enregistrerLivresEvenement(PDO $pdo, int $idEvt, array $idsLivres): void
+{
+    $pdo->prepare("DELETE FROM evenement_livre WHERE id_evenement = ?")->execute([$idEvt]);
+    $ajout = $pdo->prepare("INSERT INTO evenement_livre (id_evenement, id_livre) VALUES (?, ?)");
+    foreach ($idsLivres as $idLivre) {
+        $ajout->execute([$idEvt, $idLivre]);
+    }
+}
+
+function validerEvenementPropose(PDO $pdo, int $idEvt, int $idValidateur): array
+{
+    $pdo->beginTransaction();
+    try {
+        $evt = chargerEvenement($pdo, $idEvt, true);
+        if (!$evt || $evt['statut'] !== 'en_attente') {
+            $pdo->rollBack();
+            return ['warning', "Cette proposition a déjà été traitée."];
+        }
+        if ($evt['date_debut'] <= date('Y-m-d H:i:s')) {
+            $pdo->rollBack();
+            return ['warning', "La date de l'événement est passée : modifiez-la avant de le valider."];
+        }
+        $pdo->prepare("UPDATE evenement SET statut = 'publie', date_validation = NOW(), id_validateur = ?, motif_refus = NULL WHERE id_evenement = ?")
+            ->execute([$idValidateur, $idEvt]);
+        $pdo->commit();
+    } catch (Throwable $e) {
+        $pdo->rollBack();
+        throw $e;
+    }
+
+    insertLog('EVENEMENT', "Validation de l'événement proposé #$idEvt : {$evt['titre']}");
+    $proposeur = proposeurEvenement($pdo, $evt);
+    if ($proposeur) {
+        notifierParMail($proposeur['email'], "Votre événement est publié : " . $evt['titre'],
+            "Bonne nouvelle : l'équipe a validé votre événement « {$evt['titre']} ». Il est maintenant visible dans le calendrier et ouvert aux inscriptions.\n\n"
+            . "Quand : " . horaireEvenement($evt) . "\nOù : {$evt['lieu']}\nPlaces : {$evt['places_max']}\n\n"
+            . "Page de l'événement : " . SITE_URL . "/evenement.php?id=$idEvt\n"
+            . "Suivez les inscriptions depuis votre espace créateur : " . SITE_URL . "/dashboard_auteur.php");
+    }
+    return ['success', "Événement validé : il est publié dans le calendrier" . ($proposeur ? " et l'auteur a été prévenu par mail." : ".")];
+}
+
+function refuserEvenementPropose(PDO $pdo, int $idEvt, int $idValidateur, string $motif): array
+{
+    $motif = trim($motif);
+    if ($motif === '') {
+        return ['danger', "Indiquez le motif du refus : il sera envoyé à l'auteur."];
+    }
+    if (mb_strlen($motif) > EVT_MOTIF_MAX) {
+        return ['danger', "Le motif est trop long (" . EVT_MOTIF_MAX . " caractères maximum)."];
+    }
+    $stmt = $pdo->prepare("UPDATE evenement SET statut = 'refuse', motif_refus = ?, date_validation = NOW(), id_validateur = ? WHERE id_evenement = ? AND statut = 'en_attente'");
+    $stmt->execute([$motif, $idValidateur, $idEvt]);
+    if ($stmt->rowCount() === 0) {
+        return ['warning', "Cette proposition a déjà été traitée."];
+    }
+
+    $evt = chargerEvenement($pdo, $idEvt);
+    insertLog('EVENEMENT', "Refus de l'événement proposé #$idEvt : {$evt['titre']}");
+    $proposeur = proposeurEvenement($pdo, $evt);
+    if ($proposeur) {
+        notifierParMail($proposeur['email'], "Votre proposition d'événement : " . $evt['titre'],
+            "L'équipe a examiné votre proposition « {$evt['titre']} » (" . horaireEvenement($evt) . ") et ne peut pas la publier.\n\n"
+            . "Motif :\n$motif\n\n"
+            . "Vous pouvez proposer un nouvel événement en tenant compte de cette remarque depuis votre espace créateur : " . SITE_URL . "/dashboard_auteur.php");
+    }
+    return ['success', "Proposition refusée" . ($proposeur ? " : l'auteur a reçu le motif par mail." : ".")];
+}
+
+function prevenirAuteurAnnulation(PDO $pdo, array $evt, string $motif): void
+{
+    $proposeur = proposeurEvenement($pdo, $evt);
+    if (!$proposeur) {
+        return;
+    }
+    notifierParMail($proposeur['email'], "Votre événement est annulé : " . $evt['titre'],
+        "L'équipe a annulé votre événement « {$evt['titre']} » prévu " . horaireEvenement($evt) . "."
+        . ($motif !== '' ? "\n\nRaison : $motif" : '')
+        . "\n\nLes personnes inscrites ont été prévenues par mail.");
+}
+
+function retirerPropositionEvenement(PDO $pdo, int $idEvt, int $idAuteur): bool
+{
+    $stmt = $pdo->prepare("UPDATE evenement SET statut = 'retire', date_annulation = NOW() WHERE id_evenement = ? AND id_createur = ? AND statut = 'en_attente'");
+    $stmt->execute([$idEvt, $idAuteur]);
+    if ($stmt->rowCount() === 0) {
+        return false;
+    }
+    insertLog('EVENEMENT', "Proposition d'événement #$idEvt retirée par son auteur");
+    return true;
 }

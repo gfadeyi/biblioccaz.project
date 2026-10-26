@@ -366,3 +366,31 @@ a.stat:hover, a.stat:focus-visible { translate: 0 -3px; box-shadow: var(--ombre-
     .historique-commande li { grid-template-columns: minmax(0, 1fr) auto; }
     .historique-commande__date { grid-column: 1 / -1; }
 }
+
+.choix-livres { border: 0; padding: 0; margin: 0; min-width: 0; }
+.choix-livres__outils { display: flex; align-items: center; gap: .75rem; margin-bottom: .5rem; }
+.choix-livres__filtre { max-width: 320px; }
+.choix-livres__compteur { margin-left: auto; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.choix-livres__filtre { min-width: 0; }
+.choix-livres__liste { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: .5rem; max-height: 300px; overflow-y: auto; padding: .15rem; }
+.choix-livres__livre { display: flex; align-items: center; gap: .65rem; padding: .5rem .65rem; border: 1px solid var(--trait); border-radius: var(--rayon); background: var(--surface); cursor: pointer;
+                       transition: border-color var(--duree-rapide) var(--courbe), background-color var(--duree-rapide) var(--courbe); }
+.choix-livres__livre[hidden] { display: none; }
+.choix-livres__livre:hover { border-color: var(--vert-200); }
+.choix-livres__livre.coche { border-color: var(--vert-300); background: var(--vert-50); }
+.choix-livres__livre:has(input:disabled) { opacity: .55; cursor: not-allowed; }
+.choix-livres__livre:has(input:focus-visible) { outline: 2px solid var(--vert-300); outline-offset: 2px; }
+.choix-livres__livre input { flex-shrink: 0; margin: 0; }
+.choix-livres__livre img { width: 34px; height: 50px; object-fit: cover; border-radius: 4px; flex-shrink: 0; }
+.choix-livres__texte { display: flex; flex-direction: column; min-width: 0; line-height: 1.25; }
+.choix-livres__texte strong { font-size: .9rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.choix-livres__texte small { color: var(--encre-douce); font-size: .8rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.pastille-evt { display: inline-flex; align-items: center; gap: .3rem; padding: .2rem .7rem; border-radius: var(--rayon-pilule); border: 1px solid var(--vert-100);
+                background: var(--vert-50); color: var(--vert-fonce); font-size: .8rem; font-weight: 700; line-height: 1.4; white-space: nowrap; }
+.pastille-evt.type { background: var(--surface); border-color: var(--vert-200); }
+.pastille-evt.ouvert { background: var(--vert-50); }
+.pastille-evt.en-cours { background: var(--vert); border-color: var(--vert); color: #fff; }
+.pastille-evt.complet { background: var(--surface); border-color: var(--vert-fonce); color: var(--vert-fonce); }
+.pastille-evt.termine { background: var(--papier); border-color: var(--trait); color: var(--encre-douce); }
+.pastille-evt.annule { background: var(--rouge-fond); border-color: var(--rouge-fond); color: var(--rouge); }

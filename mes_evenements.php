@@ -29,20 +29,20 @@ function ligneEvenement(array $e): void
 {
     $t = strtotime($e['date_debut']);
     if ($e['statut'] === 'annule') {
-        $badge = '<span class="badge bg-danger rounded-pill">Annulé</span>';
+        $badge = '<span class="pastille-evt annule">Annulé</span>';
     } elseif ($e['date_fin'] < date('Y-m-d H:i:s')) {
         $badge = $e['statut_inscription'] === 'inscrit'
-            ? ($e['present'] ? '<span class="badge bg-success rounded-pill">Présent</span>' : '<span class="badge bg-secondary rounded-pill">Terminé</span>')
-            : '<span class="badge bg-secondary rounded-pill">Terminé</span>';
+            ? ($e['present'] ? '<span class="pastille-evt ouvert">Présent</span>' : '<span class="pastille-evt termine">Terminé</span>')
+            : '<span class="pastille-evt termine">Terminé</span>';
     } else {
         $badge = $e['statut_inscription'] === 'inscrit'
-            ? '<span class="badge bg-success rounded-pill">Inscrit</span>'
-            : '<span class="badge bg-warning text-dark rounded-pill">Liste d\'attente</span>';
+            ? '<span class="pastille-evt ouvert">Inscrit</span>'
+            : '<span class="pastille-evt complet">Liste d\'attente</span>';
     } ?>
     <a href="evenement.php?id=<?= $e['id_evenement'] ?>" class="list-group-item list-group-item-action d-flex align-items-center gap-3 py-3">
         <div class="text-center flex-shrink-0 rounded-3 py-1" style="width: 56px; background: #d9ead3; color: #274e13;">
             <div class="fw-bold fs-5 lh-1"><?= date('j', $t) ?></div>
-            <div class="small"><?= mb_substr(EVT_MOIS[(int) date('n', $t) - 1], 0, 4) ?></div>
+            <div class="small"><?= EVT_MOIS_COURTS[(int) date('n', $t) - 1] ?></div>
         </div>
         <div class="flex-grow-1">
             <div class="fw-bold"><?= htmlspecialchars($e['titre']) ?></div>

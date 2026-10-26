@@ -166,7 +166,7 @@ if (aLeDroit('catalogue')) {
     $aTraiter[] = ['bell', 'Ruptures avec alertes clients', $detailAlertes, count($livresEnAttenteAlerte), 'inventaire.php?stock=rupture'];
 }
 if (aLeDroit('evenements')) {
-    $aTraiter[] = ['calendar-plus', 'Événements proposés par les auteurs', 'En attente de validation', (int) $indicateurs['evt_proposes'], 'evenements.php'];
+    $aTraiter[] = ['calendar-plus', 'Événements proposés par les auteurs', 'En attente de validation', (int) $indicateurs['evt_proposes'], 'evenements.php?onglet=proposes'];
 }
 if (aLeDroit('admin')) {
     $aTraiter[] = ['person-badge', 'Candidatures modérateur', 'Membres à valider', $compteurs['candidatures'], 'utilisateurs.php'];
