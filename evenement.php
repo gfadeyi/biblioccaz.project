@@ -22,8 +22,8 @@ unset($_SESSION['flash_evt']);
 
 function boutonEvenement(string $action, int $idEvt, string $csrf, string $libelle, string $classe, string $confirmation = ''): string
 {
-    $onsubmit = $confirmation ? ' onsubmit="return confirm(\'' . htmlspecialchars(addslashes($confirmation)) . '\');"' : '';
-    return "<form action=\"evenement_action.php\" method=\"POST\"$onsubmit>
+    $attributConfirmation = $confirmation ? ' data-confirmer="' . htmlspecialchars($confirmation) . '"' : '';
+    return "<form action=\"evenement_action.php\" method=\"POST\"$attributConfirmation>
         <input type=\"hidden\" name=\"csrf\" value=\"$csrf\">
         <input type=\"hidden\" name=\"action\" value=\"$action\">
         <input type=\"hidden\" name=\"id_evenement\" value=\"$idEvt\">

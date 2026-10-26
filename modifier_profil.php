@@ -1,5 +1,6 @@
 <?php
 require_once 'config.php';
+require_once 'avis_lib.php';
 if (session_status() === PHP_SESSION_NONE) { session_start(); }
 
 if (!isset($_SESSION['user_id'])) {
@@ -10,7 +11,9 @@ if (!isset($_SESSION['user_id'])) {
 $user_id = $_SESSION['user_id'];
 $message = "";
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && !verifierCsrf()) {
+    $message = "error";
+} elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $nom = $_POST['nom'];
     $prenom = $_POST['prenom'];
     $email = $_POST['email'];
@@ -54,30 +57,31 @@ include 'header.php';
 
             <div class="card border-0 shadow-sm p-4" style="border-radius: 15px;">
                 <form action="modifier_profil.php" method="POST">
+                    <input type="hidden" name="csrf" value="<?= jetonCsrf() ?>">
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label small fw-bold text-muted text-uppercase">Prénom</label>
-                            <input type="text" name="prenom" class="form-control" value="<?= htmlspecialchars($user['prenom']) ?>" required>
+                            <input type="text" name="prenom" class="form-control" value="<?= htmlspecialchars($user['prenom'] ?? '') ?>" required>
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label small fw-bold text-muted text-uppercase">Nom</label>
-                            <input type="text" name="nom" class="form-control" value="<?= htmlspecialchars($user['nom']) ?>" required>
+                            <input type="text" name="nom" class="form-control" value="<?= htmlspecialchars($user['nom'] ?? '') ?>" required>
                         </div>
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label small fw-bold text-muted text-uppercase">Adresse E-mail</label>
-                        <input type="email" name="email" class="form-control" value="<?= htmlspecialchars($user['email']) ?>" required>
+                        <input type="email" name="email" class="form-control" value="<?= htmlspecialchars($user['email'] ?? '') ?>" required>
                     </div>
 
                     <div class="row">
                         <div class="col-md-4 mb-3">
                             <label class="form-label small fw-bold text-muted text-uppercase">Code Postal</label>
-                            <input type="text" name="cp" class="form-control" value="<?= htmlspecialchars($user['cp']) ?>" required>
+                            <input type="text" name="cp" class="form-control" value="<?= htmlspecialchars($user['cp'] ?? '') ?>" required>
                         </div>
                         <div class="col-md-8 mb-4">
                             <label class="form-label small fw-bold text-muted text-uppercase">Ville</label>
-                            <input type="text" name="ville" class="form-control" value="<?= htmlspecialchars($user['ville']) ?>" required>
+                            <input type="text" name="ville" class="form-control" value="<?= htmlspecialchars($user['ville'] ?? '') ?>" required>
                         </div>
                     </div>
 

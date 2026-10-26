@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/avis_lib.php';
+require_once __DIR__ . '/compte_lib.php';
 
 $idLivreAvis = (int) $livre['id_livre'];
 $idUserCourant = (int) ($_SESSION['user_id'] ?? 0);
@@ -21,7 +22,7 @@ $stmt->execute([$idLivreAvis]);
 foreach ($stmt->fetchAll() as $r) { $repartition[(int) $r['note']] = (int) $r['nb']; }
 
 $stmt = $pdo->prepare("
-    SELECT a.*, u.pseudo,
+    SELECT a.*, u.pseudo, u.photo,
            EXISTS (SELECT 1 FROM commande_ligne cl INNER JOIN commande c ON c.id_commande = cl.id_commande
                    WHERE cl.id_livre = a.id_livre AND c.id_user = a.id_user) AS achat_verifie
     FROM avis a INNER JOIN user u ON u.id = a.id_user
@@ -114,18 +115,18 @@ $lienTri = fn($t) => 'detail_livre.php?' . http_build_query(['id' => $idLivreAvi
                         <input type="text" name="titre" maxlength="120" class="form-control form-control-sm mb-2" placeholder="Titre de votre avis (facultatif)" value="<?= htmlspecialchars($monAvis['titre'] ?? '') ?>">
                         <textarea name="commentaire" rows="4" class="form-control form-control-sm mb-2" minlength="<?= AVIS_COMMENTAIRE_MIN ?>" maxlength="<?= AVIS_COMMENTAIRE_MAX ?>"
                                   placeholder="Qu'avez-vous pensé de ce livre ?" required><?= htmlspecialchars($monAvis['commentaire'] ?? '') ?></textarea>
-                        <button class="btn btn-success rounded-pill btn-sm w-100 fw-bold"><?= $monAvis ? 'Mettre à jour' : 'Publier mon avis' ?></button>
+                        <button class="bouton bouton-principal bouton-petit w-100"><?= $monAvis ? 'Mettre à jour mon avis' : 'Publier mon avis' ?></button>
                         <?php if (!$monAvis && ($_SESSION['role'] ?? '') === 'client'): ?>
                             <div class="form-text text-center">+<?= AVIS_POINTS ?> points fidélité pour votre avis</div>
                         <?php endif; ?>
                     </form>
                     <?php if ($monAvis): ?>
-                        <form action="action_avis.php" method="POST" class="mt-2" onsubmit="return confirm('Supprimer votre avis ?');">
+                        <form action="action_avis.php" method="POST" class="mt-2" data-confirmer="Supprimer votre avis sur ce livre ? Les points en attente pour cet avis seront annulés." data-titre-confirmer="Supprimer mon avis" data-bouton-confirmer="Supprimer">
                             <input type="hidden" name="csrf" value="<?= $csrf ?>">
                             <input type="hidden" name="action" value="supprimer">
                             <input type="hidden" name="id_livre" value="<?= $idLivreAvis ?>">
                             <input type="hidden" name="id_avis" value="<?= $monAvis['id_avis'] ?>">
-                            <button class="btn btn-link btn-sm text-danger w-100">Supprimer mon avis</button>
+                            <button class="bouton bouton-danger bouton-petit w-100"><i class="bi bi-trash3" aria-hidden="true"></i> Supprimer mon avis</button>
                         </form>
                     <?php endif; ?>
                 <?php endif; ?>
@@ -159,8 +160,9 @@ $lienTri = fn($t) => 'detail_livre.php?' . http_build_query(['id' => $idLivreAvi
                                 <?= $a['date_modification'] ? ' · modifié' : '' ?>
                             </small>
                         </div>
-                        <div class="small text-muted mt-1">
-                            par <strong><?= htmlspecialchars($a['pseudo']) ?></strong>
+                        <div class="auteur-avis small text-muted mt-2">
+                            <?= avatarMembre($a['pseudo'], $a['photo'], 'petit') ?>
+                            <strong><?= htmlspecialchars(pseudoAffiche($a['pseudo'])) ?></strong>
                             <?php if ($a['achat_verifie']): ?>
                                 <span class="badge bg-success-subtle text-success border border-success-subtle ms-1"><i class="bi bi-patch-check-fill"></i> Achat vérifié</span>
                             <?php endif; ?>

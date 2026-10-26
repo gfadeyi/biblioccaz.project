@@ -20,6 +20,7 @@ require_once __DIR__ . '/compte_lib.php';
 require_once __DIR__ . '/avis_lib.php';
 require_once __DIR__ . '/icones_lib.php';
 require_once __DIR__ . '/categories_lib.php';
+$photoMembre = $connected ? photoProfilDe($pdo, (int) $_SESSION['user_id']) : null;
 $idsFavoris = $connected ? idsFavoris($pdo, (int) $_SESSION['user_id']) : [];
 $nb_favoris = count($idsFavoris);
 $resumeCompte = ($connected && $userRole === 'client') ? resumeCompte($pdo, (int) $_SESSION['user_id']) : null;
@@ -149,7 +150,7 @@ $classeRaccourci = fn(array $pages) => in_array($pageActuelle, $pages, true) ? '
 
             <div class="dropdown dropdown-hover">
                 <a href="<?= $connected ? 'profil.php' : 'login.php' ?>" class="icone-entete">
-                    <?= iconeDessin('lecteur') ?>
+                    <?= $connected && cheminPhotoMembre($photoMembre) ? avatarMembre($_SESSION['pseudo'], $photoMembre, 'entete') : iconeDessin('lecteur') ?>
                     <span class="text-truncate" style="max-width: 90px;"><?= $connected ? htmlspecialchars(pseudoAffiche($_SESSION['pseudo'])) : 'Connexion' ?></span>
                     <?php if ($total_notif_admin > 0): ?>
                         <span class="pastille"><?= $total_notif_admin ?></span>
@@ -158,7 +159,7 @@ $classeRaccourci = fn(array $pages) => in_array($pageActuelle, $pages, true) ? '
                 <ul class="dropdown-menu dropdown-menu-end shadow border-0 menu-entete">
                     <?php if ($connected): ?>
                         <li class="menu-entete__profil">
-                            <span class="avatar-lecteur" aria-hidden="true"><?= htmlspecialchars(initialePseudo($_SESSION['pseudo'])) ?></span>
+                            <?= avatarMembre($_SESSION['pseudo'], $photoMembre) ?>
                             <span class="menu-entete__identite">
                                 <strong><?= htmlspecialchars(pseudoAffiche($_SESSION['pseudo'])) ?></strong>
                                 <span class="niveau-lecteur"><?= $resumeCompte ? htmlspecialchars($resumeCompte['niveau']['nom']) : ($libellesRoles[$userRole] ?? 'Membre') ?></span>

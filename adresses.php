@@ -152,7 +152,7 @@ include 'header.php';
                                         <button class="btn btn-sm btn-link text-success p-0">Utiliser par défaut</button>
                                     </form>
                                 <?php endif; ?>
-                                <form method="POST" class="ms-auto" onsubmit="return confirm('Supprimer cette adresse ?');">
+                                <form method="POST" class="ms-auto" data-confirmer="Supprimer cette adresse de votre carnet ?" data-bouton-confirmer="Supprimer">
                                     <input type="hidden" name="csrf" value="<?= $csrf ?>">
                                     <input type="hidden" name="action" value="supprimer">
                                     <input type="hidden" name="id_adresse" value="<?= $a['id_adresse'] ?>">

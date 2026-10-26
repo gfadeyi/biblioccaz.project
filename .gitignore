@@ -5,6 +5,9 @@ img/*
 !img/default.png
 !img/icones.svg
 !img/captcha/biblioccaz.project/
+!img/profils/
+img/profils/*
+!img/profils/.htaccess
 /nbproject/private/
 
 # Identifiants locaux (base de données, mails) - jamais sur GitHub

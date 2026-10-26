@@ -1021,3 +1021,168 @@ h1, h2, h3, .titre { font-family: var(--police-titre); font-weight: 700; letter-
     .badge-nouveau .carte-badge__embleme, .niveau-debloque .carte-niveau__embleme, .niveau-debloque .carte-niveau__annonce { animation: none; }
     .carte-badge.obtenu:hover { transform: none; }
 }
+
+:root { --danger: #b42335; --danger-fond: #fbecee; --danger-trait: #efc4ca; }
+:root[data-theme="sombre"] { --danger: #f2a7b1; --danger-fond: #3a2427; --danger-trait: #5b3439; }
+
+.bouton-petit { padding: .45rem 1rem; font-size: .92rem; gap: .4rem; }
+.bouton-danger { background: var(--surface); color: var(--danger); border-color: var(--danger-trait); }
+.bouton-danger:hover { background: var(--danger-fond); color: var(--danger); border-color: var(--danger); }
+.bouton-danger-plein { background: var(--danger); color: #fff; }
+.bouton-danger-plein:hover { background: color-mix(in srgb, var(--danger) 85%, #000); color: #fff; }
+.bouton-discret { background: transparent; color: var(--encre-douce); }
+.bouton-discret:hover { background: var(--vert-50); color: var(--texte-vert); box-shadow: none; }
+.bouton :is(i, .icone-dessin) { transition: transform var(--duree-normale) var(--courbe-rebond); }
+.bouton:hover .bi-pencil { transform: rotate(-12deg); }
+.bouton:hover .bi-trash3 { transform: translateY(-1px) rotate(8deg); }
+.bouton:hover .bi-camera { transform: scale(1.12); }
+.bouton:focus-visible { outline: 3px solid var(--vert-400); outline-offset: 3px; }
+.bouton-danger:focus-visible, .bouton-danger-plein:focus-visible { outline-color: var(--danger-trait); }
+.bouton:active, .bouton-danger:active { transform: translateY(0) scale(.96); transition-duration: 80ms; }
+.bouton:disabled { opacity: .6; cursor: wait; }
+.bouton-lien { background: none; border: 0; padding: 0; color: var(--encre-douce); font-size: .88rem; text-decoration: underline; text-underline-offset: 3px; cursor: pointer;
+               transition: color var(--transition); }
+.bouton-lien:hover, .bouton-lien:focus-visible { color: var(--texte-vert); }
+
+.fenetre-confirmation .modal-content { border: 1px solid var(--trait); border-radius: var(--rayon-grand); background: var(--surface); color: var(--encre); box-shadow: var(--ombre-survol); }
+.fenetre-confirmation .modal-body { padding: 1.6rem 1.6rem .6rem; }
+.fenetre-confirmation h2 { color: var(--titre); }
+.fenetre-confirmation p { color: var(--encre-douce); }
+.fenetre-confirmation__icone { display: grid; place-items: center; width: 46px; height: 46px; margin-bottom: .9rem; border-radius: 50%; background: var(--danger-fond); color: var(--danger);
+                               font-size: 1.4rem; animation: alerte-confirmation 420ms var(--courbe-rebond) both; }
+.fenetre-confirmation .modal-footer { border: 0; padding: .6rem 1.6rem 1.5rem; gap: .5rem; }
+.fenetre-confirmation.fade .modal-dialog { transform: translateY(12px) scale(.97); transition: transform var(--duree-normale) var(--courbe); }
+.fenetre-confirmation.show .modal-dialog { transform: none; }
+@keyframes alerte-confirmation {
+    from { transform: scale(.6); opacity: 0; }
+}
+
+.avatar-lecteur.teinte-1 { background: linear-gradient(140deg, var(--vert-400), var(--vert)); }
+.avatar-lecteur.teinte-2 { background: linear-gradient(140deg, #7fae8a, #2f6a45); }
+.avatar-lecteur.teinte-3 { background: linear-gradient(140deg, #8fae6a, #4a6b24); }
+.avatar-lecteur.teinte-4 { background: linear-gradient(140deg, #6ea89a, #275e52); }
+.avatar-lecteur.teinte-5 { background: linear-gradient(140deg, #a1b98a, #56704a); }
+.avatar-lecteur.avec-photo { background: var(--vert-50); overflow: hidden; }
+.avatar-lecteur.avec-photo img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+.avatar-lecteur.grand { flex: 0 0 128px; width: 128px; height: 128px; font-size: 3.4rem; box-shadow: 0 0 0 5px var(--vert-100); }
+.avatar-lecteur.entete { flex: 0 0 26px; width: 26px; height: 26px; font-size: .8rem; box-shadow: 0 0 0 2px var(--vert-200); transition: box-shadow var(--transition); }
+.icone-entete:hover .avatar-lecteur.entete { box-shadow: 0 0 0 2px var(--vert-400); }
+.auteur-avis { display: flex; flex-wrap: wrap; align-items: center; gap: .45rem; }
+.auteur-avis strong { color: var(--encre); }
+
+.profil-identite { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 1.5rem 2rem; margin-bottom: 1.5rem; }
+.profil-photo { display: flex; flex-direction: column; align-items: center; gap: .6rem; width: 190px; text-align: center; }
+.profil-photo__cadre { position: relative; width: 128px; height: 128px; }
+.profil-photo__apercu { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 50%; box-shadow: 0 0 0 5px var(--vert-300);
+                        animation: apparition-apercu var(--duree-normale) var(--courbe) both; }
+.profil-photo__cadre.avec-apercu .avatar-lecteur { opacity: 0; }
+@keyframes apparition-apercu {
+    from { opacity: 0; transform: scale(.92); }
+}
+.profil-photo__formulaire { display: flex; flex-direction: column; align-items: center; gap: .45rem; }
+.profil-photo__choix { display: flex; flex-wrap: wrap; justify-content: center; gap: .35rem; }
+.profil-photo__aide { color: var(--encre-douce); font-size: .78rem; line-height: 1.35; }
+.profil-photo__aide.erreur { color: var(--danger); font-weight: 600; }
+#champPhoto:focus-visible + label { outline: 3px solid var(--vert-400); outline-offset: 3px; }
+.profil-identite__pseudo { font-size: 1.8rem; color: var(--titre); margin-bottom: .1rem; overflow-wrap: anywhere; }
+.profil-identite__nom { color: var(--encre-douce); margin-bottom: .6rem; }
+.profil-identite__details { list-style: none; padding: 0; margin: 0 0 .8rem; display: grid; gap: .3rem; color: var(--encre-douce); font-size: .95rem; }
+.profil-identite__details li { overflow-wrap: anywhere; }
+.profil-identite__details i { color: var(--texte-vif); margin-right: .35rem; }
+.profil-identite__actions { display: flex; flex-direction: column; align-items: stretch; gap: .5rem; min-width: 210px; }
+.profil-identite__actions .bouton { justify-content: flex-start; }
+
+.profil-niveau { display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto; align-items: center; gap: 1rem 1.5rem; margin-bottom: 1.5rem; color: var(--encre); text-decoration: none;
+                 transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition); }
+.profil-niveau:hover { color: var(--encre); transform: translateY(-2px); box-shadow: var(--ombre-survol); border-color: var(--vert-300); }
+.profil-niveau__embleme { position: relative; display: grid; place-items: center; width: 64px; height: 64px; border-radius: 50%; background: var(--vert-50); border: 2px solid var(--vert-200); color: var(--texte-vif); }
+.profil-niveau__embleme .icone-dessin { width: 34px; height: 34px; transition: transform var(--duree-normale) var(--courbe-rebond); }
+.profil-niveau:hover .profil-niveau__embleme .icone-dessin { transform: rotate(-10deg) scale(1.08); }
+.profil-niveau__embleme span { position: absolute; bottom: -8px; padding: 0 .45rem; border-radius: var(--rayon-pilule); background: var(--vert); color: #fff; font-size: .7rem; font-weight: 700; }
+.profil-niveau__texte { display: grid; gap: .3rem; }
+.profil-niveau__surtitre { font-size: .75rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--texte-vif); }
+.profil-niveau__texte strong { font-family: var(--police-titre); font-size: 1.35rem; color: var(--titre); }
+.profil-niveau__texte .jauge-niveau { max-width: 360px; background: var(--vert-50); }
+.profil-niveau__texte small { color: var(--encre-douce); }
+.profil-niveau__solde { text-align: center; color: var(--encre-douce); font-size: .9rem; line-height: 1.2; }
+.profil-niveau__solde strong { display: block; font-family: var(--police-titre); font-size: 2rem; color: var(--texte-vert); }
+
+.grille-profil { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.25rem; align-items: start; }
+.grille-profil .carte-compte { display: flex; flex-direction: column; align-items: flex-start; gap: .9rem; height: 100%; }
+.grille-profil .carte-compte__titre { margin-bottom: 0; width: 100%; }
+.grille-profil .carte-compte__titre .compteur-menu { margin-left: auto; font-family: var(--police-texte); }
+.grille-profil .lien-voir-tout { margin-top: auto; }
+.compteur-menu.vide { background: var(--papier); color: var(--encre-douce); }
+.texte-profil { color: var(--encre-douce); margin: 0; font-size: .95rem; }
+.liste-profil { list-style: none; padding: 0; margin: 0; width: 100%; }
+.liste-profil li { display: flex; align-items: center; justify-content: space-between; gap: .75rem; padding: .55rem 0; border-bottom: 1px solid var(--trait); }
+.liste-profil li:first-child { padding-top: 0; }
+.liste-profil li:last-child { border-bottom: 0; }
+.liste-profil a { color: var(--encre); font-weight: 600; text-decoration: none; }
+.liste-profil a:hover { color: var(--texte-vert); text-decoration: underline; }
+.liste-profil small { color: var(--encre-douce); }
+.liste-profil i { color: var(--texte-vif); margin-right: .3rem; }
+.liste-profil__montant { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.etiquette-profil { flex-shrink: 0; display: inline-flex; align-items: center; gap: .25rem; padding: .15rem .6rem; border-radius: var(--rayon-pilule); background: var(--vert-50);
+                    border: 1px solid var(--vert-100); color: var(--texte-vert); font-size: .78rem; font-weight: 700; white-space: nowrap; }
+.etiquette-profil.attente { background: var(--papier); border-color: var(--trait); color: var(--encre-douce); }
+.etiquette-profil.annulee { background: var(--danger-fond); border-color: var(--danger-trait); color: var(--danger); }
+.couvertures-profil { display: flex; gap: .55rem; }
+.couvertures-profil a { display: block; border-radius: 6px; transition: transform var(--transition); }
+.couvertures-profil a:hover { transform: translateY(-3px) rotate(-2deg); }
+.couvertures-profil img { width: 52px; height: 76px; object-fit: cover; border-radius: 6px; box-shadow: 0 2px 6px rgba(0, 0, 0, .15); }
+.chiffres-profil { display: flex; gap: 1.5rem; color: var(--encre-douce); }
+.chiffres-profil strong { display: block; font-family: var(--police-titre); font-size: 1.6rem; color: var(--texte-vert); line-height: 1.1; }
+
+.page-mes-avis > * { max-width: 920px; }
+.liste-mes-avis { display: grid; gap: 1rem; }
+.mon-avis { display: grid; grid-template-columns: 76px minmax(0, 1fr); gap: 1.25rem; transition: border-color var(--transition), box-shadow var(--transition); }
+.mon-avis:hover { border-color: var(--vert-200); }
+.mon-avis.masque { border-style: dashed; }
+.mon-avis__couverture img { width: 76px; height: 110px; object-fit: cover; border-radius: 8px; box-shadow: 0 2px 8px rgba(0, 0, 0, .15); transition: transform var(--transition); }
+.mon-avis:hover .mon-avis__couverture img { transform: rotate(-2deg) scale(1.03); }
+.mon-avis__entete { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .3rem 1rem; }
+.mon-avis__livre { font-family: var(--police-texte); font-size: 1.1rem; margin: 0; }
+.mon-avis__livre a { color: var(--encre); text-decoration: none; }
+.mon-avis__livre a:hover { color: var(--texte-vert); text-decoration: underline; }
+.mon-avis__auteur, .mon-avis__date { color: var(--encre-douce); font-size: .88rem; }
+.mon-avis__note { margin-top: .5rem; }
+.mon-avis__texte { margin: .4rem 0 .7rem; white-space: pre-line; line-height: 1.5; }
+.mon-avis__etats { display: flex; flex-wrap: wrap; gap: .4rem; margin-bottom: .8rem; }
+.mon-avis__etats:empty { display: none; }
+.pastille-etat { display: inline-flex; align-items: center; gap: .3rem; padding: .2rem .65rem; border-radius: var(--rayon-pilule); background: var(--vert-50); border: 1px solid var(--vert-100);
+                 color: var(--texte-vert); font-size: .8rem; font-weight: 600; }
+.pastille-etat.refuse { background: var(--danger-fond); border-color: var(--danger-trait); color: var(--danger); }
+.mon-avis__actions { display: flex; flex-wrap: wrap; gap: .5rem; }
+.etat-vide-compte { display: flex; flex-direction: column; align-items: center; text-align: center; gap: .6rem; padding: 2.5rem 1.5rem; }
+.etat-vide-compte > .icone-dessin { width: 64px; height: 64px; padding: 14px; border-radius: 50%; background: var(--vert-50); color: var(--texte-vif); }
+.etat-vide-compte p { color: var(--encre-douce); max-width: 46ch; margin: 0; }
+
+@media (max-width: 991.98px) {
+    .profil-identite { grid-template-columns: auto minmax(0, 1fr); }
+    .profil-identite__actions { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(4, auto); justify-content: start; gap: .4rem .25rem; min-width: 0; }
+    .profil-identite__actions .bouton-contour { grid-column: 1 / -1; justify-self: start; margin-bottom: .2rem; }
+    .profil-identite__actions .bouton-discret { padding-inline: .7rem; }
+    .profil-niveau { grid-template-columns: auto minmax(0, 1fr) auto; }
+    .profil-niveau .lien-voir-tout { grid-column: 1 / -1; justify-self: start; }
+}
+@media (max-width: 575.98px) {
+    .profil-identite { grid-template-columns: minmax(0, 1fr); justify-items: center; text-align: center; }
+    .profil-identite__details { justify-items: center; }
+    .profil-identite__actions { grid-template-columns: repeat(2, auto); justify-content: center; }
+    .profil-identite__actions .bouton-contour { justify-self: center; }
+    .profil-niveau { grid-template-columns: auto minmax(0, 1fr); }
+    .profil-niveau__solde { grid-column: 1 / -1; text-align: left; display: flex; align-items: baseline; gap: .4rem; }
+    .profil-niveau__solde strong { display: inline; font-size: 1.5rem; }
+    .grille-profil { grid-template-columns: minmax(0, 1fr); }
+    .mon-avis { grid-template-columns: 56px minmax(0, 1fr); gap: .9rem; }
+    .mon-avis__couverture img { width: 56px; height: 82px; }
+    .mon-avis__actions .bouton, .mon-avis__actions form { flex: 1 1 auto; }
+    .mon-avis__actions form .bouton { width: 100%; }
+    .fenetre-confirmation .modal-footer .bouton { flex: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .fenetre-confirmation__icone, .profil-photo__apercu { animation: none; }
+    .fenetre-confirmation.fade .modal-dialog { transform: none; transition: none; }
+    .profil-niveau:hover, .couvertures-profil a:hover, .mon-avis:hover .mon-avis__couverture img { transform: none; }
+}

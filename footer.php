@@ -79,8 +79,26 @@ $messageNewsletter = $messagesNewsletter[$_GET['newsletter'] ?? ''] ?? null;
         </div>
     </div>
 </footer>
+
+<div class="modal fade fenetre-confirmation" id="fenetreConfirmation" tabindex="-1" aria-labelledby="titreConfirmation" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-body">
+                <span class="fenetre-confirmation__icone" aria-hidden="true"><i class="bi bi-exclamation-lg"></i></span>
+                <h2 class="h5 mb-2" id="titreConfirmation">Confirmer</h2>
+                <p class="mb-0" id="texteConfirmation"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="bouton bouton-contour bouton-petit" data-bs-dismiss="modal">Annuler</button>
+                <button type="button" class="bouton bouton-danger-plein bouton-petit" id="boutonConfirmer">Confirmer</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="javascript/favoris.js?v=<?= filemtime(__DIR__ . '/javascript/favoris.js') ?>"></script>
+<script src="javascript/confirmation.js?v=<?= filemtime(__DIR__ . '/javascript/confirmation.js') ?>"></script>
 <?php foreach ($scriptsPage ?? [] as $scriptPage): ?>
     <script src="javascript/<?= $scriptPage ?>?v=<?= filemtime(__DIR__ . '/javascript/' . $scriptPage) ?>"></script>
 <?php endforeach; ?>

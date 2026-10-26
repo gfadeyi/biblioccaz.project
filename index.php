@@ -78,7 +78,7 @@ try {
         ORDER BY e.date_debut ASC
         LIMIT 3")->fetchAll();
     $derniersAvis = $pdo->query("
-        SELECT a.note, a.commentaire, u.pseudo, l.id_livre, l.titre AS titre_livre, l.couverture
+        SELECT a.note, a.commentaire, u.pseudo, u.photo, l.id_livre, l.titre AS titre_livre, l.couverture
         FROM avis a
         INNER JOIN user u ON u.id = a.id_user
         INNER JOIN livre l ON l.id_livre = a.id_livre
@@ -309,7 +309,7 @@ include 'header.php';
                                 <span class="couverture-mini"><img src="img/<?= rawurlencode($avis['couverture'] ?: 'default.png') ?>" alt="" loading="lazy"></span>
                                 <span class="avis-lecteur__texte">
                                     <span class="avis-lecteur__auteur">
-                                        <span class="avatar-lecteur petit" aria-hidden="true"><?= htmlspecialchars(initialePseudo($avis['pseudo'])) ?></span>
+                                        <?= avatarMembre($avis['pseudo'], $avis['photo'], 'petit') ?>
                                         <strong><?= htmlspecialchars(pseudoAffiche($avis['pseudo'])) ?></strong>
                                         <?= etoiles((float) $avis['note']) ?>
                                     </span>
