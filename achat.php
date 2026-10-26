@@ -67,12 +67,30 @@ include 'header.php';
                     <?php endif; ?>
 
                     <div id="nouvelle-adresse" class="row g-3 <?= $adresses ? 'd-none' : '' ?>">
-                        <div class="col-md-6"><input type="text" name="prenom" class="form-control" placeholder="Prénom" value="<?= htmlspecialchars($infosUser['prenom'] ?? '') ?>" autocomplete="given-name"></div>
-                        <div class="col-md-6"><input type="text" name="nom" class="form-control" placeholder="Nom" value="<?= htmlspecialchars($infosUser['nom'] ?? '') ?>" autocomplete="family-name"></div>
-                        <div class="col-12"><input type="text" name="adresse" class="form-control" placeholder="N° et nom de rue" autocomplete="address-line1"></div>
-                        <div class="col-12"><input type="text" name="complement" class="form-control" placeholder="Complément (bâtiment, étage...)" autocomplete="address-line2"></div>
-                        <div class="col-4"><input type="text" name="code_postal" class="form-control" placeholder="Code postal" maxlength="5" inputmode="numeric" autocomplete="postal-code"></div>
-                        <div class="col-8"><input type="text" name="ville" class="form-control" placeholder="Ville" autocomplete="address-level2"></div>
+                        <div class="col-md-6">
+                            <label for="livraison-prenom" class="form-label small fw-bold">Prénom</label>
+                            <input type="text" id="livraison-prenom" name="prenom" class="form-control" value="<?= htmlspecialchars($infosUser['prenom'] ?? '') ?>" autocomplete="given-name">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="livraison-nom" class="form-label small fw-bold">Nom</label>
+                            <input type="text" id="livraison-nom" name="nom" class="form-control" value="<?= htmlspecialchars($infosUser['nom'] ?? '') ?>" autocomplete="family-name">
+                        </div>
+                        <div class="col-12">
+                            <label for="livraison-adresse" class="form-label small fw-bold">N° et nom de rue</label>
+                            <input type="text" id="livraison-adresse" name="adresse" class="form-control" autocomplete="address-line1">
+                        </div>
+                        <div class="col-12">
+                            <label for="livraison-complement" class="form-label small fw-bold">Complément <span class="fw-normal text-muted">(facultatif)</span></label>
+                            <input type="text" id="livraison-complement" name="complement" class="form-control" placeholder="Bâtiment, étage…" autocomplete="address-line2">
+                        </div>
+                        <div class="col-4">
+                            <label for="livraison-code-postal" class="form-label small fw-bold">Code postal</label>
+                            <input type="text" id="livraison-code-postal" name="code_postal" class="form-control" maxlength="5" inputmode="numeric" autocomplete="postal-code">
+                        </div>
+                        <div class="col-8">
+                            <label for="livraison-ville" class="form-label small fw-bold">Ville</label>
+                            <input type="text" id="livraison-ville" name="ville" class="form-control" autocomplete="address-level2">
+                        </div>
                         <div class="col-12">
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" name="enregistrer" value="1" id="enregistrer" checked>

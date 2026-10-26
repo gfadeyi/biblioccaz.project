@@ -68,7 +68,7 @@ function formaterEtat($etat) {
 <div class="container mt-5 mb-5">
     <div class="row g-4 g-lg-5">
         <div class="col-md-4 text-center">
-            <img src="<?= htmlspecialchars(urlImage($livre['couverture'])) ?>" class="img-fluid rounded shadow-sm" style="max-height: 450px;">
+            <img src="<?= htmlspecialchars(urlImage($livre['couverture'])) ?>" alt="Couverture de <?= htmlspecialchars($livre['titre']) ?>" class="img-fluid rounded shadow-sm" style="max-height: 450px;">
         </div>
 
         <div class="col-md-5">

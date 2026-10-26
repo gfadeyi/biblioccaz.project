@@ -54,11 +54,12 @@ include 'header.php';
     </div>
 
     <form method="GET" class="row g-2 mb-4">
-        <div class="col-md-5"><input type="text" name="q" class="form-control" placeholder="Titre ou auteur" value="<?= htmlspecialchars($q) ?>"></div>
-        <div class="col-md-3"><input type="text" name="lieu" class="form-control" placeholder="Ville / lieu" value="<?= htmlspecialchars($lieu) ?>"></div>
+        <div class="col-md-5"><label for="dons-recherche" class="visually-hidden">Titre ou auteur</label><input type="search" id="dons-recherche" name="q" class="form-control" placeholder="Titre ou auteur" value="<?= htmlspecialchars($q) ?>"></div>
+        <div class="col-md-3"><label for="dons-lieu" class="visually-hidden">Ville ou lieu de retrait</label><input type="text" id="dons-lieu" name="lieu" class="form-control" placeholder="Ville / lieu" value="<?= htmlspecialchars($lieu) ?>"></div>
         <div class="col-md-2">
-            <select name="categorie" class="form-select">
-                <option value="">Catégorie</option>
+            <label for="dons-categorie" class="visually-hidden">Catégorie</label>
+            <select id="dons-categorie" name="categorie" class="form-select">
+                <option value="">Toutes les catégories</option>
                 <?= optionsCategories($arbreCategoriesDons, $categorie, 'slug', true) ?>
             </select>
         </div>

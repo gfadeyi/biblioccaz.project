@@ -7,14 +7,14 @@ $categorieActuelle = $categorieActuelle ?? null;
 $tagsActuels = $tagsActuels ?? [];
 ?>
 <div class="col-md-6">
-    <label class="form-label fw-bold small">Catégorie</label>
-    <select name="id_categorie" class="form-select bg-light border-0">
+    <label for="champ-categorie" class="form-label fw-bold small">Catégorie</label>
+    <select id="champ-categorie" name="id_categorie" class="form-select bg-light border-0">
         <option value="">— Aucune —</option>
         <?= optionsCategories($arbreCategoriesLivre, $categorieActuelle ?? '') ?>
     </select>
 </div>
 <div class="col-md-6">
-    <label class="form-label fw-bold small d-block">Tags</label>
+    <p class="form-label fw-bold small d-block mb-2">Tags</p>
     <?php foreach (tagsParFamille($listeTags) as $cleFamille => $tagsFamille): ?>
         <fieldset class="mb-2">
             <legend class="small text-muted mb-1" style="font-size: .8rem;"><?= htmlspecialchars(FAMILLES_TAGS[$cleFamille]) ?></legend>

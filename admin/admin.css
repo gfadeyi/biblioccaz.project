@@ -13,7 +13,7 @@
     --surface: #ffffff;
     --encre: #17230f;
     --encre-douce: #56634f;
-    --encre-pale: #7b8775;
+    --encre-pale: #66715f;
     --trait: #dce5d6;
     --trait-fort: #c9d6c1;
     --rouge: #b42335;
@@ -68,7 +68,7 @@ body.admin {
 .admin-logo:hover i { rotate: -8deg; }
 .admin-logo span { font-family: var(--police-titre); font-weight: 700; font-size: 1.2rem; line-height: 1.1; }
 .admin-logo small { display: block; font-family: var(--police-texte); font-weight: 600; font-size: .68rem; text-transform: uppercase; letter-spacing: .1em; color: var(--menu-texte); }
-.admin-menu-section { font-size: .68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .09em; color: rgba(201, 214, 195, .55); padding: 1rem .75rem .35rem; }
+.admin-menu-section { font-size: .68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .09em; color: rgba(201, 214, 195, .78); padding: 1rem .75rem .35rem; }
 .admin-menu-lien { display: flex; align-items: center; gap: .65rem; padding: .5rem .75rem; border-radius: 8px; color: var(--menu-texte); text-decoration: none; font-size: .95rem;
                    transition: background-color var(--duree-rapide) var(--courbe), color var(--duree-rapide) var(--courbe); }
 .admin-menu-lien i { transition: translate var(--duree-rapide) var(--courbe); }
@@ -414,3 +414,15 @@ a.stat:hover, a.stat:focus-visible { translate: 0 -3px; box-shadow: var(--ombre-
 .pagination-site .disabled > .page-link { background: transparent; border-color: transparent; color: var(--encre-douce); }
 #captchaTriggerBtn.valide { color: var(--vert); border-color: var(--vert-400); background: var(--vert-50); }
 .candidature-motivations { margin: 0; padding: .85rem 1rem; background: var(--vert-50); border-left: 3px solid var(--vert-300); border-radius: 0 var(--rayon) var(--rayon) 0; font-size: .95rem; line-height: 1.55; color: var(--encre); white-space: normal; overflow-wrap: anywhere; }
+.titre-connexion-admin { font-family: var(--police-titre); font-weight: 700; }
+.badge.bg-success-subtle { background-color: var(--vert-100) !important; color: var(--vert) !important; border-color: var(--vert-200) !important; }
+
+@media (max-width: 991.98px), (pointer: coarse) {
+    .btn, .form-control, .form-select, .nav-link, .page-link, .bouton-profil, .admin-menu-lien { min-height: 44px; }
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: .35rem; }
+    .btn.w-100, .btn.d-block { display: flex; }
+    .btn-close { box-sizing: border-box; width: 44px; height: 44px; padding: 0; }
+    .btn, .form-control { min-width: 44px; }
+    summary { padding-block: .75rem; }
+    .lien-carte, a.text-muted { display: inline-flex; align-items: center; min-height: 44px; }
+}

@@ -67,7 +67,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="carte shadow">
         <div class="text-center mb-4">
             <i class="bi bi-book-half fs-1" style="color: var(--vert);"></i>
-            <h1 class="h4 fw-bold mt-2 mb-0">Back-office BIBLIOccaz</h1>
+            <h1 class="h4 mt-2 mb-0 titre-connexion-admin">Back-office BIBLIOccaz</h1>
             <p class="text-muted small mb-0">Espace réservé à l'équipe</p>
         </div>
 

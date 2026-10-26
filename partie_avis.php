@@ -112,11 +112,13 @@ $lienTri = fn($t) => 'detail_livre.php?' . http_build_query(['id' => $idLivreAvi
                         <div class="note-saisie mb-2" role="radiogroup" aria-label="Note">
                             <?php for ($n = 5; $n >= 1; $n--): ?>
                                 <input type="radio" name="note" id="note<?= $n ?>" value="<?= $n ?>" <?= (int) ($monAvis['note'] ?? 0) === $n ? 'checked' : '' ?> required>
-                                <label for="note<?= $n ?>" title="<?= $n ?> étoile<?= $n > 1 ? 's' : '' ?>"><i class="bi bi-star-fill"></i></label>
+                                <label for="note<?= $n ?>" title="<?= $n ?> étoile<?= $n > 1 ? 's' : '' ?>"><i class="bi bi-star-fill" aria-hidden="true"></i><span class="visually-hidden"><?= $n ?> étoile<?= $n > 1 ? 's' : '' ?></span></label>
                             <?php endfor; ?>
                         </div>
-                        <input type="text" name="titre" maxlength="120" class="form-control form-control-sm mb-2" placeholder="Titre de votre avis (facultatif)" value="<?= htmlspecialchars($monAvis['titre'] ?? '') ?>">
-                        <textarea name="commentaire" rows="4" class="form-control form-control-sm mb-2" minlength="<?= AVIS_COMMENTAIRE_MIN ?>" maxlength="<?= AVIS_COMMENTAIRE_MAX ?>"
+                        <label for="avis-titre" class="form-label small fw-bold mb-1">Titre <span class="fw-normal text-muted">(facultatif)</span></label>
+                        <input type="text" id="avis-titre" name="titre" maxlength="120" class="form-control form-control-sm mb-2" placeholder="En quelques mots" value="<?= htmlspecialchars($monAvis['titre'] ?? '') ?>">
+                        <label for="avis-commentaire" class="form-label small fw-bold mb-1">Votre avis</label>
+                        <textarea id="avis-commentaire" name="commentaire" rows="4" class="form-control form-control-sm mb-2" minlength="<?= AVIS_COMMENTAIRE_MIN ?>" maxlength="<?= AVIS_COMMENTAIRE_MAX ?>"
                                   placeholder="Qu'avez-vous pensé de ce livre ?" required><?= htmlspecialchars($monAvis['commentaire'] ?? '') ?></textarea>
                         <button class="bouton bouton-principal bouton-petit w-100"><?= $monAvis ? 'Mettre à jour mon avis' : 'Publier mon avis' ?></button>
                         <?php if (!$monAvis && ($_SESSION['role'] ?? '') === 'client'): ?>
@@ -177,13 +179,13 @@ $lienTri = fn($t) => 'detail_livre.php?' . http_build_query(['id' => $idLivreAvi
                                 <small class="text-muted"><i class="bi bi-flag-fill"></i> Vous avez signalé cet avis</small>
                             <?php else: ?>
                                 <details class="small">
-                                    <summary class="text-muted" style="cursor:pointer;"><i class="bi bi-flag"></i> Signaler</summary>
+                                    <summary class="text-muted" style="cursor:pointer;"><i class="bi bi-flag" aria-hidden="true"></i> Signaler</summary>
                                     <form action="action_avis.php" method="POST" class="d-flex gap-2 mt-2">
                                         <input type="hidden" name="csrf" value="<?= $csrf ?>">
                                         <input type="hidden" name="action" value="signaler">
                                         <input type="hidden" name="id_livre" value="<?= $idLivreAvis ?>">
                                         <input type="hidden" name="id_avis" value="<?= $a['id_avis'] ?>">
-                                        <select name="motif" class="form-select form-select-sm" required>
+                                        <select name="motif" class="form-select form-select-sm" aria-label="Motif du signalement" required>
                                             <option value="">Motif...</option>
                                             <?php foreach (AVIS_MOTIFS as $cle => $libelle): ?>
                                                 <option value="<?= $cle ?>"><?= $libelle ?></option>

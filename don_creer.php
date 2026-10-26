@@ -92,7 +92,7 @@ include 'header.php';
         <h5 class="fw-bold mb-3">Le livre</h5>
         <div class="row g-3">
             <div class="col-12">
-                <label class="form-label fw-bold small">Titre *</label>
+                <label for="don_titre" class="form-label fw-bold small">Titre *</label>
                 <input type="text" name="titre" id="don_titre" class="form-control" list="livres_catalogue" maxlength="255" required
                        value="<?= htmlspecialchars($v['titre']) ?>" placeholder="Commencez à taper : les livres du catalogue sont proposés" autocomplete="off">
                 <datalist id="livres_catalogue">
@@ -104,49 +104,49 @@ include 'header.php';
                 <div class="form-text" id="don_lien_info"><?= $v['id_livre'] !== '' ? '✓ Livre lié au catalogue' : '' ?></div>
             </div>
             <div class="col-md-6">
-                <label class="form-label fw-bold small">Auteur</label>
+                <label for="don_auteur" class="form-label fw-bold small">Auteur</label>
                 <input type="text" name="auteur" id="don_auteur" class="form-control" maxlength="255" value="<?= htmlspecialchars($v['auteur']) ?>">
             </div>
             <div class="col-md-6">
-                <label class="form-label fw-bold small">Catégorie</label>
+                <label for="don_categorie" class="form-label fw-bold small">Catégorie</label>
                 <select name="id_categorie" id="don_categorie" class="form-select">
                     <option value="">—</option>
                     <?= optionsCategories($arbreCategoriesDon, $v['id_categorie']) ?>
                 </select>
             </div>
             <div class="col-md-6">
-                <label class="form-label fw-bold small">État *</label>
-                <select name="etat" class="form-select" required>
+                <label for="don-etat" class="form-label fw-bold small">État *</label>
+                <select id="don-etat" name="etat" class="form-select" required>
                     <?php foreach (DON_ETATS as $cle => $libelle): ?>
                         <option value="<?= $cle ?>" <?= $v['etat'] === $cle ? 'selected' : '' ?>><?= $libelle ?></option>
                     <?php endforeach; ?>
                 </select>
             </div>
             <div class="col-md-6">
-                <label class="form-label fw-bold small">Photo (facultative)</label>
-                <input type="file" name="photo" accept="image/jpeg,image/png,image/webp" class="form-control">
+                <label for="don-photo" class="form-label fw-bold small">Photo (facultative)</label>
+                <input id="don-photo" type="file" name="photo" accept="image/jpeg,image/png,image/webp" class="form-control">
             </div>
             <div class="col-12">
-                <label class="form-label fw-bold small">Description</label>
-                <textarea name="description" rows="3" class="form-control" maxlength="1000" placeholder="Annotations, pages cornées, édition..."><?= htmlspecialchars($v['description']) ?></textarea>
+                <label for="don-description" class="form-label fw-bold small">Description</label>
+                <textarea id="don-description" name="description" rows="3" class="form-control" maxlength="1000" placeholder="Annotations, pages cornées, édition..."><?= htmlspecialchars($v['description']) ?></textarea>
             </div>
         </div>
 
         <h5 class="fw-bold mt-4 mb-3">Le retrait</h5>
         <div class="row g-3">
             <div class="col-12">
-                <label class="form-label fw-bold small">Lieu de retrait *</label>
-                <input type="text" name="lieu_retrait" class="form-control" maxlength="255" required value="<?= htmlspecialchars($v['lieu_retrait']) ?>"
+                <label for="don-lieu-retrait" class="form-label fw-bold small">Lieu de retrait *</label>
+                <input id="don-lieu-retrait" type="text" name="lieu_retrait" class="form-control" maxlength="255" required value="<?= htmlspecialchars($v['lieu_retrait']) ?>"
                        placeholder="Ex : Lyon 3e, devant la médiathèque">
                 <div class="form-text">Préférez un lieu public. Ne mettez pas votre adresse exacte : vous pourrez la donner à la personne après la réservation.</div>
             </div>
             <div class="col-md-8">
-                <label class="form-label fw-bold small">Disponibilités</label>
-                <input type="text" name="conditions_retrait" class="form-control" maxlength="255" value="<?= htmlspecialchars($v['conditions_retrait']) ?>" placeholder="Ex : en semaine après 18h, samedi matin">
+                <label for="don-conditions-retrait" class="form-label fw-bold small">Disponibilités</label>
+                <input id="don-conditions-retrait" type="text" name="conditions_retrait" class="form-control" maxlength="255" value="<?= htmlspecialchars($v['conditions_retrait']) ?>" placeholder="Ex : en semaine après 18h, samedi matin">
             </div>
             <div class="col-md-4">
-                <label class="form-label fw-bold small">À récupérer avant le *</label>
-                <input type="date" name="date_limite" class="form-control" required value="<?= htmlspecialchars($v['date_limite']) ?>"
+                <label for="don-date-limite" class="form-label fw-bold small">À récupérer avant le *</label>
+                <input id="don-date-limite" type="date" name="date_limite" class="form-control" required value="<?= htmlspecialchars($v['date_limite']) ?>"
                        min="<?= date('Y-m-d') ?>" max="<?= date('Y-m-d', strtotime('+' . DON_DUREE_MAX_JOURS . ' days')) ?>">
             </div>
         </div>

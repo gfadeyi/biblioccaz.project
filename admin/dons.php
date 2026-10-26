@@ -79,8 +79,8 @@ $onglets = ['en_cours' => 'En cours', 'disponible' => 'Disponibles', 'reserve' =
 
 <form class="d-flex gap-2 mb-3" method="GET">
     <input type="hidden" name="statut" value="<?= e($filtre) ?>">
-    <input type="search" name="q" value="<?= e($q) ?>" class="form-control" style="max-width: 320px;" placeholder="Titre, code ou pseudo du donneur">
-    <button class="btn btn-outline-secondary"><i class="bi bi-search"></i></button>
+    <input type="search" name="q" value="<?= e($q) ?>" class="form-control" aria-label="Rechercher un don" style="max-width: 320px;" placeholder="Titre, code ou pseudo du donneur">
+    <button class="btn btn-outline-secondary" aria-label="Rechercher"><i class="bi bi-search" aria-hidden="true"></i></button>
 </form>
 
 <div class="carte">

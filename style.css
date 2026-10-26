@@ -1524,3 +1524,22 @@ h1, h2, h3, .titre { font-family: var(--police-titre); font-weight: 700; letter-
 .suggestion-secrete__titre { font-family: var(--police-titre); font-weight: 700; color: var(--vert); margin-bottom: .25rem !important; }
 .suggestion-secrete__livre { font-weight: 600; font-size: .9rem; color: var(--encre); }
 .suggestion-secrete__note { font-size: .85rem; font-style: italic; color: var(--encre-douce); margin-top: .25rem !important; }
+
+@media (max-width: 991.98px), (pointer: coarse) {
+    .puce, .bouton-categories, .bouton, .btn, .form-control, .form-select, .page-link, .nav-link { min-height: 44px; }
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: .35rem; }
+    .btn.w-100, .btn.d-block { display: flex; }
+    .icone-entete { min-height: 44px; min-width: 44px; justify-content: center; }
+    .logo-bibli { min-height: 44px; justify-content: center; }
+    .recherche-entete .bouton-loupe::after { content: ""; position: absolute; inset: -5px; }
+    .btn-close { box-sizing: border-box; width: 44px; height: 44px; padding: 0; }
+    .btn { min-width: 44px; }
+    .points-avis button { width: 44px; height: 44px; }
+    .bouton-coeur, .bouton-retirer, .selecteur-quantite button { width: 44px; height: 44px; }
+    .puce-tag, .puce-univers, .puce-filtre-actif, .lien-voir-tout, .bouton-filtrer, .onglets-historique a, a.badge,
+    .fil-ariane a, .pied ul a, .pied-bas a, .carte-formulaire__lien-discret { display: inline-flex; align-items: center; min-height: 44px; }
+    .pied ul { gap: 0; }
+    .pied .reseaux a { display: inline-flex; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; margin-right: .2rem; }
+    summary { padding-block: .75rem; }
+    main a:not([class]), main a.small, main a.fw-bold, main a.d-inline-flex { padding-block: .75rem; margin-block: -.75rem; }
+}

@@ -271,8 +271,8 @@ echo etoilesStyle();
                     <?php endif; ?>
                 <?php endforeach; ?>
             <?php endforeach; ?>
-            <label class="small text-muted text-nowrap">Trier par</label>
-            <select name="tri" class="form-select form-select-sm rounded-pill" onchange="this.form.submit()">
+            <label for="filtre-tri" class="small text-muted text-nowrap">Trier par</label>
+            <select id="filtre-tri" name="tri" class="form-select form-select-sm rounded-pill" onchange="this.form.submit()">
                 <?php foreach ($trisPossibles as $cle => [$libelle]): ?>
                     <option value="<?= $cle ?>" <?= $f['tri'] === $cle ? 'selected' : '' ?>><?= $libelle ?></option>
                 <?php endforeach; ?>
@@ -301,14 +301,14 @@ echo etoilesStyle();
                 <input type="hidden" name="tri" value="<?= htmlspecialchars($f['tri']) ?>">
 
                 <div class="mb-3">
-                    <label class="form-label">Recherche</label>
-                    <input type="text" name="q" class="form-control form-control-sm" placeholder="Titre, auteur, ISBN..." value="<?= htmlspecialchars($f['q']) ?>">
+                    <label for="filtre-recherche" class="form-label">Recherche</label>
+                    <input type="search" id="filtre-recherche" name="q" class="form-control form-control-sm" placeholder="Titre, auteur, ISBN..." value="<?= htmlspecialchars($f['q']) ?>">
                 </div>
 
                 <?php if (!isset($preset['categorie'])): ?>
                     <div class="mb-3">
-                        <label class="form-label">Catégorie</label>
-                        <select name="categorie" class="form-select form-select-sm">
+                        <label for="filtre-categorie" class="form-label">Catégorie</label>
+                        <select id="filtre-categorie" name="categorie" class="form-select form-select-sm">
                             <option value="">Toutes</option>
                             <?= optionsCategories($arbre, $f['categorie'], 'slug', true) ?>
                         </select>
@@ -316,8 +316,8 @@ echo etoilesStyle();
                 <?php endif; ?>
 
                 <div class="mb-3">
-                    <label class="form-label">État</label>
-                    <select name="etat" class="form-select form-select-sm">
+                    <label for="filtre-etat" class="form-label">État</label>
+                    <select id="filtre-etat" name="etat" class="form-select form-select-sm">
                         <option value="">Tous les états</option>
                         <?php foreach ($etatsPossibles as $cle => $libelle): ?>
                             <option value="<?= $cle ?>" <?= $f['etat'] === $cle ? 'selected' : '' ?>><?= $libelle ?></option>
@@ -327,17 +327,17 @@ echo etoilesStyle();
 
                 <?php if (!isset($preset['prix_max'])): ?>
                     <div class="mb-3">
-                        <label class="form-label">Prix (€)</label>
+                        <span class="form-label d-block">Prix (€)</span>
                         <div class="d-flex gap-2">
-                            <input type="number" name="prix_min" min="0" step="0.5" class="form-control form-control-sm" placeholder="Min" value="<?= htmlspecialchars($f['prix_min']) ?>">
-                            <input type="number" name="prix_max" min="0" step="0.5" class="form-control form-control-sm" placeholder="Max" value="<?= htmlspecialchars($f['prix_max']) ?>">
+                            <input type="number" name="prix_min" aria-label="Prix minimum en euros" min="0" step="0.5" class="form-control form-control-sm" placeholder="Min" value="<?= htmlspecialchars($f['prix_min']) ?>">
+                            <input type="number" name="prix_max" aria-label="Prix maximum en euros" min="0" step="0.5" class="form-control form-control-sm" placeholder="Max" value="<?= htmlspecialchars($f['prix_max']) ?>">
                         </div>
                     </div>
                 <?php endif; ?>
 
                 <div class="mb-3">
-                    <label class="form-label">Note des lecteurs</label>
-                    <select name="note_min" class="form-select form-select-sm">
+                    <label for="filtre-note" class="form-label">Note des lecteurs</label>
+                    <select id="filtre-note" name="note_min" class="form-select form-select-sm">
                         <option value="">Toutes les notes</option>
                         <?php foreach (['4.5' => '4,5 ★ et plus', '4' => '4 ★ et plus', '3' => '3 ★ et plus'] as $v => $libelle): ?>
                             <option value="<?= $v ?>" <?= $f['note_min'] === $v ? 'selected' : '' ?>><?= $libelle ?></option>

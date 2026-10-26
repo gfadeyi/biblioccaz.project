@@ -104,14 +104,14 @@ include __DIR__ . '/_haut.php';
 
 <div class="d-flex flex-wrap gap-2 align-items-center mb-3">
     <form class="d-flex flex-wrap gap-2 flex-grow-1" method="GET">
-        <input type="search" name="q" value="<?= e($q) ?>" class="form-control" style="max-width: 320px;" placeholder="Pseudo, email ou nom">
-        <select name="role" class="form-select" style="max-width: 200px;" onchange="this.form.submit()">
+        <input type="search" name="q" value="<?= e($q) ?>" class="form-control" aria-label="Rechercher un membre" style="max-width: 320px;" placeholder="Pseudo, email ou nom">
+        <select name="role" class="form-select" aria-label="Filtrer par rôle" style="max-width: 200px;" onchange="this.form.submit()">
             <option value="">Tous les rôles</option>
             <?php foreach (ROLES_LIBELLES as $cle => $libelle): ?>
                 <option value="<?= $cle ?>" <?= $filtreRole === $cle ? 'selected' : '' ?>><?= $libelle ?></option>
             <?php endforeach; ?>
         </select>
-        <button class="btn btn-outline-secondary"><i class="bi bi-search"></i></button>
+        <button class="btn btn-outline-secondary" aria-label="Rechercher"><i class="bi bi-search" aria-hidden="true"></i></button>
         <?php if ($q !== '' || $filtreRole !== ''): ?><a href="utilisateurs.php" class="btn btn-link">Effacer</a><?php endif; ?>
     </form>
     <a href="export_membres.php" class="btn btn-outline-secondary"><i class="bi bi-file-earmark-pdf me-1"></i> Export PDF</a>
@@ -165,7 +165,7 @@ include __DIR__ . '/_haut.php';
                                 <?= $suspendu
                                     ? boutonAction($m['id'], 'reactiver', '<i class="bi bi-unlock"></i> Réactiver', 'btn-outline-success')
                                     : boutonAction($m['id'], 'suspendre', '<i class="bi bi-slash-circle"></i> Suspendre', 'btn-outline-warning', 'Suspendre ce compte ? La personne ne pourra plus se connecter.') ?>
-                                <?= boutonAction($m['id'], 'supprimer', '<i class="bi bi-trash"></i>', 'btn-outline-danger', 'Supprimer définitivement ce compte et ses commandes, avis et dons ?') ?>
+                                <?= boutonAction($m['id'], 'supprimer', '<i class="bi bi-trash" aria-hidden="true"></i><span class="visually-hidden">Supprimer @' . e($m['pseudo']) . '</span>', 'btn-outline-danger', 'Supprimer définitivement ce compte et ses commandes, avis et dons ?') ?>
                             <?php endif; ?>
                         </td>
                     </tr>

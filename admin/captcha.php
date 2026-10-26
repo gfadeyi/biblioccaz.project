@@ -55,7 +55,7 @@ include __DIR__ . '/_haut.php';
     <input type="hidden" name="action" value="ajouter">
     <h2 class="h6 fw-bold">Ajouter un fond de puzzle</h2>
     <div class="d-flex flex-wrap gap-2">
-        <input type="file" name="captcha_file" class="form-control" style="max-width: 420px;" accept="image/jpeg,image/png" required>
+        <input type="file" name="captcha_file" class="form-control" aria-label="Nouvelle image du captcha (JPG ou PNG)" style="max-width: 420px;" accept="image/jpeg,image/png" required>
         <button class="btn btn-vert"><i class="bi bi-upload me-1"></i> Envoyer</button>
     </div>
     <div class="form-text">Idéalement 300 × 150 pixels. JPG ou PNG, 2 Mo maximum.</div>
