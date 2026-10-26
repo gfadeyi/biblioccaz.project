@@ -10,12 +10,12 @@ Projet annuel de 1re année (ESGI, classe 1A1) par **Gaël Fadeyi**, **Jeanny Be
 - **Stock d'occasion** : plusieurs exemplaires par livre, avec état (neuf, très bon, bon, usé) et prix
 - **Panier et commande** : remises automatiques (-5 % dès 30 €, -10 % dès 50 €), livraison offerte dès 20 €, historique des commandes
 - **Points fidélité** : 1 point par euro dépensé
-- **Catégories, tags et filtres** : navigation par catégorie, filtres (prix, état, note), tris, pagination
+- **Univers, catégories, tags et filtres** : catalogue rangé en 6 univers et leurs catégories (méga-menu, fil d'Ariane, puces de catégories), tags en trois familles (thèmes & ambiances, public, particularités) combinables avec le nombre de livres par tag, filtres (prix, état, note) repliés derrière un bouton « Filtrer » sur téléphone avec puces des filtres actifs, tris, pagination ; univers, catégories et tags gérés depuis le back-office ; anciennes adresses de catégories redirigées (301)
 - **Avis** : notes et commentaires (badge « achat vérifié »), signalement et modération
 - **Dons de livres** : annonces gratuites avec réservation et retrait validé par QR code
 - **Événements** : dédicaces, rencontres et ateliers avec calendrier filtrable, inscriptions, liste d'attente, billets à QR code, contrôle des présences et export PDF des participants
 - **Comptes et rôles** : client, auteur (proposition de livres), modérateur, gestionnaire, administrateur
-- **Back-office séparé** (`admin/`) : tableau de bord, validation des fiches, stock, avis signalés, dons, membres, newsletter, journal d'activité, export PDF des membres
+- **Back-office séparé** (`admin/`) aux couleurs du site : tableau de bord (indicateurs avec tendance, ventes sur 30 jours et par univers, liste « À traiter », activité récente), inventaire lisible (stock par état, prix à partir de, filtres par univers, tri par colonne, alertes de stock bas et de rupture), validation des fiches, avis signalés, dons, membres, newsletter, journal d'activité, export PDF des membres ; confirmations dans une fenêtre propre, fil d'Ariane sur chaque page
 - **Emails** : vérification d'adresse à l'inscription, récupération de mot de passe, newsletter (PHPMailer)
 - **Captcha puzzle** maison, vérifié côté serveur
 

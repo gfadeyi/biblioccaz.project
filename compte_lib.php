@@ -1,7 +1,64 @@
 <?php
 require_once __DIR__ . '/notifications_lib.php';
+require_once __DIR__ . '/avis_lib.php';
+require_once __DIR__ . '/dons_lib.php';
 
 const ADRESSES_MAX = 10;
+
+function pseudoAffiche(string $pseudo): string
+{
+    return initialePseudo($pseudo) . mb_substr($pseudo, 1, null, 'UTF-8');
+}
+
+function initialePseudo(string $pseudo): string
+{
+    return mb_strtoupper(mb_substr($pseudo, 0, 1, 'UTF-8'), 'UTF-8');
+}
+
+const NIVEAUX_LECTEUR = [0 => 'Lecteur curieux', 50 => 'Lecteur assidu', 200 => 'Rat de bibliothèque', 500 => 'Bibliophile'];
+
+function niveauLecteur(int $pointsCumules): array
+{
+    $niveau = ['nom' => '', 'seuil' => 0, 'prochain' => null, 'reste' => 0, 'progression' => 1];
+    foreach (NIVEAUX_LECTEUR as $seuil => $nom) {
+        if ($pointsCumules >= $seuil) {
+            $niveau['nom'] = $nom;
+            $niveau['seuil'] = $seuil;
+        } elseif ($niveau['prochain'] === null) {
+            $niveau['prochain'] = $nom;
+            $niveau['reste'] = $seuil - $pointsCumules;
+            $niveau['progression'] = ($pointsCumules - $niveau['seuil']) / ($seuil - $niveau['seuil']);
+        }
+    }
+    return $niveau;
+}
+
+function resumeCompte(PDO $pdo, int $idUser): array
+{
+    $requetes = [
+        'commandes'        => "SELECT COUNT(*) FROM commande WHERE id_user = ?",
+        'points_commandes' => "SELECT COALESCE(SUM(points_gagnes), 0) FROM commande WHERE id_user = ?",
+        'alertes'          => "SELECT COUNT(*) FROM alerte_stock WHERE id_user = ? AND date_envoi IS NULL",
+        'avis'             => "SELECT COUNT(*) FROM avis WHERE id_user = ?",
+        'dons'             => "SELECT COUNT(*) FROM don WHERE id_donneur = ? AND statut IN ('disponible', 'reserve') AND date_limite >= CURDATE()",
+        'dons_recuperes'   => "SELECT COUNT(*) FROM don WHERE id_donneur = ? AND statut = 'recupere'",
+        'evenements'       => "SELECT COUNT(*) FROM evenement_inscription i INNER JOIN evenement e ON e.id_evenement = i.id_evenement
+                               WHERE i.id_user = ? AND i.statut IN ('inscrit', 'attente') AND e.statut = 'publie' AND e.date_fin >= NOW()",
+    ];
+    $resume = [];
+    foreach ($requetes as $cle => $sql) {
+        try {
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute([$idUser]);
+            $resume[$cle] = (int) $stmt->fetchColumn();
+        } catch (PDOException $e) {
+            $resume[$cle] = 0;
+        }
+    }
+    $resume['points_cumules'] = $resume['points_commandes'] + $resume['avis'] * AVIS_POINTS + $resume['dons_recuperes'] * DON_POINTS;
+    $resume['niveau'] = niveauLecteur($resume['points_cumules']);
+    return $resume;
+}
 
 function stockDuLivre(PDO $pdo, int $idLivre): int
 {

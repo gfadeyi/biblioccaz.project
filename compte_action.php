@@ -70,11 +70,11 @@ if ($titre === false) {
 switch ($action) {
     case 'favori_ajouter':
         $pdo->prepare("INSERT IGNORE INTO favori (id_user, id_livre) VALUES (?, ?)")->execute([$idUser, $idLivre]);
-        finir($retour, 'success', "« $titre » est dans votre liste d'envies.");
+        finir($retour, 'success', "« $titre » est dans vos favoris.");
 
     case 'favori_retirer':
         $pdo->prepare("DELETE FROM favori WHERE id_user = ? AND id_livre = ?")->execute([$idUser, $idLivre]);
-        finir($retour, 'success', "« $titre » a été retiré de votre liste d'envies.");
+        finir($retour, 'success', "« $titre » a été retiré de vos favoris.");
 
     case 'alerte_ajouter':
         if (stockDuLivre($pdo, $idLivre) > 0) {

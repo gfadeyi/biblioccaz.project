@@ -1,58 +1,51 @@
-<div class="book-card">
-    <div class="card h-100 shadow-sm border-0" style="border-radius: 15px; overflow: hidden;">
-        <div class="card-img-container position-relative">
-            <?php $favori = in_array((int) $l['id_livre'], $idsFavoris ?? [], true); ?>
-            <?php if (isset($_SESSION['user_id'])): ?>
-                <button type="button" class="bouton-coeur <?= $favori ? 'actif' : '' ?>" data-livre="<?= (int) $l['id_livre'] ?>"
-                        aria-pressed="<?= $favori ? 'true' : 'false' ?>" title="<?= $favori ? "Retirer de ma liste d'envies" : "Ajouter à ma liste d'envies" ?>">
-                    <i class="bi bi-heart<?= $favori ? '-fill' : '' ?>"></i>
-                </button>
-            <?php else: ?>
-                <a href="login.php" class="bouton-coeur" title="Connectez-vous pour ajouter ce livre à vos envies"><i class="bi bi-heart"></i></a>
+<?php
+require_once __DIR__ . '/livres_lib.php';
+$favori = in_array((int) $l['id_livre'], $idsFavoris ?? [], true);
+$couverture = !empty($l['couverture']) ? $l['couverture'] : 'default.png';
+$lienLivre = 'detail_livre.php?id=' . (int) $l['id_livre'];
+$stockLivre = isset($l['stock']) ? (int) $l['stock'] : null;
+$nbOffres = isset($l['nb_offres']) ? (int) $l['nb_offres'] : 0;
+?>
+<article class="carte-livre">
+    <div class="carte-livre__visuel">
+        <div class="carte-livre__badges">
+            <?php if (!empty($l['coup_de_coeur'])): ?>
+                <span class="badge-bibli badge-coeur"><i class="bi bi-heart-fill"></i> Coup de cœur</span>
             <?php endif; ?>
-            <?php $img = !empty($l['couverture']) ? $l['couverture'] : 'default.png'; ?>
-            <img src="img/<?= rawurlencode($img) ?>" class="img-fluid" style="max-height: 100%; object-fit: contain;">
+            <?php if ($stockLivre === 1): ?>
+                <span class="badge-bibli badge-dernier">Dernier exemplaire</span>
+            <?php endif; ?>
         </div>
-        
-        <div class="card-body">
-            <h3 class="fw-bold mb-1 line-clamp titre-carte">
-                <?= htmlspecialchars($l['titre']) ?>
-            </h3> 
-            
-            <p class="small text-muted mb-<?= isset($l['nb_avis']) ? '1' : '3' ?> text-truncate">
-                <?= htmlspecialchars($l['auteur']) ?>
-            </p>
-            <?php if (isset($l['nb_avis'])): ?>
-                <div class="small mb-2" style="min-height: 1.3rem;">
-                    <?php if ($l['nb_avis'] > 0): ?>
-                        <?= etoiles((float) $l['note_moyenne']) ?> <span class="text-muted">(<?= $l['nb_avis'] ?>)</span>
-                    <?php endif; ?>
-                </div>
+        <?php if (isset($_SESSION['user_id'])): ?>
+            <button type="button" class="bouton-coeur <?= $favori ? 'actif' : '' ?>" data-livre="<?= (int) $l['id_livre'] ?>"
+                    aria-pressed="<?= $favori ? 'true' : 'false' ?>" aria-label="Favori : <?= htmlspecialchars($l['titre']) ?>"
+                    title="<?= $favori ? "Retirer de mes favoris" : "Ajouter à mes favoris" ?>">
+                <i class="bi bi-heart<?= $favori ? '-fill' : '' ?>"></i>
+            </button>
+        <?php else: ?>
+            <a href="login.php" class="bouton-coeur" title="Connectez-vous pour ajouter ce livre à vos favoris" aria-label="Se connecter pour ajouter ce livre à vos favoris"><i class="bi bi-heart"></i></a>
+        <?php endif; ?>
+        <img src="img/<?= rawurlencode($couverture) ?>" alt="Couverture de <?= htmlspecialchars($l['titre']) ?>" loading="lazy">
+    </div>
+
+    <div class="carte-livre__corps">
+        <h3 class="carte-livre__titre"><a href="<?= $lienLivre ?>"><?= htmlspecialchars($l['titre']) ?></a></h3>
+        <p class="carte-livre__auteur"><?= htmlspecialchars($l['auteur'] ?? '') ?></p>
+        <?php if (isset($l['nb_avis'])): ?>
+            <div class="carte-livre__note">
+                <?php if ($l['nb_avis'] > 0): ?>
+                    <?= etoiles((float) $l['note_moyenne']) ?> (<?= (int) $l['nb_avis'] ?>)
+                <?php endif; ?>
+            </div>
+        <?php endif; ?>
+        <div class="carte-livre__pied">
+            <?php if ($nbOffres > 1): ?>
+                <p class="carte-livre__offres"><?= $nbOffres ?> offres dès <?= formatPrix((float) $l['prix']) ?></p>
             <?php endif; ?>
-            
-            <div class="mt-auto">
-                <div class="d-flex justify-content-between align-items-center">
-                    <span class="badge bg-light text-dark border small">
-                        <?php 
-                        $etat_propre = htmlspecialchars($l['etat']);
-                        if ($etat_propre == 'bon') echo 'Bon état';
-                        elseif ($etat_propre == 'tres bon') echo 'Très bon état';
-                        elseif ($etat_propre == 'neuf') echo 'Neuf';
-                        elseif ($etat_propre == 'use') echo 'État usé';
-                        else echo ucfirst($etat_propre);
-                        ?>
-                    </span>
-                    <span class="fw-bold" style="color: #274e13; font-size: 1.1rem;">
-                        <?= number_format($l['prix'], 2) ?> €
-                    </span>
-                </div>
+            <div class="carte-livre__bas">
+                <span class="badge-bibli badge-etat"><?= htmlspecialchars(libelleEtat($l['etat'])) ?></span>
+                <span class="prix"><?= formatPrix((float) $l['prix']) ?></span>
             </div>
         </div>
-
-        <div class="card-footer bg-white border-0 pb-3">
-            <a href="detail_livre.php?id=<?= $l['id_livre'] ?>" class="btn btn-sm w-100 rounded-pill text-white" style="background-color: #274e13;">
-                Voir le détail
-            </a>
-        </div>
     </div>
-</div>
+</article>

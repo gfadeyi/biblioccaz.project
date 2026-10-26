@@ -42,7 +42,7 @@ include 'header.php';
 <div class="container my-4" style="max-width: 960px;">
     <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
         <div>
-            <h1 class="h3 fw-bold mb-1" style="color:#274e13;"><i class="bi bi-heart"></i> Ma liste d'envies</h1>
+            <h1 class="h3 fw-bold mb-1" style="color:#274e13;"><i class="bi bi-heart"></i> Mes favoris</h1>
             <p class="text-muted mb-0"><?= count($favoris) ?> livre<?= count($favoris) > 1 ? 's' : '' ?> mis de côté</p>
         </div>
         <a href="alertes.php" class="btn btn-outline-success rounded-pill"><i class="bi bi-bell"></i> Mes alertes</a>
@@ -55,7 +55,7 @@ include 'header.php';
     <?php if (!$favoris): ?>
         <div class="card border-0 shadow-sm p-5 text-center" style="border-radius: 15px;">
             <i class="bi bi-heart text-muted fs-1 mb-3"></i>
-            <h5 class="text-secondary">Votre liste d'envies est vide.</h5>
+            <h5 class="text-secondary">Vous n'avez encore aucun favori.</h5>
             <p class="text-muted small mb-0">Sur la page d'un livre, cliquez sur le cœur pour le garder ici.</p>
             <a href="catalogue.php" class="btn btn-success rounded-pill px-4 mt-3 mx-auto">Parcourir le catalogue</a>
         </div>

@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/categories_lib.php';
 
-$listeCategories = listerCategories($pdo);
+$arbreCategoriesLivre = arbreCategories($pdo);
 $listeTags = listerTags($pdo);
 $categorieActuelle = $categorieActuelle ?? null;
 $tagsActuels = $tagsActuels ?? [];
@@ -10,23 +10,24 @@ $tagsActuels = $tagsActuels ?? [];
     <label class="form-label fw-bold small">Catégorie</label>
     <select name="id_categorie" class="form-select bg-light border-0">
         <option value="">— Aucune —</option>
-        <?php foreach ($listeCategories as $c): ?>
-            <option value="<?= $c['id_categorie'] ?>" <?= (int) $categorieActuelle === (int) $c['id_categorie'] ? 'selected' : '' ?>>
-                <?= htmlspecialchars($c['nom']) ?>
-            </option>
-        <?php endforeach; ?>
+        <?= optionsCategories($arbreCategoriesLivre, $categorieActuelle ?? '') ?>
     </select>
 </div>
 <div class="col-md-6">
     <label class="form-label fw-bold small d-block">Tags</label>
-    <div class="d-flex flex-wrap gap-2">
-        <?php foreach ($listeTags as $t): ?>
-            <input type="checkbox" class="btn-check" name="tags[]" value="<?= $t['id_tag'] ?>"
-                   id="tag_<?= $t['id_tag'] ?>" <?= in_array($t['id_tag'], $tagsActuels) ? 'checked' : '' ?>>
-            <label class="btn btn-sm btn-outline-success rounded-pill" for="tag_<?= $t['id_tag'] ?>"><?= htmlspecialchars($t['nom']) ?></label>
-        <?php endforeach; ?>
-        <?php if (!$listeTags): ?>
-            <span class="text-muted small">Aucun tag pour l'instant.</span>
-        <?php endif; ?>
-    </div>
+    <?php foreach (tagsParFamille($listeTags) as $cleFamille => $tagsFamille): ?>
+        <fieldset class="mb-2">
+            <legend class="small text-muted mb-1" style="font-size: .8rem;"><?= htmlspecialchars(FAMILLES_TAGS[$cleFamille]) ?></legend>
+            <div class="d-flex flex-wrap gap-2">
+                <?php foreach ($tagsFamille as $t): ?>
+                    <input type="checkbox" class="btn-check" name="tags[]" value="<?= $t['id_tag'] ?>"
+                           id="tag_<?= $t['id_tag'] ?>" <?= in_array($t['id_tag'], $tagsActuels) ? 'checked' : '' ?>>
+                    <label class="btn btn-sm btn-outline-success rounded-pill" for="tag_<?= $t['id_tag'] ?>"><?= htmlspecialchars($t['nom']) ?></label>
+                <?php endforeach; ?>
+            </div>
+        </fieldset>
+    <?php endforeach; ?>
+    <?php if (!$listeTags): ?>
+        <span class="text-muted small">Aucun tag pour l'instant.</span>
+    <?php endif; ?>
 </div>

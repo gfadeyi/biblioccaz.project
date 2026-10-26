@@ -80,7 +80,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 $livresCatalogue = $pdo->query("SELECT id_livre, titre, auteur, id_categorie FROM livre WHERE is_valide = 1 ORDER BY titre")->fetchAll();
-$categories = listerCategories($pdo);
+$arbreCategoriesDon = arbreCategories($pdo);
 
 include 'header.php';
 ?>
@@ -116,9 +116,7 @@ include 'header.php';
                 <label class="form-label fw-bold small">Catégorie</label>
                 <select name="id_categorie" id="don_categorie" class="form-select">
                     <option value="">—</option>
-                    <?php foreach ($categories as $c): ?>
-                        <option value="<?= $c['id_categorie'] ?>" <?= (string) $c['id_categorie'] === $v['id_categorie'] ? 'selected' : '' ?>><?= htmlspecialchars($c['nom']) ?></option>
-                    <?php endforeach; ?>
+                    <?= optionsCategories($arbreCategoriesDon, $v['id_categorie']) ?>
                 </select>
             </div>
             <div class="col-md-6">

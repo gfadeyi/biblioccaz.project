@@ -78,6 +78,7 @@ $tagsActuels = $_POST['tags'] ?? ($livre ? array_column(tagsDuLivre($pdo, $id), 
 
 $titrePage = $livre ? 'Modifier la fiche' : 'Ajouter un livre';
 $pageActive = $livre ? 'inventaire' : 'livre';
+$filAriane = $livre ? [[null, 'Catalogue'], ['inventaire.php', 'Inventaire & stock']] : null;
 include __DIR__ . '/_haut.php';
 $v = fn(string $c) => e((string) ($valeurs[$c] ?? ''));
 ?>

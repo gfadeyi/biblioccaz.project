@@ -2,6 +2,8 @@
 require_once 'config.php';
 require_once 'categories_lib.php';
 
+redirigerAnciennesAdresses();
+
 const LIVRES_PAR_PAGE = 12;
 
 $preset = $preset ?? [];
@@ -15,6 +17,11 @@ $f = array_merge([
 ], $defauts, array_intersect_key($_GET, array_flip(['q', 'categorie', 'tag', 'etat', 'prix_min', 'prix_max', 'tri', 'note_min'])), $preset);
 
 $f = array_map(fn($v) => is_string($v) ? trim($v) : $v, $f);
+$slugsTags = is_array($f['tag']) ? $f['tag'] : explode(',', (string) $f['tag']);
+$f['tag'] = array_slice(array_values(array_unique(array_filter(
+    array_map(fn($slug) => is_string($slug) ? trim($slug) : '', $slugsTags),
+    fn($slug) => preg_match('/^[a-z0-9-]{1,100}$/', $slug) === 1
+))), 0, 8);
 $page = max(1, (int) ($_GET['page'] ?? 1));
 
 $etatsPossibles = ['neuf' => 'Neuf', 'tres bon' => 'Très bon état', 'bon' => 'Bon état', 'use' => 'État usé'];
@@ -37,13 +44,17 @@ if ($f['q'] !== '') {
     foreach (['q1', 'q2', 'q3', 'q4'] as $k) { $params[$k] = '%' . $f['q'] . '%'; }
 }
 if ($f['categorie'] !== '') {
-    $where[] = "c.slug = :categorie";
-    $params['categorie'] = $f['categorie'];
+    $marqueursCategorie = [];
+    foreach (idsCategorieEtEnfants($pdo, $f['categorie']) as $index => $idCategorie) {
+        $marqueursCategorie[] = ':categorie' . $index;
+        $params['categorie' . $index] = $idCategorie;
+    }
+    $where[] = "l.id_categorie IN (" . implode(', ', $marqueursCategorie) . ")";
 }
-if ($f['tag'] !== '') {
+foreach ($f['tag'] as $index => $slugTag) {
     $where[] = "EXISTS (SELECT 1 FROM livre_tag lt INNER JOIN tag t ON t.id_tag = lt.id_tag
-                        WHERE lt.id_livre = l.id_livre AND t.slug = :tag)";
-    $params['tag'] = $f['tag'];
+                        WHERE lt.id_livre = l.id_livre AND t.slug = :tag$index)";
+    $params['tag' . $index] = $slugTag;
 }
 if (isset($etatsPossibles[$f['etat']])) {
     $where[] = "e.etat = :etat";
@@ -79,6 +90,12 @@ $stmt = $pdo->prepare("SELECT COUNT(*) FROM (SELECT l.id_livre $sqlBase) AS resu
 $stmt->execute($params);
 $total = (int) $stmt->fetchColumn();
 
+if (isset($_GET['compter'])) {
+    header('Content-Type: application/json');
+    echo json_encode(['total' => $total]);
+    exit;
+}
+
 $nbPages = max(1, (int) ceil($total / LIVRES_PAR_PAGE));
 $page = min($page, $nbPages);
 $offset = ($page - 1) * LIVRES_PAR_PAGE;
@@ -96,8 +113,85 @@ $stmt = $pdo->prepare("
 $stmt->execute($params);
 $livres = $stmt->fetchAll();
 
-$categories = listerCategories($pdo);
+$arbre = arbreCategories($pdo);
 $tags = listerTags($pdo);
+
+$stmt = $pdo->prepare("SELECT lt.id_tag, COUNT(*) FROM livre_tag lt WHERE lt.id_livre IN (SELECT l.id_livre $sqlBase) GROUP BY lt.id_tag");
+$stmt->execute($params);
+$nombreLivresParTag = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
+$famillesTags = tagsParFamille(array_filter($tags, fn($t) => in_array($t['slug'], $f['tag'], true) || !empty($nombreLivresParTag[$t['id_tag']])));
+
+$universCourant = null;
+$categorieCourante = null;
+if ($f['categorie'] !== '') {
+    foreach ($arbre as $univers) {
+        if ($univers['slug'] === $f['categorie']) {
+            $universCourant = $univers;
+        }
+        foreach ($univers['categories'] as $enfant) {
+            if ($enfant['slug'] === $f['categorie']) {
+                $universCourant = $univers;
+                $categorieCourante = $enfant;
+            }
+        }
+    }
+}
+if ($universCourant && !isset($preset['categorie']) && $titrePage === 'Catalogue') {
+    $titrePage = $categorieCourante['nom'] ?? $universCourant['nom'];
+    $sousTitre = $categorieCourante ? '' : (string) ($universCourant['description'] ?? '');
+}
+
+$filtresActifs = [];
+if ($f['q'] !== '' && !isset($preset['q'])) {
+    $filtresActifs['q'] = '« ' . $f['q'] . ' »';
+}
+if ($f['categorie'] !== '' && !isset($preset['categorie'])) {
+    $filtresActifs['categorie'] = $categorieCourante['nom'] ?? ($universCourant['nom'] ?? $f['categorie']);
+}
+$nomsTags = array_column($tags, 'nom', 'slug');
+foreach ($f['tag'] as $slugTag) {
+    $filtresActifs['tag:' . $slugTag] = $nomsTags[$slugTag] ?? $slugTag;
+}
+if (isset($etatsPossibles[$f['etat']])) {
+    $filtresActifs['etat'] = $etatsPossibles[$f['etat']];
+}
+if ($f['prix_min'] !== '' && is_numeric($f['prix_min']) && !isset($preset['prix_min'])) {
+    $filtresActifs['prix_min'] = 'Dès ' . str_replace('.', ',', (string) (float) $f['prix_min']) . ' €';
+}
+if ($f['prix_max'] !== '' && is_numeric($f['prix_max']) && !isset($preset['prix_max'])) {
+    $filtresActifs['prix_max'] = 'Jusqu\'à ' . str_replace('.', ',', (string) (float) $f['prix_max']) . ' €';
+}
+if (in_array($f['note_min'], ['3', '4', '4.5'], true)) {
+    $filtresActifs['note_min'] = str_replace('.', ',', $f['note_min']) . ' ★ et plus';
+}
+$scriptsPage = ['filtres_catalogue.js'];
+
+function texteVoirLivres(int $nombre): string
+{
+    return $nombre === 0 ? 'Aucun livre' : ($nombre === 1 ? 'Voir le livre' : "Voir les $nombre livres");
+}
+
+function lienFiltreCategorie(array $f, array $preset, string $slug): string
+{
+    if (isset($preset['categorie'])) {
+        return lienCategorie($slug);
+    }
+    return lienFiltres($f, $preset, ['categorie' => $slug, 'page' => '']);
+}
+
+function retraitFiltres(array $f, array $cles): array
+{
+    $changements = ['page' => ''];
+    foreach ($cles as $cle) {
+        if (str_starts_with($cle, 'tag:')) {
+            $f['tag'] = array_values(array_diff($f['tag'], [substr($cle, 4)]));
+            $changements['tag'] = $f['tag'];
+        } else {
+            $changements[$cle] = '';
+        }
+    }
+    return $changements;
+}
 
 function lienFiltres(array $f, array $preset, array $changements): string
 {
@@ -117,12 +211,23 @@ echo etoilesStyle();
     .catalogue-grid .book-card { transition: transform 0.3s ease; }
     .catalogue-grid .book-card:hover { transform: translateY(-5px); }
     .filtres-box { background: white; border-radius: 15px; border: 1px solid #eee; }
-    .filtres-box .form-label { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; color: #274e13; letter-spacing: .03em; }
-    .tag-filtre { font-size: 0.8rem; }
-</style>
+    .filtres-box .form-label { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; color: #274e13; letter-spacing: .03em; }</style>
 
 <div class="container mt-4 mb-5">
-    <div class="d-flex flex-wrap justify-content-between align-items-end mb-4 gap-2">
+    <?php if ($universCourant): ?>
+        <nav aria-label="Fil d'Ariane" class="fil-ariane">
+            <a href="catalogue.php">Catalogue</a>
+            <span aria-hidden="true">›</span>
+            <?php if ($categorieCourante): ?>
+                <a href="<?= htmlspecialchars(lienCategorie($universCourant['slug'])) ?>"><?= htmlspecialchars($universCourant['nom']) ?></a>
+                <span aria-hidden="true">›</span>
+                <span aria-current="page"><?= htmlspecialchars($categorieCourante['nom']) ?></span>
+            <?php else: ?>
+                <span aria-current="page"><?= htmlspecialchars($universCourant['nom']) ?></span>
+            <?php endif; ?>
+        </nav>
+    <?php endif; ?>
+    <div class="d-flex flex-wrap justify-content-between align-items-end mb-3 gap-2">
         <div>
             <h1 class="fw-bold mb-1" style="color:#274e13;"><?= htmlspecialchars($titrePage) ?></h1>
             <p class="text-muted mb-0">
@@ -133,9 +238,12 @@ echo etoilesStyle();
         </div>
         <form method="GET" class="d-flex align-items-center gap-2">
             <?php foreach (['q', 'categorie', 'tag', 'etat', 'prix_min', 'prix_max', 'note_min'] as $k): ?>
-                <?php if ($f[$k] !== '' && !isset($preset[$k])): ?>
-                    <input type="hidden" name="<?= $k ?>" value="<?= htmlspecialchars($f[$k]) ?>">
-                <?php endif; ?>
+                <?php if (isset($preset[$k])) continue; ?>
+                <?php foreach ((array) $f[$k] as $valeur): ?>
+                    <?php if ($valeur !== ''): ?>
+                        <input type="hidden" name="<?= $k ?><?= is_array($f[$k]) ? '[]' : '' ?>" value="<?= htmlspecialchars($valeur) ?>">
+                    <?php endif; ?>
+                <?php endforeach; ?>
             <?php endforeach; ?>
             <label class="small text-muted text-nowrap">Trier par</label>
             <select name="tri" class="form-select form-select-sm rounded-pill" onchange="this.form.submit()">
@@ -146,9 +254,24 @@ echo etoilesStyle();
         </form>
     </div>
 
+    <?php if ($universCourant && $universCourant['categories']): ?>
+        <div class="puces-univers" aria-label="Catégories de l'univers <?= htmlspecialchars($universCourant['nom']) ?>">
+            <a href="<?= htmlspecialchars(lienFiltreCategorie($f, $preset, $universCourant['slug'])) ?>" class="puce-univers <?= $categorieCourante ? '' : 'actif' ?>">Tout voir</a>
+            <?php foreach ($universCourant['categories'] as $enfant): ?>
+                <a href="<?= htmlspecialchars(lienFiltreCategorie($f, $preset, $enfant['slug'])) ?>" class="puce-univers <?= $categorieCourante && $categorieCourante['slug'] === $enfant['slug'] ? 'actif' : '' ?>"><?= htmlspecialchars($enfant['nom']) ?></a>
+            <?php endforeach; ?>
+        </div>
+    <?php endif; ?>
+
     <div class="row g-4">
         <div class="col-lg-3">
-            <form method="GET" class="filtres-box p-3 shadow-sm">
+            <div class="offcanvas-lg offcanvas-start volet-filtres" tabindex="-1" id="voletFiltres" aria-labelledby="voletFiltresTitre">
+            <div class="offcanvas-header d-lg-none">
+                <h5 class="offcanvas-title fw-bold" id="voletFiltresTitre">Filtrer</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#voletFiltres" aria-label="Fermer"></button>
+            </div>
+            <div class="offcanvas-body p-lg-0">
+            <form method="GET" class="filtres-box p-3 shadow-sm" id="formulaireFiltres">
                 <input type="hidden" name="tri" value="<?= htmlspecialchars($f['tri']) ?>">
 
                 <div class="mb-3">
@@ -161,9 +284,7 @@ echo etoilesStyle();
                         <label class="form-label">Catégorie</label>
                         <select name="categorie" class="form-select form-select-sm">
                             <option value="">Toutes</option>
-                            <?php foreach ($categories as $c): ?>
-                                <option value="<?= htmlspecialchars($c['slug']) ?>" <?= $f['categorie'] === $c['slug'] ? 'selected' : '' ?>><?= htmlspecialchars($c['nom']) ?></option>
-                            <?php endforeach; ?>
+                            <?= optionsCategories($arbre, $f['categorie'], 'slug', true) ?>
                         </select>
                     </div>
                 <?php endif; ?>
@@ -198,30 +319,51 @@ echo etoilesStyle();
                     </select>
                 </div>
 
-                <?php if ($tags): ?>
-                    <div class="mb-3">
-                        <label class="form-label d-block">Thème</label>
-                        <div class="d-flex flex-wrap gap-1">
-                            <?php foreach ($tags as $t): ?>
-                                <?php $actif = $f['tag'] === $t['slug']; ?>
-                                <a href="<?= htmlspecialchars(lienFiltres($f, $preset, ['tag' => $actif ? '' : $t['slug'], 'page' => ''])) ?>"
-                                   class="btn btn-sm rounded-pill tag-filtre <?= $actif ? 'btn-success' : 'btn-outline-success' ?>">
+                <?php foreach ($famillesTags as $cleFamille => $tagsFamille): ?>
+                    <fieldset class="mb-3 famille-tags">
+                        <legend class="form-label"><?= htmlspecialchars(FAMILLES_TAGS[$cleFamille]) ?></legend>
+                        <div class="puces-tags">
+                            <?php foreach ($tagsFamille as $t): ?>
+                                <?php $idCase = 'tag-' . $t['slug']; ?>
+                                <input type="checkbox" class="btn-check" name="tag[]" value="<?= htmlspecialchars($t['slug']) ?>" id="<?= htmlspecialchars($idCase) ?>" <?= in_array($t['slug'], $f['tag'], true) ? 'checked' : '' ?> data-filtre-immediat>
+                                <label class="puce-tag" for="<?= htmlspecialchars($idCase) ?>">
                                     <?= htmlspecialchars($t['nom']) ?>
-                                </a>
+                                    <span class="compte-tag"><?= (int) ($nombreLivresParTag[$t['id_tag']] ?? 0) ?></span>
+                                </label>
                             <?php endforeach; ?>
                         </div>
-                        <?php if ($f['tag'] !== ''): ?>
-                            <input type="hidden" name="tag" value="<?= htmlspecialchars($f['tag']) ?>">
-                        <?php endif; ?>
-                    </div>
-                <?php endif; ?>
+                    </fieldset>
+                <?php endforeach; ?>
 
-                <button type="submit" class="btn btn-success w-100 rounded-pill btn-sm fw-bold">Filtrer</button>
+                <button type="submit" class="btn btn-bibli w-100 rounded-pill btn-sm fw-bold d-none d-lg-block">Filtrer</button>
                 <a href="<?= htmlspecialchars(basename($_SERVER['PHP_SELF'])) ?>" class="btn btn-link w-100 btn-sm text-muted">Réinitialiser</a>
+                <div class="pied-volet-filtres d-lg-none">
+                    <button type="submit" class="btn btn-bibli w-100 rounded-pill fw-bold" data-voir-livres><?= texteVoirLivres($total) ?></button>
+                </div>
             </form>
+            </div>
+            </div>
         </div>
 
         <div class="col-lg-9">
+            <div class="barre-filtres-mobile d-lg-none">
+                <button type="button" class="bouton-filtrer" data-bs-toggle="offcanvas" data-bs-target="#voletFiltres" aria-controls="voletFiltres">
+                    <i class="bi bi-sliders" aria-hidden="true"></i> Filtrer<?= $filtresActifs ? ' (' . count($filtresActifs) . ')' : '' ?>
+                </button>
+                <span class="text-muted small"><?= $total ?> livre<?= $total > 1 ? 's' : '' ?></span>
+            </div>
+            <?php if ($filtresActifs): ?>
+                <div class="puces-filtres-actifs" aria-label="Filtres actifs">
+                    <?php foreach ($filtresActifs as $cleFiltre => $libelleFiltre): ?>
+                        <a href="<?= htmlspecialchars(lienFiltres($f, $preset, retraitFiltres($f, [$cleFiltre]))) ?>" class="puce-filtre-actif" aria-label="Retirer le filtre <?= htmlspecialchars($libelleFiltre) ?>">
+                            <?= htmlspecialchars($libelleFiltre) ?> <i class="bi bi-x-lg" aria-hidden="true"></i>
+                        </a>
+                    <?php endforeach; ?>
+                    <?php if (count($filtresActifs) > 1): ?>
+                        <a href="<?= htmlspecialchars(lienFiltres($f, $preset, retraitFiltres($f, array_keys($filtresActifs)))) ?>" class="lien-effacer-filtres">Tout effacer</a>
+                    <?php endif; ?>
+                </div>
+            <?php endif; ?>
             <?php if (!$livres): ?>
                 <div class="card p-5 text-center shadow-sm border-0" style="border-radius: 15px;">
                     <i class="bi bi-book text-muted fs-1 mb-3"></i>

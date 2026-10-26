@@ -15,7 +15,7 @@ document.addEventListener('click', function (e) {
             document.querySelectorAll('button.bouton-coeur[data-livre="' + bouton.dataset.livre + '"]').forEach(b => {
                 b.classList.toggle('actif', data.favori);
                 b.setAttribute('aria-pressed', data.favori ? 'true' : 'false');
-                b.title = data.favori ? "Retirer de ma liste d'envies" : "Ajouter à ma liste d'envies";
+                b.title = data.favori ? "Retirer de mes favoris" : "Ajouter à mes favoris";
                 b.querySelector('i').className = data.favori ? 'bi bi-heart-fill' : 'bi bi-heart';
                 b.classList.remove('anime');
                 void b.offsetWidth;

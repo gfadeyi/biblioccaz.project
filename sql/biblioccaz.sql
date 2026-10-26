@@ -1,3 +1,4 @@
+SET NAMES utf8mb4;
 CREATE DATABASE IF NOT EXISTS biblioccaz
   CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE biblioccaz;
@@ -144,7 +145,10 @@ CREATE TABLE IF NOT EXISTS categorie (
 CREATE TABLE IF NOT EXISTS tag (
   id_tag        INT AUTO_INCREMENT PRIMARY KEY,
   nom           VARCHAR(100) NOT NULL,
-  slug          VARCHAR(100) NOT NULL UNIQUE
+  slug          VARCHAR(100) NOT NULL UNIQUE,
+  famille       VARCHAR(20)  NOT NULL DEFAULT 'theme',
+  ordre         INT          NOT NULL DEFAULT 0,
+  INDEX idx_tag_famille (famille, ordre)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS livre_tag (
@@ -378,4 +382,328 @@ CREATE TABLE IF NOT EXISTS newsletter_historique (
   date_action   DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT fk_newsletter_hist_user FOREIGN KEY (id_user) REFERENCES `user`(id) ON DELETE SET NULL,
   INDEX idx_newsletter_hist_date (date_action)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+ALTER TABLE categorie ADD COLUMN IF NOT EXISTS id_parent   INT          NULL;
+ALTER TABLE categorie ADD COLUMN IF NOT EXISTS icone       VARCHAR(30)  NULL;
+ALTER TABLE categorie ADD COLUMN IF NOT EXISTS couleur     VARCHAR(20)  NULL;
+ALTER TABLE categorie ADD COLUMN IF NOT EXISTS description VARCHAR(255) NULL;
+ALTER TABLE categorie ADD INDEX IF NOT EXISTS idx_categorie_parent (id_parent, ordre);
+
+SET @fk := (SELECT COUNT(*) FROM information_schema.TABLE_CONSTRAINTS
+            WHERE CONSTRAINT_SCHEMA = DATABASE() AND TABLE_NAME = 'categorie' AND CONSTRAINT_NAME = 'fk_categorie_parent');
+SET @sql := IF(@fk = 0,
+  'ALTER TABLE categorie ADD CONSTRAINT fk_categorie_parent FOREIGN KEY (id_parent) REFERENCES categorie(id_categorie) ON DELETE SET NULL',
+  'SELECT 1');
+PREPARE s FROM @sql; EXECUTE s; DEALLOCATE PREPARE s;
+
+INSERT IGNORE INTO categorie (nom, slug, ordre, icone, couleur, description) VALUES
+('BD, Manga & Jeunesse', 'bd-manga-jeunesse', 1, 'bulle', 'bd', 'Mangas, comics, albums, ados'),
+('Littérature', 'litterature', 2, 'livre-ouvert', 'litterature', 'Romans, polars, SF, classiques'),
+('Art & Culture', 'art-culture', 3, 'plume', 'art', 'Histoire, photo, musique, voyages'),
+('Scolaire & Études', 'scolaire-etudes', 4, 'mortier', 'scolaire', 'Manuels, annales, prépas'),
+('Savoirs & Pro', 'savoirs-pro', 5, 'lunettes', 'savoirs', 'Droit, éco, informatique, langues'),
+('Vie pratique', 'vie-pratique', 6, 'tasse', 'pratique', 'Cuisine, sport, maison');
+
+UPDATE categorie SET nom = 'BD', ordre = 1 WHERE slug = 'bd-mangas';
+UPDATE categorie SET nom = 'Romans jeunesse (7-12 ans)', ordre = 5 WHERE slug = 'jeunesse';
+UPDATE categorie SET nom = 'Romans', ordre = 1 WHERE slug = 'roman';
+UPDATE categorie SET nom = 'SF & fantasy', ordre = 3 WHERE slug = 'science-fiction';
+UPDATE categorie SET nom = 'Essais & société', ordre = 6 WHERE slug = 'essai';
+UPDATE categorie SET nom = 'Lycée (manuels & annales)', ordre = 3 WHERE slug = 'manuel-scolaire';
+
+UPDATE categorie c JOIN categorie u ON u.slug = 'bd-manga-jeunesse' SET c.id_parent = u.id_categorie WHERE c.slug IN ('bd-mangas', 'jeunesse');
+UPDATE categorie c JOIN categorie u ON u.slug = 'litterature' SET c.id_parent = u.id_categorie WHERE c.slug IN ('roman', 'science-fiction');
+UPDATE categorie c JOIN categorie u ON u.slug = 'art-culture' SET c.id_parent = u.id_categorie WHERE c.slug = 'essai';
+UPDATE categorie c JOIN categorie u ON u.slug = 'scolaire-etudes' SET c.id_parent = u.id_categorie WHERE c.slug = 'manuel-scolaire';
+
+INSERT IGNORE INTO categorie (nom, slug, ordre, id_parent)
+SELECT e.nom, e.slug, e.ordre, u.id_categorie
+FROM (
+    SELECT 'Comics' AS nom, 'comics' AS slug, 2 AS ordre, 'bd-manga-jeunesse' AS univers
+    UNION ALL SELECT 'Mangas', 'mangas', 3, 'bd-manga-jeunesse'
+    UNION ALL SELECT 'Albums (0-6 ans)', 'albums', 4, 'bd-manga-jeunesse'
+    UNION ALL SELECT 'Ados', 'ados', 6, 'bd-manga-jeunesse'
+    UNION ALL SELECT 'Policier & thriller', 'policier-thriller', 2, 'litterature'
+    UNION ALL SELECT 'Romance', 'romance', 4, 'litterature'
+    UNION ALL SELECT 'Poésie & théâtre', 'poesie-theatre', 5, 'litterature'
+    UNION ALL SELECT 'Classiques', 'classiques', 6, 'litterature'
+    UNION ALL SELECT 'Histoire', 'histoire', 1, 'art-culture'
+    UNION ALL SELECT 'Arts & photographie', 'arts-photographie', 2, 'art-culture'
+    UNION ALL SELECT 'Musique', 'musique', 3, 'art-culture'
+    UNION ALL SELECT 'Voyages', 'voyages', 5, 'art-culture'
+    UNION ALL SELECT 'Primaire', 'primaire', 1, 'scolaire-etudes'
+    UNION ALL SELECT 'Collège', 'college', 2, 'scolaire-etudes'
+    UNION ALL SELECT 'Soutien scolaire', 'soutien-scolaire', 4, 'scolaire-etudes'
+    UNION ALL SELECT 'Prépas & concours', 'prepas-concours', 5, 'scolaire-etudes'
+    UNION ALL SELECT 'Université', 'universite', 6, 'scolaire-etudes'
+    UNION ALL SELECT 'Droit', 'droit', 1, 'savoirs-pro'
+    UNION ALL SELECT 'Économie & entreprise', 'economie-entreprise', 2, 'savoirs-pro'
+    UNION ALL SELECT 'Informatique', 'informatique', 3, 'savoirs-pro'
+    UNION ALL SELECT 'Sciences & techniques', 'sciences-techniques', 4, 'savoirs-pro'
+    UNION ALL SELECT 'Santé', 'sante', 5, 'savoirs-pro'
+    UNION ALL SELECT 'Langues & dictionnaires', 'langues-dictionnaires', 6, 'savoirs-pro'
+    UNION ALL SELECT 'Cuisine', 'cuisine', 1, 'vie-pratique'
+    UNION ALL SELECT 'Développement personnel', 'developpement-personnel', 2, 'vie-pratique'
+    UNION ALL SELECT 'Sport', 'sport', 3, 'vie-pratique'
+    UNION ALL SELECT 'Maison & jardin', 'maison-jardin', 4, 'vie-pratique'
+) e
+JOIN categorie u ON u.slug = e.univers;
+
+UPDATE livre l JOIN categorie c ON c.slug = 'mangas' SET l.id_categorie = c.id_categorie
+  WHERE l.titre LIKE 'Jujutsu Kaisen%' OR l.titre LIKE 'Bleach%';
+UPDATE livre l JOIN categorie c ON c.slug = 'comics' SET l.id_categorie = c.id_categorie
+  WHERE l.titre LIKE 'Absolute Batman%';
+UPDATE livre l JOIN categorie c ON c.slug = 'romance' SET l.id_categorie = c.id_categorie
+  WHERE l.titre LIKE '%Bridgerton%';
+UPDATE livre l JOIN categorie c ON c.slug = 'classiques' SET l.id_categorie = c.id_categorie
+  WHERE l.titre LIKE 'L%tranger%' OR l.titre LIKE 'Th%r%se Raquin%';
+
+ALTER TABLE tag ADD COLUMN IF NOT EXISTS famille VARCHAR(20) NOT NULL DEFAULT 'theme';
+ALTER TABLE tag ADD COLUMN IF NOT EXISTS ordre   INT         NOT NULL DEFAULT 0;
+ALTER TABLE tag ADD INDEX IF NOT EXISTS idx_tag_famille (famille, ordre);
+
+UPDATE livre l
+  JOIN categorie ancienne ON ancienne.id_categorie = l.id_categorie AND ancienne.slug = 'young-adult'
+  JOIN categorie nouvelle ON nouvelle.slug = 'ados'
+  SET l.id_categorie = nouvelle.id_categorie;
+UPDATE don d
+  JOIN categorie ancienne ON ancienne.id_categorie = d.id_categorie AND ancienne.slug = 'young-adult'
+  JOIN categorie nouvelle ON nouvelle.slug = 'ados'
+  SET d.id_categorie = nouvelle.id_categorie;
+UPDATE livre l
+  JOIN categorie ancienne ON ancienne.id_categorie = l.id_categorie AND ancienne.slug = 'cinema'
+  JOIN categorie nouvelle ON nouvelle.slug = 'musique'
+  SET l.id_categorie = nouvelle.id_categorie;
+UPDATE don d
+  JOIN categorie ancienne ON ancienne.id_categorie = d.id_categorie AND ancienne.slug = 'cinema'
+  JOIN categorie nouvelle ON nouvelle.slug = 'musique'
+  SET d.id_categorie = nouvelle.id_categorie;
+DELETE FROM categorie WHERE slug IN ('young-adult', 'cinema');
+
+UPDATE categorie c
+JOIN (
+    SELECT 'bd-mangas' AS ancien, 'bandes-dessinees' AS nouveau, 'Bandes dessinées' AS nom, 1 AS ordre
+    UNION ALL SELECT 'albums', 'albums', 'Albums & premières lectures', 4
+    UNION ALL SELECT 'jeunesse', 'jeunesse', 'Romans jeunesse', 5
+    UNION ALL SELECT 'ados', 'ados', 'Romans ados & young adult', 6
+    UNION ALL SELECT 'roman', 'roman', 'Romans contemporains', 1
+    UNION ALL SELECT 'policier-thriller', 'policier-thriller', 'Polars & thrillers', 2
+    UNION ALL SELECT 'science-fiction', 'science-fiction', 'Science-fiction & fantasy', 3
+    UNION ALL SELECT 'arts-photographie', 'arts-photographie', 'Beaux-arts & photo', 2
+    UNION ALL SELECT 'musique', 'musique', 'Musique & cinéma', 3
+    UNION ALL SELECT 'voyages', 'voyages', 'Récits de voyage & guides', 4
+    UNION ALL SELECT 'essai', 'essai', 'Essais & société', 5
+    UNION ALL SELECT 'manuel-scolaire', 'lycee', 'Lycée', 3
+    UNION ALL SELECT 'soutien-scolaire', 'soutien-scolaire', 'Cahiers de vacances & soutien', 4
+    UNION ALL SELECT 'sante', 'sante', 'Santé & médecine', 5
+    UNION ALL SELECT 'sport', 'sport', 'Sport & loisirs', 3
+) renommage ON c.slug IN (renommage.ancien, renommage.nouveau)
+SET c.slug = renommage.nouveau, c.nom = renommage.nom, c.ordre = renommage.ordre;
+
+UPDATE don d JOIN categorie c ON c.slug = 'comics'
+  SET d.id_categorie = c.id_categorie
+  WHERE d.titre LIKE 'Absolute Batman%';
+
+DELETE FROM tag WHERE slug IN ('classique', 'romance', 'histoire', 'fantastique', 'action', 'societe');
+
+INSERT INTO tag (nom, slug, famille, ordre) VALUES
+('Aventure', 'aventure', 'theme', 1),
+('Action & combats', 'action-combats', 'theme', 2),
+('Humour', 'humour', 'theme', 3),
+('Suspense', 'suspense', 'theme', 4),
+('Magie & surnaturel', 'magie-surnaturel', 'theme', 5),
+('Amitié', 'amitie', 'theme', 6),
+('Famille', 'famille', 'theme', 7),
+('Passage à l''âge adulte', 'passage-age-adulte', 'theme', 8),
+('Nature & écologie', 'nature-ecologie', 'theme', 9),
+('Engagement', 'engagement', 'theme', 10),
+('Super-héros', 'super-heros', 'theme', 11),
+('Feel-good', 'feel-good', 'theme', 12),
+('Dès 3 ans', 'des-3-ans', 'public', 1),
+('Dès 6 ans', 'des-6-ans', 'public', 2),
+('Dès 9 ans', 'des-9-ans', 'public', 3),
+('Dès 12 ans', 'des-12-ans', 'public', 4),
+('Dès 15 ans', 'des-15-ans', 'public', 5),
+('Adultes', 'adultes', 'public', 6),
+('Adapté en film ou série', 'adapte-film-serie', 'particularite', 1),
+('Prix littéraire', 'prix-litteraire', 'particularite', 2),
+('Série en plusieurs tomes', 'serie-plusieurs-tomes', 'particularite', 3),
+('Premier tome', 'premier-tome', 'particularite', 4),
+('Édition illustrée', 'edition-illustree', 'particularite', 5),
+('Facile à lire', 'facile-a-lire', 'particularite', 6),
+('Histoire vraie', 'histoire-vraie', 'particularite', 7),
+('Format poche', 'format-poche', 'particularite', 8)
+ON DUPLICATE KEY UPDATE nom = VALUES(nom), famille = VALUES(famille), ordre = VALUES(ordre);
+
+INSERT IGNORE INTO livre_tag (id_livre, id_tag)
+SELECT l.id_livre, t.id_tag
+FROM (
+    SELECT 'Harry Potter%' AS motif, 'aventure' AS tag
+    UNION ALL SELECT 'Harry Potter%', 'magie-surnaturel'
+    UNION ALL SELECT 'Harry Potter%', 'amitie'
+    UNION ALL SELECT 'Harry Potter%', 'des-9-ans'
+    UNION ALL SELECT 'Harry Potter%', 'serie-plusieurs-tomes'
+    UNION ALL SELECT 'Harry Potter%', 'adapte-film-serie'
+    UNION ALL SELECT 'Jujutsu Kaisen%', 'action-combats'
+    UNION ALL SELECT 'Jujutsu Kaisen%', 'magie-surnaturel'
+    UNION ALL SELECT 'Jujutsu Kaisen%', 'des-12-ans'
+    UNION ALL SELECT 'Jujutsu Kaisen%', 'serie-plusieurs-tomes'
+    UNION ALL SELECT 'Jujutsu Kaisen%', 'adapte-film-serie'
+    UNION ALL SELECT 'Bleach%', 'action-combats'
+    UNION ALL SELECT 'Bleach%', 'magie-surnaturel'
+    UNION ALL SELECT 'Bleach%', 'des-12-ans'
+    UNION ALL SELECT 'Bleach%', 'serie-plusieurs-tomes'
+    UNION ALL SELECT 'Bleach%', 'adapte-film-serie'
+    UNION ALL SELECT 'Bleach%', 'premier-tome'
+    UNION ALL SELECT 'L%tranger', 'adultes'
+    UNION ALL SELECT 'L%tranger', 'adapte-film-serie'
+    UNION ALL SELECT 'L%tranger', 'format-poche'
+    UNION ALL SELECT 'Th%r%se Raquin%', 'suspense'
+    UNION ALL SELECT 'Th%r%se Raquin%', 'adultes'
+    UNION ALL SELECT 'Th%r%se Raquin%', 'adapte-film-serie'
+    UNION ALL SELECT 'Th%r%se Raquin%', 'format-poche'
+    UNION ALL SELECT 'Le Probl%me %trois corps%', 'suspense'
+    UNION ALL SELECT 'Le Probl%me %trois corps%', 'adultes'
+    UNION ALL SELECT 'Le Probl%me %trois corps%', 'serie-plusieurs-tomes'
+    UNION ALL SELECT 'Le Probl%me %trois corps%', 'prix-litteraire'
+    UNION ALL SELECT 'Le Probl%me %trois corps%', 'adapte-film-serie'
+    UNION ALL SELECT 'L%Arabe du futur%', 'famille'
+    UNION ALL SELECT 'L%Arabe du futur%', 'humour'
+    UNION ALL SELECT 'L%Arabe du futur%', 'adultes'
+    UNION ALL SELECT 'L%Arabe du futur%', 'histoire-vraie'
+    UNION ALL SELECT 'L%Arabe du futur%', 'serie-plusieurs-tomes'
+    UNION ALL SELECT '%Bridgerton%', 'famille'
+    UNION ALL SELECT '%Bridgerton%', 'adultes'
+    UNION ALL SELECT '%Bridgerton%', 'serie-plusieurs-tomes'
+    UNION ALL SELECT '%Bridgerton%', 'adapte-film-serie'
+    UNION ALL SELECT 'I Am Not Your Negro%', 'engagement'
+    UNION ALL SELECT 'I Am Not Your Negro%', 'adultes'
+    UNION ALL SELECT 'I Am Not Your Negro%', 'histoire-vraie'
+    UNION ALL SELECT 'I Am Not Your Negro%', 'adapte-film-serie'
+    UNION ALL SELECT 'Absolute Batman%', 'action-combats'
+    UNION ALL SELECT 'Absolute Batman%', 'super-heros'
+    UNION ALL SELECT 'Absolute Batman%', 'des-15-ans'
+    UNION ALL SELECT 'Absolute Batman%', 'serie-plusieurs-tomes'
+) attribution
+JOIN livre l ON l.titre LIKE attribution.motif
+JOIN tag t ON t.slug = attribution.tag;
+
+CREATE TABLE IF NOT EXISTS point_mouvement (
+  id_mouvement   INT AUTO_INCREMENT PRIMARY KEY,
+  id_user        INT          NOT NULL,
+  points         INT          NOT NULL,
+  type           VARCHAR(30)  NOT NULL,
+  libelle        VARCHAR(255) NOT NULL,
+  reference      VARCHAR(60)  NULL,
+  statut         VARCHAR(20)  NOT NULL DEFAULT 'valide',
+  date_mouvement DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE KEY un_mouvement_reference (id_user, type, reference),
+  CONSTRAINT fk_mouvement_user FOREIGN KEY (id_user) REFERENCES `user`(id) ON DELETE CASCADE,
+  INDEX idx_mouvement_user (id_user, statut, date_mouvement)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS badge_obtenu (
+  id_user        INT          NOT NULL,
+  code           VARCHAR(40)  NOT NULL,
+  palier         TINYINT      NOT NULL DEFAULT 1,
+  date_obtention DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  vu             TINYINT(1)   NOT NULL DEFAULT 0,
+  PRIMARY KEY (id_user, code, palier),
+  CONSTRAINT fk_badge_user FOREIGN KEY (id_user) REFERENCES `user`(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS bon_cadeau (
+  id_bon           INT AUTO_INCREMENT PRIMARY KEY,
+  id_user          INT          NOT NULL,
+  montant          DECIMAL(8,2) NOT NULL,
+  motif            VARCHAR(40)  NOT NULL,
+  annee            INT          NOT NULL,
+  date_creation    DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  date_expiration  DATE         NOT NULL,
+  date_utilisation DATETIME     NULL,
+  id_commande      INT          NULL,
+  UNIQUE KEY un_bon_annee (id_user, motif, annee),
+  CONSTRAINT fk_bon_user     FOREIGN KEY (id_user)     REFERENCES `user`(id)            ON DELETE CASCADE,
+  CONSTRAINT fk_bon_commande FOREIGN KEY (id_commande) REFERENCES commande(id_commande) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+ALTER TABLE `user` ADD COLUMN IF NOT EXISTS niveau_vu TINYINT NOT NULL DEFAULT 0;
+
+ALTER TABLE commande ADD COLUMN IF NOT EXISTS statut           VARCHAR(20)  NOT NULL DEFAULT 'validee';
+ALTER TABLE commande ADD COLUMN IF NOT EXISTS date_annulation  DATETIME     NULL;
+ALTER TABLE commande ADD COLUMN IF NOT EXISTS points_utilises  INT          NOT NULL DEFAULT 0;
+ALTER TABLE commande ADD COLUMN IF NOT EXISTS reduction_points DECIMAL(8,2) NOT NULL DEFAULT 0;
+ALTER TABLE commande ADD COLUMN IF NOT EXISTS bonus_niveau     INT          NOT NULL DEFAULT 0;
+ALTER TABLE commande ADD COLUMN IF NOT EXISTS id_bon_cadeau    INT          NULL;
+
+ALTER TABLE avis ADD COLUMN IF NOT EXISTS date_validation DATETIME NULL;
+ALTER TABLE avis ADD COLUMN IF NOT EXISTS id_validateur   INT      NULL;
+
+ALTER TABLE evenement_inscription ADD COLUMN IF NOT EXISTS prioritaire TINYINT(1) NOT NULL DEFAULT 0;
+
+SET @fk := (SELECT COUNT(*) FROM information_schema.TABLE_CONSTRAINTS
+            WHERE CONSTRAINT_SCHEMA = DATABASE() AND TABLE_NAME = 'avis' AND CONSTRAINT_NAME = 'fk_avis_validateur');
+SET @sql := IF(@fk = 0,
+  'ALTER TABLE avis ADD CONSTRAINT fk_avis_validateur FOREIGN KEY (id_validateur) REFERENCES `user`(id) ON DELETE SET NULL',
+  'SELECT 1');
+PREPARE s FROM @sql; EXECUTE s; DEALLOCATE PREPARE s;
+
+SET @fk := (SELECT COUNT(*) FROM information_schema.TABLE_CONSTRAINTS
+            WHERE CONSTRAINT_SCHEMA = DATABASE() AND TABLE_NAME = 'commande' AND CONSTRAINT_NAME = 'fk_commande_bon');
+SET @sql := IF(@fk = 0,
+  'ALTER TABLE commande ADD CONSTRAINT fk_commande_bon FOREIGN KEY (id_bon_cadeau) REFERENCES bon_cadeau(id_bon) ON DELETE SET NULL',
+  'SELECT 1');
+PREPARE s FROM @sql; EXECUTE s; DEALLOCATE PREPARE s;
+
+UPDATE avis SET date_validation = date_creation WHERE statut = 'visible' AND date_validation IS NULL;
+
+INSERT IGNORE INTO point_mouvement (id_user, points, type, libelle, reference, date_mouvement)
+SELECT c.id_user, c.points_gagnes, 'achat', CONCAT('Commande n° ', c.id_commande), CONCAT('commande:', c.id_commande), c.date_commande
+FROM commande c
+WHERE c.points_gagnes > 0;
+
+INSERT IGNORE INTO point_mouvement (id_user, points, type, libelle, reference, date_mouvement)
+SELECT a.id_user, 5, 'avis', CONCAT('Avis sur « ', l.titre, ' »'), CONCAT('livre:', a.id_livre), a.date_creation
+FROM avis a
+INNER JOIN livre l ON l.id_livre = a.id_livre
+INNER JOIN `user` u ON u.id = a.id_user AND u.role = 'client'
+WHERE a.statut = 'visible';
+
+INSERT IGNORE INTO point_mouvement (id_user, points, type, libelle, reference, date_mouvement)
+SELECT d.id_donneur, 20, 'don', CONCAT('Don récupéré : « ', d.titre, ' »'), CONCAT('don:', d.id_don), COALESCE(d.date_recuperation, d.date_creation)
+FROM don d
+WHERE d.statut = 'recupere';
+
+INSERT IGNORE INTO point_mouvement (id_user, points, type, libelle, reference, date_mouvement)
+SELECT u.id, u.solde_points - COALESCE(m.total, 0), 'ajustement', 'Reprise du solde existant', 'reprise', NOW()
+FROM `user` u
+LEFT JOIN (SELECT id_user, SUM(points) AS total FROM point_mouvement WHERE statut = 'valide' GROUP BY id_user) m ON m.id_user = u.id
+WHERE u.solde_points - COALESCE(m.total, 0) <> 0;
+
+ALTER TABLE livre ADD COLUMN IF NOT EXISTS collection      VARCHAR(150) NULL;
+ALTER TABLE livre ADD COLUMN IF NOT EXISTS langue          VARCHAR(50)  NULL;
+ALTER TABLE livre ADD COLUMN IF NOT EXISTS niveau_scolaire VARCHAR(50)  NULL;
+ALTER TABLE livre ADD COLUMN IF NOT EXISTS matiere         VARCHAR(80)  NULL;
+ALTER TABLE livre ADD INDEX IF NOT EXISTS idx_livre_isbn (isbn);
+
+ALTER TABLE `user` ADD COLUMN IF NOT EXISTS photo VARCHAR(255) NULL;
+
+ALTER TABLE evenement ADD COLUMN IF NOT EXISTS motif_refus     VARCHAR(500) NULL;
+ALTER TABLE evenement ADD COLUMN IF NOT EXISTS date_validation DATETIME     NULL;
+ALTER TABLE evenement ADD COLUMN IF NOT EXISTS id_validateur   INT          NULL;
+
+SET @fk := (SELECT COUNT(*) FROM information_schema.TABLE_CONSTRAINTS
+            WHERE CONSTRAINT_SCHEMA = DATABASE() AND TABLE_NAME = 'evenement' AND CONSTRAINT_NAME = 'fk_evenement_validateur');
+SET @sql := IF(@fk = 0,
+  'ALTER TABLE evenement ADD CONSTRAINT fk_evenement_validateur FOREIGN KEY (id_validateur) REFERENCES `user`(id) ON DELETE SET NULL',
+  'SELECT 1');
+PREPARE s FROM @sql; EXECUTE s; DEALLOCATE PREPARE s;
+
+CREATE TABLE IF NOT EXISTS evenement_livre (
+  id_evenement INT NOT NULL,
+  id_livre     INT NOT NULL,
+  PRIMARY KEY (id_evenement, id_livre),
+  CONSTRAINT fk_evtlivre_evenement FOREIGN KEY (id_evenement) REFERENCES evenement(id_evenement) ON DELETE CASCADE,
+  CONSTRAINT fk_evtlivre_livre     FOREIGN KEY (id_livre)     REFERENCES livre(id_livre)         ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

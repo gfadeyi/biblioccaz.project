@@ -35,6 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 $titrePage = 'Contrôle du billet';
 $pageActive = 'evenements';
+$filAriane = [[null, 'Communauté'], ['evenements.php', 'Événements']];
 include __DIR__ . '/_haut.php';
 ?>
 

@@ -79,10 +79,10 @@ function formaterEtat($etat) {
                 <h1 class="fw-bold flex-grow-1"><?= htmlspecialchars($livre['titre']) ?></h1>
                 <?php if ($idUserConnecte): ?>
                     <?= $enFavori
-                        ? formulaireCompte('favori_retirer', (int) $livre['id_livre'], '<i class="bi bi-heart-fill"></i>', 'btn btn-outline-danger rounded-circle bouton-favori', "Retirer de ma liste d'envies")
-                        : formulaireCompte('favori_ajouter', (int) $livre['id_livre'], '<i class="bi bi-heart"></i>', 'btn btn-outline-secondary rounded-circle bouton-favori', "Ajouter à ma liste d'envies") ?>
+                        ? formulaireCompte('favori_retirer', (int) $livre['id_livre'], '<i class="bi bi-heart-fill"></i>', 'btn btn-outline-danger rounded-circle bouton-favori', "Retirer de mes favoris")
+                        : formulaireCompte('favori_ajouter', (int) $livre['id_livre'], '<i class="bi bi-heart"></i>', 'btn btn-outline-secondary rounded-circle bouton-favori', "Ajouter à mes favoris") ?>
                 <?php else: ?>
-                    <a href="login.php" class="btn btn-outline-secondary rounded-circle bouton-favori" title="Connectez-vous pour ajouter ce livre à vos envies"><i class="bi bi-heart"></i></a>
+                    <a href="login.php" class="btn btn-outline-secondary rounded-circle bouton-favori" title="Connectez-vous pour ajouter ce livre à vos favoris"><i class="bi bi-heart"></i></a>
                 <?php endif; ?>
             </div>
             <p class="text-muted h5 mb-2">Par <?= htmlspecialchars($livre['auteur']) ?></p>
@@ -171,6 +171,7 @@ function formaterEtat($etat) {
 
                     <?php if ($estClient && $offre_selectionnee['quantite'] > 0): ?>
                         <form action="action_ajouter_panier.php" method="POST">
+                            <input type="hidden" name="csrf" value="<?= jetonCsrf() ?>">
                             <input type="hidden" name="id_livre" value="<?= $id ?>">
                             <input type="hidden" name="id_exemplaire" value="<?= $offre_selectionnee['id_exemplaire'] ?>">
                             <input type="hidden" name="titre" value="<?= htmlspecialchars($livre['titre']) ?>">

@@ -3,7 +3,9 @@ require_once 'config.php';
 require_once 'dons_lib.php';
 require_once 'categories_lib.php';
 
-$q = trim($_GET['q'] ?? '');
+redirigerAnciennesAdresses();
+
+$q =trim($_GET['q'] ?? '');
 $lieu = trim($_GET['lieu'] ?? '');
 $categorie = $_GET['categorie'] ?? '';
 
@@ -18,8 +20,13 @@ if ($lieu !== '') {
     $params['lieu'] = "%$lieu%";
 }
 if ($categorie !== '') {
-    $where[] = "c.slug = :categorie";
-    $params['categorie'] = $categorie;
+    $idsFiltre = idsCategorieEtEnfants($pdo, $categorie);
+    $marqueurs = [];
+    foreach ($idsFiltre as $index => $idFiltre) {
+        $marqueurs[] = ':categorie' . $index;
+        $params['categorie' . $index] = $idFiltre;
+    }
+    $where[] = "d.id_categorie IN (" . implode(', ', $marqueurs) . ")";
 }
 
 $stmt = $pdo->prepare("
@@ -32,7 +39,7 @@ $stmt = $pdo->prepare("
     LIMIT 60");
 $stmt->execute($params);
 $dons = $stmt->fetchAll();
-$categories = listerCategories($pdo);
+$arbreCategoriesDons = arbreCategories($pdo);
 
 include 'header.php';
 ?>
@@ -52,9 +59,7 @@ include 'header.php';
         <div class="col-md-2">
             <select name="categorie" class="form-select">
                 <option value="">Catégorie</option>
-                <?php foreach ($categories as $c): ?>
-                    <option value="<?= htmlspecialchars($c['slug']) ?>" <?= $categorie === $c['slug'] ? 'selected' : '' ?>><?= htmlspecialchars($c['nom']) ?></option>
-                <?php endforeach; ?>
+                <?= optionsCategories($arbreCategoriesDons, $categorie, 'slug', true) ?>
             </select>
         </div>
         <div class="col-md-2 d-grid"><button class="btn btn-outline-success">Rechercher</button></div>

@@ -1,0 +1,4 @@
+SET NAMES utf8mb4;
+USE biblioccaz;
+
+ALTER TABLE `user` ADD COLUMN IF NOT EXISTS photo VARCHAR(255) NULL;

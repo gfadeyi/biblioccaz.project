@@ -7,9 +7,15 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit();
 }
 
+require_once 'avis_lib.php';
+if (!verifierCsrf()) {
+    header('Location: index.php?newsletter=error_csrf#newsletter');
+    exit();
+}
+
 $email = trim($_POST['email_newsletter'] ?? '');
 if (!filter_var($email, FILTER_VALIDATE_EMAIL) || mb_strlen($email) > 150) {
-    header('Location: index.php?newsletter=error_email');
+    header('Location: index.php?newsletter=error_email#newsletter');
     exit();
 }
 
@@ -50,5 +56,5 @@ try {
     insertLog('ERREUR', "Mail de bienvenue newsletter non envoyé : " . $e->getMessage());
 }
 
-header('Location: index.php?newsletter=success');
+header('Location: index.php?newsletter=success#newsletter');
 exit();

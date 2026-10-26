@@ -3,6 +3,7 @@ secure_data/*
 !secure_data/.gitkeep
 img/*
 !img/default.png
+!img/icones.svg
 !img/captcha/biblioccaz.project/
 /nbproject/private/
 
@@ -12,3 +13,8 @@ secrets.php
 
 # Captures d'inspiration (sites tiers, non diffusées)
 docs/inspiration/
+docs/maquette-accueil.html
+docs/captures/
+docs/apercu-icones.html
+sauvegardes/
+docs/comptes-demo.md

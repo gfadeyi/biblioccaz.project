@@ -3,191 +3,136 @@ require_once 'config.php';
 if (session_status() === PHP_SESSION_NONE) { session_start(); }
 
 require_once 'panier_calcul.php';
+require_once 'livres_lib.php';
 
-$totaux = calculerTotauxPanier($_SESSION['panier'] ?? []);
+$panier = $_SESSION['panier'] ?? [];
+$totaux = calculerTotauxPanier($panier);
 $sousTotal = $totaux['sous_total'];
-$totalArticles = $totaux['nb_articles'];
-$remise = $totaux['remise'];
-$fraisLivraison = $totaux['frais_livraison'];
-$totalFinal = $totaux['total'];
+
+$idsDansPanier = array_values(array_unique(array_map(fn($item) => (int) $item['id_livre'], $panier)));
+$categoriesPanier = [];
+if ($idsDansPanier) {
+    $stmt = $pdo->prepare("SELECT DISTINCT id_categorie FROM livre WHERE id_categorie IS NOT NULL AND id_livre IN (" . implode(',', array_fill(0, count($idsDansPanier), '?')) . ")");
+    $stmt->execute($idsDansPanier);
+    $categoriesPanier = array_map('intval', $stmt->fetchAll(PDO::FETCH_COLUMN));
+}
+
+$conditionSuggestions = $idsDansPanier ? 'AND l.id_livre NOT IN (' . implode(',', array_fill(0, count($idsDansPanier), '?')) . ')' : '';
+$ordreSuggestions = $categoriesPanier
+    ? 'ORDER BY (l.id_categorie IN (' . implode(',', array_fill(0, count($categoriesPanier), '?')) . ')) DESC, nb_favoris DESC, l.id_livre DESC'
+    : 'ORDER BY nb_favoris DESC, l.id_livre DESC';
+$stmt = $pdo->prepare(sqlCartesLivres($conditionSuggestions) . " $ordreSuggestions LIMIT 8");
+$stmt->execute(array_merge($idsDansPanier, $categoriesPanier));
+$suggestions = $stmt->fetchAll();
 
 include 'header.php';
 ?>
 
-<style>
-    .btn-custom-green { 
-        background-color: #274e13; 
-        color: white; 
-        font-weight: bold;
-        border: none;
-        transition: all 0.3s ease;
-        border-radius: 8px;
-    }
-    .btn-custom-green:hover { 
-        background-color: #1a330d; 
-        color: white; 
-    }
-</style>
-
-<div class="container mt-5 mb-5">
-    <div class="row g-4">
-        <div class="col-lg-7">
-            <h2 class="fw-bold mb-4">Mon panier</h2>
-
-            <?php if (!empty($_GET['error'])): ?>
-                <div class="alert alert-danger rounded-3"><i class="bi bi-exclamation-triangle-fill me-2"></i><?= htmlspecialchars($_GET['error']) ?></div>
+<div class="container-xxl page-panier">
+    <div class="entete-section">
+        <div>
+            <h1 class="h2 mb-0">Mon panier</h1>
+            <?php if ($panier): ?>
+                <p><?= $totaux['nb_articles'] ?> livre<?= $totaux['nb_articles'] > 1 ? 's' : '' ?> prêt<?= $totaux['nb_articles'] > 1 ? 's' : '' ?> à rejoindre votre bibliothèque</p>
             <?php endif; ?>
-
-            <div class="card border-success p-3 mb-4 bg-white" style="border-radius: 12px; border-width: 2px !important;">
-                <div class="d-flex align-items-center">
-                    <i class="bi bi-lightbulb text-success fs-3 me-3"></i>
-                    <div>
-                        <h6 class="fw-bold mb-1 text-success">OFFRE EN COURS</h6>
-                        <small class="text-secondary">-5% dès 30€ d'achats | -10% dès 50€ d'achats | Livraison OFFERTE dès 20€ !</small>
-                    </div>
-                </div>
-            </div>
-
-            <?php if (empty($_SESSION['panier'])): ?>
-                <div class="card p-5 text-center shadow-sm border-0 bg-white" style="border-radius: 15px;">
-                    <i class="bi bi-cart-x text-muted fs-1 mb-3"></i>
-                    <h5 class="text-secondary">Votre panier est vide</h5>
-                    <a href="index.php" class="btn btn-custom-green rounded-pill px-4 mt-3 text-white text-decoration-none">Découvrir nos livres</a>
-                </div>
-            <?php else: ?>
-                <div style="max-height: 480px; overflow-y: auto; overflow-x: hidden; padding-right: 5px;">
-                    <?php foreach ($_SESSION['panier'] as $key => $item): ?>
-                        <div class="card p-3 border-0 shadow-sm bg-white mb-3 position-relative" style="border-radius: 15px;">
-                            <a href="action_modifier_panier.php?action=supprimer&key=<?= $key ?>" class="position-absolute top-0 end-0 mt-3 me-3 text-muted text-decoration-none fs-5">
-                                <i class="bi bi-x-lg"></i>
-                            </a>
-                            <div class="row align-items-center g-3">
-                                <div class="col-auto">
-                                    <img src="img/<?= htmlspecialchars($item['image']) ?>" class="img-fluid rounded border" style="width: 70px; height: 95px; object-fit: cover;">
-                                </div>
-                                <div class="col">
-                                    <h6 class="fw-bold text-dark mb-1"><?= htmlspecialchars($item['titre']) ?></h6>
-                                    <div class="badge bg-light text-secondary border px-2 py-1 mb-2" style="font-size: 0.75rem;"><?= htmlspecialchars($item['etat']) ?></div>
-                                    <div class="d-flex align-items-center justify-content-between mt-1">
-                                        <div class="input-group input-group-sm border rounded-pill overflow-hidden bg-light" style="width: 100px;">
-                                            <a href="action_modifier_panier.php?action=moins&key=<?= $key ?>" class="btn btn-light border-0 px-2 d-flex align-items-center justify-content-center"><i class="bi bi-minus small"></i></a>
-                                            <input type="text" class="form-control text-center border-0 bg-transparent fw-bold small p-0" value="<?= $item['quantite'] ?>" readonly style="box-shadow: none;">
-                                            <a href="action_modifier_panier.php?action=plus&key=<?= $key ?>" class="btn btn-light border-0 px-2 d-flex align-items-center justify-content-center"><i class="bi bi-plus small"></i></a>
-                                        </div>
-                                        <div class="fw-bold text-dark fs-5"><?= number_format($item['prix'] * $item['quantite'], 2) ?> €</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    <?php endforeach; ?>
-                </div>
-            <?php endif; ?>
-
-            <div class="mt-5">
-                <h5 class="fw-bold text-dark mb-4">Ces livres pourraient aussi vous plaire</h5>
-                <div class="row g-3">
-                    <?php
-                    $current_id = !empty($_SESSION['panier']) ? reset($_SESSION['panier'])['id_livre'] : 0;
-                    $stmtSug = $pdo->prepare("
-                        SELECT l.id_livre, l.titre, l.couverture, l.auteur, MIN(e.prix) AS prix_min
-                        FROM livre l
-                        INNER JOIN exemplaire e ON e.id_livre = l.id_livre AND e.quantite > 0
-                        WHERE l.id_livre != ?
-                        GROUP BY l.id_livre, l.titre, l.couverture, l.auteur
-                        ORDER BY RAND() LIMIT 3");
-                    $stmtSug->execute([$current_id]);
-                    $suggestions = $stmtSug->fetchAll();
-                    foreach ($suggestions as $sug):
-                        $sug_img = !empty($sug['couverture']) ? $sug['couverture'] : 'default.jpg';
-                    ?>
-                        <div class="col-md-4">
-                            <a href="detail_livre.php?id=<?= $sug['id_livre'] ?>" class="text-decoration-none text-dark">
-                                <div class="p-3 border-0 shadow-sm rounded-4 text-center bg-white h-100 d-flex flex-column justify-content-between">
-                                    <div>
-                                        <img src="img/<?= htmlspecialchars($sug_img) ?>" class="img-fluid rounded mb-3 shadow-sm" style="max-height: 120px; object-fit: cover;">
-                                        <div class="small fw-bold text-dark text-truncate mb-1"><?= htmlspecialchars($sug['titre']) ?></div>
-                                        <div class="text-muted small text-truncate mb-2"><?= htmlspecialchars($sug['auteur']) ?></div>
-                                    </div>
-                                    <div class="fw-bold text-success mt-2">dès <?= number_format($sug['prix_min'], 2, ',', ' ') ?> €</div>
-                                </div>
-                            </a>
-                        </div>
-                    <?php endforeach; ?>
-                </div>
-            </div>
         </div>
-
-        <div class="col-lg-5">
-            <h2 class="fw-bold mb-4">Récapitulatif</h2>
-            <div class="card p-4 border-0 shadow-sm bg-white" style="border-radius: 20px;">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <span class="text-secondary">Panier (<?= $totalArticles ?>)</span>
-                    <span class="fw-medium text-dark"><?= number_format($sousTotal, 2) ?> €</span>
-                </div>
-
-                <?php if ($remise > 0): ?>
-                    <div class="d-flex justify-content-between align-items-center mb-3 text-danger">
-                        <span>Remise automatique</span>
-                        <span class="fw-bold">-<?= number_format($remise, 2) ?> €</span>
-                    </div>
-                <?php endif; ?>
-
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <span class="text-secondary">Frais de livraison</span>
-                    <span class="fw-medium <?= $fraisLivraison == 0 ? 'text-success fw-bold' : 'text-dark' ?>">
-                        <?= $fraisLivraison == 0 ? 'Gratuit' : number_format($fraisLivraison, 2) . ' €' ?>
-                    </span>
-                </div>
-
-                <?php if ($fraisLivraison == 0 && $sousTotal > 0): ?>
-                    <div class="d-flex align-items-center text-success bg-light border border-success p-2 rounded-3 mb-4" style="font-size: 0.85rem;">
-                        <i class="bi bi-check-circle-fill me-2"></i>
-                        <span class="fw-medium">Votre commande est éligible à la livraison gratuite !</span>
-                    </div>
-                <?php elseif ($sousTotal > 0): ?>
-                    <div class="d-flex align-items-center text-success bg-light border border-success p-2 rounded-3 mb-4" style="font-size: 0.85rem;">
-                        <i class="bi bi-info-circle-fill me-2"></i>
-                        <span class="fw-medium">Ajoutez <strong><?= number_format(20 - $sousTotal, 2) ?> €</strong> pour avoir la livraison gratuite.</span>
-                    </div>
-                <?php endif; ?>
-
-                <div class="d-flex justify-content-between align-items-center pt-3 border-top mb-2">
-                    <span class="fw-bold text-dark fs-5">Total</span>
-                    <span class="fw-bold fs-4 text-success"><?= number_format($totalFinal, 2) ?> €</span>
-                </div>
-
-                <?php if ($totaux['points'] > 0): ?>
-                    <div class="text-end small text-success mb-4">
-                        <i class="bi bi-coin me-1"></i> +<?= $totaux['points'] ?> points fidélité avec cette commande
-                    </div>
-                <?php else: ?>
-                    <div class="mb-4"></div>
-                <?php endif; ?>
-
-                <div class="d-grid">
-                    <?php if (!empty($_SESSION['panier'])): ?>
-                        <a href="achat.php" class="btn btn-custom-green text-white fw-bold py-3 rounded-pill fs-5 shadow-sm text-center text-decoration-none">
-                            Valider mon panier
-                        </a>
-                    <?php else: ?>
-                        <button class="btn btn-secondary text-white fw-bold py-3 rounded-pill fs-5 shadow-sm" disabled>
-                            Panier vide
-                        </button>
-                    <?php endif; ?>
-                </div>
-
-                <div class="text-center mt-4 pt-2">
-                    <small class="text-muted"><i class="bi bi-lock-fill me-1"></i> Paiement 100% sécurisé</small>
-                    <div class="d-flex gap-2 justify-content-center mt-3 fs-3 text-secondary">
-                        <i class="bi bi-credit-card"></i>
-                        <i class="bi bi-paypal"></i>
-                        <i class="bi bi-apple"></i>
-                        <i class="bi bi-google"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <?php if ($panier): ?>
+            <a href="catalogue.php" class="lien-voir-tout"><i class="bi bi-arrow-left"></i> Continuer mes achats</a>
+        <?php endif; ?>
     </div>
+
+    <?php if (!empty($_GET['error'])): ?>
+        <div class="alert alert-danger rounded-3"><i class="bi bi-exclamation-triangle-fill me-2"></i><?= htmlspecialchars($_GET['error']) ?></div>
+    <?php endif; ?>
+
+    <?php if (!$panier): ?>
+        <div class="panier-vide">
+            <span class="panier-vide__icone" aria-hidden="true"><i class="bi bi-bag-heart"></i></span>
+            <h2>Votre panier attend sa première lecture</h2>
+            <p>Romans, mangas, manuels… des milliers de pages vous attendent à petit prix.</p>
+            <div class="d-flex flex-wrap justify-content-center gap-2">
+                <a href="catalogue.php" class="bouton bouton-action"><i class="bi bi-book"></i> Parcourir le catalogue</a>
+                <a href="petits_prix.php" class="bouton bouton-contour"><i class="bi bi-tag"></i> Voir les petits prix</a>
+            </div>
+        </div>
+    <?php else: ?>
+        <div class="row g-4 align-items-start">
+            <div class="col-lg-8">
+                <section class="progression-panier" aria-label="Vos avantages">
+                    <?php include 'partie_jauge_panier.php'; ?>
+                </section>
+
+                <div class="liste-panier">
+                    <?php foreach ($panier as $cle => $item): ?>
+                        <article class="ligne-panier">
+                            <a href="detail_livre.php?id=<?= (int) $item['id_livre'] ?>" class="ligne-panier__couverture">
+                                <img src="img/<?= rawurlencode($item['image']) ?>" alt="Couverture de <?= htmlspecialchars($item['titre']) ?>">
+                            </a>
+                            <div class="ligne-panier__infos">
+                                <h2><a href="detail_livre.php?id=<?= (int) $item['id_livre'] ?>"><?= htmlspecialchars($item['titre']) ?></a></h2>
+                                <span class="badge-bibli badge-etat"><?= htmlspecialchars(libelleEtat($item['etat'])) ?></span>
+                                <p><?= formatPrix((float) $item['prix']) ?> l'unité</p>
+                            </div>
+                            <form method="POST" action="action_modifier_panier.php" class="ligne-panier__actions">
+                                <input type="hidden" name="csrf" value="<?= jetonCsrf() ?>">
+                                <input type="hidden" name="key" value="<?= htmlspecialchars($cle) ?>">
+                                <div class="selecteur-quantite">
+                                    <button type="submit" name="action" value="moins" aria-label="Retirer un exemplaire de « <?= htmlspecialchars($item['titre']) ?> »"><i class="bi bi-dash"></i></button>
+                                    <span aria-label="Quantité"><?= (int) $item['quantite'] ?></span>
+                                    <button type="submit" name="action" value="plus" aria-label="Ajouter un exemplaire de « <?= htmlspecialchars($item['titre']) ?> »"><i class="bi bi-plus"></i></button>
+                                </div>
+                                <strong class="prix"><?= formatPrix($item['prix'] * $item['quantite']) ?></strong>
+                                <button type="submit" name="action" value="supprimer" class="bouton-retirer" aria-label="Retirer « <?= htmlspecialchars($item['titre']) ?> » du panier" title="Retirer du panier">
+                                    <i class="bi bi-trash3"></i>
+                                </button>
+                            </form>
+                        </article>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <aside class="recap-panier">
+                    <h2>Récapitulatif</h2>
+                    <dl>
+                        <div><dt>Sous-total (<?= $totaux['nb_articles'] ?> article<?= $totaux['nb_articles'] > 1 ? 's' : '' ?>)</dt><dd><?= formatPrix($sousTotal) ?></dd></div>
+                        <?php if ($totaux['remise'] > 0): ?>
+                            <div class="ligne-avantage"><dt>Remise <?= $sousTotal >= 50 ? '-10 %' : '-5 %' ?></dt><dd>-<?= formatPrix($totaux['remise']) ?></dd></div>
+                        <?php endif; ?>
+                        <div class="<?= $totaux['frais_livraison'] == 0 ? 'ligne-avantage' : '' ?>">
+                            <dt>Livraison</dt>
+                            <dd><?= $totaux['frais_livraison'] == 0 ? 'Offerte' : formatPrix($totaux['frais_livraison']) ?></dd>
+                        </div>
+                        <div class="recap-panier__total"><dt>Total</dt><dd><?= formatPrix($totaux['total']) ?></dd></div>
+                    </dl>
+                    <?php if ($totaux['points'] > 0): ?>
+                        <p class="recap-panier__points"><i class="bi bi-coin"></i> +<?= $totaux['points'] ?> points fidélité avec cette commande</p>
+                    <?php endif; ?>
+                    <a href="achat.php" class="bouton bouton-action w-100"><i class="bi bi-lock"></i> Valider mon panier</a>
+                    <ul class="recap-panier__garanties">
+                        <li><i class="bi bi-shield-check"></i> Paiement 100 % sécurisé</li>
+                        <li><i class="bi bi-patch-check"></i> Livres vérifiés à la main</li>
+                        <li><i class="bi bi-arrow-repeat"></i> Une seconde vie pour chaque livre</li>
+                    </ul>
+                </aside>
+            </div>
+        </div>
+    <?php endif; ?>
+
+    <?php if ($suggestions): ?>
+        <section class="section-accueil">
+            <div class="entete-section">
+                <div>
+                    <h2><?= $panier ? 'Pour compléter votre pile' : 'Quelques idées pour commencer' ?></h2>
+                    <p><?= $panier ? 'Dans le même esprit que vos choix.' : 'Les livres préférés de nos lecteurs.' ?></p>
+                </div>
+                <a href="catalogue.php" class="lien-voir-tout">Tout le catalogue <i class="bi bi-chevron-right"></i></a>
+            </div>
+            <div class="carrousel">
+                <?php foreach ($suggestions as $l): include 'partie_carte_livre.php'; endforeach; ?>
+            </div>
+        </section>
+    <?php endif; ?>
 </div>
 
 <?php include 'footer.php'; ?>

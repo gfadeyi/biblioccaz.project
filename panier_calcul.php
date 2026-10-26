@@ -33,3 +33,27 @@ function calculerTotauxPanier(array $panier): array
         'points'          => $points,
     ];
 }
+
+const PALIERS_PANIER = [
+    ['montant' => 20, 'court' => 'Livraison offerte', 'mini' => 'Livraison', 'objectif' => 'la livraison offerte', 'icone' => 'truck'],
+    ['montant' => 30, 'court' => '-5 %', 'mini' => '-5 %', 'objectif' => '-5 % sur tout le panier', 'icone' => 'percent'],
+    ['montant' => 50, 'court' => '-10 %', 'mini' => '-10 %', 'objectif' => '-10 % sur tout le panier', 'icone' => 'stars'],
+];
+
+function progressionPanier(float $sousTotal): array
+{
+    $montantMax = PALIERS_PANIER[array_key_last(PALIERS_PANIER)]['montant'];
+    $prochain = null;
+    foreach (PALIERS_PANIER as $palier) {
+        if ($sousTotal < $palier['montant']) {
+            $prochain = $palier;
+            break;
+        }
+    }
+    return [
+        'montant_max' => $montantMax,
+        'progression' => max(0, min(1, $sousTotal / $montantMax)),
+        'prochain'    => $prochain,
+        'reste'       => $prochain ? round($prochain['montant'] - $sousTotal, 2) : 0,
+    ];
+}

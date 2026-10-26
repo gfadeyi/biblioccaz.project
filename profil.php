@@ -226,7 +226,7 @@ include 'header.php';
                 <div class="col-md-4 col-lg-3">
                     <a href="wishlist.php" class="quick-access-card">
                         <div class="card-icon"><i class="bi bi-heart"></i></div>
-                        <div class="card-title">Ma liste d'envies</div>
+                        <div class="card-title">Mes favoris</div>
                         <p class="card-text">Mes coups de cœur.</p>
                     </a>
                 </div>

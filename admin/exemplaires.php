@@ -57,6 +57,7 @@ $total = array_sum(array_column($exemplaires, 'quantite'));
 
 $titrePage = 'Stock : ' . $livre['titre'];
 $pageActive = 'inventaire';
+$filAriane = [[null, 'Catalogue'], ['inventaire.php', 'Inventaire & stock']];
 include __DIR__ . '/_haut.php';
 ?>
 

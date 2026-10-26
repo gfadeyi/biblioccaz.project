@@ -50,5 +50,5 @@ function verifierCsrf(): bool
 
 function etoilesStyle(): string
 {
-    return '<style>.etoiles{color:#f5a623;letter-spacing:1px;white-space:nowrap}.etoiles .bi-star{color:#d6d6d6}</style>';
+    return '<style>.etoiles{color:var(--texte-vif,#3f7d25);letter-spacing:1px;white-space:nowrap}.etoiles .bi-star{color:var(--vert-200,#c5dfb2)}</style>';
 }

@@ -30,7 +30,7 @@ include 'header.php';
 <div class="container my-4" style="max-width: 860px;">
     <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
         <h1 class="h3 fw-bold mb-0" style="color:#274e13;"><i class="bi bi-bell"></i> Mes alertes</h1>
-        <a href="wishlist.php" class="btn btn-outline-success rounded-pill"><i class="bi bi-heart"></i> Ma liste d'envies</a>
+        <a href="wishlist.php" class="btn btn-outline-success rounded-pill"><i class="bi bi-heart"></i> Mes favoris</a>
     </div>
     <p class="text-muted mb-4">Quand un livre épuisé revient en stock, vous recevez un mail. Pour créer une alerte, ouvrez la page d'un livre épuisé et cliquez sur « M'avertir ».</p>
 

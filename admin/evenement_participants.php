@@ -92,6 +92,7 @@ function bouton(string $action, int $idInscription, string $libelle, string $cla
 
 $titrePage = $evt['titre'];
 $pageActive = 'evenements';
+$filAriane = [[null, 'Communauté'], ['evenements.php', 'Événements']];
 include __DIR__ . '/_haut.php';
 ?>
 

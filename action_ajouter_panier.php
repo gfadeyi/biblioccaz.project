@@ -1,6 +1,13 @@
 <?php
 if (session_status() === PHP_SESSION_NONE) { session_start(); }
 require_once 'config.php';
+require_once 'avis_lib.php';
+
+$estPost = $_SERVER['REQUEST_METHOD'] === 'POST';
+if (!$estPost || !verifierCsrf()) {
+    header("Location: panier.php?error=" . urlencode("Session expirée, merci de réessayer."));
+    exit();
+}
 
 $idExemplaire = (int) ($_POST['id_exemplaire'] ?? 0);
 $action = $_POST['action'] ?? 'ajouter';
@@ -44,6 +51,7 @@ $_SESSION['panier'][$cleUnique] = [
     'quantite'      => $dejaDansPanier + 1,
     'image'         => $ex['couverture'] ?: 'default.png',
 ];
+$_SESSION['panier_ajout'] = $ex['titre'];
 
 if ($action === 'acheter') {
     header("Location: panier.php");

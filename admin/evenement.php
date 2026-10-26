@@ -103,6 +103,7 @@ $v = fn(string $c) => e((string) ($valeurs[$c] ?? ''));
 
 $titrePage = $evt ? 'Modifier l\'événement' : 'Nouvel événement';
 $pageActive = 'evenements';
+$filAriane = [[null, 'Communauté'], ['evenements.php', 'Événements']];
 include __DIR__ . '/_haut.php';
 ?>
 
