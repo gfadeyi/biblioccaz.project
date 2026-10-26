@@ -55,7 +55,7 @@ try {
     $chiffresCommunaute['livres'] = (int) $pdo->query("
         SELECT COALESCE(SUM(e.quantite), 0)
         FROM exemplaire e INNER JOIN livre l ON l.id_livre = e.id_livre
-        WHERE l.is_valide = 1 AND e.is_disponible = 1 AND e.quantite > 0")->fetchColumn();
+        WHERE l.is_valide = 1 AND " . conditionOffreMagasin())->fetchColumn();
     $chiffresCommunaute['membres'] = (int) $pdo->query("SELECT COUNT(*) FROM user WHERE statut NOT IN ('refuse_temporaire', 'refuse_definitif')")->fetchColumn();
     $chiffresCommunaute['dons'] = (int) $pdo->query("SELECT COUNT(*) FROM don WHERE statut = 'recupere'")->fetchColumn();
 } catch (PDOException $e) {

@@ -3,6 +3,7 @@ require_once __DIR__ . '/notifications_lib.php';
 require_once __DIR__ . '/avis_lib.php';
 require_once __DIR__ . '/dons_lib.php';
 require_once __DIR__ . '/points_lib.php';
+require_once __DIR__ . '/livres_lib.php';
 
 const ADRESSES_MAX = 10;
 
@@ -156,7 +157,7 @@ function resumeCompte(PDO $pdo, int $idUser): array
 
 function stockDuLivre(PDO $pdo, int $idLivre): int
 {
-    $stmt = $pdo->prepare("SELECT COALESCE(SUM(quantite), 0) FROM exemplaire WHERE id_livre = ? AND is_disponible = 1 AND quantite > 0");
+    $stmt = $pdo->prepare("SELECT COALESCE(SUM(e.quantite), 0) FROM exemplaire e WHERE e.id_livre = ? AND " . conditionOffreMagasin());
     $stmt->execute([$idLivre]);
     return (int) $stmt->fetchColumn();
 }

@@ -11,7 +11,7 @@ $idUser = (int) $_SESSION['user_id'];
 
 $stmt = $pdo->prepare("
     SELECT a.*, l.titre, l.auteur, l.couverture,
-           (SELECT COALESCE(SUM(e.quantite), 0) FROM exemplaire e WHERE e.id_livre = l.id_livre AND e.is_disponible = 1 AND e.quantite > 0) AS stock
+           (SELECT COALESCE(SUM(e.quantite), 0) FROM exemplaire e WHERE e.id_livre = l.id_livre AND " . conditionOffreMagasin() . ") AS stock
     FROM alerte_stock a
     INNER JOIN livre l ON l.id_livre = a.id_livre
     WHERE a.id_user = ?

@@ -1,5 +1,6 @@
 <?php
 require_once 'config.php';
+require_once 'livres_lib.php';
 include 'header.php';
 
 $id = $_GET['id'] ?? null;
@@ -14,7 +15,7 @@ if (!$livre) {
     include 'footer.php'; exit;
 }
 
-$stmtEx = $pdo->prepare("SELECT id_exemplaire, etat, prix, quantite FROM exemplaire WHERE id_livre = ? AND is_disponible = 1 AND quantite > 0 ORDER BY prix ASC");
+$stmtEx = $pdo->prepare("SELECT id_exemplaire, etat, prix, quantite FROM exemplaire e WHERE e.id_livre = ? AND " . conditionOffreMagasin() . " ORDER BY prix ASC");
 $stmtEx->execute([$id]);
 $offres = $stmtEx->fetchAll();
 
@@ -53,6 +54,35 @@ function formaterEtat($etat) {
     if ($e == 'use' || $e == 'usé') return 'Usé';
     return ucfirst($e);
 }
+
+$toutesOffres = [];
+foreach ($offres as $index => $offre) {
+    $toutesOffres[] = ['origine' => 'magasin', 'etat' => $offre['etat'], 'prix' => (float) $offre['prix'], 'index' => $index,
+                       'detail' => $offre['quantite'] . ' en stock', 'id_exemplaire' => (int) $offre['id_exemplaire']];
+}
+try {
+    $stmtDonsLivre = $pdo->prepare("
+        SELECT d.id_don, d.etat, d.lieu_retrait, d.date_limite, u.pseudo
+        FROM don d INNER JOIN user u ON u.id = d.id_donneur
+        WHERE d.id_livre = ? AND d.statut = 'disponible' AND d.date_limite >= CURDATE()");
+    $stmtDonsLivre->execute([$id]);
+    foreach ($stmtDonsLivre->fetchAll() as $donLivre) {
+        $toutesOffres[] = ['origine' => 'don', 'etat' => $donLivre['etat'], 'prix' => 0.0, 'id_don' => (int) $donLivre['id_don'],
+                           'detail' => 'Par @' . $donLivre['pseudo'] . ' · ' . $donLivre['lieu_retrait'] . ' · avant le ' . date('d/m', strtotime($donLivre['date_limite']))];
+    }
+} catch (PDOException $e) {
+}
+
+const RANG_ETATS = ['neuf' => 0, 'tres bon' => 1, 'bon' => 2, 'use' => 3];
+const TRIS_OFFRES = ['prix' => 'Prix', 'etat' => 'État', 'type' => 'Type'];
+const RANG_ORIGINES = ['magasin' => 0, 'particulier' => 1, 'don' => 2];
+$triOffres = isset(TRIS_OFFRES[$_GET['tri_offres'] ?? '']) ? $_GET['tri_offres'] : 'prix';
+usort($toutesOffres, fn($a, $b) => match ($triOffres) {
+    'etat' => [RANG_ETATS[$a['etat']] ?? 9, $a['prix']] <=> [RANG_ETATS[$b['etat']] ?? 9, $b['prix']],
+    'type' => [RANG_ORIGINES[$a['origine']], $a['prix']] <=> [RANG_ORIGINES[$b['origine']], $b['prix']],
+    default => [$a['prix'], RANG_ETATS[$a['etat']] ?? 9] <=> [$b['prix'], RANG_ETATS[$b['etat']] ?? 9],
+});
+$peutAcheterEnMagasin = ($_SESSION['role'] ?? '') === 'client';
 ?>
 
 <style>
@@ -242,6 +272,54 @@ function formaterEtat($etat) {
         </div>
     </div>
 </div>
+
+<?php if ($toutesOffres): ?>
+    <section class="container mb-5 offres-section" id="offres" aria-labelledby="titre-offres">
+        <div class="carte-compte offres-livre">
+            <div class="offres-livre__entete">
+                <h2 class="carte-compte__titre mb-0" id="titre-offres">Toutes les offres <span class="offres-livre__nombre"><?= count($toutesOffres) ?></span></h2>
+                <nav class="offres-livre__tris" aria-label="Trier les offres">
+                    <span class="small text-muted">Trier par</span>
+                    <?php foreach (TRIS_OFFRES as $cleTri => $libelleTri): ?>
+                        <a href="detail_livre.php?id=<?= (int) $id ?>&offre=<?= (int) $offre_index ?>&tri_offres=<?= $cleTri ?>#offres"
+                           class="puce-univers <?= $triOffres === $cleTri ? 'actif' : '' ?>" <?= $triOffres === $cleTri ? 'aria-current="true"' : '' ?>><?= $libelleTri ?></a>
+                    <?php endforeach; ?>
+                </nav>
+            </div>
+            <ul class="offres-livre__liste">
+                <?php foreach ($toutesOffres as $offreListe): ?>
+                    <li class="ligne-offre ligne-offre--<?= $offreListe['origine'] ?>">
+                        <span class="ligne-offre__type">
+                            <?php if ($offreListe['origine'] === 'don'): ?>
+                                <i class="bi bi-gift" aria-hidden="true"></i> Don
+                            <?php else: ?>
+                                <i class="bi bi-shop" aria-hidden="true"></i> Magasin
+                            <?php endif; ?>
+                        </span>
+                        <span class="ligne-offre__etat"><?= htmlspecialchars(libelleEtat($offreListe['etat'])) ?></span>
+                        <span class="ligne-offre__detail"><?= htmlspecialchars($offreListe['detail']) ?></span>
+                        <span class="ligne-offre__prix"><?= $offreListe['origine'] === 'don' ? 'Gratuit' : formaterPrix($offreListe['prix']) ?></span>
+                        <span class="ligne-offre__action">
+                            <?php if ($offreListe['origine'] === 'don'): ?>
+                                <a href="don_detail.php?id=<?= $offreListe['id_don'] ?>" class="bouton bouton-contour bouton-petit">Voir le don</a>
+                            <?php elseif ($peutAcheterEnMagasin): ?>
+                                <form action="action_ajouter_panier.php" method="POST">
+                                    <input type="hidden" name="csrf" value="<?= jetonCsrf() ?>">
+                                    <input type="hidden" name="id_exemplaire" value="<?= $offreListe['id_exemplaire'] ?>">
+                                    <button type="submit" name="action" value="ajouter" class="bouton bouton-principal bouton-petit">
+                                        <i class="bi bi-bag-plus" aria-hidden="true"></i> Ajouter<span class="visually-hidden"> au panier : <?= htmlspecialchars(libelleEtat($offreListe['etat'])) ?>, <?= formaterPrix($offreListe['prix']) ?></span>
+                                    </button>
+                                </form>
+                            <?php else: ?>
+                                <a href="detail_livre.php?id=<?= (int) $id ?>&offre=<?= $offreListe['index'] ?>" class="bouton bouton-contour bouton-petit">Choisir</a>
+                            <?php endif; ?>
+                        </span>
+                    </li>
+                <?php endforeach; ?>
+            </ul>
+        </div>
+    </section>
+<?php endif; ?>
 
 <?php include 'partie_avis.php'; ?>
 

@@ -26,7 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (!isset(ETATS_EXEMPLAIRE[$etat]) || $prix <= 0) {
             rediriger($retour, 'danger', "Choisissez un état et un prix supérieur à 0.");
         }
-        $stmt = $pdo->prepare("SELECT id_exemplaire FROM exemplaire WHERE id_livre = ? AND etat = ? AND prix = ? ORDER BY id_exemplaire LIMIT 1");
+        $stmt = $pdo->prepare("SELECT e.id_exemplaire FROM exemplaire e WHERE e.id_livre = ? AND e.etat = ? AND e.prix = ? AND " . conditionExemplaireMagasin() . " ORDER BY e.id_exemplaire LIMIT 1");
         $stmt->execute([$idLivre, $etat, $prix]);
         $idExistant = (int) $stmt->fetchColumn();
         if ($idExistant) {
@@ -42,18 +42,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if ($action === 'plus') {
-        $pdo->prepare("UPDATE exemplaire SET quantite = quantite + 1 WHERE id_exemplaire = ? AND id_livre = ?")->execute([$idEx, $idLivre]);
+        $pdo->prepare("UPDATE exemplaire SET quantite = quantite + 1 WHERE id_exemplaire = ? AND id_livre = ? AND id_proprietaire IS NULL")->execute([$idEx, $idLivre]);
         insertLog('STOCK', "Stock +1 pour l'exemplaire #$idEx");
         notifierRetourEnStock($pdo, $idLivre);
     } elseif ($action === 'moins') {
-        $pdo->prepare("UPDATE exemplaire SET quantite = quantite - 1 WHERE id_exemplaire = ? AND id_livre = ? AND quantite > 0")->execute([$idEx, $idLivre]);
+        $pdo->prepare("UPDATE exemplaire SET quantite = quantite - 1 WHERE id_exemplaire = ? AND id_livre = ? AND quantite > 0 AND id_proprietaire IS NULL")->execute([$idEx, $idLivre]);
         insertLog('STOCK', "Stock -1 pour l'exemplaire #$idEx");
     } elseif ($action === 'vider') {
-        $pdo->prepare("UPDATE exemplaire SET quantite = 0 WHERE id_exemplaire = ? AND id_livre = ?")->execute([$idEx, $idLivre]);
+        $pdo->prepare("UPDATE exemplaire SET quantite = 0 WHERE id_exemplaire = ? AND id_livre = ? AND id_proprietaire IS NULL")->execute([$idEx, $idLivre]);
         insertLog('STOCK', "Offre exemplaire #$idEx retirée de la vente (stock à 0)");
         rediriger($retour, 'success', "Offre retirée de la vente : elle reste dans l'historique avec un stock de 0.");
     } elseif ($action === 'supprimer') {
-        $stmt = $pdo->prepare("DELETE FROM exemplaire WHERE id_exemplaire = ? AND id_livre = ? AND quantite = 0 AND NOT EXISTS (SELECT 1 FROM commande_ligne cl WHERE cl.id_exemplaire = exemplaire.id_exemplaire)");
+        $stmt = $pdo->prepare("DELETE FROM exemplaire WHERE id_exemplaire = ? AND id_livre = ? AND quantite = 0 AND id_proprietaire IS NULL AND NOT EXISTS (SELECT 1 FROM commande_ligne cl WHERE cl.id_exemplaire = exemplaire.id_exemplaire)");
         $stmt->execute([$idEx, $idLivre]);
         if ($stmt->rowCount() === 0) {
             rediriger($retour, 'warning', "Cette offre a déjà été vendue : elle est conservée pour l'historique des commandes.");
@@ -69,7 +69,7 @@ $stmt = $pdo->prepare("
     FROM exemplaire e
     LEFT JOIN commande_ligne cl ON cl.id_exemplaire = e.id_exemplaire
     LEFT JOIN commande c ON c.id_commande = cl.id_commande AND c.statut <> 'annulee'
-    WHERE e.id_livre = ?
+    WHERE e.id_livre = ? AND " . conditionExemplaireMagasin() . "
     GROUP BY e.id_exemplaire
     ORDER BY e.prix");
 $stmt->execute([$idLivre]);

@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/_init.php';
 require_once __DIR__ . '/../categories_lib.php';
+require_once __DIR__ . '/../livres_lib.php';
 exigerDroit('catalogue');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -64,7 +65,7 @@ $stmt = $pdo->prepare("
            $colonnesEtats,
            (SELECT COUNT(*) FROM alerte_stock a WHERE a.id_livre = l.id_livre AND a.date_envoi IS NULL) AS nb_alertes
     FROM livre l
-    LEFT JOIN exemplaire e ON e.id_livre = l.id_livre AND e.quantite > 0
+    LEFT JOIN exemplaire e ON e.id_livre = l.id_livre AND e.quantite > 0 AND " . conditionExemplaireMagasin() . "
     LEFT JOIN categorie c ON c.id_categorie = l.id_categorie
     LEFT JOIN categorie u ON u.id_categorie = c.id_parent
     " . ($where ? 'WHERE ' . implode(' AND ', $where) : '') . "

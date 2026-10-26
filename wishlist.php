@@ -11,8 +11,8 @@ $idUser = (int) $_SESSION['user_id'];
 
 $stmt = $pdo->prepare("
     SELECT l.id_livre, l.titre, l.auteur, l.couverture, f.date_ajout,
-           (SELECT COALESCE(SUM(e.quantite), 0) FROM exemplaire e WHERE e.id_livre = l.id_livre AND e.is_disponible = 1 AND e.quantite > 0) AS stock,
-           (SELECT MIN(e.prix) FROM exemplaire e WHERE e.id_livre = l.id_livre AND e.is_disponible = 1 AND e.quantite > 0) AS prix_min,
+           (SELECT COALESCE(SUM(e.quantite), 0) FROM exemplaire e WHERE e.id_livre = l.id_livre AND " . conditionOffreMagasin() . ") AS stock,
+           (SELECT MIN(e.prix) FROM exemplaire e WHERE e.id_livre = l.id_livre AND " . conditionOffreMagasin() . ") AS prix_min,
            (SELECT COUNT(*) FROM alerte_stock a WHERE a.id_livre = l.id_livre AND a.id_user = f.id_user AND a.date_envoi IS NULL) AS alerte
     FROM favori f
     INNER JOIN livre l ON l.id_livre = f.id_livre

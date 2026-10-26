@@ -1,6 +1,7 @@
 <?php
 require_once 'config.php';
 require_once 'categories_lib.php';
+require_once 'livres_lib.php';
 
 redirigerAnciennesAdresses();
 
@@ -12,9 +13,9 @@ $titrePage = $titrePage ?? 'Catalogue';
 $sousTitre = $sousTitre ?? '';
 
 $f = array_merge([
-    'q' => '', 'categorie' => '', 'tag' => '', 'etat' => '',
+    'q' => '', 'categorie' => '', 'tag' => '', 'etat' => '', 'offre' => '',
     'prix_min' => '', 'prix_max' => '', 'tri' => 'recent', 'stock_bas' => '', 'note_min' => '',
-], $defauts, array_intersect_key($_GET, array_flip(['q', 'categorie', 'tag', 'etat', 'prix_min', 'prix_max', 'tri', 'note_min'])), $preset);
+], $defauts, array_intersect_key($_GET, array_flip(['q', 'categorie', 'tag', 'etat', 'offre', 'prix_min', 'prix_max', 'tri', 'note_min'])), $preset);
 
 $f = array_map(fn($v) => is_string($v) ? trim($v) : $v, $f);
 $slugsTags = is_array($f['tag']) ? $f['tag'] : explode(',', (string) $f['tag']);
@@ -60,12 +61,14 @@ if (isset($etatsPossibles[$f['etat']])) {
     $where[] = "e.etat = :etat";
     $params['etat'] = $f['etat'];
 }
+$originesOffre = isset(ORIGINES_OFFRE[$f['offre']]) ? [$f['offre']] : [];
+$prixLivre = "COALESCE(MIN(CASE WHEN e.origine <> 'don' THEN e.prix END), 0)";
 if ($f['prix_min'] !== '' && is_numeric($f['prix_min'])) {
-    $having[] = "MIN(e.prix) >= :prix_min";
+    $having[] = "$prixLivre >= :prix_min";
     $params['prix_min'] = (float) $f['prix_min'];
 }
 if ($f['prix_max'] !== '' && is_numeric($f['prix_max'])) {
-    $having[] = "MIN(e.prix) <= :prix_max";
+    $having[] = "$prixLivre <= :prix_max";
     $params['prix_max'] = (float) $f['prix_max'];
 }
 if (in_array($f['note_min'], ['3', '4', '4.5'], true)) {
@@ -73,12 +76,12 @@ if (in_array($f['note_min'], ['3', '4', '4.5'], true)) {
     $params['note_min'] = (float) $f['note_min'];
 }
 if (!empty($f['stock_bas'])) {
-    $having[] = "SUM(e.quantite) <= 2";
+    $having[] = "SUM(CASE WHEN e.origine = 'magasin' THEN e.quantite END) <= 2";
 }
 
 $sqlBase = "
     FROM livre l
-    INNER JOIN exemplaire e ON e.id_livre = l.id_livre AND e.quantite > 0 AND e.is_disponible = 1
+    INNER JOIN " . sqlOffres($originesOffre) . " e ON e.id_livre = l.id_livre
     LEFT JOIN categorie c ON c.id_categorie = l.id_categorie
     LEFT JOIN (SELECT id_livre, AVG(note) AS moyenne, COUNT(*) AS nb
                FROM avis WHERE statut = 'visible' GROUP BY id_livre) av ON av.id_livre = l.id_livre
@@ -103,9 +106,10 @@ $offset = ($page - 1) * LIVRES_PAR_PAGE;
 $stmt = $pdo->prepare("
     SELECT l.id_livre, l.titre, l.auteur, l.couverture,
            c.nom AS categorie_nom, c.slug AS categorie_slug,
-           MIN(e.prix) AS prix,
-           SUBSTRING_INDEX(GROUP_CONCAT(e.etat ORDER BY e.prix ASC), ',', 1) AS etat,
-           SUM(e.quantite) AS stock,
+           $prixLivre AS prix,
+           SUBSTRING_INDEX(GROUP_CONCAT(e.etat ORDER BY e.origine = 'don', e.prix ASC), ',', 1) AS etat,
+           SUM(CASE WHEN e.origine = 'magasin' THEN e.quantite END) AS stock,
+           GROUP_CONCAT(DISTINCT e.origine ORDER BY e.origine) AS origines,
            av.moyenne AS note_moyenne, COALESCE(av.nb, 0) AS nb_avis
     $sqlBase
     ORDER BY {$trisPossibles[$f['tri']][1]}
@@ -155,6 +159,9 @@ foreach ($f['tag'] as $slugTag) {
 if (isset($etatsPossibles[$f['etat']])) {
     $filtresActifs['etat'] = $etatsPossibles[$f['etat']];
 }
+if (isset(ORIGINES_OFFRE[$f['offre']]) && !isset($preset['offre'])) {
+    $filtresActifs['offre'] = ORIGINES_OFFRE[$f['offre']];
+}
 if ($f['prix_min'] !== '' && is_numeric($f['prix_min']) && !isset($preset['prix_min'])) {
     $filtresActifs['prix_min'] = 'Dès ' . str_replace('.', ',', (string) (float) $f['prix_min']) . ' €';
 }
@@ -175,7 +182,7 @@ if (!$livres) {
         $nombreParCategorie = $pdo->query("
             SELECT l.id_categorie, COUNT(DISTINCT l.id_livre)
             FROM livre l
-            INNER JOIN exemplaire e ON e.id_livre = l.id_livre AND e.quantite > 0 AND e.is_disponible = 1
+            INNER JOIN " . sqlOffres() . " e ON e.id_livre = l.id_livre
             WHERE l.is_valide = 1
             GROUP BY l.id_categorie")->fetchAll(PDO::FETCH_KEY_PAIR);
         foreach ($universCourant['categories'] as $enfant) {
@@ -263,7 +270,7 @@ echo etoilesStyle();
             </p>
         </div>
         <form method="GET" class="d-flex align-items-center gap-2">
-            <?php foreach (['q', 'categorie', 'tag', 'etat', 'prix_min', 'prix_max', 'note_min'] as $k): ?>
+            <?php foreach (['q', 'categorie', 'tag', 'etat', 'offre', 'prix_min', 'prix_max', 'note_min'] as $k): ?>
                 <?php if (isset($preset[$k])) continue; ?>
                 <?php foreach ((array) $f[$k] as $valeur): ?>
                     <?php if ($valeur !== ''): ?>
@@ -324,6 +331,18 @@ echo etoilesStyle();
                         <?php endforeach; ?>
                     </select>
                 </div>
+
+                <?php if (!isset($preset['offre'])): ?>
+                    <div class="mb-3">
+                        <label for="filtre-offre" class="form-label">Type d'offre</label>
+                        <select id="filtre-offre" name="offre" class="form-select form-select-sm">
+                            <option value="">Toutes les offres</option>
+                            <?php foreach (ORIGINES_OFFRE as $cle => $libelle): ?>
+                                <option value="<?= $cle ?>" <?= $f['offre'] === $cle ? 'selected' : '' ?>><?= $libelle ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                <?php endif; ?>
 
                 <?php if (!isset($preset['prix_max'])): ?>
                     <div class="mb-3">

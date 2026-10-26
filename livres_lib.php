@@ -21,6 +21,30 @@ function privilegierVraiesCouvertures(array $livres, int $nombre): array
     return array_slice([...array_values($avecCouverture), ...array_values($sansCouverture)], 0, $nombre);
 }
 
+function conditionOffreMagasin(string $alias = 'e'): string
+{
+    return "$alias.id_proprietaire IS NULL AND $alias.type_offre = 'vente' AND $alias.is_disponible = 1 AND $alias.quantite > 0";
+}
+
+function conditionExemplaireMagasin(string $alias = 'e'): string
+{
+    return "$alias.id_proprietaire IS NULL AND $alias.type_offre = 'vente'";
+}
+
+const ORIGINES_OFFRE = ['magasin' => 'En magasin', 'don' => 'Don entre lecteurs'];
+
+function sqlOffres(array $origines = []): string
+{
+    $requetesParOrigine = [
+        'magasin' => "SELECT ex.id_exemplaire AS id_offre, ex.id_livre, ex.etat, ex.prix, ex.quantite, 'magasin' AS origine
+                      FROM exemplaire ex WHERE " . conditionOffreMagasin('ex'),
+        'don'     => "SELECT d.id_don AS id_offre, d.id_livre, d.etat, 0 AS prix, 1 AS quantite, 'don' AS origine
+                      FROM don d WHERE d.statut = 'disponible' AND d.id_livre IS NOT NULL AND d.date_limite >= CURDATE()",
+    ];
+    $choisies = array_intersect_key($requetesParOrigine, array_flip($origines ?: array_keys($requetesParOrigine)));
+    return '(' . implode(' UNION ALL ', $choisies ?: $requetesParOrigine) . ')';
+}
+
 function sqlCartesLivres(string $conditions = ''): string
 {
     return "
@@ -32,7 +56,7 @@ function sqlCartesLivres(string $conditions = ''): string
                av.moyenne AS note_moyenne, COALESCE(av.nb, 0) AS nb_avis,
                COALESCE(fv.nb, 0) AS nb_favoris
         FROM livre l
-        INNER JOIN exemplaire e ON e.id_livre = l.id_livre AND e.quantite > 0 AND e.is_disponible = 1
+        INNER JOIN exemplaire e ON e.id_livre = l.id_livre AND " . conditionOffreMagasin() . "
         LEFT JOIN (SELECT id_livre, AVG(note) AS moyenne, COUNT(*) AS nb
                    FROM avis WHERE statut = 'visible' GROUP BY id_livre) av ON av.id_livre = l.id_livre
         LEFT JOIN (SELECT id_livre, COUNT(*) AS nb FROM favori GROUP BY id_livre) fv ON fv.id_livre = l.id_livre

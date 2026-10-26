@@ -30,7 +30,7 @@ function exemplairePourRetour(PDO $pdo, array $ligne): int
             return $idExemplaire;
         }
     }
-    $stmt = $pdo->prepare("SELECT id_exemplaire FROM exemplaire WHERE id_livre = ? AND etat = ? AND prix = ? ORDER BY id_exemplaire LIMIT 1 FOR UPDATE");
+    $stmt = $pdo->prepare("SELECT id_exemplaire FROM exemplaire e WHERE e.id_livre = ? AND e.etat = ? AND e.prix = ? AND " . conditionExemplaireMagasin() . " ORDER BY e.id_exemplaire LIMIT 1 FOR UPDATE");
     $stmt->execute([$ligne['id_livre'], $ligne['etat'], $ligne['prix_unitaire']]);
     $idExemplaire = (int) $stmt->fetchColumn();
     if (!$idExemplaire) {

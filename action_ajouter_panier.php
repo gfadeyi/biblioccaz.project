@@ -2,6 +2,7 @@
 if (session_status() === PHP_SESSION_NONE) { session_start(); }
 require_once 'config.php';
 require_once 'avis_lib.php';
+require_once 'livres_lib.php';
 
 $estPost = $_SERVER['REQUEST_METHOD'] === 'POST';
 if (!$estPost || !verifierCsrf()) {
@@ -19,7 +20,7 @@ $stmt = $pdo->prepare("
     SELECT e.id_exemplaire, e.id_livre, e.etat, e.prix, e.quantite, l.titre, l.couverture
     FROM exemplaire e
     INNER JOIN livre l ON l.id_livre = e.id_livre
-    WHERE e.id_exemplaire = ? AND e.is_disponible = 1");
+    WHERE e.id_exemplaire = ? AND " . conditionOffreMagasin());
 $stmt->execute([$idExemplaire]);
 $ex = $stmt->fetch();
 

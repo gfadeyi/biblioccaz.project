@@ -2,6 +2,7 @@
 if (session_status() === PHP_SESSION_NONE) { session_start(); }
 require_once 'config.php';
 require_once 'avis_lib.php';
+require_once 'livres_lib.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !verifierCsrf()) {
     header("Location: panier.php?error=" . urlencode("Session expirée, merci de réessayer."));
@@ -13,7 +14,7 @@ $key = $_POST['key'] ?? '';
 
 if (isset($_SESSION['panier'][$key])) {
     if ($action === 'plus') {
-        $stmt = $pdo->prepare("SELECT quantite FROM exemplaire WHERE id_exemplaire = ? AND is_disponible = 1");
+        $stmt = $pdo->prepare("SELECT e.quantite FROM exemplaire e WHERE e.id_exemplaire = ? AND e.is_disponible = 1 AND " . conditionExemplaireMagasin());
         $stmt->execute([$_SESSION['panier'][$key]['id_exemplaire']]);
         $stock = (int) $stmt->fetchColumn();
         if ($_SESSION['panier'][$key]['quantite'] < $stock) {

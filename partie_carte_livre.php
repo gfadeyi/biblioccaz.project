@@ -5,12 +5,17 @@ $couverture = !empty($l['couverture']) ? $l['couverture'] : 'default.png';
 $lienLivre = 'detail_livre.php?id=' . (int) $l['id_livre'];
 $stockLivre = isset($l['stock']) ? (int) $l['stock'] : null;
 $nbOffres = isset($l['nb_offres']) ? (int) $l['nb_offres'] : 0;
+$originesLivre = explode(',', $l['origines'] ?? 'magasin');
+$donSeulement = $originesLivre === ['don'];
 ?>
 <article class="carte-livre">
     <div class="carte-livre__visuel">
         <div class="carte-livre__badges">
             <?php if (!empty($l['coup_de_coeur'])): ?>
                 <span class="badge-bibli badge-coeur"><i class="bi bi-heart-fill"></i> Coup de cœur</span>
+            <?php endif; ?>
+            <?php if (in_array('don', $originesLivre, true) && !$donSeulement): ?>
+                <span class="badge-bibli badge-don"><i class="bi bi-gift" aria-hidden="true"></i> Aussi en don</span>
             <?php endif; ?>
             <?php if ($stockLivre === 1): ?>
                 <span class="badge-bibli badge-dernier">Dernier exemplaire</span>
@@ -44,7 +49,11 @@ $nbOffres = isset($l['nb_offres']) ? (int) $l['nb_offres'] : 0;
             <?php endif; ?>
             <div class="carte-livre__bas">
                 <span class="badge-bibli badge-etat"><?= htmlspecialchars(libelleEtat($l['etat'])) ?></span>
-                <span class="prix"><?= formaterPrix((float) $l['prix']) ?></span>
+                <?php if ($donSeulement): ?>
+                    <span class="prix"><i class="bi bi-gift" aria-hidden="true"></i> Don</span>
+                <?php else: ?>
+                    <span class="prix"><?= formaterPrix((float) $l['prix']) ?></span>
+                <?php endif; ?>
             </div>
         </div>
     </div>

@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/_init.php';
 require_once __DIR__ . '/../categories_lib.php';
+require_once __DIR__ . '/../livres_lib.php';
 exigerDroit('equipe');
 
 function compter(PDO $pdo, string $sql): float
@@ -36,9 +37,9 @@ $indicateurs = [
     'cmd_mois_avant'  => compter($pdo, "SELECT COUNT(*) $commandesValides AND date_commande >= DATE_FORMAT(CURDATE() - INTERVAL 1 MONTH, '%Y-%m-01') AND date_commande < NOW() - INTERVAL 1 MONTH"),
     'membres_30j'     => compter($pdo, "SELECT COUNT(*) FROM user WHERE date_inscription >= NOW() - INTERVAL 30 DAY"),
     'membres_30j_avant' => compter($pdo, "SELECT COUNT(*) FROM user WHERE date_inscription >= NOW() - INTERVAL 60 DAY AND date_inscription < NOW() - INTERVAL 30 DAY"),
-    'stock'           => compter($pdo, "SELECT COALESCE(SUM(quantite), 0) FROM exemplaire WHERE is_disponible = 1 AND quantite > 0"),
+    'stock'           => compter($pdo, "SELECT COALESCE(SUM(e.quantite), 0) FROM exemplaire e WHERE " . conditionOffreMagasin()),
     'titres'          => compter($pdo, "SELECT COUNT(*) FROM livre WHERE is_valide = 1"),
-    'rupture'         => compter($pdo, "SELECT COUNT(*) FROM livre l WHERE l.is_valide = 1 AND NOT EXISTS (SELECT 1 FROM exemplaire e WHERE e.id_livre = l.id_livre AND e.quantite > 0)"),
+    'rupture'         => compter($pdo, "SELECT COUNT(*) FROM livre l WHERE l.is_valide = 1 AND NOT EXISTS (SELECT 1 FROM exemplaire e WHERE e.id_livre = l.id_livre AND " . conditionOffreMagasin() . ")"),
     'alertes_clients' => compter($pdo, "SELECT COUNT(*) FROM alerte_stock WHERE date_envoi IS NULL"),
     'dons'            => compter($pdo, "SELECT COUNT(*) FROM don WHERE statut IN ('disponible', 'reserve') AND date_limite >= CURDATE()"),
     'dons_reserves'   => compter($pdo, "SELECT COUNT(*) FROM don WHERE statut = 'reserve' AND date_limite >= CURDATE()"),
@@ -87,7 +88,7 @@ try {
     $livresEnAttenteAlerte = $pdo->query("
         SELECT l.id_livre, l.titre, COUNT(a.id_alerte) AS nb_alertes
         FROM alerte_stock a INNER JOIN livre l ON l.id_livre = a.id_livre
-        WHERE a.date_envoi IS NULL AND NOT EXISTS (SELECT 1 FROM exemplaire e WHERE e.id_livre = l.id_livre AND e.quantite > 0)
+        WHERE a.date_envoi IS NULL AND NOT EXISTS (SELECT 1 FROM exemplaire e WHERE e.id_livre = l.id_livre AND " . conditionOffreMagasin() . ")
         GROUP BY l.id_livre, l.titre ORDER BY nb_alertes DESC LIMIT 3")->fetchAll();
 } catch (PDOException $e) {
 }

@@ -31,8 +31,8 @@ Les couvertures visibles sur ces captures sont générées pour l'aperçu : les 
 ## Fonctionnalités
 
 ### Boutique
-- **Catalogue en 6 univers** (BD, Manga & Jeunesse, Littérature, Art & Culture, Scolaire & Études, Savoirs & Pro, Vie pratique) et un rayon Bons plans, avec méga-menu, fil d'Ariane, catégories, tags en trois familles (thèmes, public, particularités), filtres (prix, état, note), tris et pagination ; filtres repliés dans un volet sur téléphone
-- **Fiche livre** : caractéristiques complètes, choix de l'état (neuf, très bon, bon, usé) avec le prix et le stock de chacun, avis des lecteurs, suggestions
+- **Catalogue en 6 univers** (BD, Manga & Jeunesse, Littérature, Art & Culture, Scolaire & Études, Savoirs & Pro, Vie pratique) et un rayon Bons plans, avec méga-menu, fil d'Ariane, catégories, tags en trois familles (thèmes, public, particularités), filtres (type d'offre : magasin ou don, prix, état, note), tris et pagination ; filtres repliés dans un volet sur téléphone
+- **Fiche livre** : caractéristiques complètes, choix de l'état (neuf, très bon, bon, usé) avec le prix et le stock de chacun, liste « Toutes les offres » (magasin et dons) triable par prix, état ou type, avis des lecteurs, suggestions
 - **Panier et commande** : remises automatiques (-5 % dès 30 €, -10 % dès 50 €), livraison offerte dès 20 €, carnet d'adresses, bons de réduction, mail de confirmation ; prix et stocks toujours relus en base, commande verrouillée en transaction
 - **Liste d'envies** et **alertes de retour en stock** par mail
 - **Recherche** avec suggestions instantanées

@@ -90,6 +90,7 @@ h1, h2, h3, .titre { font-family: var(--police-titre); font-weight: 700; letter-
 .badge-coeur { background: var(--surface); color: var(--texte-vert); box-shadow: inset 0 0 0 1.5px var(--vert-300); }
 .badge-coeur i { color: var(--rouge-coeur); }
 .badge-dernier { background: var(--vert-nuit); color: #c5dfb2; }
+.badge-don { background: var(--surface); color: var(--texte-vert); box-shadow: inset 0 0 0 1.5px var(--vert-300); }
 :root[data-theme="sombre"] .badge-dernier { background: #c5dfb2; color: var(--vert-nuit); }
 
 .puce { display: inline-flex; align-items: center; gap: .35rem; padding: .4rem .9rem; border-radius: var(--rayon-pilule); border: 1px solid var(--trait);
@@ -1542,4 +1543,28 @@ h1, h2, h3, .titre { font-family: var(--police-titre); font-weight: 700; letter-
     .pied .reseaux a { display: inline-flex; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; margin-right: .2rem; }
     summary { padding-block: .75rem; }
     main a:not([class]), main a.small, main a.fw-bold, main a.d-inline-flex { padding-block: .75rem; margin-block: -.75rem; }
+}
+
+.offres-section { scroll-margin-top: 9.5rem; }
+@media (max-width: 991.98px) { .offres-section { scroll-margin-top: 12.5rem; } }
+.offres-livre__entete { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .75rem 1.5rem; margin-bottom: 1rem; }
+.offres-livre__nombre { display: inline-grid; place-items: center; min-width: 1.8rem; height: 1.8rem; padding: 0 .45rem; border-radius: var(--rayon-pilule); background: var(--vert-50); color: var(--texte-vert); font-family: var(--police-texte); font-size: .9rem; }
+.offres-livre__tris { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem; }
+.offres-livre__liste { list-style: none; margin: 0; padding: 0; display: grid; gap: .5rem; }
+.ligne-offre { display: grid; grid-template-columns: 7.5rem 8.5rem 1fr auto auto; align-items: center; gap: .5rem 1rem; padding: .7rem 1rem; border: 1px solid var(--trait); border-radius: var(--rayon); background: var(--surface);
+               transition: border-color var(--transition), background var(--transition); }
+.ligne-offre:hover { border-color: var(--vert-300); background: var(--vert-50); }
+.ligne-offre__type { display: inline-flex; align-items: center; gap: .4rem; font-weight: 700; color: var(--texte-vert); }
+.ligne-offre__etat { font-weight: 600; color: var(--encre); }
+.ligne-offre__detail { color: var(--encre-douce); font-size: .93rem; min-width: 0; }
+.ligne-offre__prix { font-weight: 700; font-size: 1.1rem; color: var(--texte-vert); white-space: nowrap; text-align: right; }
+.ligne-offre__action form { margin: 0; }
+.ligne-offre--don { border-style: dashed; }
+@media (max-width: 767.98px) {
+    .ligne-offre { grid-template-columns: 1fr auto; }
+    .ligne-offre__type { grid-column: 1; }
+    .ligne-offre__prix { grid-column: 2; grid-row: 1; }
+    .ligne-offre__etat, .ligne-offre__detail { grid-column: 1 / -1; }
+    .ligne-offre__action { grid-column: 1 / -1; }
+    .ligne-offre__action .bouton { width: 100%; }
 }

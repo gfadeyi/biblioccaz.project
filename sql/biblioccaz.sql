@@ -59,10 +59,14 @@ CREATE TABLE IF NOT EXISTS exemplaire (
   is_disponible   TINYINT(1)   NOT NULL DEFAULT 1,
   quantite        INT          NOT NULL DEFAULT 1,
   id_user         INT          NULL,
+  id_proprietaire INT          NULL,
+  INDEX idx_exemplaire_offre (type_offre, id_proprietaire, is_disponible),
   CONSTRAINT fk_exemplaire_livre FOREIGN KEY (id_livre)
     REFERENCES livre(id_livre) ON DELETE CASCADE,
   CONSTRAINT fk_exemplaire_user FOREIGN KEY (id_user)
-    REFERENCES `user`(id) ON DELETE SET NULL
+    REFERENCES `user`(id) ON DELETE SET NULL,
+  CONSTRAINT fk_exemplaire_proprietaire FOREIGN KEY (id_proprietaire)
+    REFERENCES `user`(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS logs (
