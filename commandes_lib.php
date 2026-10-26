@@ -116,7 +116,7 @@ function mailAnnulationCommande(array $annulation): void
         $texte[] = "- {$ligne['titre']} (" . libelleEtat($ligne['etat']) . ") x {$ligne['quantite']}";
     }
     $texte[] = "";
-    $texte[] = "Le montant payé (" . formaterEuros((float) $commande['total']) . ") vous sera remboursé.";
+    $texte[] = "Le montant payé (" . formaterPrix((float) $commande['total']) . ") vous sera remboursé.";
     if ($annulation['points']['rendus'] > 0 || $annulation['points']['retires'] > 0) {
         $texte[] = "";
         $texte[] = "Vos points fidélité :";

@@ -1379,3 +1379,16 @@ h1, h2, h3, .titre { font-family: var(--police-titre); font-weight: 700; letter-
 .titre-suggestions-vide { font-family: var(--police-titre); color: var(--titre); font-size: 1.35rem; font-weight: 700; margin: 2rem 0 1rem; }
 @keyframes apparition-vide { from { opacity: 0; transform: scale(.85); } to { opacity: 1; transform: none; } }
 @media (prefers-reduced-motion: reduce) { .etat-vide-catalogue > .icone-dessin { animation: none; } }
+
+.table-responsive { position: relative; }
+.pagination { flex-wrap: wrap; row-gap: .35rem; }
+@media (max-width: 1199.98px) {
+    .fleche-gauche { left: 4px; }
+    .fleche-droite { right: 4px; }
+}
+.pagination-site .pagination { gap: .35rem; --bs-pagination-border-width: 0; }
+.pagination-site .page-link { min-width: 44px; height: 44px; display: grid; place-items: center; padding: 0 .6rem; border-radius: var(--rayon-pilule) !important; border: 1px solid var(--trait); background: var(--surface); color: var(--encre); font-weight: 600; box-shadow: none; transition: background var(--duree-rapide, 160ms), border-color var(--duree-rapide, 160ms); }
+.pagination-site .page-link:hover { background: var(--vert-50); border-color: var(--vert-300); color: var(--vert); }
+.pagination-site .page-link:focus-visible { outline: 3px solid var(--vert-400); outline-offset: 2px; box-shadow: none; }
+.pagination-site .active > .page-link { background: var(--vert); border-color: var(--vert); color: #fff; }
+.pagination-site .disabled > .page-link { background: transparent; border-color: transparent; color: var(--encre-douce); }

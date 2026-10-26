@@ -66,7 +66,7 @@ function formaterEtat($etat) {
 </style>
 
 <div class="container mt-5 mb-5">
-    <div class="row g-5">
+    <div class="row g-4 g-lg-5">
         <div class="col-md-4 text-center">
             <img src="<?= htmlspecialchars(urlImage($livre['couverture'])) ?>" class="img-fluid rounded shadow-sm" style="max-height: 450px;">
         </div>
@@ -124,7 +124,7 @@ function formaterEtat($etat) {
             
             <div class="mb-4">
                 <h6 class="fw-bold mb-3">État des exemplaires</h6>
-                <div class="d-flex gap-2 overflow-auto pb-2">
+                <div class="d-flex flex-wrap gap-2 pb-2">
                     <?php foreach ($offres as $index => $offre): 
                         $is_active = ($index == $offre_index);
                         $etat_label = formaterEtat($offre['etat']);
@@ -132,8 +132,8 @@ function formaterEtat($etat) {
                         <a href="detail_livre.php?id=<?= $id ?>&offre=<?= $index ?>" 
                            class="<?= $is_active ? 'btn-state-active' : 'btn-state-inactive' ?> text-decoration-none d-flex flex-column align-items-center" 
                            style="min-width: 90px;">
-                            <span class="fw-bold"><?= $etat_label ?></span>
-                            <span class="small" style="font-size: 0.75rem;"><?= number_format($offre['prix'], 2) ?> €</span>
+                            <span class="fw-bold text-nowrap"><?= $etat_label ?></span>
+                            <span class="small" style="font-size: 0.75rem;"><?= formaterPrix($offre['prix']) ?></span>
                         </a>
                     <?php endforeach; ?>
                 </div>
@@ -168,7 +168,7 @@ function formaterEtat($etat) {
         <div class="col-md-3">
             <div class="card p-4 shadow-sm border-0 bg-white" style="border-radius: 15px;">
                 <?php if ($offre_selectionnee): ?>
-                    <h2 class="fw-bold text-success"><?= number_format($offre_selectionnee['prix'], 2) ?> €</h2>
+                    <h2 class="fw-bold text-success"><?= formaterPrix($offre_selectionnee['prix']) ?></h2>
                     <p class="text-muted small">Stock : <?= $offre_selectionnee['quantite'] ?></p>
                     
                     <?php 

@@ -66,13 +66,13 @@ include 'header.php';
             <div class="card border-0 shadow-sm" style="border-radius: 15px;">
                 <div class="card-body d-flex flex-wrap align-items-center gap-3">
                     <a href="detail_livre.php?id=<?= $f['id_livre'] ?>">
-                        <img src="<?= htmlspecialchars(urlImage($f['couverture'])) ?>" alt="" class="rounded border" style="width: 60px; height: 85px; object-fit: cover;">
+                        <img src="<?= htmlspecialchars(urlImage($f['couverture'])) ?>" alt="" loading="lazy" class="rounded border" style="width: 60px; height: 85px; object-fit: cover;">
                     </a>
                     <div class="flex-grow-1" style="min-width: 180px;">
                         <a href="detail_livre.php?id=<?= $f['id_livre'] ?>" class="fw-bold text-dark text-decoration-none"><?= htmlspecialchars($f['titre']) ?></a>
                         <div class="small text-muted"><?= htmlspecialchars($f['auteur']) ?></div>
                         <?php if ($f['stock'] > 0): ?>
-                            <div class="small mt-1"><span class="text-success fw-bold">En stock</span> · dès <?= number_format($f['prix_min'], 2, ',', ' ') ?> €</div>
+                            <div class="small mt-1"><span class="text-success fw-bold">En stock</span> · dès <?= formaterPrix($f['prix_min']) ?></div>
                         <?php else: ?>
                             <div class="small mt-1 text-danger">Épuisé pour le moment<?= $f['alerte'] ? ' · <span class="text-success"><i class="bi bi-bell-fill"></i> alerte activée</span>' : '' ?></div>
                         <?php endif; ?>

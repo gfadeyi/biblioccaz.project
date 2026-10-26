@@ -190,7 +190,7 @@ include __DIR__ . '/_haut.php';
                                     <div><span class="etiquette">Stock bas</span></div>
                                 <?php endif; ?>
                             </td>
-                            <td class="text-end prix-cellule" data-libelle="Prix à partir de"><?= $l['prix_min'] !== null ? number_format($l['prix_min'], 2, ',', ' ') . ' €' : '<span class="text-muted fw-normal">—</span>' ?></td>
+                            <td class="text-end prix-cellule" data-libelle="Prix à partir de"><?= $l['prix_min'] !== null ? formaterPrix($l['prix_min']) : '<span class="text-muted fw-normal">—</span>' ?></td>
                             <td class="text-end cellule-actions">
                                 <div class="actions-ligne">
                                     <a href="exemplaires.php?id=<?= $l['id_livre'] ?>" class="btn btn-vert bouton-action-texte" title="Ajouter ou retirer des exemplaires"><i class="bi bi-box-seam" aria-hidden="true"></i> Stock</a>

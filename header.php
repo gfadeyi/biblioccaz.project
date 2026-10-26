@@ -224,7 +224,7 @@ $classeRaccourci = fn(array $pages) => in_array($pageActuelle, $pages, true) ? '
                                         <div class="text-muted" style="font-size: 0.7rem;">État : <?= htmlspecialchars($item['etat']) ?></div>
                                         <small class="text-secondary" style="font-size: 0.75rem;">Qté : <?= (int) $item['quantite'] ?></small>
                                     </div>
-                                    <span class="fw-bold small ms-2 flex-shrink-0"><?= number_format($item['prix'] * $item['quantite'], 2, ',', ' ') ?> €</span>
+                                    <span class="fw-bold small ms-2 flex-shrink-0"><?= formaterPrix($item['prix'] * $item['quantite']) ?></span>
                                 </div>
                             <?php endforeach; ?>
                         </li>

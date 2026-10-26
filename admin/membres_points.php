@@ -159,58 +159,54 @@ $maxRepartition = max(1, max($repartition));
     <div class="carte etat-vide"><i class="bi bi-people" aria-hidden="true"></i><p>Aucun lecteur ne correspond à ces critères.</p></div>
 <?php else: ?>
     <div class="carte">
-        <table class="table table-hover align-middle mb-0 table-cartes">
-            <thead>
-                <tr>
-                    <?php foreach (['pseudo' => 'Membre', 'niveau' => 'Niveau', 'cumul' => 'Total gagné', 'solde' => 'Solde', 'attente' => 'En attente', 'badges' => 'Badges', 'activite' => 'Dernière activité'] as $cle => $libelle): ?>
-                        <th scope="col" class="<?= in_array($cle, ['cumul', 'solde', 'attente'], true) ? 'text-end' : '' ?>">
-                            <?php if (isset(TRIS_MEMBRES_POINTS[$cle])): ?>
-                                <a href="<?= e(lienMembresPoints(['tri' => $cle, 'page' => ''])) ?>" class="th-tri <?= $tri === $cle ? 'actif' : '' ?>"><?= $libelle ?><?= $tri === $cle ? ' <i class="bi bi-arrow-down-short" aria-hidden="true"></i>' : '' ?></a>
-                            <?php else: ?>
-                                <?= $libelle ?>
-                            <?php endif; ?>
-                        </th>
-                    <?php endforeach; ?>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($membres as $membre): ?>
-                    <?php $niveauMembre = niveauPour((int) $membre['cumul']); ?>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0 table-cartes table-cartes-large">
+                <thead>
                     <tr>
-                        <td data-libelle="Membre"><strong>@<?= e($membre['pseudo']) ?></strong><br><small class="text-muted"><?= e($membre['email']) ?></small></td>
-                        <td data-libelle="Niveau">
-                            <span class="etiquette"><?= e($niveauMembre['nom']) ?></span>
-                            <?php if ($niveauMembre['prochain']): ?>
-                                <span class="mini-jauge" title="Encore <?= $niveauMembre['reste'] ?> pts pour <?= e($niveauMembre['prochain']['nom']) ?>"><span style="width: <?= round($niveauMembre['progression'] * 100) ?>%"></span></span>
-                            <?php endif; ?>
-                        </td>
-                        <td data-libelle="Total gagné" class="text-end fw-bold"><?= number_format((int) $membre['cumul'], 0, ',', ' ') ?></td>
-                        <td data-libelle="Solde" class="text-end"><?= number_format((int) $membre['solde_points'], 0, ',', ' ') ?></td>
-                        <td data-libelle="En attente" class="text-end"><?= (int) $membre['attente'] > 0 ? '<span class="etiquette etiquette-neutre">' . (int) $membre['attente'] . '</span>' : '<span class="text-muted">—</span>' ?></td>
-                        <td data-libelle="Badges">
-                            <?php $obtenus = $badgesParMembre[$membre['id']] ?? []; ?>
-                            <?php if (!$obtenus): ?><span class="text-muted">—</span><?php endif; ?>
-                            <span class="badges-mini">
-                                <?php foreach ($obtenus as $code => $palier): ?>
-                                    <?php $definition = BADGES[$code] ?? null; if (!$definition) continue; ?>
-                                    <span class="badge-mini palier-<?= isset($definition['rare']) ? 'rare' : $palier ?>" title="<?= e($definition['nom'] . ' · ' . (isset($definition['rare']) ? 'rare' : PALIERS_BADGES[$palier])) ?>"><?= iconeBadgeAdmin($definition['icone']) ?></span>
-                                <?php endforeach; ?>
-                            </span>
-                        </td>
-                        <td data-libelle="Dernière activité" class="text-muted small"><?= $membre['dernier'] ? date('d/m/Y', strtotime($membre['dernier'])) : '—' ?></td>
+                        <?php foreach (['pseudo' => 'Membre', 'niveau' => 'Niveau', 'cumul' => 'Total gagné', 'solde' => 'Solde', 'attente' => 'En attente', 'badges' => 'Badges', 'activite' => 'Dernière activité'] as $cle => $libelle): ?>
+                            <th scope="col" class="<?= in_array($cle, ['cumul', 'solde', 'attente'], true) ? 'text-end' : '' ?>">
+                                <?php if (isset(TRIS_MEMBRES_POINTS[$cle])): ?>
+                                    <a href="<?= e(lienMembresPoints(['tri' => $cle, 'page' => ''])) ?>" class="th-tri <?= $tri === $cle ? 'actif' : '' ?>"><?= $libelle ?><?= $tri === $cle ? ' <i class="bi bi-arrow-down-short" aria-hidden="true"></i>' : '' ?></a>
+                                <?php else: ?>
+                                    <?= $libelle ?>
+                                <?php endif; ?>
+                            </th>
+                        <?php endforeach; ?>
                     </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    <?php foreach ($membres as $membre): ?>
+                        <?php $niveauMembre = niveauPour((int) $membre['cumul']); ?>
+                        <tr>
+                            <td data-libelle="Membre"><strong>@<?= e($membre['pseudo']) ?></strong><br><small class="text-muted"><?= e($membre['email']) ?></small></td>
+                            <td data-libelle="Niveau">
+                                <span class="etiquette"><?= e($niveauMembre['nom']) ?></span>
+                                <?php if ($niveauMembre['prochain']): ?>
+                                    <span class="mini-jauge" title="Encore <?= $niveauMembre['reste'] ?> pts pour <?= e($niveauMembre['prochain']['nom']) ?>"><span style="width: <?= round($niveauMembre['progression'] * 100) ?>%"></span></span>
+                                <?php endif; ?>
+                            </td>
+                            <td data-libelle="Total gagné" class="text-end fw-bold"><?= number_format((int) $membre['cumul'], 0, ',', ' ') ?></td>
+                            <td data-libelle="Solde" class="text-end"><?= number_format((int) $membre['solde_points'], 0, ',', ' ') ?></td>
+                            <td data-libelle="En attente" class="text-end"><?= (int) $membre['attente'] > 0 ? '<span class="etiquette etiquette-neutre">' . (int) $membre['attente'] . '</span>' : '<span class="text-muted">—</span>' ?></td>
+                            <td data-libelle="Badges">
+                                <?php $obtenus = $badgesParMembre[$membre['id']] ?? []; ?>
+                                <?php if (!$obtenus): ?><span class="text-muted">—</span><?php endif; ?>
+                                <span class="badges-mini">
+                                    <?php foreach ($obtenus as $code => $palier): ?>
+                                        <?php $definition = BADGES[$code] ?? null; if (!$definition) continue; ?>
+                                        <span class="badge-mini palier-<?= isset($definition['rare']) ? 'rare' : $palier ?>" title="<?= e($definition['nom'] . ' · ' . (isset($definition['rare']) ? 'rare' : PALIERS_BADGES[$palier])) ?>"><?= iconeBadgeAdmin($definition['icone']) ?></span>
+                                    <?php endforeach; ?>
+                                </span>
+                            </td>
+                            <td data-libelle="Dernière activité" class="text-muted small"><?= $membre['dernier'] ? date('d/m/Y', strtotime($membre['dernier'])) : '—' ?></td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
     </div>
     <?php if ($nbPages > 1): ?>
-        <nav class="mt-3" aria-label="Pages">
-            <ul class="pagination pagination-sm justify-content-center">
-                <?php for ($p = 1; $p <= $nbPages; $p++): ?>
-                    <li class="page-item <?= $p === $page ? 'active' : '' ?>"><a class="page-link" href="<?= e(lienMembresPoints(['page' => $p > 1 ? $p : ''])) ?>"><?= $p ?></a></li>
-                <?php endfor; ?>
-            </ul>
-        </nav>
+        <?php $classePagination = 'mt-3'; $lienPage = fn(int $numero) => lienMembresPoints(['page' => $numero > 1 ? $numero : '']); include __DIR__ . '/../partie_pagination.php'; ?>
     <?php endif; ?>
 <?php endif; ?>
 

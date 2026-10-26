@@ -431,15 +431,7 @@ echo etoilesStyle();
                 </div>
 
                 <?php if ($nbPages > 1): ?>
-                    <nav class="mt-4">
-                        <ul class="pagination justify-content-center">
-                            <?php for ($p = 1; $p <= $nbPages; $p++): ?>
-                                <li class="page-item <?= $p === $page ? 'active' : '' ?>">
-                                    <a class="page-link" href="<?= htmlspecialchars(lienFiltres($f, $preset, ['page' => $p > 1 ? $p : ''])) ?>"><?= $p ?></a>
-                                </li>
-                            <?php endfor; ?>
-                        </ul>
-                    </nav>
+                    <?php $lienPage = fn(int $numero) => lienFiltres($f, $preset, ['page' => $numero > 1 ? $numero : '']); include 'partie_pagination.php'; ?>
                 <?php endif; ?>
             <?php endif; ?>
         </div>

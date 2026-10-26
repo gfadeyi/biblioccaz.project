@@ -92,21 +92,21 @@ include __DIR__ . '/_haut.php';
                                 <?php else: ?>
                                     <strong><?= e($ligne['titre']) ?></strong> <span class="etiquette etiquette-neutre">retiré du catalogue</span>
                                 <?php endif; ?>
-                                <small class="text-muted d-block"><?= e(libelleEtat($ligne['etat'])) ?> · <?= (int) $ligne['quantite'] ?> × <?= formaterEuros((float) $ligne['prix_unitaire']) ?></small>
+                                <small class="text-muted d-block"><?= e(libelleEtat($ligne['etat'])) ?> · <?= (int) $ligne['quantite'] ?> × <?= formaterPrix((float) $ligne['prix_unitaire']) ?></small>
                                 <?php if ($ligne['id_livre'] && $ligne['stock_offre'] !== null): ?>
                                     <a href="exemplaires.php?id=<?= (int) $ligne['id_livre'] ?>" class="small lignes-commande__stock"><i class="bi bi-box-seam me-1" aria-hidden="true"></i>Stock actuel de cette offre : <?= (int) $ligne['stock_offre'] ?></a>
                                 <?php endif; ?>
                             </div>
-                            <strong class="lignes-commande__prix"><?= formaterEuros((float) $ligne['prix_unitaire'] * (int) $ligne['quantite']) ?></strong>
+                            <strong class="lignes-commande__prix"><?= formaterPrix((float) $ligne['prix_unitaire'] * (int) $ligne['quantite']) ?></strong>
                         </li>
                     <?php endforeach; ?>
                 </ul>
                 <dl class="recap-commande">
-                    <div><dt>Sous-total</dt><dd><?= formaterEuros((float) $commande['sous_total']) ?></dd></div>
-                    <?php if ((float) $commande['remise'] > 0): ?><div><dt>Remise panier</dt><dd>−<?= formaterEuros((float) $commande['remise']) ?></dd></div><?php endif; ?>
-                    <?php if ((float) $commande['reduction_points'] > 0): ?><div><dt><?= (int) $commande['points_utilises'] > 0 ? 'Bon de points (' . (int) $commande['points_utilises'] . ' points)' : 'Bon cadeau' ?></dt><dd>−<?= formaterEuros((float) $commande['reduction_points']) ?></dd></div><?php endif; ?>
-                    <div><dt>Livraison</dt><dd><?= (float) $commande['frais_livraison'] > 0 ? formaterEuros((float) $commande['frais_livraison']) : 'Offerte' ?></dd></div>
-                    <div class="recap-commande__total"><dt>Total payé</dt><dd class="<?= $annulee ? 'text-decoration-line-through' : '' ?>"><?= formaterEuros((float) $commande['total']) ?></dd></div>
+                    <div><dt>Sous-total</dt><dd><?= formaterPrix((float) $commande['sous_total']) ?></dd></div>
+                    <?php if ((float) $commande['remise'] > 0): ?><div><dt>Remise panier</dt><dd>−<?= formaterPrix((float) $commande['remise']) ?></dd></div><?php endif; ?>
+                    <?php if ((float) $commande['reduction_points'] > 0): ?><div><dt><?= (int) $commande['points_utilises'] > 0 ? 'Bon de points (' . (int) $commande['points_utilises'] . ' points)' : 'Bon cadeau' ?></dt><dd>−<?= formaterPrix((float) $commande['reduction_points']) ?></dd></div><?php endif; ?>
+                    <div><dt>Livraison</dt><dd><?= (float) $commande['frais_livraison'] > 0 ? formaterPrix((float) $commande['frais_livraison']) : 'Offerte' ?></dd></div>
+                    <div class="recap-commande__total"><dt>Total payé</dt><dd class="<?= $annulee ? 'text-decoration-line-through' : '' ?>"><?= formaterPrix((float) $commande['total']) ?></dd></div>
                 </dl>
             </div>
         </section>

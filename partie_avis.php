@@ -51,14 +51,17 @@ $lienTri = fn($t) => 'detail_livre.php?' . http_build_query(['id' => $idLivreAvi
 <?= etoilesStyle() ?>
 <style>
     .note-saisie { display: inline-flex; flex-direction: row-reverse; gap: 4px; }
-    .note-saisie input { display: none; }
-    .note-saisie label { font-size: 1.8rem; color: #d6d6d6; cursor: pointer; transition: color .15s; }
+    .note-saisie { position: relative; }
+    .note-saisie input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+    .note-saisie input:focus-visible + label { outline: 2px solid var(--texte-vif); outline-offset: 2px; border-radius: 4px; }
+    .note-saisie label { font-size: 1.8rem; color: var(--vert-200); cursor: pointer; transition: color .15s; }
     .note-saisie label:hover, .note-saisie label:hover ~ label,
-    .note-saisie input:checked ~ label { color: #f5a623; }
-    .barre-note { height: 8px; background: #eee; border-radius: 10px; overflow: hidden; }
-    .barre-note div { height: 100%; background: #f5a623; }
-    .carte-avis { border-bottom: 1px solid #eee; }
+    .note-saisie input:checked ~ label { color: var(--texte-vif); }
+    .barre-note { height: 8px; background: var(--vert-100); border-radius: 10px; overflow: hidden; }
+    .barre-note div { height: 100%; background: var(--vert-400); border-radius: inherit; }
+    .carte-avis { border-bottom: 1px solid var(--trait); }
     .carte-avis:last-child { border-bottom: 0; }
+    .etoile-repartition { color: var(--texte-vif); }
 </style>
 
 <section id="avis" class="container mb-5">
@@ -82,7 +85,7 @@ $lienTri = fn($t) => 'detail_livre.php?' . http_build_query(['id' => $idLivreAvi
                     <?php for ($n = 5; $n >= 1; $n--): ?>
                         <?php $pourcent = $resume['nb'] ? round($repartition[$n] * 100 / $resume['nb']) : 0; ?>
                         <div class="d-flex align-items-center gap-2 small mb-1">
-                            <span class="text-nowrap" style="width: 52px;"><?= $n ?> <i class="bi bi-star-fill text-warning"></i></span>
+                            <span class="text-nowrap" style="width: 52px;"><?= $n ?> <i class="bi bi-star-fill etoile-repartition" aria-hidden="true"></i></span>
                             <div class="barre-note flex-grow-1"><div style="width: <?= $pourcent ?>%;"></div></div>
                             <span class="text-muted" style="width: 26px; text-align: right;"><?= $repartition[$n] ?></span>
                         </div>

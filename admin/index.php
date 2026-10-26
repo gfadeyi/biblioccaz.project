@@ -24,11 +24,6 @@ function tendance(float $actuel, float $precedent): array
     return $variation > 0 ? ['hausse', 'arrow-up-right', '+' . $variation . ' %'] : ['baisse', 'arrow-down-right', $variation . ' %'];
 }
 
-function euros(float $montant): string
-{
-    return number_format($montant, 2, ',', ' ') . ' €';
-}
-
 $commandesValides = "FROM commande WHERE statut <> 'annulee'";
 $finances = aLeDroit('admin');
 
@@ -136,8 +131,8 @@ function depuis(string $date): string
 
 $cartes = [];
 if ($finances) {
-    $cartes[] = ['currency-euro', "Chiffre d'affaires du jour", euros($indicateurs['ca_jour']), tendance($indicateurs['ca_jour'], $indicateurs['ca_hier']), "par rapport à hier", null, false];
-    $cartes[] = ['graph-up-arrow', "Chiffre d'affaires du mois", euros($indicateurs['ca_mois']), tendance($indicateurs['ca_mois'], $indicateurs['ca_mois_avant']), "vs même période le mois dernier", null, false];
+    $cartes[] = ['currency-euro', "Chiffre d'affaires du jour", formaterPrix($indicateurs['ca_jour']), tendance($indicateurs['ca_jour'], $indicateurs['ca_hier']), "par rapport à hier", null, false];
+    $cartes[] = ['graph-up-arrow', "Chiffre d'affaires du mois", formaterPrix($indicateurs['ca_mois']), tendance($indicateurs['ca_mois'], $indicateurs['ca_mois_avant']), "vs même période le mois dernier", null, false];
     $cartes[] = ['bag-check', 'Commandes du mois', (int) $indicateurs['cmd_mois'], tendance($indicateurs['cmd_mois'], $indicateurs['cmd_mois_avant']), "vs même période le mois dernier", null, false];
     $cartes[] = ['person-plus', 'Nouveaux membres', (int) $indicateurs['membres_30j'], tendance($indicateurs['membres_30j'], $indicateurs['membres_30j_avant']), "30 derniers jours", 'utilisateurs.php', false];
 }
@@ -216,7 +211,7 @@ $pasBarre = $largeurGraphique / 30;
             <section class="carte h-100" aria-labelledby="titreVentesJour">
                 <div class="carte-entete">
                     <h2 id="titreVentesJour">Ventes des 30 derniers jours</h2>
-                    <span class="text-muted small fw-normal text-nowrap">Total : <strong class="text-body"><?= euros(array_sum($ventesParJour)) ?></strong></span>
+                    <span class="text-muted small fw-normal text-nowrap">Total : <strong class="text-body"><?= formaterPrix(array_sum($ventesParJour)) ?></strong></span>
                 </div>
                 <div class="carte-corps">
                     <div class="cadre-graphique" data-graphique>
@@ -232,7 +227,7 @@ $pasBarre = $largeurGraphique / 30;
                                 $hauteurBarre = $montant > 0 ? max(3, $hauteurGraphique * $montant / $maxJour) : 0;
                                 $x = 40 + $indexJour * $pasBarre;
                                 ?>
-                                <g class="barre-zone" tabindex="0" data-libelle="<?= date('d/m', strtotime($jour)) ?>" data-valeur="<?= euros($montant) ?>">
+                                <g class="barre-zone" tabindex="0" data-libelle="<?= date('d/m', strtotime($jour)) ?>" data-valeur="<?= formaterPrix($montant) ?>">
                                     <rect class="zone-survol" x="<?= $x ?>" y="6" width="<?= $pasBarre ?>" height="<?= $hauteurGraphique ?>"></rect>
                                     <rect class="barre" x="<?= $x + 2 ?>" y="<?= 6 + $hauteurGraphique - $hauteurBarre ?>" width="<?= $pasBarre - 4 ?>" height="<?= $hauteurBarre ?>" rx="3"></rect>
                                 </g>
@@ -250,7 +245,7 @@ $pasBarre = $largeurGraphique / 30;
                                 <tbody>
                                     <?php foreach (array_reverse($ventesParJour, true) as $jour => $montant): ?>
                                         <?php if ($montant <= 0) continue; ?>
-                                        <tr><td><?= date('d/m/Y', strtotime($jour)) ?></td><td class="text-end"><?= euros($montant) ?></td></tr>
+                                        <tr><td><?= date('d/m/Y', strtotime($jour)) ?></td><td class="text-end"><?= formaterPrix($montant) ?></td></tr>
                                     <?php endforeach; ?>
                                 </tbody>
                             </table>
@@ -270,7 +265,7 @@ $pasBarre = $largeurGraphique / 30;
                             <?php foreach ($ventesParUnivers as $ligneUnivers): ?>
                                 <li class="repartition-ligne" title="<?= e($ligneUnivers['univers']) ?> : <?= (int) $ligneUnivers['livres'] ?> livre(s) vendu(s)">
                                     <span class="repartition-nom"><span><?= e($ligneUnivers['univers']) ?></span><small><?= (int) $ligneUnivers['livres'] ?> livre<?= $ligneUnivers['livres'] > 1 ? 's' : '' ?></small></span>
-                                    <span class="repartition-valeur"><?= euros((float) $ligneUnivers['montant']) ?></span>
+                                    <span class="repartition-valeur"><?= formaterPrix((float) $ligneUnivers['montant']) ?></span>
                                     <span class="repartition-piste"><span class="repartition-barre" style="width: <?= round($ligneUnivers['montant'] / $totalUnivers * 100, 1) ?>%"></span></span>
                                 </li>
                             <?php endforeach; ?>
@@ -318,7 +313,7 @@ $pasBarre = $largeurGraphique / 30;
                             <span class="icone-activite"><i class="bi bi-<?= $iconesActivite[$evenementActivite['type']] ?? 'dot' ?>" aria-hidden="true"></i></span>
                             <span>
                                 <strong><?= e($evenementActivite['qui']) ?></strong> · <?= e($evenementActivite['quoi']) ?>
-                                <?php if ($finances && $evenementActivite['montant'] !== null): ?> · <strong><?= euros((float) $evenementActivite['montant']) ?></strong><?php endif; ?>
+                                <?php if ($finances && $evenementActivite['montant'] !== null): ?> · <strong><?= formaterPrix((float) $evenementActivite['montant']) ?></strong><?php endif; ?>
                                 <time datetime="<?= e(date('c', strtotime($evenementActivite['date_evt']))) ?>"><?= depuis($evenementActivite['date_evt']) ?></time>
                             </span>
                         </li>

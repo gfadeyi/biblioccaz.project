@@ -96,6 +96,11 @@ function urlImage(?string $fichier, string $racine = ''): string
     return $racine . 'img/' . implode('/', array_map('rawurlencode', explode('/', $chemin)));
 }
 
+function formaterPrix(float|int|string|null $montant): string
+{
+    return number_format((float) $montant, 2, ',', "\u{00A0}") . "\u{00A0}€";
+}
+
 $cheminScript = str_replace('\\', '/', realpath($_SERVER['SCRIPT_FILENAME']) ?: '');
 $racineSite = str_replace('\\', '/', __DIR__);
 $currentPage = strpos($cheminScript, $racineSite . '/') === 0

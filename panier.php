@@ -87,7 +87,7 @@ include 'header.php';
                             <div class="ligne-panier__infos">
                                 <h2><a href="detail_livre.php?id=<?= (int) $item['id_livre'] ?>"><?= htmlspecialchars($item['titre']) ?></a></h2>
                                 <span class="badge-bibli badge-etat"><?= htmlspecialchars(libelleEtat($item['etat'])) ?></span>
-                                <p><?= formatPrix((float) $item['prix']) ?> l'unité</p>
+                                <p><?= formaterPrix((float) $item['prix']) ?> l'unité</p>
                             </div>
                             <form method="POST" action="action_modifier_panier.php" class="ligne-panier__actions">
                                 <input type="hidden" name="csrf" value="<?= jetonCsrf() ?>">
@@ -97,7 +97,7 @@ include 'header.php';
                                     <span aria-label="Quantité"><?= (int) $item['quantite'] ?></span>
                                     <button type="submit" name="action" value="plus" aria-label="Ajouter un exemplaire de « <?= htmlspecialchars($item['titre']) ?> »"><i class="bi bi-plus"></i></button>
                                 </div>
-                                <strong class="prix"><?= formatPrix($item['prix'] * $item['quantite']) ?></strong>
+                                <strong class="prix"><?= formaterPrix($item['prix'] * $item['quantite']) ?></strong>
                                 <button type="submit" name="action" value="supprimer" class="bouton-retirer" aria-label="Retirer « <?= htmlspecialchars($item['titre']) ?> » du panier" title="Retirer du panier">
                                     <i class="bi bi-trash3"></i>
                                 </button>
@@ -111,15 +111,15 @@ include 'header.php';
                 <aside class="recap-panier">
                     <h2>Récapitulatif</h2>
                     <dl>
-                        <div><dt>Sous-total (<?= $totaux['nb_articles'] ?> article<?= $totaux['nb_articles'] > 1 ? 's' : '' ?>)</dt><dd><?= formatPrix($sousTotal) ?></dd></div>
+                        <div><dt>Sous-total (<?= $totaux['nb_articles'] ?> article<?= $totaux['nb_articles'] > 1 ? 's' : '' ?>)</dt><dd><?= formaterPrix($sousTotal) ?></dd></div>
                         <?php if ($totaux['remise'] > 0): ?>
-                            <div class="ligne-avantage"><dt>Remise <?= $sousTotal >= 50 ? '-10 %' : '-5 %' ?></dt><dd>-<?= formatPrix($totaux['remise']) ?></dd></div>
+                            <div class="ligne-avantage"><dt>Remise <?= $sousTotal >= 50 ? '-10 %' : '-5 %' ?></dt><dd>-<?= formaterPrix($totaux['remise']) ?></dd></div>
                         <?php endif; ?>
                         <div class="<?= $totaux['frais_livraison'] == 0 ? 'ligne-avantage' : '' ?>">
                             <dt>Livraison</dt>
-                            <dd><?= $totaux['frais_livraison'] == 0 ? 'Offerte' : formatPrix($totaux['frais_livraison']) ?></dd>
+                            <dd><?= $totaux['frais_livraison'] == 0 ? 'Offerte' : formaterPrix($totaux['frais_livraison']) ?></dd>
                         </div>
-                        <div class="recap-panier__total"><dt>Total</dt><dd><?= formatPrix($totaux['total']) ?></dd></div>
+                        <div class="recap-panier__total"><dt>Total</dt><dd><?= formaterPrix($totaux['total']) ?></dd></div>
                     </dl>
                     <?php if ($pointsPanier > 0): ?>
                         <p class="recap-panier__points"><i class="bi bi-coin" aria-hidden="true"></i>
@@ -129,7 +129,7 @@ include 'header.php';
                     <?php endif; ?>
                     <?php if ($meilleurBon): ?>
                         <p class="rappel-points"><i class="bi bi-ticket-perforated" aria-hidden="true"></i>
-                            <span>Un bon jusqu'à <strong>-<?= formaterEuros($meilleurBon['montant']) ?></strong> est disponible : vous pourrez l'utiliser à l'étape suivante.</span>
+                            <span>Un bon jusqu'à <strong>-<?= formaterPrix($meilleurBon['montant']) ?></strong> est disponible : vous pourrez l'utiliser à l'étape suivante.</span>
                         </p>
                     <?php endif; ?>
                     <a href="achat.php" class="bouton bouton-action w-100"><i class="bi bi-lock"></i> Valider mon panier</a>

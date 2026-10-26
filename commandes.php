@@ -66,22 +66,22 @@ include 'header.php';
                         <?php elseif ($cmd['points_gagnes'] > 0): ?>
                             <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill">+<?= $cmd['points_gagnes'] ?> points</span>
                         <?php endif; ?>
-                        <span class="fw-bold fs-5 <?= $annulee ? 'text-muted text-decoration-line-through' : 'text-success' ?>"><?= number_format($cmd['total'], 2, ',', ' ') ?> €</span>
+                        <span class="fw-bold fs-5 <?= $annulee ? 'text-muted text-decoration-line-through' : 'text-success' ?>"><?= formaterPrix($cmd['total']) ?></span>
                     </div>
                 </div>
                 <div class="card-body p-3">
                     <?php foreach ($lignesParCommande[$cmd['id_commande']] ?? [] as $l): ?>
                         <div class="d-flex align-items-center mb-2">
                             <?php if (!empty($l['couverture'])): ?>
-                                <img src="<?= htmlspecialchars(urlImage($l['couverture'])) ?>" class="rounded border" style="width: 40px; height: 55px; object-fit: cover;">
+                                <img src="<?= htmlspecialchars(urlImage($l['couverture'])) ?>" alt="" loading="lazy" class="rounded border" style="width: 40px; height: 55px; object-fit: cover;">
                             <?php else: ?>
                                 <div class="rounded border bg-light d-flex align-items-center justify-content-center" style="width: 40px; height: 55px;"><i class="bi bi-book text-muted"></i></div>
                             <?php endif; ?>
                             <div class="ms-3">
                                 <div class="fw-bold small"><?= htmlspecialchars($l['titre']) ?></div>
-                                <div class="text-muted small"><?= etatLisible($l['etat']) ?> · <?= $l['quantite'] ?> × <?= number_format($l['prix_unitaire'], 2, ',', ' ') ?> €</div>
+                                <div class="text-muted small"><?= etatLisible($l['etat']) ?> · <?= $l['quantite'] ?> × <?= formaterPrix($l['prix_unitaire']) ?></div>
                             </div>
-                            <div class="ms-auto fw-medium small"><?= number_format($l['prix_unitaire'] * $l['quantite'], 2, ',', ' ') ?> €</div>
+                            <div class="ms-auto fw-medium small"><?= formaterPrix($l['prix_unitaire'] * $l['quantite']) ?></div>
                         </div>
                     <?php endforeach; ?>
                     <hr class="my-2">
@@ -92,9 +92,9 @@ include 'header.php';
                                 Le montant payé vous est remboursé et vos points ont été rétablis.
                             </div>
                         <?php endif; ?>
-                        <?php if ($cmd['remise'] > 0): ?>Remise : -<?= number_format($cmd['remise'], 2, ',', ' ') ?> € · <?php endif; ?>
-                        <?php if (($cmd['reduction_points'] ?? 0) > 0): ?>Bon de réduction : -<?= number_format($cmd['reduction_points'], 2, ',', ' ') ?> € · <?php endif; ?>
-                        Livraison : <?= $cmd['frais_livraison'] > 0 ? number_format($cmd['frais_livraison'], 2, ',', ' ') . ' €' : 'offerte' ?>
+                        <?php if ($cmd['remise'] > 0): ?>Remise : -<?= formaterPrix($cmd['remise']) ?> · <?php endif; ?>
+                        <?php if (($cmd['reduction_points'] ?? 0) > 0): ?>Bon de réduction : -<?= formaterPrix($cmd['reduction_points']) ?> · <?php endif; ?>
+                        Livraison : <?= $cmd['frais_livraison'] > 0 ? formaterPrix($cmd['frais_livraison']) : 'offerte' ?>
                         · Livré à <?= htmlspecialchars($cmd['prenom'] . ' ' . $cmd['nom']) ?>, <?= htmlspecialchars($cmd['adresse']) ?>
                     </div>
                 </div>

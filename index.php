@@ -13,7 +13,7 @@ $selectionCartes = sqlCartesLivres();
 $coupsDeCoeur = $pdo->query($selectionCartes . "
     HAVING nb_favoris > 0 OR note_moyenne >= 4
     ORDER BY nb_favoris * 2 + COALESCE(note_moyenne, 0) * nb_avis DESC, l.id_livre DESC
-    LIMIT 12")->fetchAll();
+    LIMIT 24")->fetchAll();
 $idsCoupsDeCoeur = array_column($coupsDeCoeur, 'id_livre');
 $selectionLecteurs = $coupsDeCoeur;
 $titreSelectionLecteurs = 'Coups de cœur des lecteurs';
@@ -22,7 +22,7 @@ if (count($coupsDeCoeur) < 4) {
     $selectionLecteurs = $pdo->query($selectionCartes . "
         ORDER BY (SELECT COALESCE(SUM(cl.quantite), 0) FROM commande_ligne cl WHERE cl.id_livre = l.id_livre) DESC,
                  nb_favoris DESC, COALESCE(note_moyenne, 0) DESC, l.id_livre DESC
-        LIMIT 12")->fetchAll();
+        LIMIT 24")->fetchAll();
     $titreSelectionLecteurs = 'Les plus demandés';
     $sousTitreSelectionLecteurs = 'Les livres que nos lecteurs s\'arrachent en ce moment.';
 }
@@ -30,11 +30,12 @@ foreach ($selectionLecteurs as &$livreSelection) {
     $livreSelection['coup_de_coeur'] = in_array($livreSelection['id_livre'], $idsCoupsDeCoeur, true);
 }
 unset($livreSelection);
+$selectionLecteurs = privilegierVraiesCouvertures($selectionLecteurs, 12);
 
-$nouveautes = $pdo->query($selectionCartes . " ORDER BY l.id_livre DESC LIMIT 12")->fetchAll();
-$petitsPrix = $pdo->query($selectionCartes . " HAVING prix < 10 ORDER BY prix ASC, l.id_livre DESC LIMIT 12")->fetchAll();
+$nouveautes = privilegierVraiesCouvertures($pdo->query($selectionCartes . " ORDER BY l.id_livre DESC LIMIT 24")->fetchAll(), 12);
+$petitsPrix = privilegierVraiesCouvertures($pdo->query($selectionCartes . " HAVING prix < 10 ORDER BY prix ASC, l.id_livre DESC LIMIT 24")->fetchAll(), 12);
 
-$couverturesBandeau = array_slice(array_values(array_filter($nouveautes, fn($livre) => !empty($livre['couverture']))), 0, 3);
+$couverturesBandeau = array_slice(array_values(array_filter($nouveautes, fn($livre) => aUneVraieCouverture($livre['couverture']))), 0, 3);
 
 $univers = [['classe' => 'univers-bons-plans', 'icone' => 'etiquette', 'nom' => 'Bons plans', 'detail' => 'Moins de 10 €, dernière chance, nouveautés', 'lien' => 'petits_prix.php']];
 foreach (arbreCategories($pdo) as $universCategorie) {
@@ -178,7 +179,7 @@ include 'header.php';
         <div class="bandeau-remise__entete">
             <p class="titre"><?= iconeDessin('cabas') ?> Le panier malin</p>
             <?php if ($totauxPanierAccueil['nb_articles']): ?>
-                <a href="panier.php" class="lien-voir-tout">Mon panier · <?= $totauxPanierAccueil['nb_articles'] ?> livre<?= $totauxPanierAccueil['nb_articles'] > 1 ? 's' : '' ?> · <?= formatPrix($totauxPanierAccueil['sous_total']) ?> <i class="bi bi-chevron-right"></i></a>
+                <a href="panier.php" class="lien-voir-tout">Mon panier · <?= $totauxPanierAccueil['nb_articles'] ?> livre<?= $totauxPanierAccueil['nb_articles'] > 1 ? 's' : '' ?> · <?= formaterPrix($totauxPanierAccueil['sous_total']) ?> <i class="bi bi-chevron-right"></i></a>
             <?php else: ?>
                 <a href="petits_prix.php" class="lien-voir-tout">Voir les bons plans <i class="bi bi-chevron-right"></i></a>
             <?php endif; ?>

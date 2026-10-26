@@ -394,3 +394,21 @@ a.stat:hover, a.stat:focus-visible { translate: 0 -3px; box-shadow: var(--ombre-
 .pastille-evt.complet { background: var(--surface); border-color: var(--vert-fonce); color: var(--vert-fonce); }
 .pastille-evt.termine { background: var(--papier); border-color: var(--trait); color: var(--encre-douce); }
 .pastille-evt.annule { background: var(--rouge-fond); border-color: var(--rouge-fond); color: var(--rouge); }
+
+.table-responsive { position: relative; }
+.pagination { flex-wrap: wrap; row-gap: .35rem; }
+@media (min-width: 768px) and (max-width: 991.98px) {
+    .table-cartes-large thead { display: none; }
+    .table-cartes-large, .table-cartes-large tbody { display: block; }
+    .table-cartes-large tr { display: grid; grid-template-columns: repeat(3, 1fr); gap: .55rem 1rem; padding: 1rem 1.15rem; border-bottom: 1px solid var(--trait); }
+    .table-cartes-large > :not(caption) > * > * { padding: 0 !important; border: 0; box-shadow: none !important; background: transparent; }
+    .table-cartes-large td:first-child { grid-column: 1 / -1; }
+    .table-cartes-large td[data-libelle] { text-align: left !important; }
+    .table-cartes-large td[data-libelle]::before { content: attr(data-libelle); display: block; font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--encre-pale); margin-bottom: .15rem; }
+}
+.pagination-site .pagination { gap: .35rem; --bs-pagination-border-width: 0; }
+.pagination-site .page-link { min-width: 44px; height: 44px; display: grid; place-items: center; padding: 0 .6rem; border-radius: var(--rayon-pilule) !important; border: 1px solid var(--trait); background: var(--surface); color: var(--encre); font-weight: 600; box-shadow: none; transition: background var(--duree-rapide, 160ms), border-color var(--duree-rapide, 160ms); }
+.pagination-site .page-link:hover { background: var(--vert-50); border-color: var(--vert-300); color: var(--vert); }
+.pagination-site .page-link:focus-visible { outline: 3px solid var(--vert-400); outline-offset: 2px; box-shadow: none; }
+.pagination-site .active > .page-link { background: var(--vert); border-color: var(--vert); color: #fff; }
+.pagination-site .disabled > .page-link { background: transparent; border-color: transparent; color: var(--encre-douce); }

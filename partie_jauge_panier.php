@@ -7,7 +7,7 @@ if ($sousTotal <= 0) {
     $messageJauge = 'Votre panier est vide : la livraison est offerte dès <strong>' . PALIERS_PANIER[0]['montant'] . ' €</strong>. Faites le plein de <a href="petits_prix.php">bons plans à moins de 10 €</a>&nbsp;!';
 } elseif ($jauge['prochain']) {
     $iconeJauge = $jauge['prochain']['icone'];
-    $messageJauge = 'Plus que <strong>' . formatPrix($jauge['reste']) . '</strong> pour ' . $jauge['prochain']['objectif'] . '&nbsp;!';
+    $messageJauge = 'Plus que <strong>' . formaterPrix($jauge['reste']) . '</strong> pour ' . $jauge['prochain']['objectif'] . '&nbsp;!';
 } else {
     $iconeJauge = 'emoji-smile';
     $messageJauge = '<strong>Bravo&nbsp;!</strong> Livraison offerte et -10 % sur tout votre panier.';

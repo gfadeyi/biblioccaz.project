@@ -143,14 +143,9 @@ function avantagesNiveau(array $niveau): array
         $avantages[] = 'Passage en tête des listes d\'attente des événements';
     }
     if ($niveau['bon_mensuel']) {
-        $avantages[] = 'Bon de ' . formaterEuros(BON_ANNIVERSAIRE_MONTANT) . ' offert chaque mois, à la date anniversaire de votre inscription';
+        $avantages[] = 'Bon de ' . formaterPrix(BON_ANNIVERSAIRE_MONTANT) . ' offert chaque mois, à la date anniversaire de votre inscription';
     }
     return $avantages;
-}
-
-function formaterEuros(float $montant): string
-{
-    return number_format($montant, 2, ',', ' ') . ' €';
 }
 
 function bonusNiveau(int $pointsAchat, array $niveau): int

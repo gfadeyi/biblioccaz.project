@@ -76,9 +76,9 @@ $filtresActifs = $recherche !== '' || $statutFiltre !== '' || $periode !== '';
 ?>
 
 <div class="grille-indicateurs mb-4">
-    <div class="stat"><div class="stat-haut"><span>Chiffre d'affaires (30 j)</span><span class="stat-icone"><i class="bi bi-cash-stack" aria-hidden="true"></i></span></div><div class="stat-valeur"><?= formaterEuros((float) $indicateurs['chiffre']) ?></div></div>
+    <div class="stat"><div class="stat-haut"><span>Chiffre d'affaires (30 j)</span><span class="stat-icone"><i class="bi bi-cash-stack" aria-hidden="true"></i></span></div><div class="stat-valeur"><?= formaterPrix((float) $indicateurs['chiffre']) ?></div></div>
     <div class="stat"><div class="stat-haut"><span>Commandes (30 j)</span><span class="stat-icone"><i class="bi bi-bag-check" aria-hidden="true"></i></span></div><div class="stat-valeur"><?= (int) $indicateurs['nombre'] ?></div></div>
-    <div class="stat"><div class="stat-haut"><span>Panier moyen</span><span class="stat-icone"><i class="bi bi-basket" aria-hidden="true"></i></span></div><div class="stat-valeur"><?= formaterEuros($panierMoyen) ?></div></div>
+    <div class="stat"><div class="stat-haut"><span>Panier moyen</span><span class="stat-icone"><i class="bi bi-basket" aria-hidden="true"></i></span></div><div class="stat-valeur"><?= formaterPrix($panierMoyen) ?></div></div>
     <div class="stat"><div class="stat-haut"><span>Annulées (30 j)</span><span class="stat-icone"><i class="bi bi-x-circle" aria-hidden="true"></i></span></div><div class="stat-valeur"><?= (int) $indicateurs['annulees'] ?></div></div>
 </div>
 
@@ -136,8 +136,8 @@ $filtresActifs = $recherche !== '' || $statutFiltre !== '' || $periode !== '';
                         <td data-libelle="Client"><?= e($commande['prenom'] . ' ' . $commande['nom']) ?><br><small class="text-muted">@<?= e($commande['pseudo']) ?></small></td>
                         <td data-libelle="Livres" class="text-center"><?= (int) $commande['nb_livres'] ?></td>
                         <td data-libelle="Total" class="text-end">
-                            <strong class="<?= $annulee ? 'text-decoration-line-through text-muted' : '' ?>"><?= formaterEuros((float) $commande['total']) ?></strong>
-                            <?php if ((float) $commande['reduction_points'] > 0): ?><br><small class="text-muted">bon −<?= formaterEuros((float) $commande['reduction_points']) ?></small><?php endif; ?>
+                            <strong class="<?= $annulee ? 'text-decoration-line-through text-muted' : '' ?>"><?= formaterPrix((float) $commande['total']) ?></strong>
+                            <?php if ((float) $commande['reduction_points'] > 0): ?><br><small class="text-muted">bon −<?= formaterPrix((float) $commande['reduction_points']) ?></small><?php endif; ?>
                         </td>
                         <td data-libelle="Points" class="text-end small">
                             <?php if ((int) $commande['points_utilises'] > 0): ?><span class="text-muted">−<?= (int) $commande['points_utilises'] ?></span> · <?php endif; ?>
@@ -157,13 +157,7 @@ $filtresActifs = $recherche !== '' || $statutFiltre !== '' || $periode !== '';
         </table>
     </div>
     <?php if ($nbPages > 1): ?>
-        <nav class="mt-3" aria-label="Pages">
-            <ul class="pagination pagination-sm justify-content-center">
-                <?php for ($p = 1; $p <= $nbPages; $p++): ?>
-                    <li class="page-item <?= $p === $page ? 'active' : '' ?>"><a class="page-link" href="<?= e(lienCommandes(['page' => $p > 1 ? $p : ''])) ?>"><?= $p ?></a></li>
-                <?php endfor; ?>
-            </ul>
-        </nav>
+        <?php $classePagination = 'mt-3'; $lienPage = fn(int $numero) => lienCommandes(['page' => $numero > 1 ? $numero : '']); include __DIR__ . '/../partie_pagination.php'; ?>
     <?php endif; ?>
 <?php endif; ?>
 

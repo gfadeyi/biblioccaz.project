@@ -141,7 +141,7 @@ try {
     }
 
     if ($option && $option['type'] === 'points') {
-        crediterPoints($pdo, $idUser, -$option['points'], 'depense', 'Bon de ' . formaterEuros($option['montant']) . " (commande n° $idCommande)", $reference);
+        crediterPoints($pdo, $idUser, -$option['points'], 'depense', 'Bon de ' . formaterPrix($option['montant']) . " (commande n° $idCommande)", $reference);
     } elseif ($option && $option['type'] === 'cadeau') {
         $pdo->prepare("UPDATE bon_cadeau SET date_utilisation = NOW(), id_commande = ? WHERE id_bon = ?")->execute([$idCommande, $option['id_bon']]);
     }
@@ -179,18 +179,18 @@ $stmtEmail = $pdo->prepare("SELECT email FROM user WHERE id = ?");
 $stmtEmail->execute([$idUser]);
 $lignesMail = ["Bonjour $prenom,", "", "Merci pour votre commande n° $idCommande !", ""];
 foreach ($lignes as $l) {
-    $lignesMail[] = "- {$l['titre']} (" . libelleEtat($l['etat']) . ") x {$l['quantite']} : " . formaterEuros($l['prix'] * $l['quantite']);
+    $lignesMail[] = "- {$l['titre']} (" . libelleEtat($l['etat']) . ") x {$l['quantite']} : " . formaterPrix($l['prix'] * $l['quantite']);
 }
 $lignesMail[] = "";
-$lignesMail[] = "Sous-total : " . formaterEuros($totaux['sous_total']);
+$lignesMail[] = "Sous-total : " . formaterPrix($totaux['sous_total']);
 if ($totaux['remise'] > 0) {
-    $lignesMail[] = "Remise panier : -" . formaterEuros($totaux['remise']);
+    $lignesMail[] = "Remise panier : -" . formaterPrix($totaux['remise']);
 }
 if ($totaux['reduction'] > 0) {
-    $lignesMail[] = ($pointsDepenses > 0 ? "Bon de points ($pointsDepenses points)" : "Bon cadeau") . " : -" . formaterEuros($totaux['reduction']);
+    $lignesMail[] = ($pointsDepenses > 0 ? "Bon de points ($pointsDepenses points)" : "Bon cadeau") . " : -" . formaterPrix($totaux['reduction']);
 }
-$lignesMail[] = "Livraison : " . ($totaux['frais_livraison'] > 0 ? formaterEuros($totaux['frais_livraison']) : 'offerte');
-$lignesMail[] = "Total payé : " . formaterEuros($totaux['total']);
+$lignesMail[] = "Livraison : " . ($totaux['frais_livraison'] > 0 ? formaterPrix($totaux['frais_livraison']) : 'offerte');
+$lignesMail[] = "Total payé : " . formaterPrix($totaux['total']);
 $lignesMail[] = "";
 $lignesMail[] = "Vos points fidélité :";
 if ($pointsDepenses > 0) {
@@ -221,15 +221,15 @@ include 'header.php';
                     <p class="text-secondary mb-0">Votre commande <strong>n° <?= $idCommande ?></strong> est enregistrée. Un récapitulatif vient de vous être envoyé par mail.</p>
                 </div>
 
-                <div class="ligne-recap"><span>Sous-total</span><span><?= formaterEuros($totaux['sous_total']) ?></span></div>
+                <div class="ligne-recap"><span>Sous-total</span><span><?= formaterPrix($totaux['sous_total']) ?></span></div>
                 <?php if ($totaux['remise'] > 0): ?>
-                    <div class="ligne-recap remise"><span>Remise panier</span><span>-<?= formaterEuros($totaux['remise']) ?></span></div>
+                    <div class="ligne-recap remise"><span>Remise panier</span><span>-<?= formaterPrix($totaux['remise']) ?></span></div>
                 <?php endif; ?>
                 <?php if ($totaux['reduction'] > 0): ?>
-                    <div class="ligne-recap remise"><span><?= $pointsDepenses > 0 ? "Bon de points ($pointsDepenses points)" : 'Bon cadeau' ?></span><span>-<?= formaterEuros($totaux['reduction']) ?></span></div>
+                    <div class="ligne-recap remise"><span><?= $pointsDepenses > 0 ? "Bon de points ($pointsDepenses points)" : 'Bon cadeau' ?></span><span>-<?= formaterPrix($totaux['reduction']) ?></span></div>
                 <?php endif; ?>
-                <div class="ligne-recap"><span>Livraison</span><span><?= $totaux['frais_livraison'] > 0 ? formaterEuros($totaux['frais_livraison']) : 'Offerte' ?></span></div>
-                <div class="ligne-recap total"><span>Total payé</span><span><?= formaterEuros($totaux['total']) ?></span></div>
+                <div class="ligne-recap"><span>Livraison</span><span><?= $totaux['frais_livraison'] > 0 ? formaterPrix($totaux['frais_livraison']) : 'Offerte' ?></span></div>
+                <div class="ligne-recap total"><span>Total payé</span><span><?= formaterPrix($totaux['total']) ?></span></div>
 
                 <div class="bilan-points">
                     <h2 class="bilan-points__titre"><?= iconeDessin('medaille') ?> Vos points fidélité</h2>

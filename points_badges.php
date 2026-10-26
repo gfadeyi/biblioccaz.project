@@ -192,14 +192,14 @@ include 'header.php';
                     <?php foreach (BONS_POINTS as $points => $montant): ?>
                         <?php $atteint = $solde >= $points; ?>
                         <li class="bon-points <?= $atteint ? 'atteint' : '' ?>">
-                            <span class="bon-points__montant"><?= formaterEuros($montant) ?></span>
+                            <span class="bon-points__montant"><?= formaterPrix($montant) ?></span>
                             <span class="bon-points__cout"><?= $points ?> points</span>
                             <span class="bon-points__etat"><?= $atteint ? '<i class="bi bi-check2-circle" aria-hidden="true"></i> Disponible' : 'Encore ' . ($points - $solde) . ' pts' ?></span>
                         </li>
                     <?php endforeach; ?>
                 </ul>
                 <?php foreach ($bonsCadeaux as $bon): ?>
-                    <p class="bon-cadeau"><i class="bi bi-gift" aria-hidden="true"></i> Bon cadeau de <?= formaterEuros((float) $bon['montant']) ?> à utiliser avant le <?= date('d/m/Y', strtotime($bon['date_expiration'])) ?></p>
+                    <p class="bon-cadeau"><i class="bi bi-gift" aria-hidden="true"></i> Bon cadeau de <?= formaterPrix((float) $bon['montant']) ?> à utiliser avant le <?= date('d/m/Y', strtotime($bon['date_expiration'])) ?></p>
                 <?php endforeach; ?>
                 <p class="texte-doux mb-0">Choisissez votre bon au moment de payer. Un bon par commande, dès <?= BON_MINIMUM_LIVRES ?> € de livres et jusqu'à 50 % du montant des livres.</p>
             </section>

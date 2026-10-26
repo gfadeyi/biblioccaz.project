@@ -7,9 +7,18 @@ function libelleEtat(string $etat): string
     return ETATS_LIVRE[$etat] ?? ucfirst($etat);
 }
 
-function formatPrix(float $prix): string
+function aUneVraieCouverture(?string $fichier): bool
 {
-    return number_format($prix, 2, ',', ' ') . ' €';
+    return $fichier
+        && is_file(__DIR__ . '/img/' . $fichier)
+        && !str_ends_with(pathinfo($fichier, PATHINFO_FILENAME), '-generee');
+}
+
+function privilegierVraiesCouvertures(array $livres, int $nombre): array
+{
+    $avecCouverture = array_filter($livres, fn($livre) => aUneVraieCouverture($livre['couverture'] ?? null));
+    $sansCouverture = array_diff_key($livres, $avecCouverture);
+    return array_slice([...array_values($avecCouverture), ...array_values($sansCouverture)], 0, $nombre);
 }
 
 function sqlCartesLivres(string $conditions = ''): string

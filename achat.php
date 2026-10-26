@@ -96,14 +96,14 @@ include 'header.php';
                             <?php foreach ($options as $cle => $option): ?>
                                 <label class="choix-bon <?= $option['possible'] ? '' : 'indisponible' ?>">
                                     <input type="radio" name="bon" value="<?= htmlspecialchars($cle) ?>" <?= $option['possible'] ? 'data-scenario="' . htmlspecialchars(json_encode($scenarios[$cle])) . '"' : 'disabled' ?>>
-                                    <span class="choix-bon__montant">-<?= formaterEuros($option['montant']) ?></span>
+                                    <span class="choix-bon__montant">-<?= formaterPrix($option['montant']) ?></span>
                                     <span class="choix-bon__detail"><?= htmlspecialchars($option['libelle']) ?></span>
                                     <?php if (!$option['possible']): ?><span class="choix-bon__raison"><?= htmlspecialchars($option['raison']) ?></span><?php endif; ?>
                                 </label>
                             <?php endforeach; ?>
                         </div>
                     </fieldset>
-                    <button type="submit" class="btn btn-bibli w-100 mt-4 py-3 rounded-pill fw-bold" id="bouton-payer">Payer <?= formaterEuros($totalFinal) ?></button>
+                    <button type="submit" class="btn btn-bibli w-100 mt-4 py-3 rounded-pill fw-bold" id="bouton-payer">Payer <?= formaterPrix($totalFinal) ?></button>
                 </form>
             </div>
         </div>
@@ -118,18 +118,18 @@ include 'header.php';
                             <h6 class="mb-0 fw-bold"><?= htmlspecialchars($item['titre']) ?></h6>
                             <small class="text-muted">Qté : <?= $item['quantite'] ?> - <?= htmlspecialchars($item['etat']) ?></small>
                         </div>
-                        <div class="ms-auto ps-2 fw-bold text-nowrap"><?= formaterEuros($item['prix'] * $item['quantite']) ?></div>
+                        <div class="ms-auto ps-2 fw-bold text-nowrap"><?= formaterPrix($item['prix'] * $item['quantite']) ?></div>
                     </div>
                 <?php endforeach; ?>
                 <hr>
                 <div class="ligne-recap">
                     <span>Sous-total</span>
-                    <span><?= formaterEuros($totaux['sous_total']) ?></span>
+                    <span><?= formaterPrix($totaux['sous_total']) ?></span>
                 </div>
                 <?php if ($totaux['remise'] > 0): ?>
                     <div class="ligne-recap remise">
                         <span>Remise panier</span>
-                        <span>-<?= formaterEuros($totaux['remise']) ?></span>
+                        <span>-<?= formaterPrix($totaux['remise']) ?></span>
                     </div>
                 <?php endif; ?>
                 <div class="ligne-recap remise" id="recap-bon" hidden>
@@ -138,11 +138,11 @@ include 'header.php';
                 </div>
                 <div class="ligne-recap">
                     <span>Livraison<?= $niveau['livraison_des'] < 20 ? ' <small class="avantage-niveau">avantage ' . htmlspecialchars($niveau['nom']) . '</small>' : '' ?></span>
-                    <span><?= $totaux['frais_livraison'] > 0 ? formaterEuros($totaux['frais_livraison']) : 'Offerte' ?></span>
+                    <span><?= $totaux['frais_livraison'] > 0 ? formaterPrix($totaux['frais_livraison']) : 'Offerte' ?></span>
                 </div>
                 <div class="ligne-recap total">
                     <span>Total</span>
-                    <span data-recap="total"><?= formaterEuros($totalFinal) ?></span>
+                    <span data-recap="total"><?= formaterPrix($totalFinal) ?></span>
                 </div>
                 <div class="gain-points" data-bonus="<?= (int) $niveau['bonus'] ?>">
                     <?= iconeDessin('medaille') ?>

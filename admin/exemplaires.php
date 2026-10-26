@@ -138,7 +138,7 @@ include __DIR__ . '/_haut.php';
                         <?php foreach ($exemplaires as $ex): ?>
                             <tr>
                                 <td><span class="badge bg-light text-dark border"><?= e(ETATS_EXEMPLAIRE[$ex['etat']] ?? ucfirst($ex['etat'])) ?></span></td>
-                                <td class="fw-bold text-success"><?= number_format($ex['prix'], 2, ',', ' ') ?> €</td>
+                                <td class="fw-bold text-success"><?= formaterPrix($ex['prix']) ?></td>
                                 <td class="text-center text-muted"><?= (int) $ex['nb_vendus'] ?></td>
                                 <td class="text-center">
                                     <div class="d-inline-flex align-items-center gap-2">
@@ -178,7 +178,7 @@ include __DIR__ . '/_haut.php';
                             <?php foreach ($offresEpuisees as $ex): ?>
                                 <tr class="text-muted">
                                     <td><span class="badge bg-light text-secondary border"><?= e(ETATS_EXEMPLAIRE[$ex['etat']] ?? ucfirst($ex['etat'])) ?></span></td>
-                                    <td><?= number_format($ex['prix'], 2, ',', ' ') ?> €</td>
+                                    <td><?= formaterPrix($ex['prix']) ?></td>
                                     <td class="text-center"><?= (int) $ex['nb_vendus'] ?></td>
                                     <td class="text-center">
                                         <form method="POST" class="d-inline">

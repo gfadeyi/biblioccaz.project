@@ -69,11 +69,11 @@ $messageNewsletter = $messagesNewsletter[$_GET['newsletter'] ?? ''] ?? null;
             <div class="d-flex align-items-center gap-2">
                 <span>Paiement sécurisé</span>
                 <div class="moyens-paiement">
-                    <img src="img/cb.jpg" alt="Carte bancaire">
-                    <img src="img/visa.jpg" alt="Visa">
-                    <img src="img/mastercard.png" alt="Mastercard">
-                    <img src="img/ApplePay.png" alt="Apple Pay">
-                    <img src="img/googlepay.jpg" alt="Google Pay">
+                    <img src="img/cb.jpg" alt="Carte bancaire" width="31" height="22" loading="lazy">
+                    <img src="img/visa.jpg" alt="Visa" width="22" height="22" loading="lazy">
+                    <img src="img/mastercard.png" alt="Mastercard" width="28" height="22" loading="lazy">
+                    <img src="img/ApplePay.png" alt="Apple Pay" width="33" height="22" loading="lazy">
+                    <img src="img/googlepay.jpg" alt="Google Pay" width="39" height="22" loading="lazy">
                 </div>
             </div>
         </div>

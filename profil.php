@@ -260,7 +260,7 @@ include 'header.php';
                                 <?php if ($commande['statut'] === 'annulee'): ?>
                                     <span class="etiquette-profil annulee">Annulée</span>
                                 <?php else: ?>
-                                    <strong class="liste-profil__montant"><?= formaterEuros((float) $commande['total']) ?></strong>
+                                    <strong class="liste-profil__montant"><?= formaterPrix((float) $commande['total']) ?></strong>
                                 <?php endif; ?>
                             </li>
                         <?php endforeach; ?>

@@ -40,11 +40,11 @@ $nbOffres = isset($l['nb_offres']) ? (int) $l['nb_offres'] : 0;
         <?php endif; ?>
         <div class="carte-livre__pied">
             <?php if ($nbOffres > 1): ?>
-                <p class="carte-livre__offres"><?= $nbOffres ?> offres dès <?= formatPrix((float) $l['prix']) ?></p>
+                <p class="carte-livre__offres"><?= $nbOffres ?> offres dès <?= formaterPrix((float) $l['prix']) ?></p>
             <?php endif; ?>
             <div class="carte-livre__bas">
                 <span class="badge-bibli badge-etat"><?= htmlspecialchars(libelleEtat($l['etat'])) ?></span>
-                <span class="prix"><?= formatPrix((float) $l['prix']) ?></span>
+                <span class="prix"><?= formaterPrix((float) $l['prix']) ?></span>
             </div>
         </div>
     </div>
