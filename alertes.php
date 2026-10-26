@@ -47,7 +47,7 @@ include 'header.php';
         <div class="list-group shadow-sm" style="border-radius: 15px; overflow: hidden;">
             <?php foreach ($alertes as $a): ?>
                 <div class="list-group-item d-flex flex-wrap align-items-center gap-3 py-3">
-                    <img src="img/<?= rawurlencode($a['couverture'] ?: 'default.png') ?>" alt="" class="rounded border" style="width: 45px; height: 62px; object-fit: cover;">
+                    <img src="<?= htmlspecialchars(urlImage($a['couverture'])) ?>" alt="" class="rounded border" style="width: 45px; height: 62px; object-fit: cover;">
                     <div class="flex-grow-1" style="min-width: 180px;">
                         <a href="detail_livre.php?id=<?= $a['id_livre'] ?>" class="fw-bold text-dark text-decoration-none"><?= htmlspecialchars($a['titre']) ?></a>
                         <div class="small text-muted">

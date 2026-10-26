@@ -67,7 +67,7 @@ echo etoilesStyle();
             <?php $statutPoints = $statutsPoints['livre:' . $a['id_livre']] ?? null; ?>
             <article class="carte-compte mon-avis<?= $a['statut'] === 'masque' ? ' masque' : '' ?>">
                 <a href="detail_livre.php?id=<?= (int) $a['id_livre'] ?>" class="mon-avis__couverture" tabindex="-1" aria-hidden="true">
-                    <img src="img/<?= rawurlencode($a['couverture'] ?: 'default.png') ?>" alt="" loading="lazy">
+                    <img src="<?= htmlspecialchars(urlImage($a['couverture'])) ?>" alt="" loading="lazy">
                 </a>
                 <div class="mon-avis__contenu">
                     <div class="mon-avis__entete">

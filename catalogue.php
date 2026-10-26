@@ -164,6 +164,32 @@ if ($f['prix_max'] !== '' && is_numeric($f['prix_max']) && !isset($preset['prix_
 if (in_array($f['note_min'], ['3', '4', '4.5'], true)) {
     $filtresActifs['note_min'] = str_replace('.', ',', $f['note_min']) . ' ★ et plus';
 }
+$categoriesVoisines = [];
+$livresSuggeres = [];
+$categorieSansLivre = !$livres && $categorieCourante && count($filtresActifs) <= 1;
+if (!$livres) {
+    require_once 'livres_lib.php';
+    $idsUnivers = [];
+    if ($universCourant) {
+        $idsUnivers[] = (int) $universCourant['id_categorie'];
+        $nombreParCategorie = $pdo->query("
+            SELECT l.id_categorie, COUNT(DISTINCT l.id_livre)
+            FROM livre l
+            INNER JOIN exemplaire e ON e.id_livre = l.id_livre AND e.quantite > 0 AND e.is_disponible = 1
+            WHERE l.is_valide = 1
+            GROUP BY l.id_categorie")->fetchAll(PDO::FETCH_KEY_PAIR);
+        foreach ($universCourant['categories'] as $enfant) {
+            $idsUnivers[] = (int) $enfant['id_categorie'];
+            if ($enfant['slug'] !== $f['categorie'] && !empty($nombreParCategorie[$enfant['id_categorie']])) {
+                $categoriesVoisines[] = $enfant + ['nb' => (int) $nombreParCategorie[$enfant['id_categorie']]];
+            }
+        }
+    }
+    $conditionUnivers = $idsUnivers ? " AND l.id_categorie IN (" . implode(', ', $idsUnivers) . ")" : '';
+    $livresSuggeres = $pdo->query(sqlCartesLivres($conditionUnivers) . "
+        ORDER BY (SELECT COALESCE(SUM(cl.quantite), 0) FROM commande_ligne cl WHERE cl.id_livre = l.id_livre) DESC, l.id_livre DESC
+        LIMIT 4")->fetchAll();
+}
 $scriptsPage = ['filtres_catalogue.js'];
 
 function texteVoirLivres(int $nombre): string
@@ -365,11 +391,40 @@ echo etoilesStyle();
                 </div>
             <?php endif; ?>
             <?php if (!$livres): ?>
-                <div class="card p-5 text-center shadow-sm border-0" style="border-radius: 15px;">
-                    <i class="bi bi-book text-muted fs-1 mb-3"></i>
-                    <h5 class="text-secondary">Aucun livre ne correspond à ces critères.</h5>
-                    <a href="catalogue.php" class="btn btn-success rounded-pill px-4 mt-3 mx-auto">Voir tout le catalogue</a>
+                <div class="carte-compte etat-vide-catalogue">
+                    <?= iconeDessin($categorieSansLivre ? 'carton' : 'loupe') ?>
+                    <?php if ($categorieSansLivre): ?>
+                        <h2>Ce rayon attend ses premiers livres</h2>
+                        <p>Aucun livre n'est en vente dans « <?= htmlspecialchars($categorieCourante['nom']) ?> » pour le moment. Revenez bientôt, ou explorez les autres rayons de l'univers <?= htmlspecialchars($universCourant['nom']) ?>.</p>
+                        <div class="etat-vide-catalogue__actions">
+                            <a href="<?= htmlspecialchars(lienCategorie($universCourant['slug'])) ?>" class="bouton bouton-principal">Explorer <?= htmlspecialchars($universCourant['nom']) ?></a>
+                            <a href="don_creer.php" class="bouton bouton-contour">Vous en avez à donner ?</a>
+                        </div>
+                    <?php else: ?>
+                        <h2>Aucun livre ne correspond à ces critères</h2>
+                        <p>Essayez de retirer un filtre ou d'élargir votre recherche.</p>
+                        <div class="etat-vide-catalogue__actions">
+                            <?php if ($filtresActifs): ?>
+                                <a href="<?= htmlspecialchars(lienFiltres($f, $preset, retraitFiltres($f, array_keys($filtresActifs)))) ?>" class="bouton bouton-principal">Effacer les filtres</a>
+                            <?php endif; ?>
+                            <a href="catalogue.php" class="bouton bouton-contour">Voir tout le catalogue</a>
+                        </div>
+                    <?php endif; ?>
+                    <?php if ($categoriesVoisines): ?>
+                        <div class="etat-vide-catalogue__rayons">
+                            <span>Dans le même univers</span>
+                            <?php foreach ($categoriesVoisines as $voisine): ?>
+                                <a href="<?= htmlspecialchars(lienCategorie($voisine['slug'])) ?>" class="puce-univers"><?= htmlspecialchars($voisine['nom']) ?> <small><?= $voisine['nb'] ?></small></a>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php endif; ?>
                 </div>
+                <?php if ($livresSuggeres): ?>
+                    <h2 class="titre-suggestions-vide">Les lecteurs aiment aussi</h2>
+                    <div class="catalogue-grid">
+                        <?php foreach ($livresSuggeres as $l): include 'partie_carte_livre.php'; endforeach; ?>
+                    </div>
+                <?php endif; ?>
             <?php else: ?>
                 <div class="catalogue-grid">
                     <?php foreach ($livres as $l): include 'partie_carte_livre.php'; endforeach; ?>

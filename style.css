@@ -1365,3 +1365,17 @@ h1, h2, h3, .titre { font-family: var(--police-titre); font-weight: 700; letter-
     .billet { box-shadow: none; max-width: 360px; margin: 0 auto; animation: none; }
     .billet__haut { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 }
+
+.etat-vide-catalogue { display: flex; flex-direction: column; align-items: center; text-align: center; gap: .65rem; padding: 2.5rem 1.5rem; }
+.etat-vide-catalogue > .icone-dessin { width: 72px; height: 72px; padding: 16px; border-radius: 50%; background: var(--vert-50); color: var(--texte-vif);
+                                       animation: apparition-vide .5s var(--courbe) both; }
+.etat-vide-catalogue h2 { font-family: var(--police-titre); color: var(--titre); font-size: 1.45rem; font-weight: 700; margin: .3rem 0 0; }
+.etat-vide-catalogue p { color: var(--encre-douce); max-width: 52ch; margin: 0; }
+.etat-vide-catalogue__actions { display: flex; flex-wrap: wrap; justify-content: center; gap: .6rem; margin-top: .6rem; }
+.etat-vide-catalogue__rayons { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: .45rem; margin-top: 1rem; padding-top: 1.1rem;
+                               border-top: 1px solid var(--trait); width: 100%; }
+.etat-vide-catalogue__rayons > span { font-size: .8rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--encre-douce); margin-right: .3rem; }
+.etat-vide-catalogue__rayons small { color: var(--encre-douce); font-weight: 400; margin-left: .2rem; }
+.titre-suggestions-vide { font-family: var(--police-titre); color: var(--titre); font-size: 1.35rem; font-weight: 700; margin: 2rem 0 1rem; }
+@keyframes apparition-vide { from { opacity: 0; transform: scale(.85); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .etat-vide-catalogue > .icone-dessin { animation: none; } }

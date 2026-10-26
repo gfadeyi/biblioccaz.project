@@ -73,7 +73,7 @@ include 'header.php';
                     <?php foreach ($lignesParCommande[$cmd['id_commande']] ?? [] as $l): ?>
                         <div class="d-flex align-items-center mb-2">
                             <?php if (!empty($l['couverture'])): ?>
-                                <img src="img/<?= htmlspecialchars($l['couverture']) ?>" class="rounded border" style="width: 40px; height: 55px; object-fit: cover;">
+                                <img src="<?= htmlspecialchars(urlImage($l['couverture'])) ?>" class="rounded border" style="width: 40px; height: 55px; object-fit: cover;">
                             <?php else: ?>
                                 <div class="rounded border bg-light d-flex align-items-center justify-content-center" style="width: 40px; height: 55px;"><i class="bi bi-book text-muted"></i></div>
                             <?php endif; ?>

@@ -115,7 +115,7 @@ include 'header.php';
                 <div class="col-lg-6 d-none d-lg-block">
                     <div class="pile-livres" aria-hidden="true">
                         <?php foreach ($couverturesBandeau as $livreBandeau): ?>
-                            <img src="img/<?= rawurlencode($livreBandeau['couverture']) ?>" alt="">
+                            <img src="<?= htmlspecialchars(urlImage($livreBandeau['couverture'])) ?>" alt="">
                         <?php endforeach; ?>
                         <div class="pastille-verifie">Vérifié<br>à la main<br>✓</div>
                     </div>
@@ -306,7 +306,7 @@ include 'header.php';
                     <div class="carrousel-avis" data-carrousel-avis>
                         <?php foreach ($derniersAvis as $avis): ?>
                             <a href="detail_livre.php?id=<?= (int) $avis['id_livre'] ?>#avis" class="avis-lecteur">
-                                <span class="couverture-mini"><img src="img/<?= rawurlencode($avis['couverture'] ?: 'default.png') ?>" alt="" loading="lazy"></span>
+                                <span class="couverture-mini"><img src="<?= htmlspecialchars(urlImage($avis['couverture'])) ?>" alt="" loading="lazy"></span>
                                 <span class="avis-lecteur__texte">
                                     <span class="avis-lecteur__auteur">
                                         <?= avatarMembre($avis['pseudo'], $avis['photo'], 'petit') ?>

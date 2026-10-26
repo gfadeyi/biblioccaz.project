@@ -82,7 +82,7 @@ include 'header.php';
                     <?php foreach ($panier as $cle => $item): ?>
                         <article class="ligne-panier">
                             <a href="detail_livre.php?id=<?= (int) $item['id_livre'] ?>" class="ligne-panier__couverture">
-                                <img src="img/<?= rawurlencode($item['image']) ?>" alt="Couverture de <?= htmlspecialchars($item['titre']) ?>">
+                                <img src="<?= htmlspecialchars(urlImage($item['image'])) ?>" alt="Couverture de <?= htmlspecialchars($item['titre']) ?>">
                             </a>
                             <div class="ligne-panier__infos">
                                 <h2><a href="detail_livre.php?id=<?= (int) $item['id_livre'] ?>"><?= htmlspecialchars($item['titre']) ?></a></h2>

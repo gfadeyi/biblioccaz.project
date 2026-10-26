@@ -68,7 +68,7 @@ function formaterEtat($etat) {
 <div class="container mt-5 mb-5">
     <div class="row g-5">
         <div class="col-md-4 text-center">
-            <img src="img/<?= htmlspecialchars($livre['couverture'] ?? 'default.jpg') ?>" class="img-fluid rounded shadow-sm" style="max-height: 450px;">
+            <img src="<?= htmlspecialchars(urlImage($livre['couverture'])) ?>" class="img-fluid rounded shadow-sm" style="max-height: 450px;">
         </div>
 
         <div class="col-md-5">
@@ -147,13 +147,20 @@ function formaterEtat($etat) {
             <div class="mt-4">
                 <h5 class="fw-bold border-bottom pb-2">Caractéristiques</h5>
                 <table class="table table-sm mt-3">
-                    <tr><th>Éditeur</th><td><?= htmlspecialchars($livre['editeur'] ?? '-') ?></td></tr>
-                    <tr><th>Année</th><td><?= htmlspecialchars($livre['annee_parution'] ?? '-') ?></td></tr>
-                    <tr><th>ISBN</th><td><?= htmlspecialchars($livre['isbn'] ?? '-') ?></td></tr>
-                    <tr><th>Dimensions</th><td><?= htmlspecialchars($livre['dimensions'] ?? '-') ?></td></tr>
-                    <tr><th>Nb de pages</th><td><?= htmlspecialchars($livre['nb_pages'] ?? '-') ?></td></tr>
-                    <tr><th>Poids</th><td><?= htmlspecialchars($livre['poids'] ?? '-') ?> g</td></tr>
-                    <tr><th>Reliure</th><td><?= htmlspecialchars($livre['reliure'] ?? '-') ?></td></tr>
+                    <?php foreach ([
+                        'Éditeur' => $livre['editeur'] ?? '',
+                        'Collection' => $livre['collection'] ?? '',
+                        'Année' => $livre['annee_parution'] ?? '',
+                        'ISBN' => $livre['isbn'] ?? '',
+                        'Nombre de pages' => $livre['nb_pages'] ?? '',
+                        'Format' => trim(($livre['reliure'] ?? '') . (!empty($livre['reliure']) && !empty($livre['dimensions']) ? ' · ' : '') . ($livre['dimensions'] ?? '')),
+                        'Poids' => !empty($livre['poids']) ? $livre['poids'] . ' g' : '',
+                        'Langue' => $livre['langue'] ?? '',
+                    ] as $libelleCaracteristique => $valeurCaracteristique): ?>
+                        <?php if ((string) $valeurCaracteristique !== ''): ?>
+                            <tr><th><?= $libelleCaracteristique ?></th><td><?= htmlspecialchars((string) $valeurCaracteristique) ?></td></tr>
+                        <?php endif; ?>
+                    <?php endforeach; ?>
                 </table>
             </div>
         </div>
@@ -177,7 +184,7 @@ function formaterEtat($etat) {
                             <input type="hidden" name="titre" value="<?= htmlspecialchars($livre['titre']) ?>">
                             <input type="hidden" name="etat" value="<?= htmlspecialchars($offre_selectionnee['etat']) ?>">
                             <input type="hidden" name="prix" value="<?= $offre_selectionnee['prix'] ?>">
-                            <input type="hidden" name="image" value="<?= htmlspecialchars($livre['couverture'] ?? 'default.jpg') ?>">
+                            <input type="hidden" name="image" value="<?= htmlspecialchars($livre['couverture'] ?: 'default.png') ?>">
                             <button type="submit" name="action" value="ajouter" class="btn btn-custom-green w-100 mb-2">Ajouter au panier</button>
                             <button type="submit" name="action" value="acheter" class="btn btn-outline-dark w-100 rounded-pill">Acheter</button>
                         </form>

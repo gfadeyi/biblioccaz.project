@@ -90,6 +90,12 @@ function insertLog($type, $message) {
     file_put_contents($logFile, $logLine, FILE_APPEND);
 }
 
+function urlImage(?string $fichier, string $racine = ''): string
+{
+    $chemin = $fichier && is_file(__DIR__ . '/img/' . $fichier) ? $fichier : 'default.png';
+    return $racine . 'img/' . implode('/', array_map('rawurlencode', explode('/', $chemin)));
+}
+
 $cheminScript = str_replace('\\', '/', realpath($_SERVER['SCRIPT_FILENAME']) ?: '');
 $racineSite = str_replace('\\', '/', __DIR__);
 $currentPage = strpos($cheminScript, $racineSite . '/') === 0

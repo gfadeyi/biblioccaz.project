@@ -66,7 +66,7 @@ include 'header.php';
             <div class="card border-0 shadow-sm" style="border-radius: 15px;">
                 <div class="card-body d-flex flex-wrap align-items-center gap-3">
                     <a href="detail_livre.php?id=<?= $f['id_livre'] ?>">
-                        <img src="img/<?= rawurlencode($f['couverture'] ?: 'default.png') ?>" alt="" class="rounded border" style="width: 60px; height: 85px; object-fit: cover;">
+                        <img src="<?= htmlspecialchars(urlImage($f['couverture'])) ?>" alt="" class="rounded border" style="width: 60px; height: 85px; object-fit: cover;">
                     </a>
                     <div class="flex-grow-1" style="min-width: 180px;">
                         <a href="detail_livre.php?id=<?= $f['id_livre'] ?>" class="fw-bold text-dark text-decoration-none"><?= htmlspecialchars($f['titre']) ?></a>

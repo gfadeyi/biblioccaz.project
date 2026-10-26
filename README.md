@@ -23,6 +23,7 @@ Projet annuel de 1re année (ESGI, classe 1A1) par **Gaël Fadeyi**, **Jeanny Be
 - **Back-office séparé** (`admin/`) aux couleurs du site : tableau de bord (indicateurs avec tendance, ventes sur 30 jours et par univers, liste « À traiter », activité récente), inventaire lisible (stock par état, prix à partir de, filtres par univers, tri par colonne, alertes de stock bas et de rupture), validation des fiches, avis signalés, dons, membres, newsletter, journal d'activité, export PDF des membres ; confirmations dans une fenêtre propre, fil d'Ariane sur chaque page
 - **Emails** : vérification d'adresse à l'inscription, récupération de mot de passe, newsletter (PHPMailer)
 - **Captcha puzzle** maison, vérifié côté serveur
+- **Données de démonstration** (`sql/donnees_demo.sql`, rejouable) : une cinquantaine de livres aux ISBN vérifiés avec éditeur, collection, pages et format, offres par état, une cinquantaine de lecteurs à tous les niveaux, commandes sur plusieurs mois, avis, dons, événements, favoris et alertes ; couverture par défaut (`img/default.png`) quand l'image d'un livre est absente, et rayon vide présenté avec un message, les catégories voisines et des suggestions
 
 ## Technologies
 
@@ -45,6 +46,7 @@ PHP 8 · MySQL / MariaDB (PDO) · Bootstrap 5 · JavaScript · PHPMailer · Domp
    cp "img/Biblioccaz_Logo_New.png" img/captcha/
    ```
 4. Importer `sql/biblioccaz.sql` dans phpMyAdmin (base, utilisateur MySQL, tables et données d'exemple).
+   Pour un site rempli, importer ensuite `sql/donnees_demo.sql` avec `mysql --default-character-set=utf8mb4`. Les couvertures de démonstration ne sont pas versionnées : les livres affichent alors la couverture par défaut.
 5. Copier `secrets.example.php` en **`secrets.php`** et y renseigner les identifiants (base de données, envoi de mails). Ce fichier n'est jamais envoyé sur GitHub.
 6. Ouvrir le site client : http://localhost/projet_web/biblioccaz/
    et le back-office : http://localhost/projet_web/biblioccaz/admin/

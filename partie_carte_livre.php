@@ -25,7 +25,7 @@ $nbOffres = isset($l['nb_offres']) ? (int) $l['nb_offres'] : 0;
         <?php else: ?>
             <a href="login.php" class="bouton-coeur" title="Connectez-vous pour ajouter ce livre à vos favoris" aria-label="Se connecter pour ajouter ce livre à vos favoris"><i class="bi bi-heart"></i></a>
         <?php endif; ?>
-        <img src="img/<?= rawurlencode($couverture) ?>" alt="Couverture de <?= htmlspecialchars($l['titre']) ?>" loading="lazy">
+        <img src="<?= htmlspecialchars(urlImage($couverture)) ?>" alt="Couverture de <?= htmlspecialchars($l['titre']) ?>" loading="lazy">
     </div>
 
     <div class="carte-livre__corps">

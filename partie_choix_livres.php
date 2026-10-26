@@ -17,7 +17,7 @@ $livresCoches = $livresCoches ?? [];
                 <?php $coche = in_array((int) $livre['id_livre'], $livresCoches, true); ?>
                 <label class="choix-livres__livre" data-recherche="<?= htmlspecialchars(mb_strtolower($livre['titre'] . ' ' . $livre['auteur'])) ?>">
                     <input type="checkbox" class="form-check-input" name="livres[]" value="<?= (int) $livre['id_livre'] ?>" <?= $coche ? 'checked' : '' ?>>
-                    <img src="<?= htmlspecialchars($racineImages . 'img/' . rawurlencode($livre['couverture'] ?: 'default.png')) ?>" alt="" loading="lazy">
+                    <img src="<?= htmlspecialchars(urlImage($livre['couverture'], $racineImages)) ?>" alt="" loading="lazy">
                     <span class="choix-livres__texte">
                         <strong><?= htmlspecialchars($livre['titre']) ?></strong>
                         <small><?= htmlspecialchars($livre['auteur'] ?? '') ?><?php if (!empty($livre['est_a_moi'])): ?> · <em>votre livre</em><?php endif; ?></small>

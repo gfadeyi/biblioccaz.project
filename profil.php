@@ -277,7 +277,7 @@ include 'header.php';
                     <div class="couvertures-profil">
                         <?php foreach (array_slice($favoris, 0, 5) as $favori): ?>
                             <a href="detail_livre.php?id=<?= (int) $favori['id_livre'] ?>" title="<?= htmlspecialchars($favori['titre']) ?>">
-                                <img src="img/<?= rawurlencode($favori['couverture'] ?: 'default.png') ?>" alt="<?= htmlspecialchars($favori['titre']) ?>" loading="lazy">
+                                <img src="<?= htmlspecialchars(urlImage($favori['couverture'])) ?>" alt="<?= htmlspecialchars($favori['titre']) ?>" loading="lazy">
                             </a>
                         <?php endforeach; ?>
                     </div>

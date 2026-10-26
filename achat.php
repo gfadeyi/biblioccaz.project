@@ -113,7 +113,7 @@ include 'header.php';
                 <h4 class="fw-bold mb-4">Résumé de la commande</h4>
                 <?php foreach ($_SESSION['panier'] as $item): ?>
                     <div class="d-flex align-items-center mb-3">
-                        <img src="img/<?= htmlspecialchars($item['image']) ?>" alt="" loading="lazy" style="width: 40px; height: 50px; object-fit: cover;">
+                        <img src="<?= htmlspecialchars(urlImage($item['image'])) ?>" alt="" loading="lazy" style="width: 40px; height: 50px; object-fit: cover;">
                         <div class="ms-3">
                             <h6 class="mb-0 fw-bold"><?= htmlspecialchars($item['titre']) ?></h6>
                             <small class="text-muted">Qté : <?= $item['quantite'] ?> - <?= htmlspecialchars($item['etat']) ?></small>

@@ -97,7 +97,7 @@ function e(?string $texte): string
 
 function imageLivre(?string $fichier): string
 {
-    return '../img/' . rawurlencode($fichier ?: 'default.png');
+    return urlImage($fichier, '../');
 }
 
 function compteursEquipe(PDO $pdo): array

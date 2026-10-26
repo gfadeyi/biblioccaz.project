@@ -74,7 +74,7 @@ function horaireEvenement(array $evt): string
 
 function imageEvenement(?string $image, string $racine = ''): string
 {
-    return $racine . 'img/' . rawurlencode($image ?: 'default.png');
+    return urlImage($image, $racine);
 }
 
 function urlPresence(array $inscription): string
