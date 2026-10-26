@@ -737,3 +737,18 @@ INNER JOIN (
 ) e ON e.id_livre = cl.id_livre AND e.etat = cl.etat AND e.prix = cl.prix_unitaire
 SET cl.id_exemplaire = e.id_exemplaire
 WHERE cl.id_exemplaire IS NULL;
+
+CREATE TABLE IF NOT EXISTS candidature_moderateur (
+  id_candidature   INT          NOT NULL AUTO_INCREMENT,
+  id_user          INT          NOT NULL,
+  motivations      TEXT         NULL,
+  statut           VARCHAR(20)  NOT NULL DEFAULT 'en_attente',
+  date_candidature DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  date_decision    DATETIME     NULL,
+  id_decideur      INT          NULL,
+  message_decision VARCHAR(1000) NULL,
+  PRIMARY KEY (id_candidature),
+  KEY idx_candidature_statut (statut, date_candidature),
+  CONSTRAINT fk_candidature_user     FOREIGN KEY (id_user)     REFERENCES `user`(id) ON DELETE CASCADE,
+  CONSTRAINT fk_candidature_decideur FOREIGN KEY (id_decideur) REFERENCES `user`(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

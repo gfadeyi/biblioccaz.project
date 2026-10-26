@@ -40,7 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $mail->addAddress($email, $prenom . ' ' . $nom);
                     $mail->addReplyTo(MAIL_FROM, MAIL_FROM_NAME);
                     habillerMail($mail, "Confirmez votre adresse email",
-                        "Bienvenue $prenom !\n\nMerci de rejoindre BIBLIOccaz. Pour activer votre compte, confirmez votre adresse email avec le bouton ci-dessous.\n\nSi le bouton ne fonctionne pas, copiez ce lien dans votre navigateur :\n$url",
+                        "Bienvenue $prenom !\n\nMerci de rejoindre BIBLIOccaz. Pour activer votre compte, confirmez votre adresse email avec le bouton ci-dessous.",
                         $url, "Confirmer mon adresse");
                     $mail->send();
                     header('Location: login.php?inscription=1');

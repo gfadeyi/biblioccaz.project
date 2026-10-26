@@ -30,7 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $mail = creerMailer();
                 $mail->addAddress($email, $user['prenom']);
                 habillerMail($mail, "Récupération de votre mot de passe",
-                    "Bonjour " . $user['prenom'] . ",\n\nVous avez demandé la réinitialisation de votre mot de passe sur BIBLIOccaz. Le lien ci-dessous est valable 1 heure.\n\nSi le bouton ne fonctionne pas, copiez ce lien dans votre navigateur :\n$url\n\nSi vous n'êtes pas à l'origine de cette demande, ignorez ce mail : votre mot de passe actuel reste valable.",
+                    "Bonjour " . $user['prenom'] . ",\n\nVous avez demandé la réinitialisation de votre mot de passe sur BIBLIOccaz. Le lien ci-dessous est valable 1 heure.\n\nSi vous n'êtes pas à l'origine de cette demande, ignorez ce mail : votre mot de passe actuel reste valable.",
                     $url, "Choisir un nouveau mot de passe");
                 $mail->send();
                 insertLog('SECURITE', "Demande de réinitialisation de mot de passe (user #{$user['id']})");

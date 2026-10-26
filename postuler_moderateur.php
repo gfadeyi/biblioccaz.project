@@ -32,13 +32,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt = $pdo->prepare("INSERT INTO user (pseudo, email, mot_de_passe, nom, prenom, role, statut, email_token, email_verifie) VALUES (?, ?, ?, ?, ?, 'client', 'en_attente_moderateur', ?, 0)");
 
             if ($stmt->execute([$pseudo, $email, $hash, $nom, $prenom, $token])) {
+                $idCandidat = (int) $pdo->lastInsertId();
+                try {
+                    $pdo->prepare("INSERT INTO candidature_moderateur (id_user, motivations) VALUES (?, ?)")->execute([$idCandidat, mb_substr($motivations, 0, 5000)]);
+                } catch (PDOException $e) {
+                    insertLog('ERREUR', "Motivations de @$pseudo non enregistrées : table candidature_moderateur absente");
+                }
                 insertLog('CANDIDATURE', "Nouvelle demande de modération de @" . $pseudo);
                 $url = SITE_URL . "/verification_mail.php?token=" . $token . "&email=" . urlencode($email);
                 $mail = creerMailer();
                 try {
                     $mail->addAddress($email, $prenom . ' ' . $nom);
                     habillerMail($mail, "Confirmez votre candidature",
-                        "Bonjour $prenom !\n\nMerci pour l'intérêt que vous portez à BIBLIOccaz. Pour valider votre candidature, confirmez votre adresse email avec le bouton ci-dessous.\n\nSi le bouton ne fonctionne pas, copiez ce lien dans votre navigateur :\n$url\n\nUne fois votre adresse confirmée, l'équipe étudiera votre candidature.",
+                        "Bonjour $prenom !\n\nMerci pour l'intérêt que vous portez à BIBLIOccaz. Pour valider votre candidature, confirmez votre adresse email avec le bouton ci-dessous.\n\nUne fois votre adresse confirmée, l'équipe étudiera votre candidature.",
                         $url, "Confirmer mon adresse");
                     $mail->send();
                     $succes = "Un mail de validation a été envoyé à l'adresse $email. Cliquez sur son lien pour confirmer votre candidature.";
@@ -96,7 +102,7 @@ include 'header.php';
                     </div>
                     <div class="col-12">
                         <label for="motivations" class="form-label">Vos motivations *</label>
-                        <textarea id="motivations" name="motivations" class="form-control" rows="4" placeholder="Expliquez brièvement pourquoi vous souhaitez devenir modérateur…" required><?= htmlspecialchars($saisie['motivations']) ?></textarea>
+                        <textarea id="motivations" name="motivations" class="form-control" rows="4" maxlength="5000" placeholder="Expliquez brièvement pourquoi vous souhaitez devenir modérateur…" required><?= htmlspecialchars($saisie['motivations']) ?></textarea>
                     </div>
                     <div class="col-12 mt-4">
                         <button type="submit" class="bouton bouton-principal">Envoyer ma candidature</button>

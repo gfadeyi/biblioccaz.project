@@ -23,18 +23,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     switch ($action) {
-        case 'accepter':
-            $pdo->prepare("UPDATE user SET role = 'moderateur', statut = 'valide_moderateur' WHERE id = ?")->execute([$idUser]);
-            insertLog('ADMIN', "Candidature acceptée : @$pseudo devient modérateur");
-            rediriger('utilisateurs.php', 'success', "@$pseudo est maintenant modérateur.");
-
-        case 'refus_temporaire':
-        case 'refus_definitif':
-            $statut = $action === 'refus_temporaire' ? 'refuse_temporaire' : 'refuse_definitif';
-            $pdo->prepare("UPDATE user SET statut = ? WHERE id = ?")->execute([$statut, $idUser]);
-            insertLog('ADMIN', "Candidature de @$pseudo refusée ($statut)");
-            rediriger('utilisateurs.php', 'success', "Candidature refusée.");
-
         case 'changer_role':
             $role = $_POST['nouveau_role'] ?? '';
             if (!in_array($role, ROLES_ATTRIBUABLES, true)) {
@@ -81,7 +69,7 @@ $stmt = $pdo->prepare("
 $stmt->execute($params);
 $membres = $stmt->fetchAll();
 
-$candidatures = $pdo->query("SELECT id, pseudo, email, nom, prenom, date_inscription FROM user WHERE statut = 'en_attente_moderateur' ORDER BY id")->fetchAll();
+$nbCandidatures = (int) $pdo->query("SELECT COUNT(*) FROM user WHERE statut = 'en_attente_moderateur'")->fetchColumn();
 
 function badgeStatut(string $statut): string
 {
@@ -107,28 +95,10 @@ $pageActive = 'utilisateurs';
 include __DIR__ . '/_haut.php';
 ?>
 
-<?php if ($candidatures): ?>
-    <div class="carte mb-4 border-warning">
-        <div class="carte-entete bg-warning-subtle"><span><i class="bi bi-person-plus me-2"></i>Candidatures modérateur (<?= count($candidatures) ?>)</span></div>
-        <div class="table-responsive">
-            <table class="table align-middle">
-                <tbody>
-                    <?php foreach ($candidatures as $c): ?>
-                        <tr>
-                            <td>
-                                <div class="fw-bold"><?= e(trim($c['prenom'] . ' ' . $c['nom'])) ?: '@' . e($c['pseudo']) ?></div>
-                                <div class="small text-muted">@<?= e($c['pseudo']) ?> · <?= e($c['email']) ?></div>
-                            </td>
-                            <td class="text-end text-nowrap">
-                                <?= boutonAction($c['id'], 'accepter', '<i class="bi bi-check-lg"></i> Accepter', 'btn-success') ?>
-                                <?= boutonAction($c['id'], 'refus_temporaire', 'Refuser pour l\'instant', 'btn-outline-warning', 'Refuser temporairement cette candidature ?') ?>
-                                <?= boutonAction($c['id'], 'refus_definitif', 'Refuser définitivement', 'btn-outline-danger', 'Refuser définitivement cette candidature ?') ?>
-                            </td>
-                        </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
-        </div>
+<?php if ($nbCandidatures): ?>
+    <div class="alert alert-info d-flex flex-wrap align-items-center justify-content-between gap-2">
+        <span><i class="bi bi-person-plus me-1" aria-hidden="true"></i> <?= $nbCandidatures ?> candidature<?= $nbCandidatures > 1 ? 's' : '' ?> à la modération en attente.</span>
+        <a href="candidatures.php" class="btn btn-sm btn-success">Voir les candidatures</a>
     </div>
 <?php endif; ?>
 

@@ -18,10 +18,12 @@ Projet annuel de 1re année (ESGI, classe 1A1) par **Gaël Fadeyi**, **Jeanny Be
 - **Événements** : dédicaces, rencontres et ateliers avec calendrier filtrable, inscriptions, liste d'attente, billets à QR code, contrôle des présences et export PDF des participants
 - **Événements proposés par les auteurs** : depuis l'espace créateur, un auteur propose une dédicace, une rencontre ou un atelier (date, horaires, lieu, places, image, jusqu'à 5 livres associés), peut la modifier ou la retirer tant qu'elle est en attente ; file « Proposés » avec compteur dans le back-office, validation, correction ou refus motivé, mail à l'auteur à chaque décision ; une fois publié, l'événement affiche « Proposé par … » et ses livres, et l'auteur suit ses inscrits (prénom et initiale, sans email)
 - **Comptes et rôles** : client, auteur (proposition de livres), modérateur, gestionnaire, administrateur
+- **Candidatures à la modération** : formulaire avec motivations enregistrées, page « Candidatures » dans le back-office (motivations, email confirmé ou non, acceptation ou refus avec message facultatif, mail au candidat, historique des décisions) ; un refus laisse le compte lecteur actif
 - **Espace « Mon compte »** : identité, niveau et points, dernières commandes, favoris, alertes, événements à venir, dons et newsletter sur une seule page, adaptée au rôle (client, auteur, équipe) ; photo de profil (JPG, PNG ou WebP, 2 Mo maximum, aperçu avant d'enregistrer, recadrée et convertie en WebP) affichée dans l'en-tête, le menu du compte et les avis, avec retour possible à l'initiale sur fond coloré
 - **Fenêtre de confirmation** du site pour toutes les suppressions et annulations côté client (avis, adresses, dons, événements), sans boîte de dialogue du navigateur
 - **Back-office séparé** (`admin/`) aux couleurs du site : tableau de bord (indicateurs avec tendance, ventes sur 30 jours et par univers, liste « À traiter », activité récente), inventaire lisible (stock par état, prix à partir de, filtres par univers, tri par colonne, alertes de stock bas et de rupture), validation des fiches, avis signalés, dons, membres, newsletter, journal d'activité, export PDF des membres ; confirmations dans une fenêtre propre, fil d'Ariane sur chaque page
-- **Emails** : vérification d'adresse à l'inscription, récupération de mot de passe, newsletter (PHPMailer)
+- **Emails** (PHPMailer) : gabarit commun aux couleurs du site avec version texte, pour la vérification d'adresse, la récupération de mot de passe, la confirmation de commande, les notifications, les réponses aux candidatures et la newsletter
+- **Page 404** aux couleurs du site (redirection dans `.htaccess`), avec recherche et liens utiles
 - **Captcha puzzle** maison, vérifié côté serveur
 - **Données de démonstration** (`sql/donnees_demo.sql`, rejouable, dates calculées à partir du jour de l'import pour que les événements restent à venir) : une cinquantaine de livres aux ISBN vérifiés avec éditeur, collection, pages et format, offres par état, une cinquantaine de lecteurs à tous les niveaux, commandes sur plusieurs mois, avis, dons, événements, favoris et alertes ; couverture par défaut (`img/default.png`) quand l'image d'un livre est absente, et rayon vide présenté avec un message, les catégories voisines et des suggestions
 
@@ -68,7 +70,7 @@ Droits dans le back-office (définis dans `admin/_init.php`) :
 
 - **Modérateur** : tableau de bord, validation des fiches livres, avis signalés, dons
 - **Gestionnaire** : + ajout et modification des livres, stock, événements
-- **Administrateur** : tout, dont membres, catégories, newsletter, journal, images du captcha, export PDF
+- **Administrateur** : tout, dont membres, candidatures à la modération, catégories, newsletter, journal, images du captcha, export PDF
 
 Toutes les actions qui modifient des données passent par des formulaires POST protégés par un jeton anti-CSRF. En production, le dossier `admin/` peut être servi sur son propre sous-domaine (par exemple `admin.biblioccaz.fr`).
 

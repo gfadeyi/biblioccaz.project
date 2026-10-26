@@ -55,7 +55,8 @@ function habillerMail(PHPMailer $mail, string $sujet, string $texte, ?string $li
     if ($lienBouton && $libelleBouton) {
         $bouton = '<table role="presentation" cellpadding="0" cellspacing="0" style="margin:8px 0 24px;"><tr><td style="border-radius:999px;background:#274e13;">'
             . '<a href="' . htmlspecialchars($lienBouton, ENT_QUOTES, 'UTF-8') . '" style="display:inline-block;padding:13px 28px;font-family:Arial,Helvetica,sans-serif;font-size:16px;font-weight:700;color:#ffffff;text-decoration:none;border-radius:999px;">'
-            . htmlspecialchars($libelleBouton, ENT_QUOTES, 'UTF-8') . '</a></td></tr></table>';
+            . htmlspecialchars($libelleBouton, ENT_QUOTES, 'UTF-8') . '</a></td></tr></table>'
+            . '<p style="margin:0 0 20px;font-size:13px;line-height:1.5;color:#56634f;word-break:break-all;">Le bouton ne fonctionne pas ? Copiez ce lien dans votre navigateur :<br><a href="' . htmlspecialchars($lienBouton, ENT_QUOTES, 'UTF-8') . '" style="color:#3f7d25;">' . htmlspecialchars($lienBouton, ENT_QUOTES, 'UTF-8') . '</a></p>';
     }
     $mail->isHTML(true);
     $mail->Subject = $sujet;
