@@ -10,6 +10,7 @@ $menu = [
     ],
     'Catalogue' => [
         ['moderation_livres', 'moderation_livres.php', 'shield-check', 'Fiches à valider', 'moderation', $compteurs['livres']],
+        ['annonces', 'annonces.php', 'shop', 'Annonces', 'moderation', $compteurs['annonces'] ?? 0],
         ['inventaire', 'inventaire.php', 'box-seam', 'Inventaire & stock', 'catalogue', 0],
         ['livre', 'livre.php', 'plus-circle', 'Ajouter un livre', 'catalogue', 0],
         ['categories', 'categories.php', 'tags', 'Catégories & tags', 'admin', 0],

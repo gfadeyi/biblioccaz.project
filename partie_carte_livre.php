@@ -14,6 +14,9 @@ $donSeulement = $originesLivre === ['don'];
             <?php if (!empty($l['coup_de_coeur'])): ?>
                 <span class="badge-bibli badge-coeur"><i class="bi bi-heart-fill"></i> Coup de cœur</span>
             <?php endif; ?>
+            <?php if (in_array('particulier', $originesLivre, true) && !in_array('magasin', $originesLivre, true)): ?>
+                <span class="badge-bibli badge-don"><i class="bi bi-people" aria-hidden="true"></i> Entre particuliers</span>
+            <?php endif; ?>
             <?php if (in_array('don', $originesLivre, true) && !$donSeulement): ?>
                 <span class="badge-bibli badge-don"><i class="bi bi-gift" aria-hidden="true"></i> Aussi en don</span>
             <?php endif; ?>

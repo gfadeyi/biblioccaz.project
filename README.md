@@ -31,13 +31,14 @@ Les couvertures visibles sur ces captures sont générées pour l'aperçu : les 
 ## Fonctionnalités
 
 ### Boutique
-- **Catalogue en 6 univers** (BD, Manga & Jeunesse, Littérature, Art & Culture, Scolaire & Études, Savoirs & Pro, Vie pratique) et un rayon Bons plans, avec méga-menu, fil d'Ariane, catégories, tags en trois familles (thèmes, public, particularités), filtres (type d'offre : magasin ou don, prix, état, note), tris et pagination ; filtres repliés dans un volet sur téléphone
-- **Fiche livre** : caractéristiques complètes, choix de l'état (neuf, très bon, bon, usé) avec le prix et le stock de chacun, liste « Toutes les offres » (magasin et dons) triable par prix, état ou type, avis des lecteurs, suggestions
+- **Catalogue en 6 univers** (BD, Manga & Jeunesse, Littérature, Art & Culture, Scolaire & Études, Savoirs & Pro, Vie pratique) et un rayon Bons plans, avec méga-menu, fil d'Ariane, catégories, tags en trois familles (thèmes, public, particularités), filtres (type d'offre : magasin, entre particuliers ou don, prix, état, note), tris et pagination ; filtres repliés dans un volet sur téléphone
+- **Fiche livre** : caractéristiques complètes, choix de l'état (neuf, très bon, bon, usé) avec le prix et le stock de chacun, liste « Toutes les offres » (magasin, annonces de particuliers et dons) triable par prix, état ou type, avis des lecteurs, suggestions
 - **Panier et commande** : remises automatiques (-5 % dès 30 €, -10 % dès 50 €), livraison offerte dès 20 €, carnet d'adresses, bons de réduction, mail de confirmation ; prix et stocks toujours relus en base, commande verrouillée en transaction
 - **Liste d'envies** et **alertes de retour en stock** par mail
 - **Recherche** avec suggestions instantanées
 
 ### Communauté
+- **Revente entre particuliers** : annonce avec prix libre (de 0,50 € à 150 €), état, jusqu'à 3 photos vérifiées, description et mode de remise (main propre ou envoi) ; un livre absent du catalogue crée une nouvelle fiche ; chaque annonce est **vérifiée par l'équipe avant publication** (validation, refus ou retrait avec motif envoyé par mail) ; page « Mes annonces » pour modifier, retirer, remettre en ligne ou supprimer
 - **Dons de livres** : annonce gratuite avec lieu et date limite de retrait, réservation par un autre lecteur, retrait validé par QR code ou code court
 - **Événements** (dédicaces, rencontres, ateliers) : calendrier filtrable, inscription dans la limite des places, liste d'attente automatique ou manuelle, billet avec QR code, contrôle des présences le jour J, export PDF des participants, mails en cas d'annulation
 - **Événements proposés par les auteurs**, validés ou refusés par l'équipe avec un message
@@ -59,7 +60,7 @@ Les couvertures visibles sur ces captures sont générées pour l'aperçu : les 
 ### Back-office (`admin/`)
 - Session séparée du site, droits par rôle, menu latéral et fil d'Ariane
 - **Tableau de bord** : chiffre d'affaires, commandes, nouveaux membres, stock, ventes sur 30 jours et par univers, liste « À traiter »
-- **Catalogue** : fiches, exemplaires par état, inventaire avec alertes de rupture, catégories et tags, validation des livres proposés par les auteurs
+- **Catalogue** : fiches, exemplaires par état, inventaire avec alertes de rupture, catégories et tags, validation des livres proposés par les auteurs, **modération des annonces** entre particuliers (photos, motif de refus ou de retrait, modification par l'équipe)
 - **Commandes** : liste filtrable, fiche détaillée, annulation (stock remis, points rendus, client prévenu)
 - **Communauté** : avis à valider et signalés, dons, événements et présences, niveaux et badges des membres, membres (rôles, suspension), candidatures, utilisateurs en ligne, newsletter
 - **Système** : journal d'activité, images du captcha, export PDF des membres
@@ -141,6 +142,6 @@ Chaque évolution de structure a sa migration `sql/maj_<sujet>.sql`, rejouable s
 Code partagé : `config.php` (connexion, session), `mailer.php` (mails), bibliothèques `*_lib.php` (points, dons, événements, avis, commandes…), `style.css` et `javascript/`.
 
 Droits dans le back-office (`admin/_init.php`) :
-- **Modérateur** : tableau de bord, fiches à valider, avis, dons
+- **Modérateur** : tableau de bord, fiches à valider, annonces, avis, dons
 - **Gestionnaire** : en plus, livres, stock, commandes et événements
 - **Administrateur** : tout, dont membres, candidatures, catégories, newsletter, journal, captcha et export PDF

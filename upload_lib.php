@@ -5,7 +5,11 @@ function enregistrerCouverture(string $champ = 'image', string $sousDossier = ''
     if (empty($_FILES[$champ]) || $_FILES[$champ]['error'] === UPLOAD_ERR_NO_FILE) {
         return [null, ''];
     }
-    $f = $_FILES[$champ];
+    return enregistrerImageEnvoyee($_FILES[$champ], $sousDossier);
+}
+
+function enregistrerImageEnvoyee(array $f, string $sousDossier = ''): array
+{
     if ($f['error'] !== UPLOAD_ERR_OK) {
         return [null, "L'envoi de l'image a échoué."];
     }
@@ -26,4 +30,24 @@ function enregistrerCouverture(string $champ = 'image', string $sousDossier = ''
         return [null, "Impossible d'enregistrer l'image (droits du dossier img/ ?)."];
     }
     return [$nom, ''];
+}
+
+function fichiersEnvoyes(string $champ): array
+{
+    if (empty($_FILES[$champ]) || !is_array($_FILES[$champ]['name'])) {
+        return [];
+    }
+    $fichiers = [];
+    foreach ($_FILES[$champ]['name'] as $index => $nom) {
+        if ($_FILES[$champ]['error'][$index] === UPLOAD_ERR_NO_FILE) {
+            continue;
+        }
+        $fichiers[] = [
+            'name'     => $nom,
+            'tmp_name' => $_FILES[$champ]['tmp_name'][$index],
+            'error'    => $_FILES[$champ]['error'][$index],
+            'size'     => $_FILES[$champ]['size'][$index],
+        ];
+    }
+    return $fichiers;
 }

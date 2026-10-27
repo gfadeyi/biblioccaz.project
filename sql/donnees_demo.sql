@@ -4799,4 +4799,20 @@ INSERT INTO newsletter_abonne (email, actif, date_inscription) VALUES
 ('claire.boyer@example.com', 1, '2025-09-17 10:47:26' + INTERVAL @decalage DAY),
 ('pierre.colin@example.com', 1, '2025-10-10 09:25:23' + INTERVAL @decalage DAY);
 
+INSERT INTO livre (id_livre, titre, auteur, id_categorie, is_valide) VALUES
+(1099, 'Le Mage du Kremlin', 'Giuliano da Empoli', (SELECT id_categorie FROM categorie WHERE slug = 'roman'), 0);
+
+INSERT INTO exemplaire (id_exemplaire, id_livre, etat, prix, type_offre, is_disponible, quantite, id_proprietaire, statut_annonce, description, mode_remise, ville_remise, motif_moderation, id_moderateur, date_creation, date_moderation) VALUES
+(1801, 1033, 'bon', 4.50, 'vente', 1, 1, 1003, 'publiee', 'Lu une fois, quelques marques de lecture sur la tranche. Toutes les pages sont propres.', 'main_propre', 'Lyon', NULL, (SELECT MIN(id) FROM `user` WHERE role = 'admin'), '2026-10-14 18:12:00' + INTERVAL @decalage DAY, '2026-10-15 09:30:00' + INTERVAL @decalage DAY),
+(1802, 1028, 'tres bon', 7.00, 'vente', 1, 1, 1004, 'publiee', 'Album cartonné en très bon état, couverture sans pli.\nJe peux le poster ou vous le remettre près de la Part-Dieu.', 'les_deux', 'Lyon', NULL, (SELECT MIN(id) FROM `user` WHERE role = 'admin'), '2026-10-16 20:05:00' + INTERVAL @decalage DAY, '2026-10-17 10:02:00' + INTERVAL @decalage DAY),
+(1803, 1036, 'use', 1.50, 'vente', 1, 1, 1017, 'publiee', 'Exemplaire de poche bien aimé : couverture un peu cornée, texte complet.', 'envoi', NULL, NULL, (SELECT MIN(id) FROM `user` WHERE role = 'admin'), '2026-10-18 11:40:00' + INTERVAL @decalage DAY, '2026-10-18 15:10:00' + INTERVAL @decalage DAY),
+(1804, 1025, 'bon', 3.00, 'vente', 1, 1, 1020, 'publiee', 'Édition Folio, légèrement jaunie. Remise possible près de la gare de Lyon.', 'main_propre', 'Paris', NULL, (SELECT MIN(id) FROM `user` WHERE role = 'admin'), '2026-10-19 08:55:00' + INTERVAL @decalage DAY, '2026-10-19 14:20:00' + INTERVAL @decalage DAY),
+(1805, 1029, 'tres bon', 4.00, 'vente', 1, 1, 1031, 'publiee', NULL, 'les_deux', 'Lyon', NULL, (SELECT MIN(id) FROM `user` WHERE role = 'admin'), '2026-10-20 17:30:00' + INTERVAL @decalage DAY, '2026-10-21 09:00:00' + INTERVAL @decalage DAY),
+(1806, 1027, 'bon', 14.00, 'vente', 1, 1, 1012, 'publiee', 'Quelques passages surlignés au crayon dans les deux premiers chapitres. Idéal pour un étudiant en informatique.', 'envoi', NULL, NULL, (SELECT MIN(id) FROM `user` WHERE role = 'admin'), '2026-10-21 21:15:00' + INTERVAL @decalage DAY, '2026-10-22 10:45:00' + INTERVAL @decalage DAY),
+(1807, 1038, 'neuf', 5.50, 'vente', 1, 1, 1045, 'en_validation', 'Reçu en double à Noël, jamais ouvert.', 'main_propre', 'Lyon', NULL, NULL, '2026-10-25 19:20:00' + INTERVAL @decalage DAY, NULL),
+(1808, 1099, 'bon', 6.00, 'vente', 1, 1, 1006, 'en_validation', 'Grand format, bon état général. Le livre n''est pas encore au catalogue.', 'main_propre', 'Paris', NULL, NULL, '2026-10-26 08:10:00' + INTERVAL @decalage DAY, NULL),
+(1809, 1043, 'use', 60.00, 'vente', 1, 1, 1009, 'refusee', 'Couverture abîmée, mais le livre se lit très bien.', 'envoi', NULL, 'Prix trop élevé pour un exemplaire usé : entre 2 et 5 € conviendrait mieux.', (SELECT MIN(id) FROM `user` WHERE role = 'admin'), '2026-10-22 13:00:00' + INTERVAL @decalage DAY, '2026-10-23 09:15:00' + INTERVAL @decalage DAY),
+(1810, 1021, 'tres bon', 5.00, 'vente', 1, 1, 1050, 'publiee', 'Lu une seule fois, comme neuf. Remise possible dans le Vieux-Lille.', 'main_propre', 'Lille', NULL, (SELECT MIN(id) FROM `user` WHERE role = 'admin'), '2026-10-23 18:40:00' + INTERVAL @decalage DAY, '2026-10-24 09:05:00' + INTERVAL @decalage DAY),
+(1811, 1034, 'bon', 3.50, 'vente', 1, 1, 1050, 'retiree', NULL, 'les_deux', 'Lille', NULL, (SELECT MIN(id) FROM `user` WHERE role = 'admin'), '2026-10-12 10:00:00' + INTERVAL @decalage DAY, '2026-10-12 16:30:00' + INTERVAL @decalage DAY);
+
 COMMIT;

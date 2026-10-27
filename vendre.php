@@ -33,11 +33,12 @@ include 'header.php';
         </div>
         <div class="col-md-6">
             <div class="card h-100 border-0 shadow-sm p-4 text-center" style="border-radius: 20px;">
-                <i class="bi bi-cash-coin fs-1 mb-3 text-secondary"></i>
+                <i class="bi bi-cash-coin fs-1 mb-3" style="color:#274e13;"></i>
                 <h3 class="fw-bold">Revendre un livre</h3>
-                <p class="text-muted">La revente entre particuliers arrive bientôt : vous pourrez mettre vos livres en vente et recevoir des demandes d'achat.</p>
-                <div class="d-grid mt-auto">
-                    <button class="btn btn-outline-secondary rounded-pill py-2" disabled>Bientôt disponible</button>
+                <p class="text-muted">Fixez votre prix et publiez votre annonce : l'équipe la vérifie, puis les lecteurs vous envoient leurs demandes d'achat. Le paiement se fait entre vous, au moment de l'échange.</p>
+                <div class="d-grid gap-2 mt-auto">
+                    <a href="annonce_creer.php" class="btn btn-success rounded-pill fw-bold py-2">Vendre un livre</a>
+                    <a href="catalogue.php?offre=particulier" class="btn btn-outline-success rounded-pill">Voir les annonces entre particuliers</a>
                 </div>
             </div>
         </div>

@@ -60,13 +60,34 @@ CREATE TABLE IF NOT EXISTS exemplaire (
   quantite        INT          NOT NULL DEFAULT 1,
   id_user         INT          NULL,
   id_proprietaire INT          NULL,
+  statut_annonce   VARCHAR(20)  NULL,
+  description      TEXT         NULL,
+  mode_remise      VARCHAR(20)  NULL,
+  ville_remise     VARCHAR(100) NULL,
+  motif_moderation VARCHAR(500) NULL,
+  id_moderateur    INT          NULL,
+  date_creation    DATETIME     NULL,
+  date_moderation  DATETIME     NULL,
   INDEX idx_exemplaire_offre (type_offre, id_proprietaire, is_disponible),
+  INDEX idx_exemplaire_annonce (statut_annonce, id_proprietaire),
   CONSTRAINT fk_exemplaire_livre FOREIGN KEY (id_livre)
     REFERENCES livre(id_livre) ON DELETE CASCADE,
   CONSTRAINT fk_exemplaire_user FOREIGN KEY (id_user)
     REFERENCES `user`(id) ON DELETE SET NULL,
   CONSTRAINT fk_exemplaire_proprietaire FOREIGN KEY (id_proprietaire)
-    REFERENCES `user`(id) ON DELETE CASCADE
+    REFERENCES `user`(id) ON DELETE CASCADE,
+  CONSTRAINT fk_exemplaire_moderateur FOREIGN KEY (id_moderateur)
+    REFERENCES `user`(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS exemplaire_photo (
+  id_photo      INT AUTO_INCREMENT PRIMARY KEY,
+  id_exemplaire INT          NOT NULL,
+  fichier       VARCHAR(255) NOT NULL,
+  ordre         TINYINT      NOT NULL DEFAULT 0,
+  INDEX idx_photo_exemplaire (id_exemplaire, ordre),
+  CONSTRAINT fk_photo_exemplaire FOREIGN KEY (id_exemplaire)
+    REFERENCES exemplaire(id_exemplaire) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS logs (

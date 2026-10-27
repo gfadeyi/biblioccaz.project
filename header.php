@@ -33,7 +33,7 @@ $total_notif_admin = 0;
 
 if ($connected && in_array($userRole, ['admin', 'gestionnaire', 'moderateur'], true)) {
     try {
-        $nb_notif_livres = (int) $pdo->query("SELECT COUNT(*) FROM livre WHERE is_valide = 0")->fetchColumn();
+        $nb_notif_livres = (int) $pdo->query("SELECT COUNT(*) FROM livre l WHERE l.is_valide = 0 AND NOT EXISTS (SELECT 1 FROM exemplaire e WHERE e.id_livre = l.id_livre AND e.id_proprietaire IS NOT NULL)")->fetchColumn();
         $nb_notif_avis = (int) $pdo->query("SELECT COUNT(DISTINCT id_avis) FROM avis_signalement WHERE traite = 0")->fetchColumn();
         if ($userRole === 'admin') {
             $nb_notif_modo = (int) $pdo->query("SELECT COUNT(*) FROM user WHERE statut = 'en_attente_moderateur'")->fetchColumn();
@@ -53,6 +53,7 @@ if ($resumeCompte) {
         ['adresses.php', 'enveloppe', 'Mes adresses', 0],
         ['avis.php', 'plume', 'Mes avis', $resumeCompte['avis']],
         ['mes_dons.php', 'carton', 'Mes dons', $resumeCompte['dons']],
+        ['mes_annonces.php', 'etiquette', 'Mes annonces', $resumeCompte['annonces'] ?? 0],
         ['mes_evenements.php', 'ticket', 'Mes événements', $resumeCompte['evenements']],
     ];
 } elseif ($connected && $userRole === 'auteur') {
@@ -60,6 +61,7 @@ if ($resumeCompte) {
         ['dashboard_auteur.php', 'plume', 'Espace créateur', 0],
         ['proposer_evenement.php', 'ticket', 'Proposer un événement', 0],
         ['proposer_ouvrage.php', 'livre-ouvert', 'Proposer un livre', 0],
+        ['mes_annonces.php', 'etiquette', 'Mes annonces', 0],
     ];
 } elseif ($connected) {
     $liensMenuCompte = [

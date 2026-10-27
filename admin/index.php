@@ -47,7 +47,7 @@ $indicateurs = [
     'evt_proposes'    => compter($pdo, "SELECT COUNT(*) FROM evenement WHERE statut = 'en_attente'"),
 ];
 $compteurs = compteursEquipe($pdo);
-$aModerer = $compteurs['livres'] + $compteurs['avis'];
+$aModerer = $compteurs['livres'] + $compteurs['avis'] + $compteurs['annonces'];
 
 $prochainEvenement = null;
 try {
@@ -153,6 +153,7 @@ if (aLeDroit('evenements')) {
 $aTraiter = [];
 if (aLeDroit('moderation')) {
     $aTraiter[] = ['shield-check', 'Fiches de livres à valider', 'Proposées par les auteurs', $compteurs['livres'], 'moderation_livres.php'];
+    $aTraiter[] = ['shop', 'Annonces à valider', 'Ventes entre particuliers', $compteurs['annonces'], 'annonces.php'];
     $aTraiter[] = ['flag', 'Avis signalés', 'Signalements des lecteurs', $compteurs['avis'], 'moderation_avis.php'];
 }
 if (aLeDroit('catalogue')) {
@@ -165,7 +166,7 @@ if (aLeDroit('evenements')) {
     $aTraiter[] = ['calendar-plus', 'Événements proposés par les auteurs', 'En attente de validation', (int) $indicateurs['evt_proposes'], 'evenements.php?onglet=proposes'];
 }
 if (aLeDroit('admin')) {
-    $aTraiter[] = ['person-badge', 'Candidatures modérateur', 'Membres à valider', $compteurs['candidatures'], 'utilisateurs.php'];
+    $aTraiter[] = ['person-badge', 'Candidatures modérateur', 'Membres à valider', $compteurs['candidatures'], 'candidatures.php'];
 }
 $totalATraiter = array_sum(array_column($aTraiter, 3));
 

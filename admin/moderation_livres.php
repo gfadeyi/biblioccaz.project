@@ -14,7 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if ($action === 'valider') {
-        $pdo->prepare("UPDATE livre SET is_valide = 1 WHERE id_livre = ? AND is_valide = 0")->execute([$id]);
+        $pdo->prepare("UPDATE livre l SET l.is_valide = 1 WHERE l.id_livre = ? AND l.is_valide = 0 AND NOT EXISTS (SELECT 1 FROM exemplaire e WHERE e.id_livre = l.id_livre AND e.id_proprietaire IS NOT NULL)")->execute([$id]);
         insertLog('MODERATION', "Validation du livre #$id");
         rediriger('moderation_livres.php', 'success', 'Fiche validée : elle est maintenant visible dans le catalogue.');
     }
@@ -23,7 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (!aLeDroit('admin')) {
             rediriger('moderation_livres.php', 'warning', "Seul un administrateur peut refuser (supprimer) une fiche.");
         }
-        $pdo->prepare("DELETE FROM livre WHERE id_livre = ? AND is_valide = 0")->execute([$id]);
+        $pdo->prepare("DELETE FROM livre WHERE id_livre = ? AND is_valide = 0 AND NOT EXISTS (SELECT 1 FROM exemplaire e WHERE e.id_livre = livre.id_livre AND e.id_proprietaire IS NOT NULL)")->execute([$id]);
         insertLog('MODERATION', "Refus et suppression du livre #$id");
         rediriger('moderation_livres.php', 'success', 'Fiche refusée et supprimée.');
     }
@@ -34,14 +34,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $livres = $pdo->query("
     SELECT l.*, u.pseudo AS pseudo_auteur
     FROM livre l LEFT JOIN user u ON u.id = l.id_user_auteur
-    WHERE l.is_valide = 0 ORDER BY l.id_livre DESC")->fetchAll();
+    WHERE l.is_valide = 0 AND NOT EXISTS (SELECT 1 FROM exemplaire e WHERE e.id_livre = l.id_livre AND e.id_proprietaire IS NOT NULL) ORDER BY l.id_livre DESC")->fetchAll();
 
 $titrePage = 'Fiches à valider';
 $pageActive = 'moderation_livres';
 include __DIR__ . '/_haut.php';
 ?>
 
-<p class="text-muted">Les fiches proposées par les auteurs n'apparaissent dans le catalogue qu'une fois validées.</p>
+<p class="text-muted">Les fiches proposées par les auteurs n'apparaissent dans le catalogue qu'une fois validées. Les fiches créées avec une annonce de vente se valident depuis <a href="annonces.php">Annonces</a>.</p>
 
 <?php if (!$livres): ?>
     <div class="carte p-5 text-center">

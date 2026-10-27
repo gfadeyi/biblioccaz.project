@@ -61,6 +61,16 @@ foreach ($offres as $index => $offre) {
                        'detail' => $offre['quantite'] . ' en stock', 'id_exemplaire' => (int) $offre['id_exemplaire']];
 }
 try {
+    $stmtAnnoncesLivre = $pdo->prepare("
+        SELECT e.id_exemplaire, e.etat, e.prix, e.mode_remise, e.ville_remise, u.pseudo
+        FROM exemplaire e INNER JOIN user u ON u.id = e.id_proprietaire
+        WHERE e.id_livre = ? AND " . conditionAnnoncePubliee());
+    $stmtAnnoncesLivre->execute([$id]);
+    require_once 'annonces_lib.php';
+    foreach ($stmtAnnoncesLivre->fetchAll() as $annonceLivre) {
+        $toutesOffres[] = ['origine' => 'particulier', 'etat' => $annonceLivre['etat'], 'prix' => (float) $annonceLivre['prix'], 'id_annonce' => (int) $annonceLivre['id_exemplaire'],
+                           'detail' => 'Par @' . $annonceLivre['pseudo'] . ' · ' . libelleModeRemise($annonceLivre['mode_remise'], $annonceLivre['ville_remise'])];
+    }
     $stmtDonsLivre = $pdo->prepare("
         SELECT d.id_don, d.etat, d.lieu_retrait, d.date_limite, u.pseudo
         FROM don d INNER JOIN user u ON u.id = d.id_donneur
@@ -257,9 +267,11 @@ $peutAcheterEnMagasin = ($_SESSION['role'] ?? '') === 'client';
                         <i class="bi bi-gift"></i> <?= $nbDonsLivre ?> exemplaire<?= $nbDonsLivre > 1 ? 's' : '' ?> à récupérer gratuitement
                     </a>
                 <?php endif; ?>
-                <a href="don_creer.php?livre=<?= $id ?>" class="d-block small text-muted text-decoration-none">
-                    <i class="bi bi-heart"></i> Vous avez ce livre ? Donnez-le
-                </a>
+                <p class="small text-muted mb-0">
+                    <i class="bi bi-heart" aria-hidden="true"></i> Vous avez ce livre ?
+                    <a href="annonce_creer.php?livre=<?= $id ?>" class="text-muted">Vendez-le</a> ou
+                    <a href="don_creer.php?livre=<?= $id ?>" class="text-muted">donnez-le</a>
+                </p>
 
                 <?php if (in_array($_SESSION['role'] ?? '', ['admin', 'gestionnaire'], true)): ?>
                     <hr class="my-3">
@@ -292,6 +304,8 @@ $peutAcheterEnMagasin = ($_SESSION['role'] ?? '') === 'client';
                         <span class="ligne-offre__type">
                             <?php if ($offreListe['origine'] === 'don'): ?>
                                 <i class="bi bi-gift" aria-hidden="true"></i> Don
+                            <?php elseif ($offreListe['origine'] === 'particulier'): ?>
+                                <i class="bi bi-people" aria-hidden="true"></i> Particulier
                             <?php else: ?>
                                 <i class="bi bi-shop" aria-hidden="true"></i> Magasin
                             <?php endif; ?>
@@ -302,6 +316,8 @@ $peutAcheterEnMagasin = ($_SESSION['role'] ?? '') === 'client';
                         <span class="ligne-offre__action">
                             <?php if ($offreListe['origine'] === 'don'): ?>
                                 <a href="don_detail.php?id=<?= $offreListe['id_don'] ?>" class="bouton bouton-contour bouton-petit">Voir le don</a>
+                            <?php elseif ($offreListe['origine'] === 'particulier'): ?>
+                                <a href="annonce.php?id=<?= $offreListe['id_annonce'] ?>" class="bouton bouton-contour bouton-petit">Voir l'annonce</a>
                             <?php elseif ($peutAcheterEnMagasin): ?>
                                 <form action="action_ajouter_panier.php" method="POST">
                                     <input type="hidden" name="csrf" value="<?= jetonCsrf() ?>">

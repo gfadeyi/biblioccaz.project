@@ -31,13 +31,23 @@ function conditionExemplaireMagasin(string $alias = 'e'): string
     return "$alias.id_proprietaire IS NULL AND $alias.type_offre = 'vente'";
 }
 
-const ORIGINES_OFFRE = ['magasin' => 'En magasin', 'don' => 'Don entre lecteurs'];
+const ORIGINES_OFFRE = ['magasin' => 'En magasin', 'particulier' => 'Entre particuliers', 'don' => 'Don entre lecteurs'];
+const STATUTS_COMPTE_SUSPENDU = ['refuse_temporaire', 'refuse_definitif'];
+
+function conditionAnnoncePubliee(string $alias = 'e'): string
+{
+    return "$alias.id_proprietaire IS NOT NULL AND $alias.type_offre = 'vente' AND $alias.statut_annonce = 'publiee' AND $alias.quantite > 0
+            AND EXISTS (SELECT 1 FROM user vendeur WHERE vendeur.id = $alias.id_proprietaire
+                        AND vendeur.statut NOT IN ('" . implode("', '", STATUTS_COMPTE_SUSPENDU) . "'))";
+}
 
 function sqlOffres(array $origines = []): string
 {
     $requetesParOrigine = [
         'magasin' => "SELECT ex.id_exemplaire AS id_offre, ex.id_livre, ex.etat, ex.prix, ex.quantite, 'magasin' AS origine
                       FROM exemplaire ex WHERE " . conditionOffreMagasin('ex'),
+        'particulier' => "SELECT an.id_exemplaire AS id_offre, an.id_livre, an.etat, an.prix, 1 AS quantite, 'particulier' AS origine
+                          FROM exemplaire an WHERE " . conditionAnnoncePubliee('an'),
         'don'     => "SELECT d.id_don AS id_offre, d.id_livre, d.etat, 0 AS prix, 1 AS quantite, 'don' AS origine
                       FROM don d WHERE d.statut = 'disponible' AND d.id_livre IS NOT NULL AND d.date_limite >= CURDATE()",
     ];
