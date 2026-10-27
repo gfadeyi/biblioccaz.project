@@ -1,6 +1,6 @@
 <?php
 require_once 'config.php';
-require_once 'annonces_lib.php';
+require_once 'ventes_lib.php';
 require_once 'avis_lib.php';
 if (session_status() === PHP_SESSION_NONE) { session_start(); }
 
@@ -34,6 +34,7 @@ if ($action === 'retirer') {
     if ($stmt->rowCount() === 0) {
         retourMesAnnonces('warning', "Cette annonce ne peut pas être retirée.");
     }
+    cloreDemandesEnAttente($pdo, $idAnnonce, "le vendeur a retiré son annonce");
     insertLog('ANNONCE', "Retrait de l'annonce #$idAnnonce par son vendeur");
     retourMesAnnonces('success', "Annonce retirée : elle n'est plus visible. Vous pouvez la remettre en ligne quand vous voulez.");
 }
@@ -57,6 +58,9 @@ if ($action === 'remettre') {
 }
 
 if ($action === 'supprimer') {
+    if (annonceADesDemandes($pdo, $idAnnonce)) {
+        retourMesAnnonces('warning', "Cette annonce a reçu des demandes d'achat : retirez-la plutôt, l'historique des échanges est conservé.");
+    }
     if (!supprimerAnnonce($pdo, $idAnnonce)) {
         retourMesAnnonces('warning', "Cette annonce est liée à une vente en cours : elle ne peut pas être supprimée.");
     }

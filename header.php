@@ -57,6 +57,7 @@ if ($resumeCompte) {
         ['messages.php', 'bulle', 'Mes messages', $nbMessagesNonLus],
         ['mes_dons.php', 'carton', 'Mes dons', $resumeCompte['dons']],
         ['mes_annonces.php', 'etiquette', 'Mes annonces', $resumeCompte['annonces'] ?? 0],
+        ['mes_transactions.php', 'cabas', 'Mes ventes et achats', $resumeCompte['transactions'] ?? 0],
         ['mes_evenements.php', 'ticket', 'Mes événements', $resumeCompte['evenements']],
     ];
 } elseif ($connected && $userRole === 'auteur') {
@@ -65,6 +66,7 @@ if ($resumeCompte) {
         ['proposer_evenement.php', 'ticket', 'Proposer un événement', 0],
         ['proposer_ouvrage.php', 'livre-ouvert', 'Proposer un livre', 0],
         ['mes_annonces.php', 'etiquette', 'Mes annonces', 0],
+        ['mes_transactions.php', 'cabas', 'Mes ventes et achats', 0],
         ['messages.php', 'bulle', 'Mes messages', $nbMessagesNonLus],
     ];
 } elseif ($connected) {

@@ -1,0 +1,38 @@
+SET NAMES utf8mb4;
+USE biblioccaz;
+
+CREATE TABLE IF NOT EXISTS demande_achat (
+  id_demande       INT AUTO_INCREMENT PRIMARY KEY,
+  id_annonce       INT          NOT NULL,
+  id_acheteur      INT          NOT NULL,
+  id_vendeur       INT          NOT NULL,
+  prix             DECIMAL(8,2) NOT NULL,
+  mode_remise      VARCHAR(20)  NOT NULL,
+  statut           VARCHAR(20)  NOT NULL DEFAULT 'en_attente',
+  motif            VARCHAR(500) NULL,
+  en_litige        TINYINT(1)   NOT NULL DEFAULT 0,
+  motif_litige     VARCHAR(500) NULL,
+  id_signale_par   INT          NULL,
+  id_moderateur    INT          NULL,
+  numero_recu      VARCHAR(20)  NULL,
+  date_demande     DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  date_attente     DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  date_acceptation DATETIME     NULL,
+  date_validation  DATETIME     NULL,
+  date_confirmation DATETIME    NULL,
+  confirmation     VARCHAR(10)  NULL,
+  date_fin         DATETIME     NULL,
+  date_litige      DATETIME     NULL,
+  UNIQUE KEY uq_demande_recu (numero_recu),
+  INDEX idx_demande_annonce (id_annonce, statut),
+  INDEX idx_demande_acheteur (id_acheteur, statut),
+  INDEX idx_demande_vendeur (id_vendeur, statut),
+  INDEX idx_demande_attente (statut, date_attente),
+  INDEX idx_demande_litige (en_litige, statut),
+  INDEX idx_demande_confirmation (statut, date_confirmation, date_validation),
+  CONSTRAINT fk_demande_annonce    FOREIGN KEY (id_annonce)     REFERENCES exemplaire(id_exemplaire) ON DELETE CASCADE,
+  CONSTRAINT fk_demande_acheteur   FOREIGN KEY (id_acheteur)    REFERENCES `user`(id)                ON DELETE CASCADE,
+  CONSTRAINT fk_demande_vendeur    FOREIGN KEY (id_vendeur)     REFERENCES `user`(id)                ON DELETE CASCADE,
+  CONSTRAINT fk_demande_signale    FOREIGN KEY (id_signale_par) REFERENCES `user`(id)                ON DELETE SET NULL,
+  CONSTRAINT fk_demande_moderateur FOREIGN KEY (id_moderateur)  REFERENCES `user`(id)                ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

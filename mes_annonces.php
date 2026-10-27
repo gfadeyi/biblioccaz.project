@@ -20,6 +20,13 @@ $annonces = $stmt->fetchAll();
 $photos = premieresPhotos($pdo, array_column($annonces, 'id_exemplaire'));
 $nbActives = count(array_filter($annonces, fn($a) => in_array($a['statut_annonce'], ANNONCE_STATUTS_ACTIFS, true)));
 $raisonInterdiction = raisonInterdictionVente($pdo, $idUser);
+$demandesParAnnonce = [];
+try {
+    $stmt = $pdo->prepare("SELECT id_annonce, COUNT(*) FROM demande_achat WHERE id_vendeur = ? AND statut IN ('en_attente', 'en_file', 'acceptee') GROUP BY id_annonce");
+    $stmt->execute([$idUser]);
+    $demandesParAnnonce = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
+} catch (PDOException $e) {
+}
 
 $flash = $_SESSION['flash_annonce'] ?? null;
 unset($_SESSION['flash_annonce']);
@@ -86,12 +93,17 @@ include 'header.php';
                         <?= pastilleStatutAnnonce($retireeParEquipe ? 'retiree' : $statut) ?>
                         <span class="pastille-etat neutre"><?= htmlspecialchars(libelleEtat($a['etat'])) ?></span>
                         <span class="pastille-etat neutre"><i class="bi bi-<?= MODES_REMISE[$a['mode_remise']][1] ?? 'question' ?>" aria-hidden="true"></i> <?= htmlspecialchars(libelleModeRemise($a['mode_remise'], $a['ville_remise'])) ?></span>
+                        <?php if ($nbDemandes = (int) ($demandesParAnnonce[$id] ?? 0)): ?>
+                            <a href="mes_transactions.php?onglet=ventes" class="pastille-etat"><i class="bi bi-inbox" aria-hidden="true"></i> <?= $nbDemandes ?> demande<?= $nbDemandes > 1 ? 's' : '' ?> en cours</a>
+                        <?php endif; ?>
                         <?php if (!(int) $a['livre_valide']): ?>
                             <span class="pastille-etat attente"><i class="bi bi-journal-plus" aria-hidden="true"></i> Nouvelle fiche à créer</span>
                         <?php endif; ?>
                     </div>
                     <?php if (in_array($statut, ['refusee', 'retiree'], true) && $a['motif_moderation']): ?>
                         <p class="mon-annonce__motif"><strong><?= $statut === 'refusee' ? 'Motif du refus' : "Retirée par l'équipe" ?> :</strong> <?= htmlspecialchars($a['motif_moderation']) ?></p>
+                    <?php elseif ($statut === 'vendue'): ?>
+                        <p class="mon-annonce__aide">Vendu ! Le reçu est dans <a href="mes_transactions.php?onglet=ventes">Mes ventes et achats</a>.</p>
                     <?php elseif ($statut === 'en_validation'): ?>
                         <p class="mon-annonce__aide">L'équipe vérifie votre annonce : vous recevrez un mail dès sa mise en ligne.</p>
                     <?php endif; ?>

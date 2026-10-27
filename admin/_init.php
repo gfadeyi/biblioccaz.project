@@ -102,7 +102,7 @@ function imageLivre(?string $fichier): string
 
 function compteursEquipe(PDO $pdo): array
 {
-    $c = ['livres' => 0, 'avis' => 0, 'candidatures' => 0, 'avis_a_valider' => 0, 'evenements_proposes' => 0, 'annonces' => 0, 'messages' => 0];
+    $c = ['livres' => 0, 'avis' => 0, 'candidatures' => 0, 'avis_a_valider' => 0, 'evenements_proposes' => 0, 'annonces' => 0, 'messages' => 0, 'ventes' => 0];
     try {
         $c['livres'] = (int) $pdo->query("SELECT COUNT(*) FROM livre l WHERE l.is_valide = 0 AND NOT EXISTS (SELECT 1 FROM exemplaire e WHERE e.id_livre = l.id_livre AND e.id_proprietaire IS NOT NULL)")->fetchColumn();
         $c['avis'] = (int) $pdo->query("SELECT COUNT(DISTINCT id_avis) FROM avis_signalement WHERE traite = 0")->fetchColumn();
@@ -113,6 +113,10 @@ function compteursEquipe(PDO $pdo): array
     }
     try {
         $c['messages'] = (int) $pdo->query("SELECT COUNT(DISTINCT id_message) FROM message_signalement WHERE traite = 0")->fetchColumn();
+    } catch (PDOException $e) {
+    }
+    try {
+        $c['ventes'] = (int) $pdo->query("SELECT COUNT(*) FROM demande_achat WHERE en_litige = 1 OR (statut = 'acceptee' AND date_acceptation < NOW() - INTERVAL 14 DAY)")->fetchColumn();
     } catch (PDOException $e) {
     }
     try {

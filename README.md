@@ -39,15 +39,16 @@ Les couvertures visibles sur ces captures sont générées pour l'aperçu : les 
 
 ### Communauté
 - **Revente entre particuliers** : annonce avec prix libre (de 0,50 € à 150 €), état, jusqu'à 3 photos vérifiées, description et mode de remise (main propre ou envoi) ; un livre absent du catalogue crée une nouvelle fiche ; chaque annonce est **vérifiée par l'équipe avant publication** (validation, refus ou retrait avec motif envoyé par mail) ; page « Mes annonces » pour modifier, retirer, remettre en ligne ou supprimer
+- **Ventes entre lecteurs** : demande d'achat depuis l'annonce (5 en attente au maximum, expiration après 7 jours sans réponse), acceptation ou refus par le vendeur, **file d'attente** quand le livre est réservé, échange organisé dans la messagerie, paiement direct entre membres, **le vendeur indique la vente conclue** (livre vendu, **reçu PDF** pour les deux), puis l'acheteur a 7 jours pour confirmer la réception ou signaler un litige à l'équipe, page « Mes ventes et achats » ; +10 points vendeur (5 ventes par mois) crédités à la confirmation, ou après 7 jours sans signalement, et badge « Seconde main »
 - **Dons de livres** : annonce gratuite avec lieu et date limite de retrait, réservation par un autre lecteur, retrait validé par QR code ou code court
-- **Messagerie liée aux transactions** : une conversation s'ouvre à chaque réservation de don (puis pour les ventes et les emprunts), sans message libre entre membres ni adresse email dévoilée ; bulles, non lus en gras, compteur dans l'entête, mail de notification (au plus un toutes les 15 minutes), anti-spam, conversation fermée en fin de transaction et gardée en lecture seule, signalement d'un message avec motif
+- **Messagerie liée aux transactions** : une conversation s'ouvre à chaque réservation de don et à chaque demande d'achat (bientôt les emprunts), sans message libre entre membres ni adresse email dévoilée ; bulles, non lus en gras, compteur dans l'entête, mail de notification (au plus un toutes les 15 minutes), anti-spam, conversation fermée en fin de transaction et gardée en lecture seule, signalement d'un message avec motif
 - **Événements** (dédicaces, rencontres, ateliers) : calendrier filtrable, inscription dans la limite des places, liste d'attente automatique ou manuelle, billet avec QR code, contrôle des présences le jour J, export PDF des participants, mails en cas d'annulation
 - **Événements proposés par les auteurs**, validés ou refusés par l'équipe avec un message
 - **Avis** : note, titre et commentaire, un avis par livre, badge « achat vérifié », tri, signalement, modération (un avis masqué reste archivé), page « Mes avis »
 - **Newsletter** avec ou sans compte
 
 ### Programme de fidélité
-- **Points** : 1 point par euro payé, points pour les avis validés, les dons récupérés, les présences aux événements, le premier achat et les badges
+- **Points** : 1 point par euro payé, points pour les avis validés, les dons récupérés, les présences aux événements, les ventes entre lecteurs, le premier achat et les badges
 - **Bons de réduction** de 5 € à 38 €, utilisables au paiement selon des règles claires (un par commande, plafond de 50 % des livres)
 - **Six niveaux de lecteur** avec avantages (livraison offerte plus tôt, priorité sur les listes d'attente, bon d'anniversaire) et **badges** bronze, argent, or et rares
 - Page « Mes points et badges » avec la progression et l'historique de chaque mouvement
@@ -61,7 +62,7 @@ Les couvertures visibles sur ces captures sont générées pour l'aperçu : les 
 ### Back-office (`admin/`)
 - Session séparée du site, droits par rôle, menu latéral et fil d'Ariane
 - **Tableau de bord** : chiffre d'affaires, commandes, nouveaux membres, stock, ventes sur 30 jours et par univers, liste « À traiter »
-- **Catalogue** : fiches, exemplaires par état, inventaire avec alertes de rupture, catégories et tags, validation des livres proposés par les auteurs, **modération des annonces** entre particuliers (photos, motif de refus ou de retrait, modification par l'équipe)
+- **Catalogue** : fiches, exemplaires par état, inventaire avec alertes de rupture, catégories et tags, validation des livres proposés par les auteurs, **modération des annonces** entre particuliers (photos, motif de refus ou de retrait, modification par l'équipe), **suivi des ventes entre lecteurs** (ventes en retard, litiges : valider, annuler avec retrait des points, classer)
 - **Commandes** : liste filtrable, fiche détaillée, annulation (stock remis, points rendus, client prévenu)
 - **Communauté** : avis à valider et signalés, messages signalés (masquer un message, clore une conversation, suspendre un compte), dons, événements et présences, niveaux et badges des membres, membres (rôles, suspension), candidatures, utilisateurs en ligne, newsletter
 - **Système** : journal d'activité, images du captcha, export PDF des membres

@@ -110,6 +110,17 @@ function infosObjetConversation(PDO $pdo, string $type, int $idObjet): array
                       'lien' => 'don_detail.php?id=' . $idObjet, 'libelle_statut' => ''];
         }
     }
+    if ($type === 'vente') {
+        $stmt = $pdo->prepare("
+            SELECT l.titre, l.couverture, (SELECT p.fichier FROM exemplaire_photo p WHERE p.id_exemplaire = d.id_annonce ORDER BY p.ordre, p.id_photo LIMIT 1) AS photo
+            FROM demande_achat d INNER JOIN exemplaire e ON e.id_exemplaire = d.id_annonce INNER JOIN livre l ON l.id_livre = e.id_livre
+            WHERE d.id_demande = ?");
+        $stmt->execute([$idObjet]);
+        if ($vente = $stmt->fetch()) {
+            $infos = ['titre' => $vente['titre'], 'image' => $vente['photo'] ? 'img/annonces/' . rawurlencode($vente['photo']) : urlImage($vente['couverture']),
+                      'lien' => 'transaction.php?id=' . $idObjet, 'libelle_statut' => ''];
+        }
+    }
     return $infos;
 }
 

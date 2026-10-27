@@ -178,7 +178,9 @@ include __DIR__ . '/_haut.php';
                     <?php endif; ?>
                 </div>
             <?php endforeach; ?>
-            <?php if ($conversation['objet']['lien']): ?>
+            <?php if ($conversation['type_objet'] === 'vente'): ?>
+                <a href="ventes.php?id=<?= (int) $conversation['id_objet'] ?>" class="small"><i class="bi bi-tag" aria-hidden="true"></i> Voir la vente (valider, annuler, litige)</a>
+            <?php elseif ($conversation['objet']['lien']): ?>
                 <a href="../<?= e($conversation['objet']['lien']) ?>" target="_blank" rel="noopener" class="small"><i class="bi bi-box-arrow-up-right" aria-hidden="true"></i> Voir sur le site</a>
             <?php endif; ?>
         </div>

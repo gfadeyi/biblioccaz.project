@@ -24,6 +24,7 @@ const BADGES = [
     'plume_critique' => ['nom' => 'Plume critique', 'icone' => 'plume', 'paliers' => [1, 10, 30], 'unite' => ['avis validé', 'avis validés']],
     'coeur_genereux' => ['nom' => 'Cœur généreux', 'icone' => 'seconde-vie', 'paliers' => [1, 5, 20], 'unite' => ['don récupéré', 'dons récupérés']],
     'habitue_rencontres' => ['nom' => 'Habitué des rencontres', 'icone' => 'ticket', 'paliers' => [1, 5, 15], 'unite' => ['présence validée', 'présences validées']],
+    'seconde_main' => ['nom' => 'Seconde main', 'icone' => 'etiquette', 'paliers' => [1, 5, 15], 'unite' => ['vente conclue', 'ventes conclues']],
     'un_an' => ['nom' => 'Un an parmi nous', 'icone' => 'tampon', 'paliers' => [5], 'unite' => ['commande', 'commandes'], 'rare' => 'Plus d\'un an d\'inscription et au moins 5 commandes'],
     'explorateur' => ['nom' => 'Explorateur', 'icone' => 'loupe', 'paliers' => [6], 'unite' => ['univers exploré', 'univers explorés'], 'rare' => 'Un livre acheté dans chacun des 6 univers'],
     'collectionneur' => ['nom' => 'Collectionneur', 'icone' => 'marque-page', 'paliers' => [25], 'unite' => ['livre du même univers', 'livres du même univers'], 'rare' => '25 livres achetés dans un même univers'],
@@ -42,6 +43,7 @@ const TYPES_MOUVEMENT = [
     'premier_avis' => 'Premier avis',
     'don' => 'Don',
     'presence' => 'Événement',
+    'vente' => 'Vente entre lecteurs',
     'badge' => 'Badge',
     'ajustement' => 'Ajustement',
     'depense' => 'Bon de réduction',
@@ -181,6 +183,14 @@ function mesuresBadges(PDO $pdo, int $idUser): array
         GROUP BY univers");
     $stmt->execute([$idUser]);
     $parUnivers = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
+
+    try {
+        $stmt = $pdo->prepare("SELECT COUNT(*) FROM demande_achat WHERE id_vendeur = ? AND statut = 'validee' AND date_confirmation IS NOT NULL");
+        $stmt->execute([$idUser]);
+        $valeurs['seconde_main'] = (int) $stmt->fetchColumn();
+    } catch (PDOException $e) {
+        $valeurs['seconde_main'] = 0;
+    }
 
     $valeurs['un_an'] = $valeurs['anciennete'] >= 365 ? $valeurs['commandes'] : min($valeurs['commandes'], 4);
     $valeurs['explorateur'] = count($parUnivers);

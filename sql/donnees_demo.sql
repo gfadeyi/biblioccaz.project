@@ -4855,4 +4855,84 @@ INSERT INTO exemplaire (id_exemplaire, id_livre, etat, prix, type_offre, is_disp
 (1810, 1021, 'tres bon', 5.00, 'vente', 1, 1, 1050, 'publiee', 'Lu une seule fois, comme neuf. Remise possible dans le Vieux-Lille.', 'main_propre', 'Lille', NULL, (SELECT MIN(id) FROM `user` WHERE role = 'admin'), '2026-10-23 18:40:00' + INTERVAL @decalage DAY, '2026-10-24 09:05:00' + INTERVAL @decalage DAY),
 (1811, 1034, 'bon', 3.50, 'vente', 1, 1, 1050, 'retiree', NULL, 'les_deux', 'Lille', NULL, (SELECT MIN(id) FROM `user` WHERE role = 'admin'), '2026-10-12 10:00:00' + INTERVAL @decalage DAY, '2026-10-12 16:30:00' + INTERVAL @decalage DAY);
 
+DELETE FROM conversation WHERE type_objet = 'vente' AND id_objet BETWEEN 1001 AND 1099;
+DELETE FROM demande_achat WHERE id_demande BETWEEN 1001 AND 1099;
+UPDATE exemplaire SET statut_annonce = 'reservee' WHERE id_exemplaire IN (1802, 1806);
+UPDATE exemplaire SET statut_annonce = 'vendue', quantite = 0, is_disponible = 0 WHERE id_exemplaire IN (1801, 1804);
+
+INSERT INTO demande_achat (id_demande, id_annonce, id_acheteur, id_vendeur, prix, mode_remise, statut, motif, en_litige, motif_litige, id_signale_par, numero_recu, date_demande, date_attente, date_acceptation, date_validation, date_fin, date_litige) VALUES
+(1001, 1802, 1050, 1004, 7.00, 'envoi', 'acceptee', NULL, 0, NULL, NULL, NULL, '2026-10-23 19:20:00' + INTERVAL @decalage DAY, '2026-10-23 19:20:00' + INTERVAL @decalage DAY, '2026-10-24 08:45:00' + INTERVAL @decalage DAY, NULL, NULL, NULL),
+(1002, 1802, 1006, 1004, 7.00, 'main_propre', 'en_file', NULL, 0, NULL, NULL, NULL, '2026-10-24 12:10:00' + INTERVAL @decalage DAY, '2026-10-24 12:10:00' + INTERVAL @decalage DAY, NULL, NULL, NULL, NULL),
+(1003, 1804, 1050, 1020, 3.00, 'main_propre', 'validee', NULL, 0, NULL, NULL, 'BV-2026-01003', '2026-10-19 18:00:00' + INTERVAL @decalage DAY, '2026-10-19 18:00:00' + INTERVAL @decalage DAY, '2026-10-20 09:10:00' + INTERVAL @decalage DAY, '2026-10-22 19:05:00' + INTERVAL @decalage DAY, '2026-10-22 19:05:00' + INTERVAL @decalage DAY, NULL),
+(1004, 1810, 1004, 1050, 5.00, 'main_propre', 'en_attente', NULL, 0, NULL, NULL, NULL, '2026-10-25 21:30:00' + INTERVAL @decalage DAY, '2026-10-25 21:30:00' + INTERVAL @decalage DAY, NULL, NULL, NULL, NULL),
+(1005, 1806, 1020, 1012, 14.00, 'envoi', 'acceptee', NULL, 1, 'J''ai payé le livre par virement le 9 octobre mais je ne l''ai toujours pas reçu, et le vendeur ne répond plus.', 1020, NULL, '2026-10-08 10:00:00' + INTERVAL @decalage DAY, '2026-10-08 10:00:00' + INTERVAL @decalage DAY, '2026-10-08 18:30:00' + INTERVAL @decalage DAY, NULL, NULL, '2026-10-25 11:20:00' + INTERVAL @decalage DAY),
+(1006, 1803, 1050, 1017, 1.50, 'envoi', 'refusee', 'Désolée, je l''ai promis à une amie entre-temps.', 0, NULL, NULL, NULL, '2026-10-19 08:00:00' + INTERVAL @decalage DAY, '2026-10-19 08:00:00' + INTERVAL @decalage DAY, NULL, NULL, '2026-10-19 20:15:00' + INTERVAL @decalage DAY, NULL),
+(1007, 1801, 1050, 1003, 4.50, 'main_propre', 'validee', NULL, 0, NULL, NULL, 'BV-2026-01007', '2026-10-21 12:00:00' + INTERVAL @decalage DAY, '2026-10-21 12:00:00' + INTERVAL @decalage DAY, '2026-10-21 18:40:00' + INTERVAL @decalage DAY, '2026-10-25 17:30:00' + INTERVAL @decalage DAY, '2026-10-25 17:30:00' + INTERVAL @decalage DAY, NULL);
+UPDATE demande_achat SET date_confirmation = '2026-10-23 08:15:00' + INTERVAL @decalage DAY, confirmation = 'acheteur' WHERE id_demande = 1003;
+
+INSERT INTO conversation (id_conversation, type_objet, id_objet, statut, motif_fermeture, date_creation, date_dernier_message, date_fermeture) VALUES
+(1005, 'vente', 1001, 'ouverte', NULL, '2026-10-23 19:20:00' + INTERVAL @decalage DAY, '2026-10-25 10:05:00' + INTERVAL @decalage DAY, NULL),
+(1006, 'vente', 1002, 'ouverte', NULL, '2026-10-24 12:10:00' + INTERVAL @decalage DAY, '2026-10-24 12:10:00' + INTERVAL @decalage DAY, NULL),
+(1007, 'vente', 1003, 'fermee', NULL, '2026-10-19 18:00:00' + INTERVAL @decalage DAY, '2026-10-23 08:15:00' + INTERVAL @decalage DAY, '2026-10-23 08:15:00' + INTERVAL @decalage DAY),
+(1008, 'vente', 1004, 'ouverte', NULL, '2026-10-25 21:30:00' + INTERVAL @decalage DAY, '2026-10-25 21:30:00' + INTERVAL @decalage DAY, NULL),
+(1009, 'vente', 1005, 'ouverte', NULL, '2026-10-08 10:00:00' + INTERVAL @decalage DAY, '2026-10-25 11:20:00' + INTERVAL @decalage DAY, NULL),
+(1010, 'vente', 1006, 'fermee', NULL, '2026-10-19 08:00:00' + INTERVAL @decalage DAY, '2026-10-19 20:15:00' + INTERVAL @decalage DAY, '2026-10-19 20:15:00' + INTERVAL @decalage DAY),
+(1011, 'vente', 1007, 'ouverte', NULL, '2026-10-21 12:00:00' + INTERVAL @decalage DAY, '2026-10-25 17:30:00' + INTERVAL @decalage DAY, NULL);
+
+INSERT INTO conversation_participant (id_conversation, id_user, role_participant, date_derniere_lecture) VALUES
+(1005, 1004, 'vendeur', '2026-10-25 10:05:00' + INTERVAL @decalage DAY),
+(1005, 1050, 'acheteur', '2026-10-24 20:00:00' + INTERVAL @decalage DAY),
+(1006, 1004, 'vendeur', '2026-10-24 12:10:00' + INTERVAL @decalage DAY),
+(1006, 1006, 'acheteur', '2026-10-24 12:10:00' + INTERVAL @decalage DAY),
+(1007, 1020, 'vendeur', '2026-10-23 08:15:00' + INTERVAL @decalage DAY),
+(1007, 1050, 'acheteur', '2026-10-23 08:15:00' + INTERVAL @decalage DAY),
+(1008, 1050, 'vendeur', NULL),
+(1008, 1004, 'acheteur', '2026-10-25 21:30:00' + INTERVAL @decalage DAY),
+(1009, 1012, 'vendeur', '2026-10-09 09:00:00' + INTERVAL @decalage DAY),
+(1009, 1020, 'acheteur', '2026-10-25 11:20:00' + INTERVAL @decalage DAY),
+(1010, 1017, 'vendeur', '2026-10-19 20:15:00' + INTERVAL @decalage DAY),
+(1010, 1050, 'acheteur', '2026-10-19 20:15:00' + INTERVAL @decalage DAY),
+(1011, 1003, 'vendeur', '2026-10-25 17:30:00' + INTERVAL @decalage DAY),
+(1011, 1050, 'acheteur', '2026-10-24 09:00:00' + INTERVAL @decalage DAY);
+
+INSERT INTO conversation_message (id_conversation, id_auteur, contenu, est_systeme, date_envoi) VALUES
+(1005, NULL, '@mehdi.benali souhaite acheter ce livre à 7,00 € (envoi postal).', 1, '2026-10-23 19:20:00' + INTERVAL @decalage DAY),
+(1005, 1050, 'Bonjour ! Je cherchais cet album depuis longtemps. Un envoi à Lille, ce serait possible ?', 0, '2026-10-23 19:21:00' + INTERVAL @decalage DAY),
+(1005, NULL, '@hugo.bernard a accepté la demande. Convenez ici de l''échange ; une fois le livre remis, le vendeur indique la vente conclue.', 1, '2026-10-24 08:45:00' + INTERVAL @decalage DAY),
+(1005, 1004, 'Bonjour Mehdi, avec plaisir ! Je le poste en lettre suivie, comptez 7 € plus 3 € de port. Vous me réglerez à réception, comme indiqué dans l''annonce.', 0, '2026-10-24 08:50:00' + INTERVAL @decalage DAY),
+(1005, 1050, 'Parfait, merci beaucoup !', 0, '2026-10-24 20:00:00' + INTERVAL @decalage DAY),
+(1005, 1004, 'C''est parti à la poste ce matin, vous devriez le recevoir d''ici jeudi.', 0, '2026-10-25 10:05:00' + INTERVAL @decalage DAY),
+(1006, NULL, '@lucas.thomas souhaite acheter ce livre à 7,00 € (en main propre). L''annonce est déjà réservée : la demande est en file d''attente.', 1, '2026-10-24 12:10:00' + INTERVAL @decalage DAY),
+(1007, NULL, '@mehdi.benali souhaite acheter ce livre à 3,00 € (en main propre).', 1, '2026-10-19 18:00:00' + INTERVAL @decalage DAY),
+(1007, NULL, '@arthur.roux a accepté la demande. Convenez ici de l''échange ; une fois le livre remis, le vendeur indique la vente conclue.', 1, '2026-10-20 09:10:00' + INTERVAL @decalage DAY),
+(1007, 1020, 'Bonjour, je passe à Lille jeudi pour le travail : 18 h devant la gare Lille-Europe ?', 0, '2026-10-20 09:15:00' + INTERVAL @decalage DAY),
+(1007, 1050, 'Jeudi 18 h, c''est noté. À jeudi !', 0, '2026-10-20 12:30:00' + INTERVAL @decalage DAY),
+(1007, NULL, '@arthur.roux a indiqué que la vente est conclue. @mehdi.benali peut confirmer la réception ou signaler un problème pendant 7 jours.', 1, '2026-10-22 19:05:00' + INTERVAL @decalage DAY),
+(1007, NULL, '@mehdi.benali a confirmé avoir reçu le livre. Merci à tous les deux !', 1, '2026-10-23 08:15:00' + INTERVAL @decalage DAY),
+(1008, NULL, '@hugo.bernard souhaite acheter ce livre à 5,00 € (en main propre).', 1, '2026-10-25 21:30:00' + INTERVAL @decalage DAY),
+(1008, 1004, 'Bonjour, je suis de passage à Lille le week-end prochain, on pourrait se retrouver dans le Vieux-Lille ?', 0, '2026-10-25 21:31:00' + INTERVAL @decalage DAY),
+(1009, NULL, '@arthur.roux souhaite acheter ce livre à 14,00 € (envoi postal).', 1, '2026-10-08 10:00:00' + INTERVAL @decalage DAY),
+(1009, NULL, '@louis.moreau a accepté la demande. Convenez ici de l''échange ; une fois le livre remis, le vendeur indique la vente conclue.', 1, '2026-10-08 18:30:00' + INTERVAL @decalage DAY),
+(1009, 1012, 'Bonjour, je vous l''envoie dès réception du paiement.', 0, '2026-10-09 09:00:00' + INTERVAL @decalage DAY),
+(1009, 1020, 'Paiement envoyé ce matin. Merci de me prévenir quand le colis part !', 0, '2026-10-09 11:00:00' + INTERVAL @decalage DAY),
+(1009, 1020, 'Bonjour, avez-vous pu envoyer le livre ? Je n''ai toujours rien reçu.', 0, '2026-10-18 10:30:00' + INTERVAL @decalage DAY),
+(1009, NULL, 'Un problème a été signalé à l''équipe BIBLIOccaz, qui pourra lire cette conversation pour aider à le résoudre.', 1, '2026-10-25 11:20:00' + INTERVAL @decalage DAY),
+(1010, NULL, '@mehdi.benali souhaite acheter ce livre à 1,50 € (envoi postal).', 1, '2026-10-19 08:00:00' + INTERVAL @decalage DAY),
+(1010, NULL, 'Le vendeur a refusé la demande : Désolée, je l''ai promis à une amie entre-temps.', 1, '2026-10-19 20:15:00' + INTERVAL @decalage DAY),
+(1011, NULL, '@mehdi.benali souhaite acheter ce livre à 4,50 € (en main propre).', 1, '2026-10-21 12:00:00' + INTERVAL @decalage DAY),
+(1011, 1050, 'Bonjour Léa ! Je serai à Lyon ce week-end pour voir ma famille, je peux passer prendre Dune samedi ?', 0, '2026-10-21 12:02:00' + INTERVAL @decalage DAY),
+(1011, NULL, '@lea.martin a accepté la demande. Convenez ici de l''échange ; une fois le livre remis, le vendeur indique la vente conclue.', 1, '2026-10-21 18:40:00' + INTERVAL @decalage DAY),
+(1011, 1003, 'Avec plaisir ! Samedi 15 h à la sortie du métro Bellecour ?', 0, '2026-10-21 18:42:00' + INTERVAL @decalage DAY),
+(1011, 1050, 'Parfait, à samedi !', 0, '2026-10-24 09:00:00' + INTERVAL @decalage DAY),
+(1011, 1003, 'Merci pour l''échange, bonne lecture !', 0, '2026-10-25 17:28:00' + INTERVAL @decalage DAY),
+(1011, NULL, '@lea.martin a indiqué que la vente est conclue. @mehdi.benali peut confirmer la réception ou signaler un problème pendant 7 jours.', 1, '2026-10-25 17:30:00' + INTERVAL @decalage DAY);
+
+INSERT IGNORE INTO point_mouvement (id_user, points, type, libelle, reference, statut, date_mouvement) VALUES
+(1020, 10, 'vente', 'Vente entre lecteurs : « 1984 »', 'vente:1003', 'valide', '2026-10-23 08:15:00' + INTERVAL @decalage DAY),
+(1020, 5, 'badge', 'Badge « Seconde main » bronze', 'seconde_main:1', 'valide', '2026-10-23 08:15:00' + INTERVAL @decalage DAY),
+(1003, 10, 'vente', 'Vente entre lecteurs : « Dune - Tome 1 »', 'vente:1007', 'en_attente', '2026-10-25 17:30:00' + INTERVAL @decalage DAY);
+INSERT IGNORE INTO badge_obtenu (id_user, code, palier, date_obtention, vu) VALUES
+(1020, 'seconde_main', 1, '2026-10-23 08:15:00' + INTERVAL @decalage DAY, 1);
+UPDATE `user` SET solde_points = GREATEST(0, (SELECT COALESCE(SUM(points), 0) FROM point_mouvement WHERE id_user = 1020 AND statut = 'valide')) WHERE id = 1020;
+
 COMMIT;

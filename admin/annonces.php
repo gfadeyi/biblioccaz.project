@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/_init.php';
-require_once __DIR__ . '/../annonces_lib.php';
+require_once __DIR__ . '/../ventes_lib.php';
 exigerDroit('moderation');
 
 $onglets = [
@@ -18,6 +18,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $idAnnonce = (int) ($_POST['id_annonce'] ?? 0);
     $action = $_POST['action'] ?? '';
     if ($action === 'supprimer') {
+        if (annonceADesDemandes($pdo, $idAnnonce)) {
+            rediriger($retour, 'warning', "Cette annonce a reçu des demandes d'achat : retirez-la plutôt, pour garder l'historique des échanges.");
+        }
         if (supprimerAnnonce($pdo, $idAnnonce)) {
             insertLog('ANNONCE', "Suppression de l'annonce #$idAnnonce par l'équipe");
             rediriger($retour, 'success', "L'annonce #$idAnnonce est supprimée, avec ses photos.");
@@ -25,6 +28,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         rediriger($retour, 'warning', "Cette annonce ne peut pas être supprimée : une vente est en cours ou terminée.");
     }
     [$type, $message] = modererAnnonce($pdo, $idAnnonce, $action, (int) $_SESSION['user_id'], (string) ($_POST['motif'] ?? ''));
+    if ($type === 'success' && $action === 'retirer') {
+        cloreDemandesEnAttente($pdo, $idAnnonce, "l'annonce a été retirée par l'équipe");
+    }
     rediriger($retour, $type, $message);
 }
 

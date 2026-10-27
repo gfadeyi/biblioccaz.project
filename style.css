@@ -1734,3 +1734,91 @@ h1, h2, h3, .titre { font-family: var(--police-titre); font-weight: 700; letter-
     .conversation__entete { padding: .75rem; }
     .conversation__entete .pastille-etat { display: none; }
 }
+
+.formulaire-demande__remise { margin: 0 0 .9rem; padding: 0; border: 0; }
+.formulaire-demande__remise legend, .formulaire-demande__label { display: block; margin-bottom: .4rem; font-size: .9rem; font-weight: 700; }
+.formulaire-demande__label span { font-weight: 400; color: var(--encre-douce); }
+.choix-remise { position: relative; display: block; margin-bottom: .4rem; cursor: pointer; }
+.choix-remise input { position: absolute; opacity: 0; }
+.choix-remise span { display: flex; align-items: center; gap: .5rem; padding: .55rem .8rem; border: 1px solid var(--trait); border-radius: var(--rayon); font-size: .92rem; transition: border-color var(--transition), background var(--transition); }
+.choix-remise:hover span { border-color: var(--vert-300); }
+.choix-remise input:checked + span { border-color: var(--vert-500); background: var(--vert-50); color: var(--texte-vert); font-weight: 600; }
+.choix-remise input:focus-visible + span { outline: 2px solid var(--vert-500); outline-offset: 2px; }
+.annonce-achat__demande { margin-bottom: .75rem; display: flex; flex-wrap: wrap; gap: .35rem; }
+
+.transaction-grille { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 1.5rem; align-items: start; }
+.transaction-resume { display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: 1.5rem; }
+.transaction-resume__visuel { display: flex; align-items: center; justify-content: center; padding: .75rem; border-radius: var(--rayon); background: var(--vert-50); aspect-ratio: 3 / 4; }
+.transaction-resume__visuel img { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 6px; box-shadow: 0 4px 14px rgba(0, 0, 0, .16); transition: transform var(--transition); }
+.transaction-resume__visuel:hover img { transform: rotate(-2deg) scale(1.03); }
+.transaction-resume__surtitre { margin: 0 0 .3rem; color: var(--texte-vert); font-size: .85rem; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
+.transaction-resume__titre { margin: 0; font-family: var(--police-titre); font-size: 1.7rem; line-height: 1.2; }
+.transaction-resume__auteur { margin: .25rem 0 0; color: var(--encre-douce); }
+.transaction-resume__pastilles { display: flex; flex-wrap: wrap; gap: .35rem; margin: .8rem 0 1rem; }
+.transaction-resume__details { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .8rem 1.25rem; margin: 0 0 1rem; }
+.transaction-resume__details dt { font-size: .78rem; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; color: var(--encre-douce); }
+.transaction-resume__details dd { margin: .15rem 0 0; }
+.transaction-resume__prix { font-family: var(--police-titre); font-size: 1.45rem; font-weight: 700; color: var(--texte-vert); }
+.transaction-resume__membre { display: flex; align-items: center; gap: .45rem; font-weight: 600; }
+.transaction-resume__avatar { flex: 0 0 28px; width: 28px; height: 28px; font-size: .75rem; }
+.transaction-actions { position: sticky; top: 9.5rem; display: flex; flex-direction: column; gap: .75rem; }
+.transaction-actions form { margin: 0; }
+.transaction-actions__titre { margin: 0; font-family: var(--police-titre); font-size: 1.25rem; }
+.transaction-actions__texte { margin: 0; color: var(--encre-douce); font-size: .93rem; }
+.transaction-actions__note { margin: 0; text-align: center; color: var(--encre-douce); font-size: .82rem; }
+.transaction-actions__succes { display: grid; place-items: center; width: 56px; height: 56px; border-radius: 50%; background: var(--vert-50); color: var(--texte-vert); font-size: 1.6rem; animation: rebond-succes .5s cubic-bezier(.2, .8, .2, 1); }
+.transaction-actions__motif-texte { margin: 0; padding: .55rem .85rem; border-left: 3px solid var(--vert-300); border-radius: 0 var(--rayon) var(--rayon) 0; background: var(--vert-50); font-size: .9rem; }
+.transaction-actions__alerte { display: flex; gap: .5rem; margin: 0; padding: .6rem .8rem; border: 1px solid var(--danger-trait); border-radius: var(--rayon); background: var(--danger-fond); color: var(--danger); font-size: .88rem; }
+.transaction-actions__motif summary { list-style: none; cursor: pointer; }
+.transaction-actions__motif summary::-webkit-details-marker { display: none; }
+.transaction-actions__motif[open] summary { margin-bottom: .6rem; }
+.transaction-litige { padding-top: .75rem; border-top: 1px solid var(--trait); font-size: .9rem; }
+.transaction-litige summary { cursor: pointer; color: var(--encre-douce); }
+.transaction-litige summary:hover { color: var(--danger); }
+.transaction-litige[open] summary { margin-bottom: .6rem; }
+@keyframes rebond-succes { from { transform: scale(.6); opacity: 0; } to { transform: none; opacity: 1; } }
+
+.frise-transaction { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); margin: 2rem auto 0; padding: 0; max-width: 860px; list-style: none; }
+.frise-transaction__etape { position: relative; display: flex; flex-direction: column; align-items: center; gap: .3rem; text-align: center; font-size: .88rem; color: var(--encre-douce); }
+.frise-transaction__etape::before { content: ""; position: absolute; top: 15px; left: -50%; width: 100%; height: 2px; background: var(--trait); z-index: 0; }
+.frise-transaction__etape:first-child::before { display: none; }
+.frise-transaction__etape.faite::before { background: var(--vert-400); }
+.frise-transaction__point { position: relative; z-index: 1; display: grid; place-items: center; width: 32px; height: 32px; border: 2px solid var(--trait); border-radius: 50%; background: var(--surface); font-size: .8rem; }
+.frise-transaction__etape.faite { color: var(--encre); font-weight: 600; }
+.frise-transaction__etape.faite .frise-transaction__point { border-color: var(--vert-500); background: var(--vert-500); color: #fff; }
+.frise-transaction__date { font-size: .78rem; font-weight: 400; color: var(--encre-douce); }
+
+.onglets-transactions { display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: 1.25rem; }
+.onglets-transactions__lien { display: inline-flex; align-items: center; gap: .45rem; padding: .5rem 1rem; border: 1px solid var(--trait); border-radius: 999px; color: var(--encre); text-decoration: none; font-weight: 600; transition: border-color var(--transition), background var(--transition); }
+.onglets-transactions__lien:hover { border-color: var(--vert-300); color: var(--texte-vert); }
+.onglets-transactions__lien.actif { border-color: var(--vert-500); background: var(--vert-500); color: #fff; }
+.onglets-transactions__compteur { min-width: 1.4rem; padding: 0 .4rem; border-radius: 999px; background: var(--vert-100); color: var(--texte-vert); font-size: .78rem; text-align: center; }
+.onglets-transactions__lien.actif .onglets-transactions__compteur { background: #fff; }
+.liste-transactions { display: grid; gap: .75rem; margin: 0; padding: 0; list-style: none; }
+.ligne-transaction { display: grid; grid-template-columns: 56px minmax(0, 1fr) auto; gap: 1rem; align-items: center; color: var(--encre); text-decoration: none; transition: border-color var(--transition), box-shadow var(--transition), transform var(--transition); }
+.ligne-transaction:hover { border-color: var(--vert-200); box-shadow: var(--ombre-survol); transform: translateY(-2px); color: var(--encre); }
+.ligne-transaction--action { border-left: 4px solid var(--vert-500); }
+.ligne-transaction__visuel { width: 56px; height: 76px; object-fit: cover; border-radius: 6px; box-shadow: 0 2px 8px rgba(0, 0, 0, .15); }
+.ligne-transaction__contenu { display: flex; flex-direction: column; gap: .25rem; min-width: 0; }
+.ligne-transaction__titre { font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ligne-transaction__qui { color: var(--encre-douce); font-size: .87rem; }
+.ligne-transaction__pastilles { display: flex; flex-wrap: wrap; align-items: center; gap: .35rem; }
+.ligne-transaction__action { color: var(--texte-vert); font-size: .85rem; font-weight: 700; }
+.ligne-transaction__prix { font-family: var(--police-titre); font-size: 1.25rem; font-weight: 700; color: var(--texte-vert); white-space: nowrap; }
+@media (prefers-reduced-motion: reduce) { .transaction-actions__succes { animation: none; } .ligne-transaction:hover { transform: none; } }
+@media (max-width: 991.98px) {
+    .transaction-grille { grid-template-columns: minmax(0, 1fr); }
+    .transaction-actions { position: static; }
+}
+@media (max-width: 575.98px) {
+    .transaction-resume { grid-template-columns: 96px minmax(0, 1fr); gap: 1rem; }
+    .transaction-resume__titre { font-size: 1.3rem; }
+    .transaction-resume__details { grid-template-columns: minmax(0, 1fr); }
+    .frise-transaction { grid-template-columns: minmax(0, 1fr); gap: .9rem; max-width: none; }
+    .frise-transaction__etape { flex-direction: row; text-align: left; gap: .65rem; }
+    .frise-transaction__etape::before { top: -14px; left: 15px; width: 2px; height: 14px; }
+    .frise-transaction__date { margin-left: auto; }
+    .ligne-transaction { grid-template-columns: 48px minmax(0, 1fr); }
+    .ligne-transaction__visuel { width: 48px; height: 66px; }
+    .ligne-transaction__prix { grid-column: 2; font-size: 1.1rem; }
+}

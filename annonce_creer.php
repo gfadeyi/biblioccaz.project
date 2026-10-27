@@ -1,6 +1,6 @@
 <?php
 require_once 'config.php';
-require_once 'annonces_lib.php';
+require_once 'ventes_lib.php';
 require_once 'categories_lib.php';
 require_once 'avis_lib.php';
 if (session_status() === PHP_SESSION_NONE) { session_start(); }
@@ -134,6 +134,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $pdo->prepare("INSERT INTO exemplaire_photo (id_exemplaire, fichier, ordre) VALUES (?, ?, ?)")->execute([$idAnnonce, $fichier, $ordre++]);
             }
             $pdo->commit();
+            if ($annonce) {
+                cloreDemandesEnAttente($pdo, $idAnnonce, "le vendeur a modifié son annonce, qui repasse en validation");
+            }
             supprimerFichiersPhotos($fichiersRetires);
         } catch (PDOException $e) {
             $pdo->rollBack();

@@ -1,6 +1,6 @@
 <?php
 require_once 'config.php';
-require_once 'annonces_lib.php';
+require_once 'ventes_lib.php';
 require_once 'compte_lib.php';
 require_once 'avis_lib.php';
 if (session_status() === PHP_SESSION_NONE) { session_start(); }
@@ -10,7 +10,7 @@ $idUser = (int) ($_SESSION['user_id'] ?? 0);
 $annonce = annonceParId($pdo, $idAnnonce);
 $estVendeur = $annonce && $idUser === (int) $annonce['id_proprietaire'];
 $visible = $annonce && ($estVendeur || (
-    $annonce['statut_annonce'] === 'publiee' && !in_array($annonce['vendeur_statut'], STATUTS_COMPTE_SUSPENDU, true)
+    in_array($annonce['statut_annonce'], ['publiee', 'reservee'], true) && !in_array($annonce['vendeur_statut'], STATUTS_COMPTE_SUSPENDU, true)
 ));
 
 if (!$visible) {
@@ -46,6 +46,13 @@ $imagesGalerie = $photos
     ? array_map(fn($p) => urlPhotoAnnonce($p['fichier'], null), $photos)
     : [urlImage($annonce['couverture'])];
 
+$maDemande = $idUser && !$estVendeur ? demandeActiveAcheteur($pdo, $idAnnonce, $idUser) : null;
+$raisonAchat = $idUser && !$estVendeur && !$maDemande ? raisonInterdictionAchat($pdo, $idUser, $annonce) : '';
+$nbDemandes = $estVendeur || $annonce['statut_annonce'] === 'reservee' ? nombreDemandesAnnonce($pdo, $idAnnonce) : 0;
+$flashVente = $_SESSION['flash_vente'] ?? null;
+unset($_SESSION['flash_vente']);
+$csrf = jetonCsrf();
+
 $titreDocument = $annonce['titre'] . ' · annonce de @' . $annonce['vendeur_pseudo'];
 include 'header.php';
 ?>
@@ -61,7 +68,21 @@ include 'header.php';
         <span aria-current="page">Annonce de @<?= htmlspecialchars($annonce['vendeur_pseudo']) ?></span>
     </nav>
 
-    <?php if ($estVendeur && $annonce['statut_annonce'] !== 'publiee'): ?>
+    <?php if ($flashVente): ?>
+        <div class="alert alert-<?= htmlspecialchars($flashVente[0]) ?> rounded-3" role="status"><?= htmlspecialchars($flashVente[1]) ?></div>
+    <?php endif; ?>
+
+    <?php if (!$estVendeur && $annonce['statut_annonce'] === 'reservee'): ?>
+        <div class="bandeau-statut-annonce" role="status">
+            <?= pastilleStatutAnnonce('reservee') ?>
+            <span>Ce livre est réservé pour un autre lecteur. Vous pouvez rejoindre la file d'attente : si la vente ne se fait pas, votre demande passera en priorité.</span>
+        </div>
+    <?php elseif ($estVendeur && $annonce['statut_annonce'] === 'reservee'): ?>
+        <div class="bandeau-statut-annonce" role="status">
+            <?= pastilleStatutAnnonce('reservee') ?>
+            <span>Vous avez accepté une demande : l'annonce est réservée jusqu'à la fin de l'échange. <a href="mes_transactions.php">Voir mes ventes</a></span>
+        </div>
+    <?php elseif ($estVendeur && $annonce['statut_annonce'] !== 'publiee'): ?>
         <div class="bandeau-statut-annonce" role="status">
             <?= pastilleStatutAnnonce($annonce['statut_annonce']) ?>
             <span>
@@ -121,10 +142,42 @@ include 'header.php';
                     <?php if (in_array($annonce['statut_annonce'], ANNONCE_STATUTS_MODIFIABLES, true)): ?>
                         <a href="annonce_creer.php?id=<?= $idAnnonce ?>" class="bouton bouton-contour w-100"><i class="bi bi-pencil" aria-hidden="true"></i> Modifier mon annonce</a>
                     <?php endif; ?>
+                    <?php if ($nbDemandes): ?>
+                        <a href="mes_transactions.php" class="bouton bouton-principal w-100 mt-2"><i class="bi bi-inbox" aria-hidden="true"></i> <?= $nbDemandes ?> demande<?= $nbDemandes > 1 ? 's' : '' ?> en cours</a>
+                    <?php endif; ?>
                     <a href="mes_annonces.php" class="annonce-achat__lien">Toutes mes annonces</a>
+                <?php elseif ($maDemande): ?>
+                    <div class="annonce-achat__demande"><?= pastilleStatutDemande($maDemande) ?></div>
+                    <a href="transaction.php?id=<?= (int) $maDemande['id_demande'] ?>" class="bouton bouton-principal w-100"><i class="bi bi-chat-dots" aria-hidden="true"></i> Suivre ma demande</a>
+                <?php elseif (!$idUser): ?>
+                    <a href="login.php" class="bouton bouton-principal w-100">Se connecter pour acheter</a>
+                    <p class="annonce-achat__lien">Une conversation s'ouvre avec le vendeur ; votre email reste privé.</p>
+                <?php elseif ($raisonAchat !== ''): ?>
+                    <button type="button" class="bouton bouton-principal w-100" disabled aria-describedby="annonce-raison">Demander à acheter</button>
+                    <p class="annonce-achat__lien" id="annonce-raison"><?= htmlspecialchars($raisonAchat) ?></p>
                 <?php else: ?>
-                    <button type="button" class="bouton bouton-principal w-100" disabled aria-describedby="annonce-bientot">Demander à acheter</button>
-                    <p class="annonce-achat__lien" id="annonce-bientot">Les demandes d'achat entre lecteurs ouvrent très bientôt.</p>
+                    <form method="POST" action="vente_action.php" class="formulaire-demande">
+                        <input type="hidden" name="csrf" value="<?= htmlspecialchars($csrf) ?>">
+                        <input type="hidden" name="action" value="demander">
+                        <input type="hidden" name="id_annonce" value="<?= $idAnnonce ?>">
+                        <?php if ($annonce['mode_remise'] === 'les_deux'): ?>
+                            <fieldset class="formulaire-demande__remise">
+                                <legend>Remise du livre</legend>
+                                <?php foreach (['main_propre', 'envoi'] as $index => $mode): ?>
+                                    <label class="choix-remise">
+                                        <input type="radio" name="mode_remise" value="<?= $mode ?>" <?= $index === 0 ? 'checked' : '' ?>>
+                                        <span><i class="bi bi-<?= MODES_REMISE[$mode][1] ?>" aria-hidden="true"></i> <?= htmlspecialchars($mode === 'main_propre' ? libelleModeRemise($mode, $annonce['ville_remise']) : MODES_REMISE[$mode][0]) ?></span>
+                                    </label>
+                                <?php endforeach; ?>
+                            </fieldset>
+                        <?php endif; ?>
+                        <label for="message-demande" class="formulaire-demande__label">Un mot pour le vendeur <span>(facultatif)</span></label>
+                        <textarea id="message-demande" name="message" rows="3" maxlength="<?= MESSAGE_LONGUEUR_MAX ?>" class="form-control" placeholder="Bonjour, votre livre m'intéresse…"></textarea>
+                        <button type="submit" class="bouton bouton-principal w-100 mt-3">
+                            <?= $annonce['statut_annonce'] === 'reservee' ? "<i class=\"bi bi-people\" aria-hidden=\"true\"></i> Rejoindre la file d'attente" : "<i class=\"bi bi-bag-heart\" aria-hidden=\"true\"></i> Demander à acheter" ?>
+                        </button>
+                    </form>
+                    <p class="annonce-achat__lien">Une conversation s'ouvre avec le vendeur ; votre email reste privé.</p>
                 <?php endif; ?>
 
                 <div class="vendeur-annonce">
