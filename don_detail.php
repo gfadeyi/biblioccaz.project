@@ -1,13 +1,15 @@
 <?php
 require_once 'config.php';
 require_once 'dons_lib.php';
+require_once 'messagerie_lib.php';
+require_once 'compte_lib.php';
 require_once 'avis_lib.php';
 if (session_status() === PHP_SESSION_NONE) { session_start(); }
 
 $stmt = $pdo->prepare("
     SELECT d.*, c.nom AS categorie_nom,
-           dn.pseudo AS donneur_pseudo, dn.email AS donneur_email,
-           b.pseudo AS beneficiaire_pseudo, b.email AS beneficiaire_email
+           dn.pseudo AS donneur_pseudo,
+           b.pseudo AS beneficiaire_pseudo
     FROM don d
     INNER JOIN user dn ON dn.id = d.id_donneur
     LEFT JOIN user b ON b.id = d.id_beneficiaire
@@ -32,6 +34,16 @@ $statut = statutDon($don);
 $flash = $_SESSION['flash_don'] ?? null;
 unset($_SESSION['flash_don']);
 $csrf = $idUser ? jetonCsrf() : '';
+$conversation = $idUser ? derniereConversationObjet($pdo, 'don', (int) $don['id_don'], $idUser) : null;
+$messages = [];
+if ($conversation) {
+    $messages = messagesConversation($pdo, (int) $conversation['id_conversation']);
+    marquerConversationLue($pdo, (int) $conversation['id_conversation'], $idUser);
+}
+$retourConversation = 'objet';
+$flashConversation = $_SESSION['flash_message'] ?? null;
+unset($_SESSION['flash_message']);
+$scriptsPage = ['messagerie.js'];
 
 function boutonActionDon(string $action, int $idDon, string $csrf, string $libelle, string $classe, string $confirmation = ''): string
 {
@@ -102,7 +114,7 @@ function boutonActionDon(string $action, int $idDon, string $csrf, string $libel
                         <div class="alert alert-warning small">
                             Réservé par <strong><?= htmlspecialchars($don['beneficiaire_pseudo']) ?></strong>
                             le <?= date('d/m/Y', strtotime($don['date_reservation'])) ?>.<br>
-                            Contact : <a href="mailto:<?= htmlspecialchars($don['beneficiaire_email']) ?>"><?= htmlspecialchars($don['beneficiaire_email']) ?></a>
+                            <a href="#conversation">Convenir du retrait avec @<?= htmlspecialchars($don['beneficiaire_pseudo']) ?></a>
                         </div>
                         <?= boutonActionDon('liberer', (int) $don['id_don'], $csrf, 'Libérer la réservation', 'btn-outline-warning btn-sm mb-2', 'La personne ne viendra pas ? Le don redeviendra disponible pour les autres.') ?>
                     <?php endif; ?>
@@ -112,8 +124,7 @@ function boutonActionDon(string $action, int $idDon, string $csrf, string $libel
 
                 <?php elseif ($estBeneficiaire && $statut === 'reserve'): ?>
                     <h6 class="fw-bold"><i class="bi bi-bookmark-check text-success"></i> Vous avez réservé ce livre</h6>
-                    <p class="small">Contactez <strong><?= htmlspecialchars($don['donneur_pseudo']) ?></strong> pour convenir du retrait :<br>
-                        <a href="mailto:<?= htmlspecialchars($don['donneur_email']) ?>"><?= htmlspecialchars($don['donneur_email']) ?></a></p>
+                    <p class="small">Convenez du jour et du lieu de retrait avec <strong>@<?= htmlspecialchars($don['donneur_pseudo']) ?></strong> <a href="#conversation">dans la conversation ci-dessous</a>.</p>
                     <p class="small text-muted">Sur place, scannez le QR code du donneur avec votre téléphone, ou saisissez le code qu'il vous donnera :</p>
                     <a href="don_valider.php" class="btn btn-success rounded-pill w-100 mb-2"><i class="bi bi-qr-code-scan"></i> Saisir le code</a>
                     <?= boutonActionDon('annuler_reservation', (int) $don['id_don'], $csrf, 'Annuler ma réservation', 'btn-link btn-sm text-danger', 'Annuler votre réservation ?') ?>
@@ -127,7 +138,7 @@ function boutonActionDon(string $action, int $idDon, string $csrf, string $libel
                         <a href="login.php" class="btn btn-success rounded-pill w-100">Se connecter pour réserver</a>
                     <?php else: ?>
                         <?= boutonActionDon('reserver', (int) $don['id_don'], $csrf, '<i class="bi bi-bookmark-plus"></i> Réserver ce livre', 'btn-success fw-bold') ?>
-                        <p class="small text-muted mt-2 mb-0">Le donneur recevra vos coordonnées pour organiser le retrait.</p>
+                        <p class="small text-muted mt-2 mb-0">Une conversation s'ouvrira avec le donneur pour organiser le retrait. Vos adresses email restent privées.</p>
                     <?php endif; ?>
 
                 <?php else: ?>
@@ -141,6 +152,12 @@ function boutonActionDon(string $action, int $idDon, string $csrf, string $libel
             </div>
         </div>
     </div>
+
+    <?php if ($conversation): ?>
+        <div class="don-conversation carte-compte">
+            <?php include 'partie_conversation.php'; ?>
+        </div>
+    <?php endif; ?>
 </div>
 
 <?php if ($estDonneur): ?>

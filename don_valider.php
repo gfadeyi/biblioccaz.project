@@ -1,6 +1,7 @@
 <?php
 require_once 'config.php';
 require_once 'dons_lib.php';
+require_once 'messagerie_lib.php';
 require_once 'points_lib.php';
 require_once 'avis_lib.php';
 if (session_status() === PHP_SESSION_NONE) { session_start(); }
@@ -42,6 +43,7 @@ if ($don && $idUser && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['co
         if ($maj->rowCount()) {
             crediterPoints($pdo, (int) $don['id_donneur'], DON_POINTS, 'don', 'Don récupéré : « ' . $don['titre'] . ' »', 'don:' . $don['id_don']);
             verifierBadges($pdo, (int) $don['id_donneur']);
+            fermerConversationsObjet($pdo, 'don', (int) $don['id_don'], "Livre récupéré : l'échange est terminé. Bonne lecture !");
             insertLog('DON', "Don #{$don['id_don']} récupéré (+" . DON_POINTS . " points pour le donneur)");
             notifierParMail($don['donneur_email'], "Votre don a été récupéré",
                 "Bonjour {$don['donneur_pseudo']},\n\nVotre livre « {$don['titre']} » a bien été récupéré par {$_SESSION['pseudo']}.\n"

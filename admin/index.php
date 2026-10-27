@@ -47,7 +47,7 @@ $indicateurs = [
     'evt_proposes'    => compter($pdo, "SELECT COUNT(*) FROM evenement WHERE statut = 'en_attente'"),
 ];
 $compteurs = compteursEquipe($pdo);
-$aModerer = $compteurs['livres'] + $compteurs['avis'] + $compteurs['annonces'];
+$aModerer = $compteurs['livres'] + $compteurs['avis'] + $compteurs['annonces'] + ($compteurs['messages'] ?? 0);
 
 $prochainEvenement = null;
 try {
@@ -155,6 +155,7 @@ if (aLeDroit('moderation')) {
     $aTraiter[] = ['shield-check', 'Fiches de livres à valider', 'Proposées par les auteurs', $compteurs['livres'], 'moderation_livres.php'];
     $aTraiter[] = ['shop', 'Annonces à valider', 'Ventes entre particuliers', $compteurs['annonces'], 'annonces.php'];
     $aTraiter[] = ['flag', 'Avis signalés', 'Signalements des lecteurs', $compteurs['avis'], 'moderation_avis.php'];
+    $aTraiter[] = ['chat-dots', 'Messages signalés', 'Conversations entre membres', $compteurs['messages'] ?? 0, 'messages.php'];
 }
 if (aLeDroit('catalogue')) {
     $detailAlertes = $livresEnAttenteAlerte

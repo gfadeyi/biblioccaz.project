@@ -4656,6 +4656,46 @@ INSERT INTO don (id_don, id_donneur, id_livre, id_categorie, titre, auteur, etat
 (1009, 1037, 1025, (SELECT id_categorie FROM categorie WHERE slug = 'science-fiction'), '1984', 'George Orwell', 'bon', 'Livre de mes enfants, en bon état. Parfait pour une première lecture.', NULL, 'Parc de la Tête d''Or, entrée Enfants du Rhône', 'Sur rendez-vous, par message', '2026-11-30' + INTERVAL @decalage DAY, 'disponible', 'd915a1a9abad01adfd50e8b32ffef650', 'BRPDMC', NULL, '2026-10-16 12:26:55' + INTERVAL @decalage DAY, NULL, NULL),
 (1010, 1026, 1043, (SELECT id_categorie FROM categorie WHERE slug = 'policier-thriller'), 'La Vérité sur l''affaire Harry Quebert', 'Joël Dicker', 'bon', 'Lu une seule fois, comme neuf. Je préfère qu''il serve à quelqu''un plutôt qu''il prenne la poussière.', NULL, 'Gare Part-Dieu, devant l''entrée Villette', 'En semaine après 18h', '2026-11-26' + INTERVAL @decalage DAY, 'disponible', '315423b70bedd1fc03c40685c2ccc3f1', 'MM4478', NULL, '2026-10-12 22:12:55' + INTERVAL @decalage DAY, NULL, NULL);
 
+INSERT INTO don (id_don, id_donneur, id_livre, id_categorie, titre, auteur, etat, description, photo, lieu_retrait, conditions_retrait, date_limite, statut, code, code_court, id_beneficiaire, date_creation, date_reservation, date_recuperation) VALUES
+(1011, 1003, 1036, (SELECT id_categorie FROM categorie WHERE slug = 'jeunesse'), 'Le Petit Prince', 'Antoine de Saint-Exupéry', 'bon', 'Édition Folio avec les aquarelles de l''auteur. Quelques pages un peu jaunies.', NULL, 'Gare Lille-Flandres, devant le grand hall', 'En semaine après 18h', '2026-11-20' + INTERVAL @decalage DAY, 'reserve', 'bc024a66ccbadb9f0d621ea821f6e037', 'XTMA9Z', 1050, '2026-10-20 09:14:00' + INTERVAL @decalage DAY, '2026-10-23 18:02:00' + INTERVAL @decalage DAY, NULL),
+(1012, 1017, 1033, (SELECT id_categorie FROM categorie WHERE slug = 'science-fiction'), 'Dune - Tome 1', 'Frank Herbert', 'use', 'Poche bien lu, couverture abîmée mais texte complet.', NULL, 'Place Bellecour, près de la statue', 'Le samedi matin', '2026-11-28' + INTERVAL @decalage DAY, 'disponible', 'ce7c990316e7c5c626031c6234aaa56d', 'E7C4TM', NULL, '2026-10-14 11:30:00' + INTERVAL @decalage DAY, NULL, NULL);
+
+DELETE FROM conversation WHERE type_objet = 'don' AND id_objet BETWEEN 1001 AND 1099;
+
+INSERT INTO conversation (id_conversation, type_objet, id_objet, statut, motif_fermeture, date_creation, date_dernier_message, date_fermeture) VALUES
+(1001, 'don', 1005, 'ouverte', NULL, '2026-09-08 16:58:23' + INTERVAL @decalage DAY, '2026-09-09 08:40:00' + INTERVAL @decalage DAY, NULL),
+(1002, 'don', 1006, 'ouverte', NULL, '2026-10-03 16:19:14' + INTERVAL @decalage DAY, '2026-10-04 10:05:00' + INTERVAL @decalage DAY, NULL),
+(1003, 'don', 1011, 'ouverte', NULL, '2026-10-23 18:02:00' + INTERVAL @decalage DAY, '2026-10-25 09:12:00' + INTERVAL @decalage DAY, NULL),
+(1004, 'don', 1012, 'fermee', NULL, '2026-10-15 20:10:00' + INTERVAL @decalage DAY, '2026-10-17 12:00:00' + INTERVAL @decalage DAY, '2026-10-17 12:00:00' + INTERVAL @decalage DAY);
+
+INSERT INTO conversation_participant (id_conversation, id_user, role_participant, date_derniere_lecture) VALUES
+(1001, 1041, 'donneur', '2026-09-09 08:40:00' + INTERVAL @decalage DAY),
+(1001, 1031, 'beneficiaire', '2026-09-09 08:40:00' + INTERVAL @decalage DAY),
+(1002, 1049, 'donneur', '2026-10-03 20:00:00' + INTERVAL @decalage DAY),
+(1002, 1035, 'beneficiaire', '2026-10-04 10:05:00' + INTERVAL @decalage DAY),
+(1003, 1003, 'donneur', '2026-10-25 09:12:00' + INTERVAL @decalage DAY),
+(1003, 1050, 'beneficiaire', '2026-10-24 19:30:00' + INTERVAL @decalage DAY),
+(1004, 1017, 'donneur', '2026-10-17 12:00:00' + INTERVAL @decalage DAY),
+(1004, 1050, 'beneficiaire', '2026-10-17 12:00:00' + INTERVAL @decalage DAY);
+
+INSERT INTO conversation_message (id_conversation, id_auteur, contenu, est_systeme, date_envoi) VALUES
+(1001, NULL, '@juliette.martinez a réservé ce don. Convenez ici du jour et du lieu de retrait.', 1, '2026-09-08 16:58:23' + INTERVAL @decalage DAY),
+(1001, 1031, 'Bonjour ! Merci pour le Bescherelle, il va beaucoup aider mon petit frère. Samedi vers 11 h place Bellecour, ça vous irait ?', 0, '2026-09-08 17:20:00' + INTERVAL @decalage DAY),
+(1001, 1041, 'Avec plaisir, samedi 11 h c''est parfait. Je serai près de la statue avec un sac vert.', 0, '2026-09-09 08:40:00' + INTERVAL @decalage DAY),
+(1002, NULL, '@nina.rousseau a réservé ce don. Convenez ici du jour et du lieu de retrait.', 1, '2026-10-03 16:19:14' + INTERVAL @decalage DAY),
+(1002, 1035, 'Bonjour, je peux passer samedi matin à la bibliothèque de Villeurbanne ?', 0, '2026-10-03 16:25:00' + INTERVAL @decalage DAY),
+(1002, 1049, 'Oui, je serai dans le hall à partir de 10 h. À samedi !', 0, '2026-10-03 19:48:00' + INTERVAL @decalage DAY),
+(1002, 1035, 'Super, merci beaucoup !', 0, '2026-10-04 10:05:00' + INTERVAL @decalage DAY),
+(1003, NULL, '@mehdi.benali a réservé ce don. Convenez ici du jour et du lieu de retrait.', 1, '2026-10-23 18:02:00' + INTERVAL @decalage DAY),
+(1003, 1050, 'Bonjour Léa ! Je travaille à côté de la gare Lille-Flandres. Mardi ou mercredi vers 18 h 30, ça vous conviendrait ?', 0, '2026-10-23 18:10:00' + INTERVAL @decalage DAY),
+(1003, 1003, 'Bonjour ! Mercredi 18 h 30 c''est parfait pour moi.', 0, '2026-10-24 19:05:00' + INTERVAL @decalage DAY),
+(1003, 1050, 'Génial. Je vous attendrai devant le grand hall, j''aurai un sac en toile vert.', 0, '2026-10-24 19:30:00' + INTERVAL @decalage DAY),
+(1003, 1003, 'Noté ! Pensez à scanner le QR code du don sur place pour valider le retrait. À mercredi 😊', 0, '2026-10-25 09:12:00' + INTERVAL @decalage DAY),
+(1004, NULL, '@mehdi.benali a réservé ce don. Convenez ici du jour et du lieu de retrait.', 1, '2026-10-15 20:10:00' + INTERVAL @decalage DAY),
+(1004, 1050, 'Bonjour, je pourrais passer samedi matin ?', 0, '2026-10-15 20:15:00' + INTERVAL @decalage DAY),
+(1004, 1017, 'Bonjour, samedi je ne suis finalement pas à Lyon, désolée…', 0, '2026-10-16 18:40:00' + INTERVAL @decalage DAY),
+(1004, NULL, '@mehdi.benali a annulé sa réservation : la conversation est terminée.', 1, '2026-10-17 12:00:00' + INTERVAL @decalage DAY);
+
 INSERT IGNORE INTO evenement_inscription (id_inscription, id_evenement, id_user, statut, code, code_court, date_inscription, present, date_presence, prioritaire) SELECT 1001, 1, 1035, 'inscrit', '350baaaefe4641cac800ba0ea0bd3d68', '6XLE86', '2026-10-20 22:16:15' + INTERVAL @decalage DAY, 0, NULL, 0 FROM DUAL WHERE EXISTS (SELECT 1 FROM evenement WHERE id_evenement = 1);
 
 INSERT IGNORE INTO evenement_inscription (id_inscription, id_evenement, id_user, statut, code, code_court, date_inscription, present, date_presence, prioritaire) SELECT 1002, 1, 1042, 'inscrit', 'dd7cbed1fe09a6095863fd393eb331ad', 'URB2Z9', '2026-10-13 10:56:52' + INTERVAL @decalage DAY, 0, NULL, 0 FROM DUAL WHERE EXISTS (SELECT 1 FROM evenement WHERE id_evenement = 1);

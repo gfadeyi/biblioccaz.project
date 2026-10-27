@@ -1,6 +1,7 @@
 <?php
 require_once 'config.php';
 require_once 'dons_lib.php';
+require_once 'messagerie_lib.php';
 require_once 'avis_lib.php';
 if (session_status() === PHP_SESSION_NONE) { session_start(); }
 
@@ -52,10 +53,19 @@ switch ($_POST['action'] ?? '') {
             terminer($retour, 'danger', "Trop tard, ce livre n'est plus disponible.");
         }
         insertLog('DON', "Don #$idDon réservé");
+        $idConversation = null;
+        try {
+            $idConversation = ouvrirConversation($pdo, 'don', $idDon, [(int) $don['id_donneur'] => 'donneur', $idUser => 'beneficiaire'],
+                "@{$_SESSION['pseudo']} a réservé ce don. Convenez ici du jour et du lieu de retrait.");
+            marquerConversationLue($pdo, $idConversation, $idUser);
+        } catch (PDOException $e) {
+            insertLog('ERREUR', "Conversation du don #$idDon non créée : " . $e->getMessage());
+        }
         notifierParMail($don['donneur_email'], "Votre don a été réservé",
-            "Bonjour {$don['donneur_pseudo']},\n\nVotre don « {$don['titre']} » vient d'être réservé par {$_SESSION['pseudo']}.\n"
-            . "Retrouvez son contact et votre QR code ici :\n" . SITE_URL . "/don_detail.php?id=$idDon");
-        terminer($retour, 'success', "C'est réservé ! Contactez le donneur pour convenir du retrait.");
+            "Bonjour {$don['donneur_pseudo']},\n\nVotre don « {$don['titre']} » vient d'être réservé par @{$_SESSION['pseudo']}.\n\n"
+            . "Une conversation est ouverte sur BIBLIOccaz pour convenir ensemble du retrait : vos adresses email restent privées.",
+            SITE_URL . ($idConversation ? "/messages.php?id=$idConversation" : "/don_detail.php?id=$idDon"), "Ouvrir la conversation");
+        terminer($retour . '#conversation', 'success', "C'est réservé ! Écrivez au donneur ci-dessous pour convenir du retrait.");
 
     case 'annuler_reservation':
         $maj = $pdo->prepare("UPDATE don SET statut = 'disponible', id_beneficiaire = NULL, date_reservation = NULL
@@ -63,6 +73,7 @@ switch ($_POST['action'] ?? '') {
         $maj->execute([$idDon, $idUser]);
         if ($maj->rowCount()) {
             insertLog('DON', "Réservation du don #$idDon annulée par le bénéficiaire");
+            fermerConversationsObjet($pdo, 'don', $idDon, "@{$_SESSION['pseudo']} a annulé sa réservation : la conversation est terminée.");
             notifierParMail($don['donneur_email'], "Réservation annulée",
                 "Bonjour {$don['donneur_pseudo']},\n\nLa réservation de votre don « {$don['titre']} » a été annulée. Il est de nouveau disponible.");
         }
@@ -72,7 +83,10 @@ switch ($_POST['action'] ?? '') {
         $maj = $pdo->prepare("UPDATE don SET statut = 'disponible', id_beneficiaire = NULL, date_reservation = NULL
                               WHERE id_don = ? AND statut = 'reserve' AND id_donneur = ?");
         $maj->execute([$idDon, $idUser]);
-        insertLog('DON', "Réservation du don #$idDon libérée par le donneur");
+        if ($maj->rowCount()) {
+            insertLog('DON', "Réservation du don #$idDon libérée par le donneur");
+            fermerConversationsObjet($pdo, 'don', $idDon, "Le donneur a libéré la réservation : la conversation est terminée.");
+        }
         terminer($retour, 'success', "Le don est de nouveau disponible.");
 
     case 'annuler':
@@ -81,6 +95,7 @@ switch ($_POST['action'] ?? '') {
         }
         $maj = $pdo->prepare("UPDATE don SET statut = 'annule' WHERE id_don = ? AND statut IN ('disponible', 'reserve')");
         $maj->execute([$idDon]);
+        fermerConversationsObjet($pdo, 'don', $idDon, "Le don a été annulé : la conversation est terminée.");
         insertLog('DON', "Don #$idDon annulé" . ($estAdmin && (int) $don['id_donneur'] !== $idUser ? ' par un administrateur' : ''));
         terminer($retour, 'success', "Le don est annulé.");
 }

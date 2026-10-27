@@ -40,6 +40,7 @@ Les couvertures visibles sur ces captures sont générées pour l'aperçu : les 
 ### Communauté
 - **Revente entre particuliers** : annonce avec prix libre (de 0,50 € à 150 €), état, jusqu'à 3 photos vérifiées, description et mode de remise (main propre ou envoi) ; un livre absent du catalogue crée une nouvelle fiche ; chaque annonce est **vérifiée par l'équipe avant publication** (validation, refus ou retrait avec motif envoyé par mail) ; page « Mes annonces » pour modifier, retirer, remettre en ligne ou supprimer
 - **Dons de livres** : annonce gratuite avec lieu et date limite de retrait, réservation par un autre lecteur, retrait validé par QR code ou code court
+- **Messagerie liée aux transactions** : une conversation s'ouvre à chaque réservation de don (puis pour les ventes et les emprunts), sans message libre entre membres ni adresse email dévoilée ; bulles, non lus en gras, compteur dans l'entête, mail de notification (au plus un toutes les 15 minutes), anti-spam, conversation fermée en fin de transaction et gardée en lecture seule, signalement d'un message avec motif
 - **Événements** (dédicaces, rencontres, ateliers) : calendrier filtrable, inscription dans la limite des places, liste d'attente automatique ou manuelle, billet avec QR code, contrôle des présences le jour J, export PDF des participants, mails en cas d'annulation
 - **Événements proposés par les auteurs**, validés ou refusés par l'équipe avec un message
 - **Avis** : note, titre et commentaire, un avis par livre, badge « achat vérifié », tri, signalement, modération (un avis masqué reste archivé), page « Mes avis »
@@ -62,7 +63,7 @@ Les couvertures visibles sur ces captures sont générées pour l'aperçu : les 
 - **Tableau de bord** : chiffre d'affaires, commandes, nouveaux membres, stock, ventes sur 30 jours et par univers, liste « À traiter »
 - **Catalogue** : fiches, exemplaires par état, inventaire avec alertes de rupture, catégories et tags, validation des livres proposés par les auteurs, **modération des annonces** entre particuliers (photos, motif de refus ou de retrait, modification par l'équipe)
 - **Commandes** : liste filtrable, fiche détaillée, annulation (stock remis, points rendus, client prévenu)
-- **Communauté** : avis à valider et signalés, dons, événements et présences, niveaux et badges des membres, membres (rôles, suspension), candidatures, utilisateurs en ligne, newsletter
+- **Communauté** : avis à valider et signalés, messages signalés (masquer un message, clore une conversation, suspendre un compte), dons, événements et présences, niveaux et badges des membres, membres (rôles, suspension), candidatures, utilisateurs en ligne, newsletter
 - **Système** : journal d'activité, images du captcha, export PDF des membres
 
 ### Qualité
@@ -142,6 +143,6 @@ Chaque évolution de structure a sa migration `sql/maj_<sujet>.sql`, rejouable s
 Code partagé : `config.php` (connexion, session), `mailer.php` (mails), bibliothèques `*_lib.php` (points, dons, événements, avis, commandes…), `style.css` et `javascript/`.
 
 Droits dans le back-office (`admin/_init.php`) :
-- **Modérateur** : tableau de bord, fiches à valider, annonces, avis, dons
+- **Modérateur** : tableau de bord, fiches à valider, annonces, avis, messages, dons
 - **Gestionnaire** : en plus, livres, stock, commandes et événements
 - **Administrateur** : tout, dont membres, candidatures, catégories, newsletter, journal, captcha et export PDF

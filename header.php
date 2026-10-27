@@ -20,10 +20,12 @@ require_once __DIR__ . '/compte_lib.php';
 require_once __DIR__ . '/avis_lib.php';
 require_once __DIR__ . '/icones_lib.php';
 require_once __DIR__ . '/categories_lib.php';
+require_once __DIR__ . '/messagerie_lib.php';
 $photoMembre = $connected ? photoProfilDe($pdo, (int) $_SESSION['user_id']) : null;
 $idsFavoris = $connected ? idsFavoris($pdo, (int) $_SESSION['user_id']) : [];
 $nb_favoris = count($idsFavoris);
 $resumeCompte = ($connected && $userRole === 'client') ? resumeCompte($pdo, (int) $_SESSION['user_id']) : null;
+$nbMessagesNonLus = ($connected && in_array($userRole, ['client', 'auteur'], true)) ? nombreMessagesNonLus($pdo, (int) $_SESSION['user_id']) : 0;
 $libellesRoles = ['admin' => 'Administrateur', 'gestionnaire' => 'Gestionnaire', 'moderateur' => 'Modérateur', 'auteur' => 'Auteur'];
 
 $nb_notif_modo = 0;
@@ -52,6 +54,7 @@ if ($resumeCompte) {
         ['alertes.php', 'clochette', 'Mes alertes', $resumeCompte['alertes']],
         ['adresses.php', 'enveloppe', 'Mes adresses', 0],
         ['avis.php', 'plume', 'Mes avis', $resumeCompte['avis']],
+        ['messages.php', 'bulle', 'Mes messages', $nbMessagesNonLus],
         ['mes_dons.php', 'carton', 'Mes dons', $resumeCompte['dons']],
         ['mes_annonces.php', 'etiquette', 'Mes annonces', $resumeCompte['annonces'] ?? 0],
         ['mes_evenements.php', 'ticket', 'Mes événements', $resumeCompte['evenements']],
@@ -62,6 +65,7 @@ if ($resumeCompte) {
         ['proposer_evenement.php', 'ticket', 'Proposer un événement', 0],
         ['proposer_ouvrage.php', 'livre-ouvert', 'Proposer un livre', 0],
         ['mes_annonces.php', 'etiquette', 'Mes annonces', 0],
+        ['messages.php', 'bulle', 'Mes messages', $nbMessagesNonLus],
     ];
 } elseif ($connected) {
     $liensMenuCompte = [
@@ -153,6 +157,12 @@ $classeRaccourci = fn(array $pages) => in_array($pageActuelle, $pages, true) ? '
                 <a href="wishlist.php" class="icone-entete d-none d-sm-flex">
                     <?= iconeDessin('marque-page') ?><span>Favoris</span>
                     <?php if ($nb_favoris > 0): ?><span class="pastille" id="compteur-favoris"><?= $nb_favoris ?></span><?php endif; ?>
+                </a>
+            <?php endif; ?>
+            <?php if ($connected && in_array($userRole, ['client', 'auteur'], true)): ?>
+                <a href="messages.php" class="icone-entete d-none d-sm-flex"<?= $nbMessagesNonLus ? ' aria-label="Messages, ' . $nbMessagesNonLus . ' non lu' . ($nbMessagesNonLus > 1 ? 's' : '') . '"' : '' ?>>
+                    <?= iconeDessin('bulle') ?><span>Messages</span>
+                    <?php if ($nbMessagesNonLus > 0): ?><span class="pastille"><?= $nbMessagesNonLus ?></span><?php endif; ?>
                 </a>
             <?php endif; ?>
 

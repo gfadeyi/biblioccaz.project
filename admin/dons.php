@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/_init.php';
 require_once __DIR__ . '/../dons_lib.php';
+require_once __DIR__ . '/../messagerie_lib.php';
 exigerDroit('equipe');
 
 $filtre = $_GET['statut'] ?? 'en_cours';
@@ -15,6 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $maj->execute([$idDon]);
         if ($maj->rowCount()) {
             insertLog('DON', "Don #$idDon annulé par l'équipe");
+            fermerConversationsObjet($pdo, 'don', $idDon, "Le don a été annulé par l'équipe : la conversation est terminée.");
             rediriger($retour, 'success', "Le don #$idDon est annulé.");
         }
         rediriger($retour, 'warning', "Ce don ne peut plus être annulé.");

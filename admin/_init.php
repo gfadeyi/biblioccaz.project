@@ -102,13 +102,17 @@ function imageLivre(?string $fichier): string
 
 function compteursEquipe(PDO $pdo): array
 {
-    $c = ['livres' => 0, 'avis' => 0, 'candidatures' => 0, 'avis_a_valider' => 0, 'evenements_proposes' => 0, 'annonces' => 0];
+    $c = ['livres' => 0, 'avis' => 0, 'candidatures' => 0, 'avis_a_valider' => 0, 'evenements_proposes' => 0, 'annonces' => 0, 'messages' => 0];
     try {
         $c['livres'] = (int) $pdo->query("SELECT COUNT(*) FROM livre l WHERE l.is_valide = 0 AND NOT EXISTS (SELECT 1 FROM exemplaire e WHERE e.id_livre = l.id_livre AND e.id_proprietaire IS NOT NULL)")->fetchColumn();
         $c['avis'] = (int) $pdo->query("SELECT COUNT(DISTINCT id_avis) FROM avis_signalement WHERE traite = 0")->fetchColumn();
         $c['candidatures'] = (int) $pdo->query("SELECT COUNT(*) FROM user WHERE statut = 'en_attente_moderateur'")->fetchColumn();
         $c['avis_a_valider'] = (int) $pdo->query("SELECT COUNT(*) FROM avis WHERE statut = 'visible' AND date_validation IS NULL")->fetchColumn();
         $c['evenements_proposes'] = (int) $pdo->query("SELECT COUNT(*) FROM evenement WHERE statut = 'en_attente'")->fetchColumn();
+    } catch (PDOException $e) {
+    }
+    try {
+        $c['messages'] = (int) $pdo->query("SELECT COUNT(DISTINCT id_message) FROM message_signalement WHERE traite = 0")->fetchColumn();
     } catch (PDOException $e) {
     }
     try {
