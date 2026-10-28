@@ -8,11 +8,11 @@ Contraintes : PHP pour l'essentiel (rendu des pages côté serveur), un peu de J
 vraiment quelque chose (menu, favoris, petites animations). Le « vivant » vient surtout du HTML/CSS : mise en page,
 images, couleurs, transitions, carrousels en CSS.
 
-On avance phase par phase. Chaque phase se termine par un test complet et un commit.
+On avance phase par phase, selon [le workflow de développement](workflow-developpement.md). Chaque phase se termine par des vérifications proportionnées, un rapport et une proposition de commit ; le commit et le push nécessitent chacun une autorisation explicite.
 
 ## Phase 0 — Préparation
 - Travailler en local dans le dossier du projet.
-- Tout commiter, puis créer une branche `refonte` pour pouvoir revenir en arrière.
+- Préparation initiale historique : création de la branche `refonte`. Elle existe désormais ; vérifier son état et préserver les changements, sans recréer la branche ni commiter automatiquement.
 - Rassembler les captures d'inspiration (Recyclivre, Fnac) dans `docs/inspiration/`.
 
 ## Phase 1 — Direction artistique (design system)
@@ -72,6 +72,16 @@ Le bouton « Toutes les catégories » ouvre un panneau à gauche, dans l'esprit
 - Mettre à jour le README et les captures pour le portfolio.
 
 ## Phase 8 — Fonctionnalités restantes du cahier des charges
-- Badges et niveaux (F7).
-- Revente entre particuliers (F3).
-- Emprunt de livres (F5).
+État au 28 octobre 2026 : badges et niveaux (F7), revente entre particuliers (F3) et emprunt de livres (F5) implémentés. Pour le détail de F5, voir [le plan et les validations](plan-f5.md). Les rapports locaux complètent les contrôles et limites ; ne pas traiter cette ancienne liste comme des fonctionnalités à recommencer.
+
+## Phase future — Déploiement public « BibliOccaz Demo »
+
+À engager après la finalisation de la majorité ou de l'ensemble des fonctionnalités et après validation explicite. Objectif : une démonstration consultable depuis GitHub, le CV et le portfolio.
+
+- Architecture prévue : développement local XAMPP → GitHub (`refonte`) → hébergement indépendant de BibliOccaz Demo.
+- Prévoir une URL publique stable, HTTPS, une configuration sécurisée et une base de démonstration indépendante, contenant uniquement des données fictives.
+- Ne jamais exposer l'ordinateur personnel, la base locale ou les secrets de développement. Aucun tunnel réseau vers XAMPP.
+- Réétudier le moment venu alwaysdata Free et InfinityFree : vérifier les offres alors disponibles, PHP, MariaDB/MySQL, HTTPS, quotas, conditions et limites avant tout choix. Aucun hébergeur ni gratuité n'est validé à ce stade.
+- Préparer alors les procédures de déploiement, sauvegarde, réinitialisation des données fictives et gestion des accès publics.
+
+Cette section est une perspective uniquement : aucun compte prestataire, hébergement, adaptation du code, publication de données ou déploiement n'est lancé maintenant.
