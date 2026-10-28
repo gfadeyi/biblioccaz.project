@@ -12,7 +12,12 @@ header('Cache-Control: no-store');
 $idUser = (int) ($_SESSION['user_id'] ?? 0);
 $idConversation = (int) ($_GET['id'] ?? 0);
 $dernier = (int) ($_GET['dernier'] ?? 0);
-if (!$idUser || !$idConversation) {
+if (!$idUser) {
+    http_response_code(403);
+    echo json_encode(['nouveaux' => 0, 'authentification_requise' => true]);
+    exit();
+}
+if (!$idConversation) {
     http_response_code(403);
     echo json_encode(['nouveaux' => 0]);
     exit();

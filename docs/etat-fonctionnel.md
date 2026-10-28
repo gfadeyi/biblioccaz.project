@@ -181,3 +181,18 @@ Aucun fichier de messagerie parmi les modifications locales à cette reprise ; c
 Le correctif de `config.php` exclut le polling automatique de l'actualisation de l'activité, tout en conservant les contrôles F6 à chaque requête. Les trois horloges restent stables pendant les polls ; navigation et envoi volontaire les actualisent. Session valide, activité d'usage et présence humaine instantanée restent des notions distinctes.
 
 21 assertions ciblées réussies sur base fictive, ainsi que 80 F6, 42 messages de fin de session et 53 authentification/récupération : 196 assertions exécutées pour cette reprise. Aucun changement SQL ni écriture principale. Correctif préparé, sans commit ni publication C. La réception et les refus ont été vérifiés en HTTP ; le comportement des onglets et des redirections Fetch reste à observer en navigateur. Aucun nouveau statut Google Docs n'est proposé comme opérationnel sur la seule base de ce correctif ; les réserves de recette visuelle sont conservées.
+
+### Recette après publication A, B et C
+
+Le commit C `b8ad2f2` est désormais publié. La nouvelle recette confirme le dépôt synchronisé avant intervention et les migrations déjà installées, sans les réexécuter. Un défaut HTTP a été reproduit : la redirection du polling consommait le message de fin de session en arrière-plan. Correction ciblée préparée : refus JSON, puis navigation explicite vers la connexion, motif conservé côté serveur et affiché une seule fois. Aucun nouveau commit de cette correction ni migration.
+
+322 assertions réussies sur environnement fictif : 51 messagerie/réponses HTTP, 21 polling, 66 supervision, 80 F6, 42 messages, 53 authentification et 9 JavaScript simulé. La messagerie est vérifiée pour les envois, les non-lus, les limites séquentielles de messages et mails, les accès tiers, CSRF, l'échappement, les signalements, le masquage, la clôture, la suspension et les réponses de l'équipe aux emprunts. L'ouverture des trois types de conversation est testée par la bibliothèque ; cela n'atteste pas à nouveau tous les cycles de dons/ventes/emprunts. Le navigateur est indisponible : aucune nouvelle validation graphique ou WCAG exhaustive, et aucune validation physique des QR.
+
+Propositions de suivi, à rapprocher des lignes actuelles du Google Docs sans changement direct :
+
+| Périmètre | Proposition et preuve |
+|---|---|
+| Supervision et contrôle des sessions | Jaune « À optimiser » pour la ligne globale : migration et livraison acquises, 66 assertions de supervision réussies ; recette visuelle encore ouverte. Les actions serveur précisément testées sont fonctionnelles sur copie isolée. |
+| Messagerie et interaction avec les sessions | Jaune « À optimiser » : recette HTTP et JavaScript ciblée réussie, correction des redirections à livrer et navigation réelle à confirmer. Ne pas assimiler cette preuve à une couverture complète des courses anti-spam. |
+| Cinq lignes Emprunts F5 | Conserver les propositions détaillées existantes fondées sur les 141 assertions historiques et la validation graphique manuelle ; pas de nouvelle validation globale lors de cette recette, scan physique QR toujours non attesté. |
+| Administration des récompenses, recherche et profils | Aucun nouveau changement de statut justifié par cette recette ; règles métier inchangées et profil participant toujours à définir. |

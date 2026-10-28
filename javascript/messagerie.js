@@ -51,8 +51,12 @@ document.querySelectorAll('.conversation').forEach(function (conversation) {
         }
         verifications++;
         fetch('message_nouveaux.php?id=' + conversation.dataset.conversation + '&dernier=' + conversation.dataset.dernier, { credentials: 'same-origin' })
-            .then(function (reponse) { return reponse.ok ? reponse.json() : { nouveaux: 0 }; })
+            .then(function (reponse) { return reponse.ok || reponse.status === 401 || reponse.status === 403 ? reponse.json() : { nouveaux: 0 }; })
             .then(function (donnees) {
+                if (donnees.authentification_requise === true) {
+                    window.location.assign('login.php');
+                    return;
+                }
                 if (donnees.nouveaux > 0) {
                     bandeau.querySelector('span').textContent = donnees.nouveaux > 1 ? donnees.nouveaux + ' nouveaux messages' : 'Nouveau message';
                     bandeau.hidden = false;

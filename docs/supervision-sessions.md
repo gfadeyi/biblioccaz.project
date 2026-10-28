@@ -55,6 +55,14 @@ La recette HTTP isolée du correctif comporte 21 assertions : polls répétés, 
 
 Le comportement visuel et les redirections Fetch restent à vérifier dans un navigateur : laisser une conversation ouverte sans interaction au-delà de dix minutes, vérifier l'expiration, puis refaire avec une fermeture distante ; vérifier aussi la réception avant expiration et l'ouverture du bandeau des nouveaux messages. Ne pas assimiler ces contrôles manuels à la recette HTTP automatisée.
 
+### Recette complémentaire des réponses au polling
+
+Un défaut a été reproduit après livraison C : Fetch suivait la redirection HTTP vers la connexion et consommait le message serveur en arrière-plan. Le polling refuse désormais une session invalidée avec HTTP 401 et JSON `authentification_requise`, sans redirection HTTP ; le JavaScript ouvre ensuite `login.php`. Un polling anonyme reçoit HTTP 403 avec le même indicateur. Le motif reste uniquement dans la session serveur, sans paramètre GET, et est affiché une seule fois lors de la navigation vers la connexion. Une conversation invalide ne déclenche pas à elle seule une demande de reconnexion.
+
+La recette complémentaire exécute 322 assertions : 51 messagerie et réponses d'invalidation, 21 polling, 66 supervision, 80 F6, 42 messages de fin de session, 53 authentification et 9 JavaScript avec DOM simulé. Les scénarios HTTP couvrent notamment signalement, masquage/réaffichage, clôture, suspension, réponse de l'équipe à un emprunt, refus d'un tiers, CSRF, quota de messages et intervalle de mail Mailpit. Les tests n'attestent pas une résistance exhaustive aux courses d'envoi ni tous les cycles métier des transactions. Les huit assertions historiques de diagnostic restent conservées séparément.
+
+L'accès au navigateur reste indisponible. Le suivi des réponses et cookies est testé par un client HTTP et la navigation JavaScript par simulation ; les onglets, le rendu, le clavier réel et la navigation Fetch intégrée au navigateur restent à recetter. Aucun import ni écriture sur la base principale n'est effectué pour cette recette.
+
 ## Activation SQL du 28 octobre 2026
 
 Après autorisation explicite, sauvegarde complète fraîche et restauration isolée vérifiée, `maj_sessions_supervision.sql` a été appliquée sur `biblioccaz`, code de sortie 0. Les 36 tables préexistantes conservent leurs nombres de lignes et checksums. Le registre conserve ses trois lignes et toutes leurs anciennes valeurs ; seul `role_connexion VARCHAR(20) NULL` est ajouté après `espace`, avec collation utf8mb4. Clés, contraintes et index sont inchangés. Les trois rôles historiques restent NULL : les anciennes sessions doivent se reconnecter pour enregistrer leur rôle. Contrôle global d'encodage réussi. Aucun parcours HTTP ni écriture métier supplémentaire exécuté sur la base principale. Recette visuelle et livraison Git restent distinctes et en attente.
