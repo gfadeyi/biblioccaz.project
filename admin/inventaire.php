@@ -2,6 +2,7 @@
 require_once __DIR__ . '/_init.php';
 require_once __DIR__ . '/../categories_lib.php';
 require_once __DIR__ . '/../livres_lib.php';
+require_once __DIR__ . '/../recherche_lib.php';
 exigerDroit('catalogue');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -29,17 +30,24 @@ const TRIS_INVENTAIRE = [
     'prix'   => 'MIN(e.prix) IS NULL, MIN(e.prix)',
 ];
 
-$q = trim($_GET['q'] ?? '');
-$filtreStock = $_GET['stock'] ?? '';
-$filtreCategorie = $_GET['categorie'] ?? '';
-$tri = array_key_exists($_GET['tri'] ?? '', TRIS_INVENTAIRE) ? $_GET['tri'] : 'recent';
+$q = texteRecherche($_GET['q'] ?? '');
+$filtreStock = texteRecherche($_GET['stock'] ?? '');
+$filtreCategorie = texteRecherche($_GET['categorie'] ?? '');
+$tri = texteRecherche($_GET['tri'] ?? '');
+$tri = array_key_exists($tri, TRIS_INVENTAIRE) ? $tri : 'recent';
 $sens = ($_GET['sens'] ?? ($tri === 'recent' ? 'desc' : 'asc')) === 'desc' ? 'DESC' : 'ASC';
 
 $where = [];
 $params = [];
 if ($q !== '') {
-    $where[] = "(l.titre LIKE ? OR l.auteur LIKE ? OR l.isbn LIKE ?)";
-    array_push($params, "%$q%", "%$q%", "%$q%");
+    $isbn = isbnRecherche($q);
+    if ($isbn !== '') {
+        $where[] = "REPLACE(REPLACE(UPPER(l.isbn), '-', ''), ' ', '') LIKE ? ESCAPE '!'";
+        $params[] = $isbn . '%';
+    } else {
+        $where[] = "(l.titre LIKE ? ESCAPE '!' OR l.auteur LIKE ? ESCAPE '!' OR l.isbn LIKE ? ESCAPE '!')";
+        array_push($params, motifRecherche($q), motifRecherche($q), motifRecherche($q));
+    }
 }
 if ($filtreCategorie !== '') {
     $idsCategorie = idsCategorieEtEnfants($pdo, $filtreCategorie);

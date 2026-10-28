@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const versionSaisie = ++version;
         const saisie = e.target.value.trim();
         masquerSuggestions();
-        if (saisie.length < 2) {
+        if (saisie.length < 2 && !/^[0-9]$/.test(saisie)) {
             suggestions.innerHTML = '';
             return;
         }

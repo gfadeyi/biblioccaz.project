@@ -111,7 +111,7 @@ function sessionsActives(PDO $pdo): array
         FROM session_utilisateur s INNER JOIN user u ON u.id = s.id_user
         WHERE s.date_revocation IS NULL AND s.derniere_activite > DATE_SUB(NOW(), INTERVAL 600 SECOND)
         AND s.empreinte_mdp = SHA2(u.mot_de_passe, 256) AND u.email_verifie = 1
-        AND u.statut NOT IN ('refuse_temporaire', 'refuse_definitif', 'banni')
+        AND u.statut IN ('actif', 'valide_moderateur')
         ORDER BY s.derniere_activite DESC, s.id_suivi DESC LIMIT 500");
     $stmt->execute([empreinteSessionCourante()]);
     return $stmt->fetchAll();

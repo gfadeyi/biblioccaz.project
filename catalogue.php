@@ -52,10 +52,13 @@ foreach (['niveau' => 'niveau_scolaire', 'matiere' => 'matiere'] as $cle => $col
 
 if ($f['q'] !== '') {
     $rechercheIsbn = isbnRecherche($f['q']);
-    $clauseIsbn = $rechercheIsbn !== '' ? "REPLACE(REPLACE(UPPER(l.isbn), '-', ''), ' ', '') = :q3" : "l.isbn LIKE :q3 ESCAPE '!'";
-    $where[] = "(l.titre LIKE :q1 ESCAPE '!' OR l.auteur LIKE :q2 ESCAPE '!' OR $clauseIsbn OR l.editeur LIKE :q4 ESCAPE '!')";
-    foreach (['q1', 'q2', 'q4'] as $k) { $params[$k] = motifRecherche($f['q']); }
-    $params['q3'] = $rechercheIsbn !== '' ? $rechercheIsbn : motifRecherche($f['q']);
+    if ($rechercheIsbn !== '') {
+        $where[] = "REPLACE(REPLACE(UPPER(l.isbn), '-', ''), ' ', '') LIKE :isbn_prefixe ESCAPE '!'";
+        $params['isbn_prefixe'] = $rechercheIsbn . '%';
+    } else {
+        $where[] = "(l.titre LIKE :q1 ESCAPE '!' OR l.auteur LIKE :q2 ESCAPE '!' OR l.isbn LIKE :q3 ESCAPE '!' OR l.editeur LIKE :q4 ESCAPE '!')";
+        foreach (['q1', 'q2', 'q3', 'q4'] as $k) { $params[$k] = motifRecherche($f['q']); }
+    }
 }
 if ($f['categorie'] !== '') {
     $marqueursCategorie = [];

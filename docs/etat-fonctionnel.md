@@ -22,7 +22,7 @@ Une présence dans le code ne vaut pas recette. Les journaux de tests conservés
 
 | Périmètre | Constat du code et écart |
 |---|---|
-| Parcours « Rentrée & études » de la feuille de route | Les colonnes `livre.niveau_scolaire` et `livre.matiere` sont déclarées dans l'installation et la migration des univers. Aucun usage PHP de ces champs n'a été trouvé. Le catalogue recherche déjà par ISBN, mais ses filtres n'exposent ni niveau ni matière. La saisie et le filtrage spécialisés restent à définir et à réaliser ; les catégories/tags existants ne constituent pas automatiquement ce parcours. |
+| Parcours « Rentrée & études » de la feuille de route | Raccordé depuis `2999729` : saisie d'équipe, fiche et filtres combinés niveau/matière. 54 assertions isolées confirmées à la reprise ; recette visuelle et points de saisie auteur/annonce à compléter selon le périmètre souhaité. |
 
 ## 3. Non commencées ou explicitement différées
 
@@ -99,7 +99,7 @@ L'audit initial a confirmé que la page En ligne ne supervisait que des membres 
 
 80 assertions F6/non-régression ciblée et 53 assertions de récupération réussies sur le code intégré. Migration du registre créée et rejouée uniquement dans la base isolée ; syntaxe et diff vérifiés. Les anciennes sessions sont refusées après révocation, modification de rôle, suspension ou changement du mot de passe. Un changement de rôle impose une reconnexion ; l'inactivité est de dix minutes et le rafraîchissement automatique ne la prolonge pas.
 
-Statut proposé F6 : orange « En cours » pour la livraison globale tant que migration principale, revue/commit et recette visuelle ne sont pas achevés. Le parcours technique isolé est vérifié, sans revendication de rendu observé ni de migration réelle. Aucun statut Google Docs modifié.
+Statut proposé F6 local : orange « En cours » pour la livraison globale tant que migration principale et recette visuelle ne sont pas achevées. Le commit est désormais publié. Le parcours technique isolé est vérifié, sans revendication de rendu observé ni de migration réelle. Aucun statut Google Docs modifié.
 
 Précision de numérotation issue du document désormais lu : « F6 » est le nom local du lot sessions livré par le commit dfe605f. Dans la référence officielle, la Fonctionnalité 6 correspond aux avis ; « Supervision des sessions » et « Contrôle des sessions » appartiennent à la Fonctionnalité 10. Les fichiers et preuves existants conservent leur nom pour assurer la continuité du suivi.
 
@@ -147,3 +147,15 @@ Le back-office permet de renseigner niveau scolaire et matière, facultatifs et 
 Preuves : 54 assertions HTTP/normalisation sur la base isolée (filtres, ISBN, pagination, entrées invalides, droits, CSRF, création/modification scolaire), et 8 assertions JavaScript en simulation contrôlée (temporisation, annulation, réponses dans le désordre, erreurs, fermeture). Cela ne constitue pas une recette visuelle réelle : l'accès navigateur signale un hôte indisponible. Les recommandations personnalisées, filtres de localisation, mesure de performance sur grand volume et audit complet de tous les tris restent distincts.
 
 Propositions Google Docs : F2 « Champs spécifiques pour les livres scolaires/universitaires » et F9 filtres niveau/matière — jaune, à optimiser/recetter visuellement après activation ; F9 recherche simple et suggestions — jaune, périmètre testé précisé ci-dessus, sans prétendre que toute la recherche avancée est achevée. Ne modifier les couleurs qu'après rapprochement des libellés exacts dans le document partagé.
+
+## Reprise d'intégration — 28 octobre 2026
+
+Les trois commits nocturnes sont présents et publiés, branche `refonte` propre avant correction. Les tables sessions/règles sont absentes de la base principale. Sauvegarde complète restaurée sur compte isolé, 33 tables identiques ; deux migrations rejouées et contraintes contrôlées. Aucune migration principale effectuée. Voir [le plan d'intégration et la checklist visuelle](integration-sessions-recompenses.md).
+
+La recherche numérique est désormais exclusivement un préfixe ISBN normalisé, dans catalogue/Fetch/suggestions/inventaire ; le texte garde sa recherche habituelle. 58 assertions ISBN/statuts, 54 recherche/scolaire, 80 sessions et 69 récompenses réussies, plus 9 JavaScript. Le navigateur reste inaccessible : aucune observation graphique nouvelle. La supervision exclut maintenant aussi les comptes en attente, conformément au contrôle d'accès.
+
+Propositions de statuts inchangées dans leur prudence : F5 quatre verts sur le périmètre local attesté et relances jaune ; sessions (F10 officiel, F6 local) orange jusqu'à activation et recette visuelle ; récompenses et recherche/filtres jaune tant que leurs réserves subsistent. « Compte actif » est administratif ; « en ligne » repose sur une session valide ; « profil participant actif » reste orange, critères non décidés. Aucun nouveau seuil ni récompense créé ; trois options sont documentées sans mise en œuvre. Aucune couleur Google Docs modifiée.
+
+### Activation SQL autorisée
+
+Le 28 octobre 2026, `maj_sessions.sql` puis `maj_regles_recompenses.sql` ont été appliquées avec succès sur `biblioccaz`, chaque import suivi de son contrôle avant le suivant. Les trois tables nouvelles correspondent exactement à la copie testée ; barème initial en version 1, registre sessions et historique des règles vides. Les 33 tables existantes sont préservées en structure, lignes et checksums, encodage contrôlé par le script dédié. La sauvegarde et sa restauration isolée ont été revérifiées avant import. La réserve de migration est levée ; les réserves de recette visuelle et d'interactions réelles demeurent, sans changement automatique des couleurs Google Docs. Les sessions anciennes doivent se reconnecter.

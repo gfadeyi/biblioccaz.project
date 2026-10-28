@@ -7,10 +7,11 @@ $results = array();
 
 if ($search !== '') {
     $isbn = isbnRecherche($search);
-    $clauseIsbn = $isbn !== '' ? "REPLACE(REPLACE(UPPER(isbn), '-', ''), ' ', '') = ?" : "isbn LIKE ? ESCAPE '!'";
-    $query = "SELECT id_livre as id, titre, auteur FROM livre WHERE is_valide = 1 AND (titre LIKE ? ESCAPE '!' OR auteur LIKE ? ESCAPE '!' OR $clauseIsbn) ORDER BY titre, id_livre LIMIT 8";
+    $condition = $isbn !== '' ? "REPLACE(REPLACE(UPPER(isbn), '-', ''), ' ', '') LIKE ? ESCAPE '!'" : "(titre LIKE ? ESCAPE '!' OR auteur LIKE ? ESCAPE '!' OR isbn LIKE ? ESCAPE '!')";
+    $parametres = $isbn !== '' ? [$isbn . '%'] : [motifRecherche($search), motifRecherche($search), motifRecherche($search)];
+    $query = "SELECT id_livre as id, titre, auteur FROM livre WHERE is_valide = 1 AND $condition ORDER BY titre, id_livre LIMIT 8";
     $stmt = $pdo->prepare($query);
-    $stmt->execute([motifRecherche($search), motifRecherche($search), $isbn !== '' ? $isbn : motifRecherche($search)]);
+    $stmt->execute($parametres);
     $results = $stmt->fetchAll();
 }
 

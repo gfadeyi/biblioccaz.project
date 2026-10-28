@@ -12,6 +12,6 @@ function motifRecherche(string $texte): string
 
 function isbnRecherche(string $texte): string
 {
-    $normalise = preg_replace('/[\s-]+/u', '', $texte);
-    return preg_match('/\A(?:[0-9]{9}[0-9Xx]|[0-9]{13})\z/', $normalise ?? '') ? strtoupper($normalise) : '';
+    $normalise = str_replace([' ', '-'], '', $texte);
+    return preg_match('/\A[0-9]+[Xx]?\z/', $normalise) ? strtoupper($normalise) : '';
 }
