@@ -8,7 +8,8 @@ include 'header.php';
 
 $error = "";
 $success = "";
-if (($_GET['session'] ?? '') === 'expiree') { $error = 'Votre connexion a expiré ou a été fermée. Merci de vous reconnecter.'; }
+$finSession = messageFinSession();
+if ($finSession !== '') { $error = $finSession; }
 
 if (isset($_GET['error'])) {
     if ($_GET['error'] == '1') { $error = "Identifiants incorrects."; }

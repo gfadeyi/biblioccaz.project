@@ -2,6 +2,18 @@
 
 const SESSION_INACTIVITE = 600;
 
+function conditionSessionValide(bool $verifierRole = true): string
+{
+    return "s.date_revocation IS NULL AND s.derniere_activite > DATE_SUB(?, INTERVAL 600 SECOND)
+        AND s.empreinte_mdp = SHA2(u.mot_de_passe, 256) AND u.email_verifie = 1 AND u.statut IN ('actif','valide_moderateur')" . ($verifierRole ? ' AND s.role_connexion = u.role' : '');
+}
+
+function roleSessionDisponible(PDO $pdo): bool
+{
+    try { $pdo->prepare('SELECT role_connexion FROM session_utilisateur LIMIT 0')->execute(); return true; }
+    catch (PDOException $e) { if (in_array((int) ($e->errorInfo[1] ?? 0),[1146,1054],true)) { return false; } throw $e; }
+}
+
 function empreinteSessionCourante(): string
 {
     return hash('sha256', session_name() . ':' . session_id());
@@ -35,12 +47,15 @@ function terminerSuiviSession(PDO $pdo): void
     }
 }
 
-function refuserSession(PDO $pdo, string $motif): void
+function refuserSession(PDO $pdo, string $motif, string $raison = 'inconnue'): void
 {
     terminerSuiviSession($pdo);
     insertLog('DECONNEXION', $motif);
     detruireSessionCourante();
-    header('Location: login.php?session=expiree');
+    session_id('');
+    session_start();
+    $_SESSION['motif_deconnexion'] = $raison;
+    header('Location: login.php');
     exit;
 }
 
@@ -52,14 +67,16 @@ function enregistrerSessionUtilisateur(PDO $pdo, array $membre): void
     if (!$_SESSION['suivi_sessions_actif']) { return; }
     $pdo->beginTransaction();
     try {
-        $stmt = $pdo->prepare('SELECT mot_de_passe, statut, email_verifie FROM user WHERE id = ? FOR UPDATE');
+        $stmt = $pdo->prepare('SELECT mot_de_passe, statut, email_verifie, role FROM user WHERE id = ? FOR UPDATE');
         $stmt->execute([$membre['id']]);
         $actuel = $stmt->fetch();
-        if (!$actuel || !hash_equals($membre['mot_de_passe'], $actuel['mot_de_passe']) || !(int) $actuel['email_verifie'] || in_array($actuel['statut'], ['refuse_temporaire', 'refuse_definitif', 'banni'], true)) {
+        if (!$actuel || ($membre['role'] ?? $_SESSION['role'] ?? null) !== $actuel['role'] || !hash_equals($membre['mot_de_passe'], $actuel['mot_de_passe']) || !(int) $actuel['email_verifie'] || in_array($actuel['statut'], ['refuse_temporaire', 'refuse_definitif', 'banni'], true)) {
             throw new RuntimeException('Le compte a changé. Merci de vous reconnecter.');
         }
-        $pdo->prepare('INSERT INTO session_utilisateur (id_user, empreinte, empreinte_mdp, espace) VALUES (?, ?, ?, ?)')
-            ->execute([$membre['id'], empreinteSessionCourante(), $_SESSION['empreinte_auth'], session_name() === 'BIBLIOCCAZ_ADMIN' ? 'admin' : 'site']);
+        $avecRole = roleSessionDisponible($pdo);
+        $valeurs = [$membre['id'], empreinteSessionCourante(), $_SESSION['empreinte_auth'], session_name() === 'BIBLIOCCAZ_ADMIN' ? 'admin' : 'site'];
+        if ($avecRole) { $valeurs[] = $actuel['role']; }
+        $pdo->prepare('INSERT INTO session_utilisateur (id_user, empreinte, empreinte_mdp, espace' . ($avecRole ? ', role_connexion' : '') . ') VALUES (?, ?, ?, ?' . ($avecRole ? ', ?' : '') . ')')->execute($valeurs);
         $pdo->commit();
     } catch (Throwable $e) {
         if ($pdo->inTransaction()) { $pdo->rollBack(); }
@@ -70,13 +87,16 @@ function enregistrerSessionUtilisateur(PDO $pdo, array $membre): void
 
 function controlerSessionUtilisateur(PDO $pdo, bool $actualiser = true): void
 {
-    if (isset($_SESSION['last_activity']) && time() - (int) $_SESSION['last_activity'] >= SESSION_INACTIVITE) {
-        refuserSession($pdo, 'Expiration après dix minutes sans activité');
+    $inactive = isset($_SESSION['last_activity']) && time() - (int) $_SESSION['last_activity'] >= SESSION_INACTIVITE;
+    if (!isset($_SESSION['user_id'])) {
+        if ($inactive) { refuserSession($pdo,'Expiration après dix minutes sans activité','expiree'); }
+        $_SESSION['last_activity'] = time(); return;
     }
-    if (!isset($_SESSION['user_id'])) { $_SESSION['last_activity'] = time(); return; }
     $stmt = $pdo->prepare('SELECT id, pseudo, role, statut, email_verifie, mot_de_passe, nom, prenom FROM user WHERE id = ?');
     $stmt->execute([$_SESSION['user_id']]);
     $membre = $stmt->fetch();
+    if ($membre && in_array($membre['statut'], ['refuse_temporaire','refuse_definitif','banni'], true)) { refuserSession($pdo,'Compte suspendu','suspendue'); }
+    if ($membre && isset($_SESSION['empreinte_auth']) && !hash_equals(hash('sha256',$membre['mot_de_passe']),$_SESSION['empreinte_auth'])) { refuserSession($pdo,'Mot de passe modifié','mot_de_passe'); }
     if (!$membre || !isset($_SESSION['empreinte_auth']) || !hash_equals(hash('sha256', $membre['mot_de_passe']), $_SESSION['empreinte_auth']) || ($_SESSION['role'] ?? null) !== $membre['role'] || !(int) $membre['email_verifie'] || !in_array($membre['statut'], ['actif', 'valide_moderateur'], true)) {
         refuserSession($pdo, 'Session invalidée après modification du compte');
     }
@@ -85,12 +105,14 @@ function controlerSessionUtilisateur(PDO $pdo, bool $actualiser = true): void
         refuserSession($pdo, 'Registre des sessions indisponible');
     }
     if ($suiviDisponible) {
+        $avecRole = roleSessionDisponible($pdo);
         $pdo->beginTransaction();
         try {
-            $stmt = $pdo->prepare('SELECT id_suivi FROM session_utilisateur WHERE empreinte = ? AND id_user = ? AND empreinte_mdp = ? AND date_revocation IS NULL AND derniere_activite > DATE_SUB(NOW(), INTERVAL 600 SECOND) FOR UPDATE');
+            $stmt = $pdo->prepare('SELECT id_suivi, date_revocation, id_revoque_par' . ($avecRole ? ', role_connexion' : '') . ', (derniere_activite > DATE_SUB(NOW(), INTERVAL 600 SECOND)) AS recente FROM session_utilisateur WHERE empreinte = ? AND id_user = ? AND empreinte_mdp = ? FOR UPDATE');
             $stmt->execute([empreinteSessionCourante(), $membre['id'], $_SESSION['empreinte_auth']]);
             $suivi = $stmt->fetch();
-            if ($suivi && $actualiser) {
+            $roleValide = !$avecRole || ($suivi && $suivi['role_connexion'] === $membre['role']);
+            if ($suivi && $roleValide && !$suivi['date_revocation'] && $suivi['recente'] && !$inactive && $actualiser) {
                 $pdo->prepare('UPDATE session_utilisateur SET derniere_activite = NOW() WHERE id_suivi = ?')->execute([$suivi['id_suivi']]);
             }
             $pdo->commit();
@@ -98,10 +120,28 @@ function controlerSessionUtilisateur(PDO $pdo, bool $actualiser = true): void
             if ($pdo->inTransaction()) { $pdo->rollBack(); }
             throw $e;
         }
-        if (!$suivi) { refuserSession($pdo, 'Session révoquée, expirée ou non enregistrée'); }
+        if (!$suivi) { refuserSession($pdo, 'Session non enregistrée'); }
+        if (!$roleValide) { refuserSession($pdo,'Rôle de connexion absent ou modifié'); }
+        if ($suivi['date_revocation']) { refuserSession($pdo, 'Session fermée', $suivi['id_revoque_par'] ? 'fermee' : 'inconnue'); }
+        if (!$suivi['recente']) { refuserSession($pdo,'Expiration du registre après dix minutes','expiree'); }
     }
+    if ($inactive) { refuserSession($pdo,'Expiration après dix minutes sans activité','expiree'); }
     foreach (['pseudo', 'role', 'nom', 'prenom'] as $champ) { $_SESSION[$champ] = $membre[$champ]; }
     if ($actualiser) { $_SESSION['last_activity'] = time(); }
+}
+
+function messageFinSession(): string
+{
+    $raison = $_SESSION['motif_deconnexion'] ?? '';
+    unset($_SESSION['motif_deconnexion']);
+    return match ($raison) {
+        'fermee' => 'Votre session a été fermée. Veuillez vous reconnecter.',
+        'expiree' => 'Votre session a expiré. Veuillez vous reconnecter.',
+        'mot_de_passe' => 'Votre session a été invalidée après modification du mot de passe. Merci de vous reconnecter.',
+        'suspendue' => 'Votre compte est suspendu. La connexion est interrompue.',
+        'inconnue' => "Votre session n'est plus valide. Veuillez vous reconnecter.",
+        default => '',
+    };
 }
 
 function sessionsActives(PDO $pdo): array
@@ -109,11 +149,9 @@ function sessionsActives(PDO $pdo): array
     $stmt = $pdo->prepare("SELECT s.id_suivi, s.id_user, s.espace, s.date_connexion, s.derniere_activite, u.pseudo, u.role,
         CASE WHEN s.empreinte = ? THEN 1 ELSE 0 END AS courante
         FROM session_utilisateur s INNER JOIN user u ON u.id = s.id_user
-        WHERE s.date_revocation IS NULL AND s.derniere_activite > DATE_SUB(NOW(), INTERVAL 600 SECOND)
-        AND s.empreinte_mdp = SHA2(u.mot_de_passe, 256) AND u.email_verifie = 1
-        AND u.statut IN ('actif', 'valide_moderateur')
+        WHERE " . conditionSessionValide(roleSessionDisponible($pdo)) . "
         ORDER BY s.derniere_activite DESC, s.id_suivi DESC LIMIT 500");
-    $stmt->execute([empreinteSessionCourante()]);
+    $stmt->execute([empreinteSessionCourante(),$pdo->query('SELECT NOW()')->fetchColumn()]);
     return $stmt->fetchAll();
 }
 
@@ -130,9 +168,9 @@ function revoquerSessionsUtilisateur(PDO $pdo, int $idAdministrateur, int $idMem
         if (!$acteur || $acteur['role'] !== 'admin' || !(int) $acteur['email_verifie'] || $acteur['statut'] !== 'actif' || !$cible || ($cible['role'] === 'admin' && $idMembre !== $idAdministrateur)) {
             throw new DomainException('Cette action sur les sessions de ce compte est interdite.');
         }
-        $sql = 'UPDATE session_utilisateur SET date_revocation = NOW(), id_revoque_par = ? WHERE id_user = ? AND date_revocation IS NULL';
-        $parametres = [$idAdministrateur, $idMembre];
-        if ($idSuivi !== null) { $sql .= ' AND id_suivi = ?'; $parametres[] = $idSuivi; }
+        $sql = 'UPDATE session_utilisateur s INNER JOIN user u ON u.id=s.id_user SET s.date_revocation = NOW(), s.id_revoque_par = ? WHERE s.id_user = ? AND ' . conditionSessionValide(roleSessionDisponible($pdo));
+        $parametres = [$idAdministrateur, $idMembre, $pdo->query('SELECT NOW()')->fetchColumn()];
+        if ($idSuivi !== null) { $sql .= ' AND s.id_suivi = ?'; $parametres[] = $idSuivi; }
         $stmt = $pdo->prepare($sql);
         $stmt->execute($parametres);
         $nombre = $stmt->rowCount();

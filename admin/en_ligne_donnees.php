@@ -3,9 +3,9 @@ require_once __DIR__ . '/_init.php';
 exigerDroit('admin', true);
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store');
-if (!suiviSessionsDisponible($pdo)) {
+if (!suiviSessionsDisponible($pdo) || !roleSessionDisponible($pdo)) {
     http_response_code(503);
-    echo json_encode(['erreur' => 'Migration des sessions requise.']);
+    echo json_encode(['erreur' => 'Migration des sessions et de leur supervision requise.']);
     exit;
 }
 $sessions = array_map(fn($session) => [

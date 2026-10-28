@@ -31,7 +31,8 @@ try {
     die("Erreur de connexion : " . $e->getMessage());
 }
 
-$actualiserSession = !in_array(basename($_SERVER['SCRIPT_FILENAME'] ?? ''), ['en_ligne_donnees.php', 'logs_donnees.php'], true);
+$fermetureGlobaleSessions = basename($_SERVER['SCRIPT_FILENAME'] ?? '') === 'en_ligne.php' && ($_SERVER['REQUEST_METHOD'] ?? '') === 'POST' && ($_POST['action'] ?? '') === 'clients_auteurs';
+$actualiserSession = !$fermetureGlobaleSessions && !in_array(basename($_SERVER['SCRIPT_FILENAME'] ?? ''), ['en_ligne_donnees.php', 'logs_donnees.php'], true);
 controlerSessionUtilisateur($pdo, $actualiserSession);
 
 if (isset($_SESSION['user_id'])) {

@@ -159,3 +159,19 @@ Propositions de statuts inchangées dans leur prudence : F5 quatre verts sur le 
 ### Activation SQL autorisée
 
 Le 28 octobre 2026, `maj_sessions.sql` puis `maj_regles_recompenses.sql` ont été appliquées avec succès sur `biblioccaz`, chaque import suivi de son contrôle avant le suivant. Les trois tables nouvelles correspondent exactement à la copie testée ; barème initial en version 1, registre sessions et historique des règles vides. Les 33 tables existantes sont préservées en structure, lignes et checksums, encodage contrôlé par le script dédié. La sauvegarde et sa restauration isolée ont été revérifiées avant import. La réserve de migration est levée ; les réserves de recette visuelle et d'interactions réelles demeurent, sans changement automatique des couleurs Google Docs. Les sessions anciennes doivent se reconnecter.
+
+### Tableau de bord des connexions
+
+Synthèse globale, recherche pseudo/nom/email, rôles, multi-session, pagination par utilisateur et détails des sessions sont développés, avec rendu serveur sans dépendance JavaScript. La fermeture globale ne vise que les clients/auteurs valides et préserve les autres rôles, même avec concurrence ; les actions individuelles F6 sont conservées. Motifs de reconnexion différenciés si vérifiables, sinon message générique. Voir [la documentation de supervision](supervision-sessions.md).
+
+Preuves isolées : 66 assertions dédiées, 80 F6 et 53 authentification/récupération réussies. Aucune écriture principale pour ce lot. Migration complémentaire `maj_sessions_supervision.sql` préparée/testée sur base fictive, afin que le rôle d'ouverture soit connu et les sessions aux rôles modifiés immédiatement exclues des indicateurs. Sans cette colonne, le tableau annonce le prérequis ; l'authentification existante reste compatible. Proposition F10 « Supervision des sessions » et « Contrôle des sessions » : orange pendant la livraison, avec migration complémentaire, validation visuelle et commit en attente. Les statuts de compte, présence et participation restent distincts ; aucun seuil de profil participant ajouté.
+
+La migration complémentaire a ensuite été explicitement autorisée et appliquée le 28 octobre 2026 à 15 h 51, après sauvegarde fraîche et restauration vérifiée. Données, nombres et checksums des 36 tables préexistantes préservés, clés/index/contraintes inchangés et encodage contrôlé. Les trois anciennes sessions restent sans rôle historique reconstitué et doivent se reconnecter. Réserve de migration levée ; rendu visuel et livraison Git toujours en attente. Aucun statut Google Docs modifié.
+
+### Validation finale des deux lots
+
+Le propriétaire confirme manuellement le comportement ISBN par préfixe et l'ouverture de la fiche correspondante. Aucun nouveau développement ISBN : 58 assertions catalogue/suggestions/Fetch/inventaire et 9 JavaScript confirment sa conservation et les recherches textuelles.
+
+Libellés de fin de session harmonisés et ancien déclenchement par `?session=expiree` supprimé. Cause issue uniquement du serveur, à usage unique ; 42 assertions HTTP de messages site/admin réussies, puis 66 supervision, 80 F6, 53 authentification et 69 récompenses. Total des bancs de cette reprise : 377 assertions, avec recouvrements fonctionnels possibles. Les nouvelles interfaces n'ont pas été observées en navigateur, toujours indisponible. Les réserves visuelles demeurent et aucune couleur Google Docs n'est modifiée.
+
+Aucun fichier de messagerie parmi les modifications locales à cette reprise ; ce chantier n'a pas été repris. Deux lots Git distincts restent préparés, sans indexation, commit ni publication. Les comptes rendus privés assurent le relais avant toute intervention de l'autre environnement de développement.

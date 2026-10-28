@@ -6,7 +6,8 @@ if (estEquipe()) {
 }
 
 $erreur = '';
-if (($_GET['session'] ?? '') === 'expiree') { $erreur = 'Votre connexion a expiré ou a été fermée. Merci de vous reconnecter.'; }
+$finSession = messageFinSession();
+if ($finSession !== '') { $erreur = $finSession; }
 if (($_GET['connexion'] ?? '') === 'indisponible') { $erreur = 'Connexion temporairement indisponible. Merci de réessayer.'; }
 $identifiant = '';
 
