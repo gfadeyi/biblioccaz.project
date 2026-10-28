@@ -24,6 +24,10 @@ require_once __DIR__ . '/messagerie_lib.php';
 $photoMembre = $connected ? photoProfilDe($pdo, (int) $_SESSION['user_id']) : null;
 $idsFavoris = $connected ? idsFavoris($pdo, (int) $_SESSION['user_id']) : [];
 $nb_favoris = count($idsFavoris);
+if ($connected) {
+    require_once __DIR__ . '/emprunts_lib.php';
+    verifierEmpruntsSiBesoin($pdo);
+}
 $resumeCompte = ($connected && $userRole === 'client') ? resumeCompte($pdo, (int) $_SESSION['user_id']) : null;
 $nbMessagesNonLus = ($connected && in_array($userRole, ['client', 'auteur'], true)) ? nombreMessagesNonLus($pdo, (int) $_SESSION['user_id']) : 0;
 $libellesRoles = ['admin' => 'Administrateur', 'gestionnaire' => 'Gestionnaire', 'moderateur' => 'Modérateur', 'auteur' => 'Auteur'];
@@ -58,6 +62,7 @@ if ($resumeCompte) {
         ['mes_dons.php', 'carton', 'Mes dons', $resumeCompte['dons']],
         ['mes_annonces.php', 'etiquette', 'Mes annonces', $resumeCompte['annonces'] ?? 0],
         ['mes_transactions.php', 'cabas', 'Mes ventes et achats', $resumeCompte['transactions'] ?? 0],
+        ['mes_emprunts.php', 'livre-ouvert', 'Mes emprunts', $resumeCompte['emprunts'] ?? 0],
         ['mes_evenements.php', 'ticket', 'Mes événements', $resumeCompte['evenements']],
     ];
 } elseif ($connected && $userRole === 'auteur') {
@@ -67,6 +72,7 @@ if ($resumeCompte) {
         ['proposer_ouvrage.php', 'livre-ouvert', 'Proposer un livre', 0],
         ['mes_annonces.php', 'etiquette', 'Mes annonces', 0],
         ['mes_transactions.php', 'cabas', 'Mes ventes et achats', 0],
+        ['mes_emprunts.php', 'pile', 'Mes emprunts', 0],
         ['messages.php', 'bulle', 'Mes messages', $nbMessagesNonLus],
     ];
 } elseif ($connected) {

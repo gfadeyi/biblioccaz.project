@@ -1,15 +1,16 @@
 <?php
 
-function notifierParMail(string $email, string $sujet, string $texte, ?string $lienBouton = null, ?string $libelleBouton = null): void
+function notifierParMail(string $email, string $sujet, string $texte, ?string $lienBouton = null, ?string $libelleBouton = null): bool
 {
     try {
         require_once __DIR__ . '/mailer.php';
         $mail = creerMailer();
         $mail->addAddress($email);
         habillerMail($mail, $sujet, $texte, $lienBouton, $libelleBouton);
-        $mail->send();
+        return $mail->send();
     } catch (\Throwable $e) {
         insertLog('ERREUR', "Mail non envoyé ($sujet) : " . $e->getMessage());
+        return false;
     }
 }
 

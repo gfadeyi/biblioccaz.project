@@ -38,17 +38,18 @@ Les couvertures visibles sur ces captures sont générées pour l'aperçu : les 
 - **Recherche** avec suggestions instantanées
 
 ### Communauté
+- **Emprunts en magasin** : réservation gratuite de trois livres au maximum, retrait sous trois jours ouvrés avec code ou QR, liste d'attente avec attribution automatique, tickets PDF, renouvellements, rappels par mail, suivi des retours et blocages temporaires en cas de retard ; messagerie avec l'équipe, points pour les retours à l'heure et badge « Habitué de la bibliothèque »
 - **Revente entre particuliers** : annonce avec prix libre (de 0,50 € à 150 €), état, jusqu'à 3 photos vérifiées, description et mode de remise (main propre ou envoi) ; un livre absent du catalogue crée une nouvelle fiche ; chaque annonce est **vérifiée par l'équipe avant publication** (validation, refus ou retrait avec motif envoyé par mail) ; page « Mes annonces » pour modifier, retirer, remettre en ligne ou supprimer
 - **Ventes entre lecteurs** : demande d'achat depuis l'annonce (5 en attente au maximum, expiration après 7 jours sans réponse), acceptation ou refus par le vendeur, **file d'attente** quand le livre est réservé, échange organisé dans la messagerie, paiement direct entre membres, **le vendeur indique la vente conclue** (livre vendu, **reçu PDF** pour les deux), puis l'acheteur a 7 jours pour confirmer la réception ou signaler un litige à l'équipe, page « Mes ventes et achats » ; +10 points vendeur (5 ventes par mois) crédités à la confirmation, ou après 7 jours sans signalement, et badge « Seconde main »
 - **Dons de livres** : annonce gratuite avec lieu et date limite de retrait, réservation par un autre lecteur, retrait validé par QR code ou code court
-- **Messagerie liée aux transactions** : une conversation s'ouvre à chaque réservation de don et à chaque demande d'achat (bientôt les emprunts), sans message libre entre membres ni adresse email dévoilée ; bulles, non lus en gras, compteur dans l'entête, mail de notification (au plus un toutes les 15 minutes), anti-spam, conversation fermée en fin de transaction et gardée en lecture seule, signalement d'un message avec motif
+- **Messagerie liée aux transactions** : une conversation s'ouvre à chaque réservation de don ou d'emprunt et à chaque demande d'achat, sans message libre entre membres ni adresse email dévoilée ; bulles, non lus en gras, compteur dans l'entête, mail de notification (au plus un toutes les 15 minutes), anti-spam, conversation fermée en fin de transaction et gardée en lecture seule, signalement d'un message avec motif
 - **Événements** (dédicaces, rencontres, ateliers) : calendrier filtrable, inscription dans la limite des places, liste d'attente automatique ou manuelle, billet avec QR code, contrôle des présences le jour J, export PDF des participants, mails en cas d'annulation
 - **Événements proposés par les auteurs**, validés ou refusés par l'équipe avec un message
 - **Avis** : note, titre et commentaire, un avis par livre, badge « achat vérifié », tri, signalement, modération (un avis masqué reste archivé), page « Mes avis »
 - **Newsletter** avec ou sans compte
 
 ### Programme de fidélité
-- **Points** : 1 point par euro payé, points pour les avis validés, les dons récupérés, les présences aux événements, les ventes entre lecteurs, le premier achat et les badges
+- **Points** : 1 point par euro payé, points pour les avis validés, les dons récupérés, les présences aux événements, les ventes entre lecteurs, les emprunts rendus à l'heure (+5 points, cinq récompenses par mois), le premier achat et les badges
 - **Bons de réduction** de 5 € à 38 €, utilisables au paiement selon des règles claires (un par commande, plafond de 50 % des livres)
 - **Six niveaux de lecteur** avec avantages (livraison offerte plus tôt, priorité sur les listes d'attente, bon d'anniversaire) et **badges** bronze, argent, or et rares
 - Page « Mes points et badges » avec la progression et l'historique de chaque mouvement
@@ -122,7 +123,7 @@ Lancer [Mailpit](https://github.com/axllent/mailpit) : les mails du site (confir
 - Site : http://localhost/projet_web/biblioccaz/
 - Back-office : http://localhost/projet_web/biblioccaz/admin/
 
-Le compte administrateur créé par `sql/biblioccaz.sql` est `admin` / `admin123` : à changer dès la première connexion.
+Le script d'installation crée un compte administrateur initial. Remplace son mot de passe dès la première connexion et conserve les identifiants dans ta configuration privée.
 
 Si le projet est installé dans un autre dossier que `/projet_web/biblioccaz/`, adapter le chemin de la page 404 dans `.htaccess` et `SITE_URL` dans `secrets.php`.
 
@@ -131,6 +132,8 @@ Chaque évolution de structure a sa migration `sql/maj_<sujet>.sql`, rejouable s
 ```bash
 /c/xampp/mysql/bin/mysql.exe -u root --default-character-set=utf8mb4 biblioccaz < sql/maj_candidatures.sql
 ```
+
+Pour les emprunts, sauvegarder la base avant toute mise à jour. Si les tables F5 n'existent pas, appliquer `sql/maj_emprunts.sql`, puis `sql/maj_emprunts_securite.sql`. Si F5 est déjà installé mais que `emprunt.blocage_retard` manque, seule `sql/maj_emprunts_securite.sql` est nécessaire : elle conserve le réglage de pénalité de chaque emprunt existant à partir de son exemplaire. Les prochaines réservations prennent leur propre instantané. L'installation complète contient déjà cette structure.
 
 ## Organisation du code
 
@@ -145,5 +148,5 @@ Code partagé : `config.php` (connexion, session), `mailer.php` (mails), bibliot
 
 Droits dans le back-office (`admin/_init.php`) :
 - **Modérateur** : tableau de bord, fiches à valider, annonces, avis, messages, dons
-- **Gestionnaire** : en plus, livres, stock, commandes et événements
+- **Gestionnaire** : en plus, livres, stock, commandes, événements et emprunts (mise à disposition, retrait, retour et levée motivée des blocages)
 - **Administrateur** : tout, dont membres, candidatures, catégories, newsletter, journal, captcha et export PDF

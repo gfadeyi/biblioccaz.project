@@ -13,7 +13,7 @@ $idFil = 'fil-' . (int) $conversation['id_conversation'];
         <?php endif; ?>
         <?= $autre ? avatarMembre($autre['pseudo'], $autre['photo'], 'conversation__avatar') : '' ?>
         <div class="conversation__qui">
-            <h2 class="conversation__titre" id="titre-<?= $idFil ?>"><?= $autre ? '@' . htmlspecialchars($autre['pseudo']) : 'Conversation' ?></h2>
+            <h2 class="conversation__titre" id="titre-<?= $idFil ?>"><?= $autre ? '@' . htmlspecialchars($autre['pseudo']) : ($conversation['type_objet'] === 'emprunt' ? 'Équipe BIBLIOccaz' : 'Conversation') ?></h2>
             <p class="conversation__objet">
                 <span class="conversation__type"><?= iconeDessin(TYPES_CONVERSATION[$conversation['type_objet']][1] ?? 'bulle') ?> <?= htmlspecialchars(TYPES_CONVERSATION[$conversation['type_objet']][0] ?? '') ?></span>
                 <?php if ($conversation['objet']['lien'] && !empty($lienVersObjet)): ?>
@@ -36,6 +36,7 @@ $idFil = 'fil-' . (int) $conversation['id_conversation'];
             <?php
             $jour = date('Y-m-d', strtotime($message['date_envoi']));
             $estMoi = (int) $message['id_auteur'] === $idUser;
+            $estEquipe = !$message['est_systeme'] && !isset($conversation['participants'][(int) $message['id_auteur']]);
             ?>
             <?php if ($jour !== $jourPrecedent): ?>
                 <p class="conversation__jour"><span><?= $jour === date('Y-m-d') ? "Aujourd'hui" : ($jour === date('Y-m-d', strtotime('-1 day')) ? 'Hier' : date('d/m/Y', strtotime($jour))) ?></span></p>
@@ -47,7 +48,7 @@ $idFil = 'fil-' . (int) $conversation['id_conversation'];
             <?php else: ?>
                 <div class="message<?= $estMoi ? ' message--moi' : '' ?><?= $message['est_masque'] ? ' message--masque' : '' ?>" id="message-<?= (int) $message['id_message'] ?>">
                     <?php if (!$estMoi): ?>
-                        <?= avatarMembre($message['auteur_pseudo'] ?? '?', $message['auteur_photo'] ?? null, 'message__avatar') ?>
+                        <?= $estEquipe ? avatarMembre('Équipe', null, 'message__avatar') : avatarMembre($message['auteur_pseudo'] ?? '?', $message['auteur_photo'] ?? null, 'message__avatar') ?>
                     <?php endif; ?>
                     <div class="message__corps">
                         <div class="message__bulle">
@@ -59,7 +60,7 @@ $idFil = 'fil-' . (int) $conversation['id_conversation'];
                         </div>
                         <div class="message__pied">
                             <time datetime="<?= date('c', strtotime($message['date_envoi'])) ?>"><?= date('H:i', strtotime($message['date_envoi'])) ?></time>
-                            <?php if (!$estMoi && !$message['est_masque'] && $message['id_auteur']): ?>
+                            <?php if (!$estMoi && !$estEquipe && !$message['est_masque'] && $message['id_auteur']): ?>
                                 <details class="message__signaler">
                                     <summary>Signaler</summary>
                                     <form action="message_action.php" method="POST" class="signalement-message">
@@ -100,9 +101,9 @@ $idFil = 'fil-' . (int) $conversation['id_conversation'];
             <input type="hidden" name="action" value="envoyer">
             <input type="hidden" name="id_conversation" value="<?= (int) $conversation['id_conversation'] ?>">
             <input type="hidden" name="retour" value="<?= htmlspecialchars($retourConversation) ?>">
-            <label for="saisie-<?= $idFil ?>" class="visually-hidden">Votre message à @<?= htmlspecialchars($autre['pseudo'] ?? '') ?></label>
+            <label for="saisie-<?= $idFil ?>" class="visually-hidden">Votre message à <?= $autre ? '@' . htmlspecialchars($autre['pseudo']) : "l'équipe" ?></label>
             <textarea id="saisie-<?= $idFil ?>" name="contenu" rows="2" maxlength="<?= MESSAGE_LONGUEUR_MAX ?>" required
-                      placeholder="Écrivez à @<?= htmlspecialchars($autre['pseudo'] ?? '') ?>…" data-compteur="compteur-<?= $idFil ?>"></textarea>
+                      placeholder="Écrivez à <?= $autre ? '@' . htmlspecialchars($autre['pseudo']) : "l'équipe BIBLIOccaz" ?>…" data-compteur="compteur-<?= $idFil ?>"></textarea>
             <div class="conversation__envoi">
                 <span class="conversation__compteur" id="compteur-<?= $idFil ?>" aria-live="polite"></span>
                 <button class="bouton bouton-principal bouton-petit"><i class="bi bi-send" aria-hidden="true"></i> Envoyer</button>

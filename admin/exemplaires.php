@@ -41,19 +41,51 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             . ($prevenus ? " $prevenus client" . ($prevenus > 1 ? 's qui attendaient ce livre ont été prévenus' : ' qui attendait ce livre a été prévenu') . " par mail." : ''));
     }
 
+    if (str_starts_with($action, 'emprunt_')) {
+        require_once __DIR__ . '/../emprunts_lib.php';
+        $duree = (int) ($_POST['duree'] ?? DUREE_EMPRUNT_DEFAUT);
+        $renouvellements = (int) ($_POST['renouvellements'] ?? RENOUVELLEMENTS_DEFAUT);
+        $blocage = !empty($_POST['blocage_retard']);
+        try {
+            if ($action === 'emprunt_ajouter') {
+                $source = (string) ($_POST['source'] ?? '');
+                $idOffreVente = ctype_digit($source) ? (int) $source : null;
+                $etat = $_POST['etat_emprunt'] ?? '';
+                if (!$idOffreVente && !isset(ETATS_EXEMPLAIRE[$etat])) {
+                    rediriger("$retour#emprunt", 'danger', "Choisissez l'état du nouvel exemplaire.");
+                }
+                [$type, $message] = mettreEnEmprunt($pdo, $idLivre, (string) $etat, $idOffreVente, $duree, $renouvellements, $blocage, (int) $_SESSION['user_id']);
+            } elseif ($action === 'emprunt_reglages') {
+                [$type, $message] = modifierReglagesEmprunt($pdo, $idEx, $duree, $renouvellements, $blocage);
+            } elseif ($action === 'emprunt_retirer' || $action === 'emprunt_remettre') {
+                [$type, $message] = changerDisponibiliteEmprunt($pdo, $idEx, $action === 'emprunt_remettre');
+            } elseif ($action === 'emprunt_supprimer') {
+                [$type, $message] = supprimerExemplaireEmprunt($pdo, $idEx);
+            } else {
+                [$type, $message] = ['danger', "Action inconnue."];
+            }
+        } catch (PDOException $e) {
+            [$type, $message] = ['danger', "L'emprunt n'est pas encore installé : importez sql/maj_emprunts.sql."];
+        }
+        if ($type === 'success') {
+            insertLog('STOCK', "Emprunt ($action) pour le livre #$idLivre : $message");
+        }
+        rediriger("$retour#emprunt", $type, $message);
+    }
+
     if ($action === 'plus') {
-        $pdo->prepare("UPDATE exemplaire SET quantite = quantite + 1 WHERE id_exemplaire = ? AND id_livre = ? AND id_proprietaire IS NULL")->execute([$idEx, $idLivre]);
+        $pdo->prepare("UPDATE exemplaire SET quantite = quantite + 1 WHERE id_exemplaire = ? AND id_livre = ? AND id_proprietaire IS NULL AND type_offre = 'vente'")->execute([$idEx, $idLivre]);
         insertLog('STOCK', "Stock +1 pour l'exemplaire #$idEx");
         notifierRetourEnStock($pdo, $idLivre);
     } elseif ($action === 'moins') {
-        $pdo->prepare("UPDATE exemplaire SET quantite = quantite - 1 WHERE id_exemplaire = ? AND id_livre = ? AND quantite > 0 AND id_proprietaire IS NULL")->execute([$idEx, $idLivre]);
+        $pdo->prepare("UPDATE exemplaire SET quantite = quantite - 1 WHERE id_exemplaire = ? AND id_livre = ? AND quantite > 0 AND id_proprietaire IS NULL AND type_offre = 'vente'")->execute([$idEx, $idLivre]);
         insertLog('STOCK', "Stock -1 pour l'exemplaire #$idEx");
     } elseif ($action === 'vider') {
-        $pdo->prepare("UPDATE exemplaire SET quantite = 0 WHERE id_exemplaire = ? AND id_livre = ? AND id_proprietaire IS NULL")->execute([$idEx, $idLivre]);
+        $pdo->prepare("UPDATE exemplaire SET quantite = 0 WHERE id_exemplaire = ? AND id_livre = ? AND id_proprietaire IS NULL AND type_offre = 'vente'")->execute([$idEx, $idLivre]);
         insertLog('STOCK', "Offre exemplaire #$idEx retirée de la vente (stock à 0)");
         rediriger($retour, 'success', "Offre retirée de la vente : elle reste dans l'historique avec un stock de 0.");
     } elseif ($action === 'supprimer') {
-        $stmt = $pdo->prepare("DELETE FROM exemplaire WHERE id_exemplaire = ? AND id_livre = ? AND quantite = 0 AND id_proprietaire IS NULL AND NOT EXISTS (SELECT 1 FROM commande_ligne cl WHERE cl.id_exemplaire = exemplaire.id_exemplaire)");
+        $stmt = $pdo->prepare("DELETE FROM exemplaire WHERE id_exemplaire = ? AND id_livre = ? AND quantite = 0 AND id_proprietaire IS NULL AND type_offre = 'vente' AND NOT EXISTS (SELECT 1 FROM commande_ligne cl WHERE cl.id_exemplaire = exemplaire.id_exemplaire)");
         $stmt->execute([$idEx, $idLivre]);
         if ($stmt->rowCount() === 0) {
             rediriger($retour, 'warning', "Cette offre a déjà été vendue : elle est conservée pour l'historique des commandes.");
@@ -77,6 +109,22 @@ $toutesOffres = $stmt->fetchAll();
 $exemplaires = array_values(array_filter($toutesOffres, fn($offre) => (int) $offre['quantite'] > 0));
 $offresEpuisees = array_values(array_filter($toutesOffres, fn($offre) => (int) $offre['quantite'] <= 0));
 $total = array_sum(array_column($exemplaires, 'quantite'));
+$exemplairesEmprunt = null;
+try {
+    require_once __DIR__ . '/../emprunts_lib.php';
+    $stmt = $pdo->prepare("
+        SELECT e.*, (SELECT COUNT(*) FROM emprunt em WHERE em.id_exemplaire = e.id_exemplaire AND em.statut IN ('en_cours', 'rendu')) AS nb_prets,
+               ea.id_emprunt AS id_emprunt_actif, ea.date_retour_prevue AS retour_prevu, u.pseudo AS emprunteur,
+               (ea.statut = 'en_cours' AND ea.date_retour_prevue < CURDATE()) AS en_retard
+        FROM exemplaire e
+        LEFT JOIN emprunt ea ON ea.id_exemplaire = e.id_exemplaire AND ea.statut IN ('reserve', 'en_cours')
+        LEFT JOIN `user` u ON u.id = ea.id_user
+        WHERE e.id_livre = ? AND " . conditionExemplaireEmprunt() . "
+        ORDER BY e.is_disponible DESC, e.id_exemplaire");
+    $stmt->execute([$idLivre]);
+    $exemplairesEmprunt = $stmt->fetchAll();
+} catch (PDOException $e) {
+}
 
 $titrePage = 'Stock : ' . $livre['titre'];
 $pageActive = 'inventaire';
@@ -207,6 +255,129 @@ include __DIR__ . '/_haut.php';
                 </div>
             </div>
         <?php endif; ?>
+
+        <div class="carte mt-4" id="emprunt">
+            <div class="carte-entete">Emprunt (bibliothèque) <span class="text-muted small fw-normal">Exemplaires prêtés gratuitement, hors stock de vente</span></div>
+            <?php if ($exemplairesEmprunt === null): ?>
+                <p class="p-4 mb-0 text-muted small">L'emprunt n'est pas encore installé : importez <code>sql/maj_emprunts.sql</code>.</p>
+            <?php else: ?>
+                <?php if ($exemplairesEmprunt): ?>
+                    <div class="table-responsive">
+                        <table class="table align-middle mb-0">
+                            <thead class="table-light small text-uppercase"><tr><th>Exemplaire</th><th>Statut</th><th>Réglages</th><th class="text-center">Prêts</th><th class="text-end">Action</th></tr></thead>
+                            <tbody>
+                                <?php foreach ($exemplairesEmprunt as $ex): ?>
+                                    <?php $retire = !(int) $ex['is_disponible']; ?>
+                                    <tr class="<?= $retire ? 'text-muted' : '' ?>">
+                                        <td>
+                                            <span class="badge bg-light text-dark border"><?= e(ETATS_EXEMPLAIRE[$ex['etat']] ?? ucfirst($ex['etat'])) ?></span>
+                                            <div class="small text-muted">n° <?= (int) $ex['id_exemplaire'] ?></div>
+                                        </td>
+                                        <td class="small">
+                                            <?php if ($retire): ?>
+                                                <span class="badge bg-light text-secondary border">Retiré de l'emprunt</span>
+                                            <?php elseif ($ex['statut_pret'] === 'disponible'): ?>
+                                                <span class="badge bg-success-subtle text-success-emphasis">Disponible</span>
+                                            <?php else: ?>
+                                                <span class="badge <?= $ex['en_retard'] ? 'bg-danger-subtle text-danger-emphasis' : 'bg-light text-dark border' ?>"><?= e(STATUTS_PRET[$ex['statut_pret']] ?? $ex['statut_pret']) ?><?= $ex['en_retard'] ? ', en retard' : '' ?></span>
+                                                <?php if ($ex['id_emprunt_actif']): ?>
+                                                    <div><a href="emprunts.php?id=<?= (int) $ex['id_emprunt_actif'] ?>">@<?= e($ex['emprunteur']) ?></a><?= $ex['retour_prevu'] ? ' · retour le ' . date('d/m/Y', strtotime($ex['retour_prevu'])) : '' ?></div>
+                                                <?php endif; ?>
+                                            <?php endif; ?>
+                                        </td>
+                                        <td>
+                                            <form method="POST" class="d-flex flex-wrap align-items-center gap-1 small">
+                                                <?= champCsrf() ?>
+                                                <input type="hidden" name="action" value="emprunt_reglages">
+                                                <input type="hidden" name="id_exemplaire" value="<?= (int) $ex['id_exemplaire'] ?>">
+                                                <label class="visually-hidden" for="duree-<?= (int) $ex['id_exemplaire'] ?>">Durée en jours</label>
+                                                <input type="number" id="duree-<?= (int) $ex['id_exemplaire'] ?>" name="duree" value="<?= (int) $ex['duree_emprunt_jours'] ?>" min="7" max="90" class="form-control form-control-sm" style="width: 4.5rem;"> j
+                                                <label class="visually-hidden" for="renouv-<?= (int) $ex['id_exemplaire'] ?>">Renouvellements</label>
+                                                <input type="number" id="renouv-<?= (int) $ex['id_exemplaire'] ?>" name="renouvellements" value="<?= (int) $ex['renouvellements_max'] ?>" min="0" max="5" class="form-control form-control-sm" style="width: 3.8rem;"> renouv.
+                                                <span class="form-check form-check-inline m-0 ms-1">
+                                                    <input type="checkbox" class="form-check-input" id="blocage-<?= (int) $ex['id_exemplaire'] ?>" name="blocage_retard" value="1" <?= (int) $ex['blocage_retard'] ? 'checked' : '' ?>>
+                                                    <label class="form-check-label" for="blocage-<?= (int) $ex['id_exemplaire'] ?>">blocage si retard</label>
+                                                </span>
+                                                <button class="btn btn-sm btn-outline-success" title="Enregistrer les réglages"><i class="bi bi-check2" aria-hidden="true"></i><span class="visually-hidden">Enregistrer les réglages</span></button>
+                                            </form>
+                                        </td>
+                                        <td class="text-center text-muted"><?= (int) $ex['nb_prets'] ?></td>
+                                        <td class="text-end">
+                                            <?php if ($retire): ?>
+                                                <div class="d-inline-flex gap-1">
+                                                    <form method="POST">
+                                                        <?= champCsrf() ?>
+                                                        <input type="hidden" name="action" value="emprunt_remettre">
+                                                        <input type="hidden" name="id_exemplaire" value="<?= (int) $ex['id_exemplaire'] ?>">
+                                                        <button class="btn btn-sm btn-outline-success" title="Remettre en emprunt"><i class="bi bi-arrow-counterclockwise" aria-hidden="true"></i><span class="visually-hidden">Remettre en emprunt</span></button>
+                                                    </form>
+                                                    <?php if ((int) $ex['nb_prets'] === 0): ?>
+                                                        <form method="POST" data-confirmer="Supprimer cet exemplaire d'emprunt jamais prêté ?" data-bouton-confirmer="Supprimer">
+                                                            <?= champCsrf() ?>
+                                                            <input type="hidden" name="action" value="emprunt_supprimer">
+                                                            <input type="hidden" name="id_exemplaire" value="<?= (int) $ex['id_exemplaire'] ?>">
+                                                            <button class="btn btn-sm btn-outline-danger" title="Supprimer"><i class="bi bi-trash" aria-hidden="true"></i><span class="visually-hidden">Supprimer</span></button>
+                                                        </form>
+                                                    <?php endif; ?>
+                                                </div>
+                                            <?php elseif ($ex['statut_pret'] === 'disponible'): ?>
+                                                <form method="POST" data-confirmer="Retirer cet exemplaire de l'emprunt ? Il ne sera plus proposé aux lecteurs, l'historique est conservé." data-bouton-confirmer="Retirer">
+                                                    <?= champCsrf() ?>
+                                                    <input type="hidden" name="action" value="emprunt_retirer">
+                                                    <input type="hidden" name="id_exemplaire" value="<?= (int) $ex['id_exemplaire'] ?>">
+                                                    <button class="btn btn-sm btn-outline-danger" title="Retirer de l'emprunt"><i class="bi bi-box-arrow-down" aria-hidden="true"></i><span class="visually-hidden">Retirer de l'emprunt</span></button>
+                                                </form>
+                                            <?php else: ?>
+                                                <span class="small text-muted" title="Attendez le retour pour le retirer"><i class="bi bi-lock" aria-hidden="true"></i><span class="visually-hidden">Prêté : attendez le retour</span></span>
+                                            <?php endif; ?>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                <?php endif; ?>
+                <form method="POST" class="carte-corps border-top">
+                    <?= champCsrf() ?>
+                    <input type="hidden" name="action" value="emprunt_ajouter">
+                    <h2 class="h6 fw-bold text-success">Mettre un exemplaire en emprunt</h2>
+                    <div class="row g-2 align-items-end">
+                        <div class="col-md-5">
+                            <label class="form-label small fw-bold" for="source">Exemplaire</label>
+                            <select id="source" name="source" class="form-select form-select-sm">
+                                <?php foreach ($exemplaires as $ex): ?>
+                                    <option value="<?= (int) $ex['id_exemplaire'] ?>">Prendre 1 ex. du stock : <?= e(ETATS_EXEMPLAIRE[$ex['etat']] ?? $ex['etat']) ?>, <?= formaterPrix($ex['prix']) ?> (<?= (int) $ex['quantite'] ?> en stock)</option>
+                                <?php endforeach; ?>
+                                <option value="nouveau" <?= $exemplaires ? '' : 'selected' ?>>Nouvel exemplaire réservé à l'emprunt</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small fw-bold" for="etat_emprunt">État (nouvel ex.)</label>
+                            <select id="etat_emprunt" name="etat_emprunt" class="form-select form-select-sm">
+                                <?php foreach (ETATS_EXEMPLAIRE as $cle => $libelle): ?>
+                                    <option value="<?= $cle ?>" <?= $cle === 'bon' ? 'selected' : '' ?>><?= $libelle ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div class="col-6 col-md-2">
+                            <label class="form-label small fw-bold" for="duree">Durée (jours)</label>
+                            <input type="number" id="duree" name="duree" value="<?= DUREE_EMPRUNT_DEFAUT ?>" min="7" max="90" class="form-control form-control-sm">
+                        </div>
+                        <div class="col-6 col-md-2">
+                            <label class="form-label small fw-bold" for="renouvellements">Renouvellements</label>
+                            <input type="number" id="renouvellements" name="renouvellements" value="<?= RENOUVELLEMENTS_DEFAUT ?>" min="0" max="5" class="form-control form-control-sm">
+                        </div>
+                    </div>
+                    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mt-3">
+                        <div class="form-check small m-0">
+                            <input type="checkbox" class="form-check-input" id="blocage_retard" name="blocage_retard" value="1" checked>
+                            <label class="form-check-label" for="blocage_retard">Bloquer les emprunts du lecteur en cas de retard (autant de jours que de retard, <?= BLOCAGE_MAX_JOURS ?> au maximum)</label>
+                        </div>
+                        <button class="btn btn-sm btn-vert fw-bold"><i class="bi bi-book" aria-hidden="true"></i> Mettre en emprunt</button>
+                    </div>
+                </form>
+            <?php endif; ?>
+        </div>
     </div>
 </div>
 

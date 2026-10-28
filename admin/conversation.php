@@ -30,6 +30,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $traiterSignalements = $pdo->prepare("UPDATE message_signalement SET traite = 1, id_traite_par = ?, date_traitement = NOW() WHERE id_message = ? AND traite = 0");
 
     switch ($action) {
+        case 'repondre':
+            [$type, $texte] = envoyerMessageEquipe($pdo, $idConversation, $idModerateur, (string) ($_POST['contenu'] ?? ''));
+            if ($type === 'success') {
+                insertLog('MODERATION', "Réponse de l'équipe dans la conversation #$idConversation");
+            }
+            rediriger("$retour#reponse-equipe", $type, $texte);
+
         case 'masquer':
             if (!$messageVise) { rediriger($retour, 'warning', "Message introuvable."); }
             $pdo->prepare("UPDATE conversation_message SET est_masque = 1, id_masque_par = ?, date_masquage = NOW() WHERE id_message = ?")->execute([$idModerateur, $idMessage]);
@@ -123,7 +130,7 @@ include __DIR__ . '/_haut.php';
                         <?php $signalementsMessage = $signalements[$idMessage] ?? []; $enAttente = array_filter($signalementsMessage, fn($s) => !$s['traite']); ?>
                         <div class="fil-admin__message<?= $enAttente ? ' fil-admin__message--signale' : '' ?><?= $message['est_masque'] ? ' fil-admin__message--masque' : '' ?>" id="message-<?= $idMessage ?>">
                             <div class="d-flex flex-wrap justify-content-between gap-2 small mb-1">
-                                <strong>@<?= e((string) $message['auteur_pseudo']) ?></strong>
+                                <strong>@<?= e((string) $message['auteur_pseudo']) ?><?= isset($conversation['participants'][(int) $message['id_auteur']]) ? '' : ' <span class="badge bg-success-subtle text-success-emphasis">Équipe</span>' ?></strong>
                                 <span class="text-muted"><?= date('d/m/Y H:i', strtotime($message['date_envoi'])) ?><?= $message['est_masque'] ? ' · masqué' : '' ?></span>
                             </div>
                             <div class="fil-admin__texte"><?= nl2br(e($message['contenu'])) ?></div>
@@ -154,6 +161,15 @@ include __DIR__ . '/_haut.php';
                     <?php endif; ?>
                 <?php endforeach; ?>
             </div>
+            <?php if ($conversation['type_objet'] === 'emprunt' && $conversation['statut'] === 'ouverte'): ?>
+                <form method="POST" class="carte-corps border-top" id="reponse-equipe">
+                    <?= champCsrf() ?>
+                    <input type="hidden" name="action" value="repondre">
+                    <label for="reponse" class="form-label small fw-bold">Répondre au lecteur (signé « Équipe BIBLIOccaz »)</label>
+                    <textarea id="reponse" name="contenu" class="form-control form-control-sm mb-2" rows="3" maxlength="<?= MESSAGE_LONGUEUR_MAX ?>" required></textarea>
+                    <button class="btn btn-sm btn-success"><i class="bi bi-send" aria-hidden="true"></i> Envoyer</button>
+                </form>
+            <?php endif; ?>
         </div>
     </div>
 
@@ -178,7 +194,9 @@ include __DIR__ . '/_haut.php';
                     <?php endif; ?>
                 </div>
             <?php endforeach; ?>
-            <?php if ($conversation['type_objet'] === 'vente'): ?>
+            <?php if ($conversation['type_objet'] === 'emprunt'): ?>
+                <a href="emprunts.php?id=<?= (int) $conversation['id_objet'] ?>" class="small"><i class="bi bi-book" aria-hidden="true"></i> Voir l'emprunt (retrait, retour)</a>
+            <?php elseif ($conversation['type_objet'] === 'vente'): ?>
                 <a href="ventes.php?id=<?= (int) $conversation['id_objet'] ?>" class="small"><i class="bi bi-tag" aria-hidden="true"></i> Voir la vente (valider, annuler, litige)</a>
             <?php elseif ($conversation['objet']['lien']): ?>
                 <a href="../<?= e($conversation['objet']['lien']) ?>" target="_blank" rel="noopener" class="small"><i class="bi bi-box-arrow-up-right" aria-hidden="true"></i> Voir sur le site</a>

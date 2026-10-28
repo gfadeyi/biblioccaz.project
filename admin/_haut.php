@@ -18,6 +18,7 @@ $menu = [
     'Ventes' => [
         ['commandes', 'commandes.php', 'bag-check', 'Commandes', 'catalogue', 0],
         ['ventes', 'ventes.php', 'people', 'Entre lecteurs', 'moderation', $compteurs['ventes'] ?? 0],
+        ['emprunts', 'emprunts.php', 'book', 'Emprunts', 'catalogue', $compteurs['emprunts'] ?? 0],
     ],
     'Communauté' => [
         ['avis_a_valider', 'avis_a_valider.php', 'patch-check', 'Avis à valider', 'moderation', $compteurs['avis_a_valider'] ?? 0],

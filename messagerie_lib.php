@@ -121,6 +121,13 @@ function infosObjetConversation(PDO $pdo, string $type, int $idObjet): array
                       'lien' => 'transaction.php?id=' . $idObjet, 'libelle_statut' => ''];
         }
     }
+    if ($type === 'emprunt') {
+        $stmt = $pdo->prepare("SELECT l.titre, l.couverture FROM emprunt em INNER JOIN exemplaire e ON e.id_exemplaire = em.id_exemplaire INNER JOIN livre l ON l.id_livre = e.id_livre WHERE em.id_emprunt = ?");
+        $stmt->execute([$idObjet]);
+        if ($emprunt = $stmt->fetch()) {
+            $infos = ['titre' => $emprunt['titre'], 'image' => urlImage($emprunt['couverture']), 'lien' => 'mes_emprunts.php#emprunt-' . $idObjet, 'libelle_statut' => ''];
+        }
+    }
     return $infos;
 }
 
@@ -243,9 +250,53 @@ function envoyerMessage(PDO $pdo, int $idConversation, int $idAuteur, string $te
     return ['success', "Message envoyé."];
 }
 
-function prevenirParticipants(PDO $pdo, array $conversation, int $idAuteur, string $texte): void
+function envoyerMessageEquipe(PDO $pdo, int $idConversation, int $idEquipe, string $texte): array
 {
-    $pseudoAuteur = $conversation['participants'][$idAuteur]['pseudo'];
+    $texte = trim(preg_replace("/\r\n?/", "\n", $texte));
+    $texte = preg_replace("/\n{3,}/", "\n\n", $texte);
+    if ($texte === '' || mb_strlen($texte) > MESSAGE_LONGUEUR_MAX) {
+        return ['warning', "Le message doit faire entre 1 et " . MESSAGE_LONGUEUR_MAX . " caractères."];
+    }
+    $pdo->beginTransaction();
+    try {
+        $membre = $pdo->prepare("SELECT role, statut FROM `user` WHERE id = ? FOR UPDATE");
+        $membre->execute([$idEquipe]);
+        $equipe = $membre->fetch();
+        if (!$equipe || !in_array($equipe['role'], ['admin', 'gestionnaire', 'moderateur'], true) || in_array($equipe['statut'], ['refuse_temporaire', 'refuse_definitif'], true)) {
+            $pdo->rollBack();
+            return ['danger', "Vous ne pouvez pas répondre au nom de l'équipe."];
+        }
+        $verrou = $pdo->prepare("SELECT type_objet, statut FROM conversation WHERE id_conversation = ? FOR UPDATE");
+        $verrou->execute([$idConversation]);
+        $etat = $verrou->fetch();
+        if (!$etat || $etat['type_objet'] !== 'emprunt' || $etat['statut'] !== 'ouverte') {
+            $pdo->rollBack();
+            return ['warning', "Cette conversation d'emprunt n'est pas ouverte."];
+        }
+        $frequence = $pdo->prepare("SELECT id_message FROM conversation_message WHERE id_auteur = ? AND date_envoi > NOW() - INTERVAL 1 HOUR FOR UPDATE");
+        $frequence->execute([$idEquipe]);
+        if (count($frequence->fetchAll(PDO::FETCH_COLUMN)) >= MESSAGES_PAR_HEURE_MAX) {
+            $pdo->rollBack();
+            return ['warning', "Vous avez envoyé beaucoup de messages en peu de temps. Patientez avant d'écrire de nouveau."];
+        }
+        $conversation = conversationParId($pdo, $idConversation);
+        $pdo->prepare("INSERT INTO conversation_message (id_conversation, id_auteur, contenu) VALUES (?, ?, ?)")->execute([$idConversation, $idEquipe, $texte]);
+        $pdo->prepare("UPDATE conversation SET date_dernier_message = NOW() WHERE id_conversation = ?")->execute([$idConversation]);
+        $pdo->commit();
+    } catch (Throwable $e) {
+        if ($pdo->inTransaction()) {
+            $pdo->rollBack();
+        }
+        insertLog('ERREUR', "Réponse de l'équipe dans la conversation #$idConversation impossible : " . $e->getMessage());
+        return ['danger', "La réponse n'a pas pu être enregistrée."];
+    }
+    prevenirParticipants($pdo, $conversation, $idEquipe, $texte, true);
+    return ['success', "Réponse envoyée au lecteur."];
+}
+
+function prevenirParticipants(PDO $pdo, array $conversation, int $idAuteur, string $texte, bool $equipe = false): void
+{
+    $pseudoAuteur = $equipe ? 'Équipe BIBLIOccaz' : '@' . $conversation['participants'][$idAuteur]['pseudo'];
     $extrait = mb_strlen($texte) > 300 ? mb_substr($texte, 0, 300) . '…' : $texte;
     $reservation = $pdo->prepare("
         UPDATE conversation_participant SET date_dernier_mail = NOW()
@@ -261,8 +312,8 @@ function prevenirParticipants(PDO $pdo, array $conversation, int $idAuteur, stri
             continue;
         }
         $email->execute([$idDestinataire]);
-        notifierParMail((string) $email->fetchColumn(), "Nouveau message de @$pseudoAuteur",
-            "Bonjour {$destinataire['pseudo']},\n\n@$pseudoAuteur vous a écrit à propos de « {$conversation['objet']['titre']} » :\n\n« $extrait »\n\nRépondez directement sur BIBLIOccaz : votre adresse email n'est jamais communiquée.",
+        notifierParMail((string) $email->fetchColumn(), "Nouveau message de $pseudoAuteur",
+            "Bonjour {$destinataire['pseudo']},\n\n$pseudoAuteur vous a écrit à propos de « {$conversation['objet']['titre']} » :\n\n« $extrait »\n\nRépondez directement sur BIBLIOccaz : votre adresse email n'est jamais communiquée.",
             SITE_URL . '/messages.php?id=' . $conversation['id_conversation'], "Répondre");
     }
 }

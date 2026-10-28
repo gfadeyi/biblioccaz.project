@@ -25,6 +25,7 @@ const BADGES = [
     'coeur_genereux' => ['nom' => 'Cœur généreux', 'icone' => 'seconde-vie', 'paliers' => [1, 5, 20], 'unite' => ['don récupéré', 'dons récupérés']],
     'habitue_rencontres' => ['nom' => 'Habitué des rencontres', 'icone' => 'ticket', 'paliers' => [1, 5, 15], 'unite' => ['présence validée', 'présences validées']],
     'seconde_main' => ['nom' => 'Seconde main', 'icone' => 'etiquette', 'paliers' => [1, 5, 15], 'unite' => ['vente conclue', 'ventes conclues']],
+    'habitue_bibliotheque' => ['nom' => 'Habitué de la bibliothèque', 'icone' => 'livre-ouvert', 'paliers' => [1, 10, 30], 'unite' => ['emprunt rendu à l\'heure', 'emprunts rendus à l\'heure']],
     'un_an' => ['nom' => 'Un an parmi nous', 'icone' => 'tampon', 'paliers' => [5], 'unite' => ['commande', 'commandes'], 'rare' => 'Plus d\'un an d\'inscription et au moins 5 commandes'],
     'explorateur' => ['nom' => 'Explorateur', 'icone' => 'loupe', 'paliers' => [6], 'unite' => ['univers exploré', 'univers explorés'], 'rare' => 'Un livre acheté dans chacun des 6 univers'],
     'collectionneur' => ['nom' => 'Collectionneur', 'icone' => 'marque-page', 'paliers' => [25], 'unite' => ['livre du même univers', 'livres du même univers'], 'rare' => '25 livres achetés dans un même univers'],
@@ -44,6 +45,7 @@ const TYPES_MOUVEMENT = [
     'don' => 'Don',
     'presence' => 'Événement',
     'vente' => 'Vente entre lecteurs',
+    'emprunt' => 'Emprunt rendu à l\'heure',
     'badge' => 'Badge',
     'ajustement' => 'Ajustement',
     'depense' => 'Bon de réduction',
@@ -190,6 +192,14 @@ function mesuresBadges(PDO $pdo, int $idUser): array
         $valeurs['seconde_main'] = (int) $stmt->fetchColumn();
     } catch (PDOException $e) {
         $valeurs['seconde_main'] = 0;
+    }
+
+    try {
+        $stmt = $pdo->prepare("SELECT COUNT(*) FROM emprunt WHERE id_user = ? AND statut = 'rendu' AND jours_retard = 0");
+        $stmt->execute([$idUser]);
+        $valeurs['habitue_bibliotheque'] = (int) $stmt->fetchColumn();
+    } catch (PDOException $e) {
+        $valeurs['habitue_bibliotheque'] = 0;
     }
 
     $valeurs['un_an'] = $valeurs['anciennete'] >= 365 ? $valeurs['commandes'] : min($valeurs['commandes'], 4);

@@ -97,7 +97,7 @@ include 'header.php';
                                         <time datetime="<?= date('c', strtotime($c['date_dernier_message'] ?? $c['date_creation'])) ?>"><?= dateMessage($c['date_dernier_message'] ?? $c['date_creation']) ?></time>
                                     </span>
                                     <span class="ligne-conversation__qui">
-                                        <?= htmlspecialchars(TYPES_CONVERSATION[$c['type_objet']][0] ?? '') ?> · @<?= htmlspecialchars((string) $c['autre_pseudo']) ?>
+                                        <?= htmlspecialchars(TYPES_CONVERSATION[$c['type_objet']][0] ?? '') ?> · <?= $c['autre_pseudo'] !== null ? '@' . htmlspecialchars((string) $c['autre_pseudo']) : 'Équipe BIBLIOccaz' ?>
                                         <?php if ($c['statut'] !== 'ouverte'): ?> · <?= htmlspecialchars(STATUTS_CONVERSATION[$c['statut']][0] ?? '') ?><?php endif; ?>
                                     </span>
                                     <span class="ligne-conversation__apercu"><?= htmlspecialchars(mb_strimwidth(str_replace("\n", ' ', $apercu), 0, 90, '…')) ?></span>

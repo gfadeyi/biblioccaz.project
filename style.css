@@ -1822,3 +1822,78 @@ h1, h2, h3, .titre { font-family: var(--police-titre); font-weight: 700; letter-
     .ligne-transaction__visuel { width: 48px; height: 66px; }
     .ligne-transaction__prix { grid-column: 2; font-size: 1.1rem; }
 }
+
+.bloc-emprunt { border: 1px solid var(--vert-100); border-radius: var(--rayon); padding: 1rem; background: var(--surface); scroll-margin-top: 120px; }
+.bloc-emprunt__titre { display: flex; align-items: center; gap: .45rem; font-size: 1.05rem; color: var(--titre); margin-bottom: .35rem; }
+.bloc-emprunt__titre .icone-dessin { color: var(--texte-vif); }
+.bloc-emprunt__conditions { font-size: .86rem; color: var(--encre-douce); margin-bottom: .6rem; }
+.bloc-emprunt__dispo { margin-bottom: .75rem; }
+.bloc-emprunt__info, .bloc-emprunt__refus { font-size: .9rem; margin-bottom: .6rem; }
+.bloc-emprunt__info { color: var(--texte-vert); }
+.bloc-emprunt__refus { color: var(--encre-douce); }
+.bloc-emprunt__aide { font-size: .8rem; color: var(--encre-douce); margin: .45rem 0 0; text-align: center; }
+.ligne-offre--emprunt .ligne-offre__type { color: var(--texte-vif); }
+
+.resume-emprunts { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .75rem 1.5rem; margin-bottom: 1.75rem; padding: .9rem 1.25rem;
+    border: 1px solid var(--trait); border-radius: var(--rayon); background: var(--surface); }
+.resume-emprunts__jauge { display: flex; align-items: center; gap: .4rem; color: var(--encre-douce); }
+.resume-emprunts__jauge strong { color: var(--titre); margin-left: .35rem; }
+.resume-emprunts__case { width: 22px; height: 30px; border-radius: 4px 6px 6px 4px; border: 2px solid var(--vert-300); background: transparent; transition: background var(--transition); }
+.resume-emprunts__case.pleine { background: var(--vert-400); border-color: var(--vert-400); }
+.resume-emprunts__regles { margin: 0; font-size: .9rem; color: var(--encre-douce); }
+.resume-emprunts__alerte { margin: 0; color: var(--danger); font-weight: 600; }
+.resume-emprunts__alerte .small { font-weight: 400; color: var(--encre-douce); }
+
+.section-emprunts { margin-bottom: 2rem; }
+.section-emprunts__titre { display: flex; align-items: center; gap: .5rem; font-size: 1.2rem; color: var(--titre); margin-bottom: .9rem; }
+.section-emprunts__titre .icone-dessin { color: var(--texte-vif); }
+
+.carte-emprunt { display: grid; grid-template-columns: 76px minmax(0, 1fr) auto; gap: 1.1rem; align-items: start; margin-bottom: .9rem; scroll-margin-top: 120px; }
+.carte-emprunt--reserve { border-color: var(--vert-200); }
+.carte-emprunt--retard { border-color: var(--danger-trait); }
+.carte-emprunt__couverture { width: 76px; height: 108px; object-fit: contain; background: var(--papier); border-radius: 6px; }
+.carte-emprunt__titre { font-size: 1.05rem; margin-bottom: .1rem; }
+.carte-emprunt__titre a { color: var(--titre); text-decoration: none; }
+.carte-emprunt__titre a:hover { color: var(--texte-vif); text-decoration: underline; }
+.carte-emprunt__auteur { font-size: .88rem; color: var(--encre-douce); margin-bottom: .45rem; }
+.carte-emprunt__pastilles { display: flex; flex-wrap: wrap; gap: .35rem; margin-bottom: .45rem; }
+.carte-emprunt__date { font-size: .9rem; margin-bottom: .6rem; }
+.carte-emprunt__alerte { font-size: .88rem; color: var(--danger); margin-bottom: .6rem; }
+.carte-emprunt__aide { font-size: .82rem; color: var(--encre-douce); margin: .5rem 0 0; }
+.carte-emprunt__actions { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; }
+.carte-emprunt__actions form { margin: 0; }
+.carte-emprunt__code { display: flex; flex-direction: column; align-items: center; gap: .15rem; padding: .6rem .8rem; border: 2px dashed var(--vert-300); border-radius: var(--rayon); min-width: 132px; }
+.qr-emprunt { width: 104px; height: 104px; background: #fff; border-radius: 6px; padding: 4px; }
+.qr-emprunt svg { width: 100%; height: 100%; display: block; }
+.carte-emprunt__code-libelle { font-size: .75rem; color: var(--encre-douce); text-transform: uppercase; letter-spacing: .06em; margin-top: .3rem; }
+.carte-emprunt__code-valeur { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 1.35rem; font-weight: 700; letter-spacing: .18em; color: var(--texte-vert); }
+.carte-emprunt__echeance { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; min-width: 104px; padding: .6rem; font-size: .8rem;
+    color: var(--encre-douce); border: 1px solid var(--vert-100); border-radius: var(--rayon); line-height: 1.2; }
+.carte-emprunt__jours { font-family: var(--police-titre); font-size: 2rem; font-weight: 700; color: var(--texte-vert); line-height: 1; margin-bottom: .2rem; }
+.carte-emprunt__echeance.retard { border-color: var(--danger-trait); color: var(--danger); }
+.carte-emprunt__echeance.retard .carte-emprunt__jours { color: var(--danger); }
+
+.liste-attentes { list-style: none; padding: 0; margin: 0; display: grid; gap: .6rem; }
+.ligne-attente { display: grid; grid-template-columns: 44px minmax(0, 1fr) auto; gap: .9rem; align-items: center; padding: .75rem 1rem; }
+.ligne-attente__couverture { width: 44px; height: 62px; object-fit: contain; background: var(--papier); border-radius: 4px; }
+.ligne-attente__texte { display: flex; flex-direction: column; min-width: 0; }
+.ligne-attente__titre { font-weight: 700; color: var(--titre); text-decoration: none; }
+.ligne-attente__titre:hover { color: var(--texte-vif); text-decoration: underline; }
+.ligne-attente__detail { font-size: .85rem; color: var(--encre-douce); }
+.ligne-attente form { margin: 0; }
+
+.table-historique-emprunts { --bs-table-bg: transparent; color: var(--encre); }
+.table-historique-emprunts th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: var(--encre-douce); font-weight: 600; padding: .75rem 1rem; }
+.table-historique-emprunts td { padding: .7rem 1rem; border-color: var(--trait); }
+.table-historique-emprunts a { color: var(--texte-vert); }
+
+@media (max-width: 767.98px) {
+    .carte-emprunt { grid-template-columns: 60px minmax(0, 1fr); gap: .85rem; }
+    .carte-emprunt__couverture { width: 60px; height: 86px; }
+    .carte-emprunt__code, .carte-emprunt__echeance { grid-column: 1 / -1; flex-direction: row; justify-content: center; gap: .75rem; min-width: 0; }
+    .carte-emprunt__code { flex-wrap: wrap; }
+    .carte-emprunt__code-libelle { margin-top: 0; }
+    .carte-emprunt__jours { margin-bottom: 0; font-size: 1.6rem; }
+    .resume-emprunts { padding: .8rem 1rem; }
+    .table-historique-emprunts th, .table-historique-emprunts td { padding: .6rem .7rem; }
+}

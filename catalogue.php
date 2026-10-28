@@ -62,7 +62,7 @@ if (isset($etatsPossibles[$f['etat']])) {
     $params['etat'] = $f['etat'];
 }
 $originesOffre = isset(ORIGINES_OFFRE[$f['offre']]) ? [$f['offre']] : [];
-$prixLivre = "COALESCE(MIN(CASE WHEN e.origine <> 'don' THEN e.prix END), 0)";
+$prixLivre = "COALESCE(MIN(CASE WHEN e.origine IN ('magasin', 'particulier') THEN e.prix END), 0)";
 if ($f['prix_min'] !== '' && is_numeric($f['prix_min'])) {
     $having[] = "$prixLivre >= :prix_min";
     $params['prix_min'] = (float) $f['prix_min'];
@@ -107,7 +107,7 @@ $stmt = $pdo->prepare("
     SELECT l.id_livre, l.titre, l.auteur, l.couverture,
            c.nom AS categorie_nom, c.slug AS categorie_slug,
            $prixLivre AS prix,
-           SUBSTRING_INDEX(GROUP_CONCAT(e.etat ORDER BY e.origine = 'don', e.prix ASC), ',', 1) AS etat,
+           SUBSTRING_INDEX(GROUP_CONCAT(e.etat ORDER BY e.origine IN ('don', 'emprunt'), e.prix ASC), ',', 1) AS etat,
            SUM(CASE WHEN e.origine = 'magasin' THEN e.quantite END) AS stock,
            GROUP_CONCAT(DISTINCT e.origine ORDER BY e.origine) AS origines,
            av.moyenne AS note_moyenne, COALESCE(av.nb, 0) AS nb_avis

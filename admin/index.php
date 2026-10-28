@@ -46,6 +46,10 @@ $indicateurs = [
     'evenements'      => compter($pdo, "SELECT COUNT(*) FROM evenement WHERE statut = 'publie' AND date_fin >= NOW()"),
     'evt_proposes'    => compter($pdo, "SELECT COUNT(*) FROM evenement WHERE statut = 'en_attente'"),
 ];
+if (aLeDroit('catalogue')) {
+    require_once __DIR__ . '/../emprunts_lib.php';
+    verifierEmprunts($pdo);
+}
 $compteurs = compteursEquipe($pdo);
 $aModerer = $compteurs['livres'] + $compteurs['avis'] + $compteurs['annonces'] + ($compteurs['messages'] ?? 0) + ($compteurs['ventes'] ?? 0);
 
@@ -162,6 +166,9 @@ if (aLeDroit('catalogue')) {
     $detailAlertes = $livresEnAttenteAlerte
         ? implode(', ', array_map(fn($l) => '« ' . mb_strimwidth($l['titre'], 0, 22, '…') . ' » (' . $l['nb_alertes'] . ')', $livresEnAttenteAlerte))
         : 'Aucun client en attente';
+    $aTraiter[] = ['bookmark-check', "Réservations d'emprunt à préparer", 'À sortir du rayon pour le retrait en magasin', $compteurs['emprunts_a_preparer'] ?? 0, 'emprunts.php?onglet=a_preparer'];
+    $aTraiter[] = ['alarm', 'Emprunts en retard', 'Livres à récupérer, relances envoyées automatiquement', $compteurs['emprunts_en_retard'] ?? 0, 'emprunts.php?onglet=en_cours'];
+    $aTraiter[] = ['chat-dots', 'Questions sur les emprunts', "Messages de lecteurs en attente de réponse de l'équipe", $compteurs['emprunts_questions'] ?? 0, 'emprunts.php'];
     $aTraiter[] = ['bell', 'Ruptures avec alertes clients', $detailAlertes, count($livresEnAttenteAlerte), 'inventaire.php?stock=rupture'];
 }
 if (aLeDroit('evenements')) {

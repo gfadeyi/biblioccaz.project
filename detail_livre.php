@@ -83,9 +83,25 @@ try {
 } catch (PDOException $e) {
 }
 
+require_once 'emprunts_lib.php';
+verifierEmpruntsSiBesoin($pdo);
+$etatEmprunt = etatEmpruntLivre($pdo, (int) $livre['id_livre']);
+$peutReserverEmprunt = false;
+if ($etatEmprunt['libres'] > 0 && $idUserConnecte) {
+    try {
+        $peutReserverEmprunt = !empruntActifLivre($pdo, (int) $livre['id_livre'], $idUserConnecte) && raisonInterdictionEmprunt($pdo, $idUserConnecte) === '';
+    } catch (PDOException $e) {
+    }
+}
+foreach ($etatEmprunt['exemplaires'] as $exemplaireEmprunt) {
+    $toutesOffres[] = ['origine' => 'emprunt', 'etat' => $exemplaireEmprunt['etat'], 'prix' => 0.0, 'libre' => $exemplaireEmprunt['statut_pret'] === 'disponible',
+                       'detail' => ($exemplaireEmprunt['statut_pret'] === 'disponible' ? 'Disponible' : ($exemplaireEmprunt['statut_pret'] === 'reserve' ? 'Réservé' : 'Emprunté, retour prévu le ' . date('d/m', strtotime((string) $exemplaireEmprunt['retour_prevu']))))
+                           . ' · ' . (int) $exemplaireEmprunt['duree_emprunt_jours'] . ' jours, retrait en magasin'];
+}
+
 const RANG_ETATS = ['neuf' => 0, 'tres bon' => 1, 'bon' => 2, 'use' => 3];
 const TRIS_OFFRES = ['prix' => 'Prix', 'etat' => 'État', 'type' => 'Type'];
-const RANG_ORIGINES = ['magasin' => 0, 'particulier' => 1, 'don' => 2];
+const RANG_ORIGINES = ['magasin' => 0, 'particulier' => 1, 'don' => 2, 'emprunt' => 3];
 $triOffres = isset(TRIS_OFFRES[$_GET['tri_offres'] ?? '']) ? $_GET['tri_offres'] : 'prix';
 usort($toutesOffres, fn($a, $b) => match ($triOffres) {
     'etat' => [RANG_ETATS[$a['etat']] ?? 9, $a['prix']] <=> [RANG_ETATS[$b['etat']] ?? 9, $b['prix']],
@@ -252,6 +268,11 @@ $peutAcheterEnMagasin = ($_SESSION['role'] ?? '') === 'client';
                     <?php endif; ?>
                 <?php endif; ?>
 
+                <?php if ($etatEmprunt['total'] > 0): ?>
+                    <hr class="my-3">
+                    <?php include 'partie_emprunt_livre.php'; ?>
+                <?php endif; ?>
+
                 <?php
                 $nbDonsLivre = 0;
                 try {
@@ -304,6 +325,8 @@ $peutAcheterEnMagasin = ($_SESSION['role'] ?? '') === 'client';
                         <span class="ligne-offre__type">
                             <?php if ($offreListe['origine'] === 'don'): ?>
                                 <i class="bi bi-gift" aria-hidden="true"></i> Don
+                            <?php elseif ($offreListe['origine'] === 'emprunt'): ?>
+                                <i class="bi bi-book" aria-hidden="true"></i> Emprunt
                             <?php elseif ($offreListe['origine'] === 'particulier'): ?>
                                 <i class="bi bi-people" aria-hidden="true"></i> Particulier
                             <?php else: ?>
@@ -312,10 +335,20 @@ $peutAcheterEnMagasin = ($_SESSION['role'] ?? '') === 'client';
                         </span>
                         <span class="ligne-offre__etat"><?= htmlspecialchars(libelleEtat($offreListe['etat'])) ?></span>
                         <span class="ligne-offre__detail"><?= htmlspecialchars($offreListe['detail']) ?></span>
-                        <span class="ligne-offre__prix"><?= $offreListe['origine'] === 'don' ? 'Gratuit' : formaterPrix($offreListe['prix']) ?></span>
+                        <span class="ligne-offre__prix"><?= $offreListe['origine'] === 'don' ? 'Gratuit' : ($offreListe['origine'] === 'emprunt' ? 'Prêt gratuit' : formaterPrix($offreListe['prix'])) ?></span>
                         <span class="ligne-offre__action">
                             <?php if ($offreListe['origine'] === 'don'): ?>
                                 <a href="don_detail.php?id=<?= $offreListe['id_don'] ?>" class="bouton bouton-contour bouton-petit">Voir le don</a>
+                            <?php elseif ($offreListe['origine'] === 'emprunt' && $offreListe['libre'] && $peutReserverEmprunt): ?>
+                                <form action="emprunt_action.php" method="POST">
+                                    <input type="hidden" name="csrf" value="<?= jetonCsrf() ?>">
+                                    <input type="hidden" name="action" value="reserver">
+                                    <input type="hidden" name="id_livre" value="<?= (int) $id ?>">
+                                    <input type="hidden" name="retour" value="livre">
+                                    <button class="bouton bouton-principal bouton-petit"><i class="bi bi-bookmark-plus" aria-hidden="true"></i> Emprunter</button>
+                                </form>
+                            <?php elseif ($offreListe['origine'] === 'emprunt'): ?>
+                                <a href="#emprunt" class="bouton bouton-contour bouton-petit"><?= $offreListe['libre'] ? 'Emprunter' : "Liste d'attente" ?></a>
                             <?php elseif ($offreListe['origine'] === 'particulier'): ?>
                                 <a href="annonce.php?id=<?= $offreListe['id_annonce'] ?>" class="bouton bouton-contour bouton-petit">Voir l'annonce</a>
                             <?php elseif ($peutAcheterEnMagasin): ?>

@@ -31,7 +31,7 @@ function conditionExemplaireMagasin(string $alias = 'e'): string
     return "$alias.id_proprietaire IS NULL AND $alias.type_offre = 'vente'";
 }
 
-const ORIGINES_OFFRE = ['magasin' => 'En magasin', 'particulier' => 'Entre particuliers', 'don' => 'Don entre lecteurs'];
+const ORIGINES_OFFRE = ['magasin' => 'En magasin', 'particulier' => 'Entre particuliers', 'don' => 'Don entre lecteurs', 'emprunt' => 'Emprunt'];
 const STATUTS_COMPTE_SUSPENDU = ['refuse_temporaire', 'refuse_definitif'];
 
 function conditionAnnoncePubliee(string $alias = 'e'): string
@@ -50,6 +50,8 @@ function sqlOffres(array $origines = []): string
                           FROM exemplaire an WHERE " . conditionAnnoncePubliee('an'),
         'don'     => "SELECT d.id_don AS id_offre, d.id_livre, d.etat, 0 AS prix, 1 AS quantite, 'don' AS origine
                       FROM don d WHERE d.statut = 'disponible' AND d.id_livre IS NOT NULL AND d.date_limite >= CURDATE()",
+        'emprunt' => "SELECT ep.id_exemplaire AS id_offre, ep.id_livre, ep.etat, 0 AS prix, 1 AS quantite, 'emprunt' AS origine
+                      FROM exemplaire ep WHERE ep.id_proprietaire IS NULL AND ep.type_offre = 'emprunt' AND ep.is_disponible = 1",
     ];
     $choisies = array_intersect_key($requetesParOrigine, array_flip($origines ?: array_keys($requetesParOrigine)));
     return '(' . implode(' UNION ALL ', $choisies ?: $requetesParOrigine) . ')';

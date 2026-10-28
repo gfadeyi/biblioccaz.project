@@ -6,7 +6,9 @@ $lienLivre = 'detail_livre.php?id=' . (int) $l['id_livre'];
 $stockLivre = isset($l['stock']) ? (int) $l['stock'] : null;
 $nbOffres = isset($l['nb_offres']) ? (int) $l['nb_offres'] : 0;
 $originesLivre = explode(',', $l['origines'] ?? 'magasin');
-$donSeulement = $originesLivre === ['don'];
+$sansPrix = !array_intersect(['magasin', 'particulier'], $originesLivre);
+$donSeulement = $sansPrix && !in_array('emprunt', $originesLivre, true);
+$empruntSeulement = $sansPrix && !$donSeulement;
 ?>
 <article class="carte-livre">
     <div class="carte-livre__visuel">
@@ -17,7 +19,10 @@ $donSeulement = $originesLivre === ['don'];
             <?php if (in_array('particulier', $originesLivre, true) && !in_array('magasin', $originesLivre, true)): ?>
                 <span class="badge-bibli badge-don"><i class="bi bi-people" aria-hidden="true"></i> Entre particuliers</span>
             <?php endif; ?>
-            <?php if (in_array('don', $originesLivre, true) && !$donSeulement): ?>
+            <?php if (in_array('emprunt', $originesLivre, true) && !$empruntSeulement): ?>
+                <span class="badge-bibli badge-don"><i class="bi bi-book" aria-hidden="true"></i> Aussi à emprunter</span>
+            <?php endif; ?>
+            <?php if (in_array('don', $originesLivre, true) && !$sansPrix): ?>
                 <span class="badge-bibli badge-don"><i class="bi bi-gift" aria-hidden="true"></i> Aussi en don</span>
             <?php endif; ?>
             <?php if ($stockLivre === 1): ?>
@@ -52,7 +57,9 @@ $donSeulement = $originesLivre === ['don'];
             <?php endif; ?>
             <div class="carte-livre__bas">
                 <span class="badge-bibli badge-etat"><?= htmlspecialchars(libelleEtat($l['etat'])) ?></span>
-                <?php if ($donSeulement): ?>
+                <?php if ($empruntSeulement): ?>
+                    <span class="prix"><i class="bi bi-book" aria-hidden="true"></i> À emprunter</span>
+                <?php elseif ($donSeulement): ?>
                     <span class="prix"><i class="bi bi-gift" aria-hidden="true"></i> Don</span>
                 <?php else: ?>
                     <span class="prix"><?= formaterPrix((float) $l['prix']) ?></span>

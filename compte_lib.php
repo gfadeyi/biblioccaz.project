@@ -140,6 +140,7 @@ function resumeCompte(PDO $pdo, int $idUser): array
         'dons_recuperes'   => "SELECT COUNT(*) FROM don WHERE id_donneur = ? AND statut = 'recupere'",
         'annonces'         => "SELECT COUNT(*) FROM exemplaire WHERE id_proprietaire = ? AND statut_annonce IN ('en_validation', 'publiee', 'reservee')",
         'transactions'     => "SELECT COUNT(*) FROM demande_achat WHERE ? IN (id_acheteur, id_vendeur) AND (statut IN ('en_attente', 'en_file', 'acceptee') OR (statut = 'validee' AND date_confirmation IS NULL))",
+        'emprunts'         => "SELECT COUNT(*) FROM emprunt WHERE id_user = ? AND statut IN ('reserve', 'en_cours')",
         'evenements'       => "SELECT COUNT(*) FROM evenement_inscription i INNER JOIN evenement e ON e.id_evenement = i.id_evenement
                                WHERE i.id_user = ? AND i.statut IN ('inscrit', 'attente') AND e.statut = 'publie' AND e.date_fin >= NOW()",
     ];

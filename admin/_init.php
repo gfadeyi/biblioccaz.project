@@ -102,7 +102,7 @@ function imageLivre(?string $fichier): string
 
 function compteursEquipe(PDO $pdo): array
 {
-    $c = ['livres' => 0, 'avis' => 0, 'candidatures' => 0, 'avis_a_valider' => 0, 'evenements_proposes' => 0, 'annonces' => 0, 'messages' => 0, 'ventes' => 0];
+    $c = ['livres' => 0, 'avis' => 0, 'candidatures' => 0, 'avis_a_valider' => 0, 'evenements_proposes' => 0, 'annonces' => 0, 'messages' => 0, 'ventes' => 0, 'emprunts' => 0, 'emprunts_a_preparer' => 0, 'emprunts_en_retard' => 0, 'emprunts_questions' => 0];
     try {
         $c['livres'] = (int) $pdo->query("SELECT COUNT(*) FROM livre l WHERE l.is_valide = 0 AND NOT EXISTS (SELECT 1 FROM exemplaire e WHERE e.id_livre = l.id_livre AND e.id_proprietaire IS NOT NULL)")->fetchColumn();
         $c['avis'] = (int) $pdo->query("SELECT COUNT(DISTINCT id_avis) FROM avis_signalement WHERE traite = 0")->fetchColumn();
@@ -117,6 +117,17 @@ function compteursEquipe(PDO $pdo): array
     }
     try {
         $c['ventes'] = (int) $pdo->query("SELECT COUNT(*) FROM demande_achat WHERE en_litige = 1 OR (statut = 'acceptee' AND date_acceptation < NOW() - INTERVAL 14 DAY)")->fetchColumn();
+    } catch (PDOException $e) {
+    }
+    try {
+        $c['emprunts_a_preparer'] = (int) $pdo->query("SELECT COUNT(*) FROM emprunt WHERE statut = 'reserve'")->fetchColumn();
+        $c['emprunts_en_retard'] = (int) $pdo->query("SELECT COUNT(*) FROM emprunt WHERE statut = 'en_cours' AND date_retour_prevue < CURDATE()")->fetchColumn();
+        $c['emprunts_questions'] = (int) $pdo->query("
+            SELECT COUNT(*) FROM conversation c INNER JOIN emprunt em ON em.id_emprunt = c.id_objet
+            WHERE c.type_objet = 'emprunt' AND c.statut = 'ouverte'
+              AND (SELECT m.id_auteur FROM conversation_message m WHERE m.id_conversation = c.id_conversation AND m.est_systeme = 0
+                   ORDER BY m.date_envoi DESC, m.id_message DESC LIMIT 1) = em.id_user")->fetchColumn();
+        $c['emprunts'] = $c['emprunts_a_preparer'] + $c['emprunts_en_retard'] + $c['emprunts_questions'];
     } catch (PDOException $e) {
     }
     try {
