@@ -195,30 +195,35 @@ $peutAcheterEnMagasin = ($_SESSION['role'] ?? '') === 'client';
                 </div>
             </div>
 
+            <?php if (trim((string) $livre['description']) !== ''): ?>
             <div class="mt-4">
                 <h5 class="fw-bold border-bottom pb-2">Descriptif</h5>
                 <p class="text-secondary" style="text-align: justify;"><?= nl2br(htmlspecialchars($livre['description'])) ?></p>
             </div>
+            <?php endif; ?>
 
+            <?php
+            $caracteristiquesLivre = array_filter([
+                'Éditeur' => $livre['editeur'] ?? '',
+                'Collection' => $livre['collection'] ?? '',
+                'Année' => $livre['annee_parution'] ?? '',
+                'ISBN' => $livre['isbn'] ?? '',
+                'Nombre de pages' => $livre['nb_pages'] ?? '',
+                'Format' => trim(($livre['reliure'] ?? '') . (!empty($livre['reliure']) && !empty($livre['dimensions']) ? ' · ' : '') . ($livre['dimensions'] ?? '')),
+                'Poids' => !empty($livre['poids']) ? $livre['poids'] . ' g' : '',
+                'Langue' => $livre['langue'] ?? '',
+            ], fn($valeur) => trim((string) $valeur) !== '');
+            ?>
+            <?php if ($caracteristiquesLivre): ?>
             <div class="mt-4">
                 <h5 class="fw-bold border-bottom pb-2">Caractéristiques</h5>
                 <table class="table table-sm mt-3">
-                    <?php foreach ([
-                        'Éditeur' => $livre['editeur'] ?? '',
-                        'Collection' => $livre['collection'] ?? '',
-                        'Année' => $livre['annee_parution'] ?? '',
-                        'ISBN' => $livre['isbn'] ?? '',
-                        'Nombre de pages' => $livre['nb_pages'] ?? '',
-                        'Format' => trim(($livre['reliure'] ?? '') . (!empty($livre['reliure']) && !empty($livre['dimensions']) ? ' · ' : '') . ($livre['dimensions'] ?? '')),
-                        'Poids' => !empty($livre['poids']) ? $livre['poids'] . ' g' : '',
-                        'Langue' => $livre['langue'] ?? '',
-                    ] as $libelleCaracteristique => $valeurCaracteristique): ?>
-                        <?php if ((string) $valeurCaracteristique !== ''): ?>
+                    <?php foreach ($caracteristiquesLivre as $libelleCaracteristique => $valeurCaracteristique): ?>
                             <tr><th><?= $libelleCaracteristique ?></th><td><?= htmlspecialchars((string) $valeurCaracteristique) ?></td></tr>
-                        <?php endif; ?>
                     <?php endforeach; ?>
                 </table>
             </div>
+            <?php endif; ?>
         </div>
 
         <div class="col-md-3">

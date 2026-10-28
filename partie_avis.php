@@ -50,11 +50,11 @@ $lienTri = fn($t) => 'detail_livre.php?' . http_build_query(['id' => $idLivreAvi
 ?>
 <?= etoilesStyle() ?>
 <style>
-    .note-saisie { display: inline-flex; flex-direction: row-reverse; gap: 4px; }
+    .note-saisie { display: flex; width: max-content; flex-direction: row-reverse; gap: 4px; }
     .note-saisie { position: relative; }
     .note-saisie input { position: absolute; opacity: 0; width: 1px; height: 1px; }
     .note-saisie input:focus-visible + label { outline: 2px solid var(--texte-vif); outline-offset: 2px; border-radius: 4px; }
-    .note-saisie label { font-size: 1.8rem; color: var(--vert-200); cursor: pointer; transition: color .15s; }
+    .note-saisie label { display: inline-flex; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; font-size: 1.8rem; color: var(--encre-douce); cursor: pointer; transition: color .15s; }
     .note-saisie label:hover, .note-saisie label:hover ~ label,
     .note-saisie input:checked ~ label { color: var(--texte-vif); }
     .barre-note { height: 8px; background: var(--vert-100); border-radius: 10px; overflow: hidden; }
@@ -138,6 +138,7 @@ $lienTri = fn($t) => 'detail_livre.php?' . http_build_query(['id' => $idLivreAvi
             </div>
         </div>
 
+        <?php if ($listeAvis): ?>
         <div class="col-lg-8">
             <?php if ($listeAvis): ?>
                 <div class="d-flex justify-content-end gap-1 mb-3 small">
@@ -149,9 +150,6 @@ $lienTri = fn($t) => 'detail_livre.php?' . http_build_query(['id' => $idLivreAvi
             <?php endif; ?>
 
             <div class="card border-0 shadow-sm px-4" style="border-radius: 15px;">
-                <?php if (!$listeAvis): ?>
-                    <p class="text-muted my-4">Pas encore d'avis publié sur ce livre.</p>
-                <?php endif; ?>
 
                 <?php foreach ($listeAvis as $a): ?>
                     <div class="carte-avis py-3">
@@ -200,5 +198,6 @@ $lienTri = fn($t) => 'detail_livre.php?' . http_build_query(['id' => $idLivreAvi
                 <?php endforeach; ?>
             </div>
         </div>
+        <?php endif; ?>
     </div>
 </section>

@@ -159,7 +159,7 @@ $classeRaccourci = fn(array $pages) => in_array($pageActuelle, $pages, true) ? '
 
         <nav class="d-flex align-items-start gap-1" aria-label="Mon compte">
             <?php if ($connected && $userRole === 'client'): ?>
-                <a href="points_badges.php" class="icone-entete" title="Mes points et badges">
+                <a href="points_badges.php" class="icone-entete" title="Mes points et badges" aria-label="Mes points et badges, <?= (int) $solde_points ?> points">
                     <?= iconeDessin('medaille') ?><span><?= htmlspecialchars($solde_points) ?> pts</span>
                 </a>
                 <a href="wishlist.php" class="icone-entete d-none d-sm-flex">
@@ -175,7 +175,7 @@ $classeRaccourci = fn(array $pages) => in_array($pageActuelle, $pages, true) ? '
             <?php endif; ?>
 
             <div class="dropdown dropdown-hover zone-menu-compte" data-menu-compte>
-                <a href="<?= $connected ? 'profil.php' : 'login.php' ?>" class="icone-entete" aria-haspopup="true" aria-expanded="false" aria-controls="menu-compte">
+                <a href="<?= $connected ? 'profil.php' : 'login.php' ?>" class="icone-entete" aria-label="<?= $connected ? 'Mon compte' : 'Connexion' ?>" aria-haspopup="true" aria-expanded="false" aria-controls="menu-compte">
                     <?= $connected && cheminPhotoMembre($photoMembre) ? avatarMembre($_SESSION['pseudo'], $photoMembre, 'entete') : iconeDessin('lecteur') ?>
                     <span class="text-truncate" style="max-width: 90px;"><?= $connected ? htmlspecialchars(pseudoAffiche($_SESSION['pseudo'])) : 'Connexion' ?></span>
                     <?php if ($total_notif_admin > 0): ?>
@@ -226,7 +226,7 @@ $classeRaccourci = fn(array $pages) => in_array($pageActuelle, $pages, true) ? '
             </div>
 
             <div class="dropdown dropdown-hover position-relative">
-                <a href="panier.php" class="icone-entete">
+                <a href="panier.php" class="icone-entete" aria-label="Mon panier">
                     <?= iconeDessin('cabas', $livreAjoute ? 'secousse' : '') ?><span>Panier</span>
                     <?php if ($totalArticles > 0): ?>
                         <span class="pastille<?= $livreAjoute ? ' rebond' : '' ?>"><?= $totalArticles ?></span>

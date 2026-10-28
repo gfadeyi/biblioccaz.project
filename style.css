@@ -598,6 +598,7 @@ h1, h2, h3, .titre { font-family: var(--police-titre); font-weight: 700; letter-
 .lien-voir-tout:hover .bi-arrow-left { transform: translateX(-3px); }
 
 .icone-entete { border-radius: var(--rayon); transition: color var(--transition); }
+.entete .icone-entete:focus-visible, .entete .bouton-loupe:focus-visible, .entete .bouton-categories:focus-visible { outline-color: var(--texte-vert); }
 .icone-entete :is(i, .icone-dessin) { transition: transform var(--duree-normale) var(--courbe-rebond); }
 .icone-entete:hover :is(i, .icone-dessin), .icone-entete:focus-visible :is(i, .icone-dessin) { transform: translateY(-2px) scale(1.08); }
 .icone-entete:active :is(i, .icone-dessin) { transform: scale(.9); }
