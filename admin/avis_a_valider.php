@@ -22,7 +22,7 @@ function validerAvis(PDO $pdo, array $avis): void
 }
 
 $requeteAvis = "
-    SELECT a.*, u.pseudo, l.titre AS titre_livre, pm.statut AS statut_points
+    SELECT a.*, u.pseudo, l.titre AS titre_livre, pm.statut AS statut_points, pm.points AS montant_points
     FROM avis a
     INNER JOIN user u ON u.id = a.id_user
     INNER JOIN livre l ON l.id_livre = a.id_livre
@@ -49,7 +49,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     if ($action === 'valider') {
         validerAvis($pdo, $avis);
-        rediriger('avis_a_valider.php', 'success', "Avis de @{$avis['pseudo']} validé" . ($avis['statut_points'] === 'en_attente' ? ' : ' . AVIS_POINTS . ' points crédités.' : '.'));
+        rediriger('avis_a_valider.php', 'success', "Avis de @{$avis['pseudo']} validé" . ($avis['statut_points'] === 'en_attente' ? ' : ' . (int) $avis['montant_points'] . ' points crédités.' : '.'));
     }
     if ($action === 'refuser') {
         $pdo->prepare("UPDATE avis SET statut = 'masque', date_validation = NOW(), id_validateur = ? WHERE id_avis = ?")->execute([$_SESSION['user_id'], $avis['id_avis']]);
@@ -102,7 +102,7 @@ echo etoilesStyle();
                 <span class="text-muted small"> · par @<?= e($a['pseudo']) ?> · <?= date('d/m/Y à H:i', strtotime($a['date_creation'])) ?></span>
             </div>
             <?php if ($a['statut_points'] === 'en_attente'): ?>
-                <span class="etiquette"><i class="bi bi-hourglass-split" aria-hidden="true"></i> <?= AVIS_POINTS ?> points en attente</span>
+                <span class="etiquette"><i class="bi bi-hourglass-split" aria-hidden="true"></i> <?= (int) $a['montant_points'] ?> points en attente</span>
             <?php else: ?>
                 <span class="etiquette etiquette-neutre" title="Livre non acheté, avis déjà rémunéré pour ce livre ou quota mensuel atteint">Sans points</span>
             <?php endif; ?>

@@ -1,8 +1,9 @@
 <?php
+require_once __DIR__ . '/recompenses_regles_lib.php';
 
 const POINTS_PAR_EURO = 1;
 
-function calculerTotauxPanier(array $panier, float $reductionDemandee = 0, int $seuilLivraisonOfferte = 20): array
+function calculerTotauxPanier(array $panier, float $reductionDemandee = 0, int $seuilLivraisonOfferte = 20, int $pointsParEuro = POINTS_PAR_EURO): array
 {
     $sousTotal = 0;
     $nbArticles = 0;
@@ -25,7 +26,7 @@ function calculerTotauxPanier(array $panier, float $reductionDemandee = 0, int $
     $fraisLivraison = ($sousTotal > 0 && $sousTotal < $seuilLivraisonOfferte) ? 1.99 : 0;
 
     $total = round($montantLivres - $reduction + $fraisLivraison, 2);
-    $points = (int) floor(round($montantLivres - $reduction, 2) * POINTS_PAR_EURO);
+    $points = (int) floor(round($montantLivres - $reduction, 2) * $pointsParEuro);
 
     return [
         'sous_total'      => round($sousTotal, 2),

@@ -2,6 +2,7 @@
 require_once __DIR__ . '/_init.php';
 require_once __DIR__ . '/../points_lib.php';
 exigerDroit('equipe');
+$niveauxAdmin = niveauxRegles($pdo);
 
 const MEMBRES_PAR_PAGE = 30;
 const TRIS_MEMBRES_POINTS = [
@@ -13,7 +14,7 @@ const TRIS_MEMBRES_POINTS = [
 ];
 
 $recherche = trim($_GET['q'] ?? '');
-$niveauFiltre = isset($_GET['niveau']) && $_GET['niveau'] !== '' && isset(NIVEAUX[(int) $_GET['niveau']]) ? (int) $_GET['niveau'] : null;
+$niveauFiltre = isset($_GET['niveau']) && $_GET['niveau'] !== '' && isset($niveauxAdmin[(int) $_GET['niveau']]) ? (int) $_GET['niveau'] : null;
 $tri = array_key_exists($_GET['tri'] ?? '', TRIS_MEMBRES_POINTS) ? $_GET['tri'] : 'cumul';
 $page = max(1, (int) ($_GET['page'] ?? 1));
 
@@ -27,10 +28,10 @@ if ($recherche !== '') {
 $paramsHaving = [];
 if ($niveauFiltre !== null) {
     $having[] = "cumul >= ?";
-    $paramsHaving[] = NIVEAUX[$niveauFiltre]['seuil'];
-    if (isset(NIVEAUX[$niveauFiltre + 1])) {
+    $paramsHaving[] = $niveauxAdmin[$niveauFiltre]['seuil'];
+    if (isset($niveauxAdmin[$niveauFiltre + 1])) {
         $having[] = "cumul < ?";
-        $paramsHaving[] = NIVEAUX[$niveauFiltre + 1]['seuil'];
+        $paramsHaving[] = $niveauxAdmin[$niveauFiltre + 1]['seuil'];
     }
 }
 
@@ -66,13 +67,13 @@ try {
         }
     }
 
-    $repartition = array_fill(0, count(NIVEAUX), 0);
+    $repartition = array_fill(0, count($niveauxAdmin), 0);
     $cumuls = $pdo->query("
         SELECT GREATEST(0, COALESCE(SUM(CASE WHEN pm.statut = 'valide' AND pm.type NOT IN ('depense', 'remboursement') THEN pm.points END), 0)) AS cumul
         FROM user u LEFT JOIN point_mouvement pm ON pm.id_user = u.id
         WHERE u.role = 'client' GROUP BY u.id")->fetchAll(PDO::FETCH_COLUMN);
     foreach ($cumuls as $cumul) {
-        $repartition[niveauPour((int) $cumul)['index']]++;
+        $repartition[niveauPour((int) $cumul, $niveauxAdmin)['index']]++;
     }
     $totaux = $pdo->query("
         SELECT COALESCE(SUM(CASE WHEN statut = 'valide' AND points > 0 AND type NOT IN ('remboursement') THEN points END), 0) AS distribues,
@@ -85,7 +86,7 @@ try {
     $total = 0;
     $nbPages = 1;
     $badgesParMembre = [];
-    $repartition = array_fill(0, count(NIVEAUX), 0);
+    $repartition = array_fill(0, count($niveauxAdmin), 0);
     $totaux = ['distribues' => 0, 'depenses' => 0, 'attente' => 0];
     $badgesDistribues = 0;
     $erreurMigration = true;
@@ -126,7 +127,7 @@ $maxRepartition = max(1, max($repartition));
     <div class="carte-entete"><h2 class="h6 fw-bold mb-0">Lecteurs par niveau</h2></div>
     <div class="carte-corps">
         <ul class="repartition-niveaux">
-            <?php foreach (NIVEAUX as $index => $niveauLigne): ?>
+            <?php foreach ($niveauxAdmin as $index => $niveauLigne): ?>
                 <li>
                     <a href="<?= e(lienMembresPoints(['niveau' => $niveauFiltre === $index ? '' : $index, 'page' => ''])) ?>" class="<?= $niveauFiltre === $index ? 'actif' : '' ?>">
                         <span class="repartition-niveaux__nom"><?= e($niveauLigne['nom']) ?> <small>dès <?= number_format($niveauLigne['seuil'], 0, ',', ' ') ?> pts</small></span>
@@ -146,7 +147,7 @@ $maxRepartition = max(1, max($repartition));
     </div>
     <select name="niveau" class="form-select form-select-sm" aria-label="Niveau" onchange="this.form.submit()">
         <option value="">Tous les niveaux</option>
-        <?php foreach (NIVEAUX as $index => $niveauLigne): ?>
+        <?php foreach ($niveauxAdmin as $index => $niveauLigne): ?>
             <option value="<?= $index ?>" <?= $niveauFiltre === $index ? 'selected' : '' ?>><?= e($niveauLigne['nom']) ?></option>
         <?php endforeach; ?>
     </select>
@@ -176,7 +177,7 @@ $maxRepartition = max(1, max($repartition));
                 </thead>
                 <tbody>
                     <?php foreach ($membres as $membre): ?>
-                        <?php $niveauMembre = niveauPour((int) $membre['cumul']); ?>
+                        <?php $niveauMembre = niveauPour((int) $membre['cumul'], $niveauxAdmin); ?>
                         <tr>
                             <td data-libelle="Membre"><strong>@<?= e($membre['pseudo']) ?></strong><br><small class="text-muted"><?= e($membre['email']) ?></small></td>
                             <td data-libelle="Niveau">

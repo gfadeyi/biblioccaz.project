@@ -88,7 +88,7 @@ include 'header.php';
                 <p class="resume-emprunts__alerte" role="alert"><i class="bi bi-exclamation-triangle" aria-hidden="true"></i> <?= htmlspecialchars($raison) ?></p>
             <?php else: ?>
                 <p class="resume-emprunts__regles">
-                    <?= DUREE_EMPRUNT_DEFAUT ?> jours en général, renouvelables <?= RENOUVELLEMENTS_DEFAUT ?> fois · <?= POINTS_EMPRUNT ?> points par livre rendu à l'heure
+                    <?= DUREE_EMPRUNT_DEFAUT ?> jours en général, renouvelables <?= RENOUVELLEMENTS_DEFAUT ?> fois · <?= pointsRegle($pdo, 'emprunt') ?> points par livre rendu à l'heure
                 </p>
             <?php endif; ?>
         </div>

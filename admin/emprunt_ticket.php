@@ -15,4 +15,4 @@ if (!$emprunt || !in_array($emprunt['statut'], ['reserve', 'en_cours', 'rendu'],
 if (!file_exists(__DIR__ . '/../vendor/autoload.php')) {
     rediriger("emprunts.php?id=$idEmprunt", 'danger', "Dompdf est introuvable : lancez « composer install » à la racine du projet.");
 }
-telechargerTicketEmprunt($emprunt);
+telechargerTicketEmprunt($emprunt, $pdo);

@@ -6,7 +6,7 @@ Audit de reprise du 28 octobre 2026, sur `refonte`, à partir du commit `5c8bd1a
 
 Sources lues : README, feuille de route, plan F5, workflow commun, instructions locales, rapport de relais et rapports de livraison/migration F5. La revue du code porte sur les points d'entrée et bibliothèques cités ci-dessous ; ce n'est pas un audit exhaustif de chaque ligne.
 
-Le document Google Docs [« Fonctionnalités du site »](https://docs.google.com/document/d/12eXyG-hgVNoNivrep4W7dBiC9N9wzH8VLaj-uGHEDsA/edit) est la référence fonctionnelle principale désignée par le propriétaire. Son contenu n'a pas pu être consulté pendant cette session : lecture web indisponible et aucune session documentaire connectée. Le cahier des charges original n'a pas été retrouvé dans le dépôt. La numérotation complète F1 à Fn et les exigences manquantes ne peuvent donc pas être certifiées. Les fonctionnalités ci-dessous sont rapprochées des documents disponibles, sans inventer de nouvelles exigences ni supposer leur conformité complète. Aucun statut Google Docs n'a été modifié.
+Le document Google Docs [« Fonctionnalités du site »](https://docs.google.com/document/d/12eXyG-hgVNoNivrep4W7dBiC9N9wzH8VLaj-uGHEDsA/edit) est la référence fonctionnelle principale désignée par le propriétaire. Initialement inaccessible, son texte a été consulté en lecture seule pendant la session nocturne du 28 octobre 2026 via le connecteur disponible. Les propositions ci-dessous sont désormais rapprochées des libellés réels ; les couleurs actuelles n'ont pas été auditées par cette lecture textuelle. Aucun statut Google Docs n'a été modifié.
 
 Une présence dans le code ne vaut pas recette. Les journaux de tests conservés sont des preuves historiques sur l'environnement isolé ; ils n'attestent ni une nouvelle exécution ni un parcours réel sur la base principale.
 
@@ -51,7 +51,7 @@ Une présence dans le code ne vaut pas recette. Les journaux de tests conservés
 
 Le lot de sécurisation de la récupération de mot de passe est désormais implémenté et testé en environnement isolé, en attente de revue et d'autorisation de commit. Ensuite, le parcours scolaire constitue un candidat cohérent car explicitement prévu dans la feuille de route et déjà préparé côté schéma.
 
-Le développement métier suivant n'est pas sélectionné définitivement sans le cahier des charges original. Le format des niveaux/matières et la portée des avantages de fidélité nécessitent une vérification du besoin avant d'imposer des choix produit. Aucune modification des règles F1 à F5 n'est engagée sur la seule base de cet audit.
+La référence est maintenant disponible : elle confirme les champs scolaires de F2 et les filtres de F9, ainsi que le paramétrage des récompenses de F7/F10. Les critères précis du profil actif ne sont toutefois pas fixés : ce point requiert encore une décision métier. Les données de niveau/matière peuvent rester des libellés libres existants sans inventer de nomenclature scolaire.
 
 ## Préparation du lot recommandé : récupération du mot de passe
 
@@ -101,9 +101,11 @@ L'audit initial a confirmé que la page En ligne ne supervisait que des membres 
 
 Statut proposé F6 : orange « En cours » pour la livraison globale tant que migration principale, revue/commit et recette visuelle ne sont pas achevés. Le parcours technique isolé est vérifié, sans revendication de rendu observé ni de migration réelle. Aucun statut Google Docs modifié.
 
+Précision de numérotation issue du document désormais lu : « F6 » est le nom local du lot sessions livré par le commit dfe605f. Dans la référence officielle, la Fonctionnalité 6 correspond aux avis ; « Supervision des sessions » et « Contrôle des sessions » appartiennent à la Fonctionnalité 10. Les fichiers et preuves existants conservent leur nom pour assurer la continuité du suivi.
+
 ## Propositions F5 pour les cinq lignes signalées rouges
 
-L'accès Google Docs reste indisponible (lecture web et export texte en échec, aucune session documentaire connectée). Les cinq lignes ci-dessous sont une correspondance proposée avec les cinq axes de livraison F5 décrits par le plan local, pas une transcription des libellés réels ni des couleurs observées. Ne pas modifier le document partagé sans rapprochement effectif.
+Lors de l'audit initial, l'accès Google Docs était indisponible. Le tableau ci-dessous conserve la correspondance alors proposée avec les axes du plan local. Le rapprochement précis figurant ensuite le remplace depuis la lecture effective de la référence ; les couleurs actuelles ne sont toujours pas attestées.
 
 | Axe à rapprocher de la ligne réelle | Proposition | Preuves conservées et limites |
 |---|---|---|
@@ -114,3 +116,24 @@ L'accès Google Docs reste indisponible (lecture web et export texte en échec, 
 | Mails, rappels et relances | Vert pour le déclenchement à l'ouverture des pages ; jaune si l'exigence impose un envoi sans visite | Captures Mailpit : réservation, renouvellement, retour, attribution, expiration, J-3, jour J et retard ; test anti-doublon des relances. Pas de tâche planifiée : un rappel sans accès aux pages n'est pas démontré ni implémenté. Aucun envoi réel de production testé. |
 
 Les preuves permettent de remettre en question les cinq rouges, pas de les remplacer indistinctement par cinq verts. Aucun statut Google Docs changé.
+
+## Rapprochement précis après lecture de la référence
+
+Les propositions suivantes remplacent les correspondances hypothétiques précédentes, sans modification du document partagé :
+
+| Libellé exact | Proposition | Preuves et réserve |
+|---|---|---|
+| F5 — Mise en emprunt d’un exemplaire | Vert — Opérationnel sur le périmètre local | Mise à disposition et réglages testés ; schéma principal F5 déjà installé et contrôlé par la livraison précédente. |
+| F5 — Réservation en ligne | Vert — Opérationnel sur le périmètre local | Réservations, maximum, retards, droits, CSRF, attente et concurrence testés. |
+| F5 — Validation de l’emprunt Lors du retrait en magasin | Vert — Opérationnel sur le périmètre local | Début/retour prévu/statut et génération PDF vérifiés. Le libellé ne requiert pas de scan physique QR ; la recette visuelle PDF reste une réserve distincte. |
+| F5 — Gestion des retours | Vert — Opérationnel sur le périmètre local | Retour, historique, retard et blocage testés, avec non-régression durant F6 et récompenses. |
+| F5 — Relances et gestion des retards | Jaune — À optimiser | Emails J-3/J0/retard capturés et signalement back-office testé. Les rappels dépendent encore d'une ouverture de page ; aucun envoi autonome sans visite ni tâche planifiée n'est attesté. |
+| F10 — Supervision des sessions / Contrôle des sessions | Orange — En cours de livraison | 80 assertions et publication dfe605f, mais migration sessions principale et recette visuelle encore en attente. |
+| F7 — Administration des règles de récompenses / F10 — Paramétrage des règles de récompenses | Jaune — À optimiser après activation du lot | Points, quotas, niveaux et paliers paramétrables avec versions/historique, droits et conservation des montants anciens testés. Conditions du profil actif et paramètres métier d'emprunt supplémentaires non couverts par cet écran. Migration principale en attente. |
+| F7 — Statut de profil actif | Orange — En cours, décision nécessaire | Le texte donne des exemples mais ni délai de connexion, ni nombre/type d'actions sur une période, ni combinaison, ni avantages précis. Aucun critère arbitraire ni privilège automatique ajouté. |
+
+## Administration des récompenses livrée
+
+Voir [le guide des règles](regles-recompenses.md). Barème et plafonds mensuels sont pris en compte dans achats, dons, ventes, emprunts et avis ; présences raccordées au même barème. Les seuils des six niveaux et paliers des badges existants sont modifiables. Les montants en attente sont des instantanés ; annulations et historiques utilisent les valeurs enregistrées, jamais le nouveau barème. Les badges obtenus sont conservés et les effets d'une baisse de seuil sont annoncés avant confirmation.
+
+Recette isolée : 69 assertions dédiées récompenses, puis 80 assertions F6/non-régression ciblée et 53 assertions récupération sur le code intégré. La migration `sql/maj_regles_recompenses.sql` est rejouable et incluse dans l'installation complète ; aucune migration principale de ce lot n'a été importée. Ni rendu visuel réel ni conformité WCAG exhaustive ne sont revendiqués.

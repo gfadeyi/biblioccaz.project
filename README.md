@@ -63,6 +63,7 @@ Les couvertures visibles sur ces captures sont générées pour l'aperçu : les 
 ### Back-office (`admin/`)
 - Session séparée du site, droits par rôle, menu latéral et fil d'Ariane
 - **Connexions actives** : suivi distinct du site et du back-office, fermeture individuelle ou par membre avec confirmation ; les sessions des autres administrateurs sont protégées, les changements de mot de passe invalident les anciennes connexions
+- **Règles de récompenses** : barème de points, plafonds mensuels, seuils des niveaux et paliers des badges modifiables par un administrateur, avec historique des versions et conservation des points déjà gagnés
 - **Tableau de bord** : chiffre d'affaires, commandes, nouveaux membres, stock, ventes sur 30 jours et par univers, liste « À traiter »
 - **Catalogue** : fiches, exemplaires par état, inventaire avec alertes de rupture, catégories et tags, validation des livres proposés par les auteurs, **modération des annonces** entre particuliers (photos, motif de refus ou de retrait, modification par l'équipe), **suivi des ventes entre lecteurs** (ventes en retard, litiges : valider, annuler avec retrait des points, classer)
 - **Commandes** : liste filtrable, fiche détaillée, annulation (stock remis, points rendus, client prévenu)
@@ -137,6 +138,8 @@ Chaque évolution de structure a sa migration `sql/maj_<sujet>.sql`, rejouable s
 Pour les emprunts, sauvegarder la base avant toute mise à jour. Si les tables F5 n'existent pas, appliquer `sql/maj_emprunts.sql`, puis `sql/maj_emprunts_securite.sql`. Si F5 est déjà installé mais que `emprunt.blocage_retard` manque, seule `sql/maj_emprunts_securite.sql` est nécessaire : elle conserve le réglage de pénalité de chaque emprunt existant à partir de son exemplaire. Les prochaines réservations prennent leur propre instantané. L'installation complète contient déjà cette structure.
 
 Pour le suivi individuel des connexions, sauvegarder la base puis appliquer `sql/maj_sessions.sql`. Les sessions anciennes devront se reconnecter après la mise à jour. Sans cette migration, la page de supervision indique que les révocations sont indisponibles.
+
+Pour administrer les récompenses, appliquer après sauvegarde `sql/maj_regles_recompenses.sql`. Sans cette migration, les règles historiques restent utilisées. Le [guide des récompenses](docs/regles-recompenses.md) précise les effets des changements et leurs limites.
 
 ## Organisation du code
 

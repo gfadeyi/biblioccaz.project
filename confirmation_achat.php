@@ -91,7 +91,7 @@ try {
     }
 
     $solde = soldePoints($pdo, $idUser, true);
-    $totauxSansBon = calculerTotauxPanier($lignes, 0, $niveauAvant['livraison_des']);
+    $totauxSansBon = calculerTotauxPanier($lignes, 0, $niveauAvant['livraison_des'], pointsRegle($pdo, 'achat'));
     $option = null;
     if ($choixBon !== '') {
         $options = optionsReduction($pdo, $idUser, $totauxSansBon, $solde);
@@ -108,7 +108,7 @@ try {
         }
     }
 
-    $totaux = calculerTotauxPanier($lignes, $option['montant'] ?? 0, $niveauAvant['livraison_des']);
+    $totaux = calculerTotauxPanier($lignes, $option['montant'] ?? 0, $niveauAvant['livraison_des'], pointsRegle($pdo, 'achat'));
     $bonus = bonusNiveau($totaux['points'], $niveauAvant);
 
     $stmtAnciennes = $pdo->prepare("SELECT COUNT(*) FROM commande WHERE id_user = ? AND statut <> 'annulee'");
@@ -152,7 +152,7 @@ try {
         crediterPoints($pdo, $idUser, $bonus, 'bonus_niveau', "Bonus {$niveauAvant['nom']} +{$niveauAvant['bonus']} % (commande n° $idCommande)", $reference);
     }
     if ($premierAchat) {
-        crediterPoints($pdo, $idUser, POINTS_PREMIER_ACHAT, 'premier_achat', 'Bonus premier achat', $reference);
+        crediterPoints($pdo, $idUser, pointsRegle($pdo, 'premier_achat'), 'premier_achat', 'Bonus premier achat', $reference);
     }
     $nouveauxBadges = verifierBadges($pdo, $idUser);
 
@@ -169,7 +169,7 @@ try {
     exit();
 }
 
-$pointsGagnes = $totaux['points'] + $bonus + ($premierAchat ? POINTS_PREMIER_ACHAT : 0);
+$pointsGagnes = $totaux['points'] + $bonus + ($premierAchat ? pointsRegle($pdo, 'premier_achat') : 0);
 $pointsDepenses = (int) ($option['points'] ?? 0);
 $nouveauSolde = soldePoints($pdo, $idUser);
 $niveauApres = niveauMembre($pdo, $idUser);
@@ -196,7 +196,7 @@ $lignesMail[] = "Vos points fidélité :";
 if ($pointsDepenses > 0) {
     $lignesMail[] = "- Points utilisés : $pointsDepenses";
 }
-$lignesMail[] = "- Points gagnés : $pointsGagnes" . ($bonus > 0 ? " (dont $bonus de bonus {$niveauAvant['nom']})" : '') . ($premierAchat ? " (dont " . POINTS_PREMIER_ACHAT . " pour votre premier achat)" : '');
+$lignesMail[] = "- Points gagnés : $pointsGagnes" . ($bonus > 0 ? " (dont $bonus de bonus {$niveauAvant['nom']})" : '') . ($premierAchat ? " (dont " . pointsRegle($pdo, 'premier_achat') . " pour votre premier achat)" : '');
 $lignesMail[] = "- Nouveau solde : $nouveauSolde points";
 if ($changementNiveau) {
     $lignesMail[] = "";
@@ -242,7 +242,7 @@ include 'header.php';
                     </dl>
                     <?php if ($bonus > 0 || $premierAchat): ?>
                         <p class="bilan-points__detail">
-                            Dont <?= $totaux['points'] ?> pour vos achats<?= $bonus > 0 ? ", $bonus de bonus " . htmlspecialchars($niveauAvant['nom']) : '' ?><?= $premierAchat ? ' et ' . POINTS_PREMIER_ACHAT . ' pour votre premier achat' : '' ?>.
+                            Dont <?= $totaux['points'] ?> pour vos achats<?= $bonus > 0 ? ", $bonus de bonus " . htmlspecialchars($niveauAvant['nom']) : '' ?><?= $premierAchat ? ' et ' . pointsRegle($pdo, 'premier_achat') . ' pour votre premier achat' : '' ?>.
                         </p>
                     <?php endif; ?>
                     <?php if ($changementNiveau): ?>

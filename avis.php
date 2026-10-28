@@ -1,6 +1,7 @@
 <?php
 require_once 'config.php';
 require_once 'avis_lib.php';
+require_once 'points_lib.php';
 if (session_status() === PHP_SESSION_NONE) { session_start(); }
 
 if (!isset($_SESSION['user_id'])) {
@@ -25,8 +26,8 @@ try {
 } catch (PDOException $e) {
 }
 $libellesPoints = [
-    'en_attente' => ['hourglass-split', AVIS_POINTS . ' points en attente de validation', ''],
-    'valide' => ['check2-circle', AVIS_POINTS . ' points crédités', ''],
+    'en_attente' => ['hourglass-split', 'points en attente de validation', ''],
+    'valide' => ['check2-circle', 'points crédités', ''],
     'refuse' => ['x-circle', 'Points refusés par la modération', 'refuse'],
 ];
 
@@ -57,7 +58,7 @@ echo etoilesStyle();
         <div class="carte-compte etat-vide-compte">
             <?= iconeDessin('plume') ?>
             <h2 class="h5">Vous n'avez encore donné aucun avis</h2>
-            <p>Ouvrez la fiche d'un livre que vous avez lu pour le noter : chaque avis validé vous rapporte <?= AVIS_POINTS ?> points.</p>
+            <p>Ouvrez la fiche d'un livre que vous avez lu pour le noter : les avis éligibles validés rapportent <?= pointsRegle($pdo, 'avis') ?> points selon le barème actuel.</p>
             <a href="catalogue.php" class="bouton bouton-principal bouton-petit">Parcourir le catalogue</a>
         </div>
     <?php endif; ?>
@@ -88,7 +89,7 @@ echo etoilesStyle();
                         <?php endif; ?>
                         <?php if ($statutPoints && isset($libellesPoints[$statutPoints])): ?>
                             <?php [$iconePoints, $textePoints, $classePoints] = $libellesPoints[$statutPoints]; ?>
-                            <span class="pastille-etat <?= $classePoints ?>"><i class="bi bi-<?= $iconePoints ?>" aria-hidden="true"></i> <?= $textePoints ?></span>
+                            <span class="pastille-etat <?= $classePoints ?>"><i class="bi bi-<?= $iconePoints ?>" aria-hidden="true"></i> <?= in_array($statutPoints, ['en_attente', 'valide'], true) ? pointsMouvement($pdo, (int) $_SESSION['user_id'], 'avis', 'livre:' . $a['id_livre']) . ' ' : '' ?><?= $textePoints ?></span>
                         <?php endif; ?>
                     </div>
 

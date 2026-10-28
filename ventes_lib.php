@@ -369,11 +369,11 @@ function conclureVente(PDO $pdo, int $idDemande, ?int $idVendeur, ?int $idModera
     $idVendeur = (int) $demande['id_vendeur'];
     $stmt = $pdo->prepare("SELECT COUNT(*) FROM point_mouvement WHERE id_user = ? AND type = 'vente' AND statut IN ('valide', 'en_attente') AND date_mouvement >= DATE_FORMAT(NOW(), '%Y-%m-01')");
     $stmt->execute([$idVendeur]);
-    $pointsPrevus = (int) $stmt->fetchColumn() < VENTES_PAYEES_PAR_MOIS
-        && crediterPoints($pdo, $idVendeur, POINTS_VENTE, 'vente', "Vente entre lecteurs : « {$demande['titre']} »", 'vente:' . $idDemande, 'en_attente');
+    $pointsPrevus = (int) $stmt->fetchColumn() < quotaRegle($pdo, 'vente')
+        && crediterPoints($pdo, $idVendeur, pointsRegle($pdo, 'vente'), 'vente', "Vente entre lecteurs : « {$demande['titre']} »", 'vente:' . $idDemande, 'en_attente');
     $pdo->commit();
 
-    insertLog('VENTE', "Vente #$idDemande conclue" . ($idModerateur ? " par l'équipe" : ' par le vendeur') . ($pointsPrevus ? ' (' . POINTS_VENTE . ' points en attente)' : ''));
+    insertLog('VENTE', "Vente #$idDemande conclue" . ($idModerateur ? " par l'équipe" : ' par le vendeur') . ($pointsPrevus ? ' (' . pointsRegle($pdo, 'vente') . ' points en attente)' : ''));
     $lien = SITE_URL . "/transaction.php?id=$idDemande";
     notifierParMail($demande['acheteur_email'], "Confirmez la réception de votre livre",
         "Bonjour {$demande['acheteur_pseudo']},\n\n@{$demande['vendeur_pseudo']} a indiqué que la vente de « {$demande['titre']} » (" . formaterPrix($demande['prix']) . ") est conclue.\n\n"
@@ -381,7 +381,7 @@ function conclureVente(PDO $pdo, int $idDemande, ?int $idVendeur, ?int $idModera
         $lien, "Confirmer la réception");
     notifierParMail($demande['vendeur_email'], "Vente conclue",
         "Bonjour {$demande['vendeur_pseudo']},\n\nLa vente de « {$demande['titre']} » à @{$demande['acheteur_pseudo']} est conclue (" . formaterPrix($demande['prix']) . "). Le reçu est disponible sur la page de la transaction."
-        . ($pointsPrevus ? "\n\nVos " . POINTS_VENTE . " points seront crédités dès que l'acheteur aura confirmé la réception, ou automatiquement le $dateLimite sans signalement." : ''),
+        . ($pointsPrevus ? "\n\nVos " . pointsRegle($pdo, 'vente') . " points seront crédités dès que l'acheteur aura confirmé la réception, ou automatiquement le $dateLimite sans signalement." : ''),
         $lien, "Voir le reçu");
     foreach ($autres as $autre) {
         notifierParMail($autre['email'], "Le livre a été vendu",
@@ -415,13 +415,13 @@ function confirmerVente(PDO $pdo, int $idDemande, ?int $idAcheteur, string $mode
     fermerConversationsObjet($pdo, 'vente', $idDemande, $messages[$mode] ?? $messages['acheteur']);
     $pdo->commit();
 
-    insertLog('VENTE', "Vente #$idDemande confirmée ($mode)" . ($pointsCredites ? ' : +' . POINTS_VENTE . ' points vendeur' : ''));
+    insertLog('VENTE', "Vente #$idDemande confirmée ($mode)" . ($pointsCredites ? ' : +' . pointsMouvement($pdo, $idVendeur, 'vente', 'vente:' . $idDemande) . ' points vendeur' : ''));
     notifierParMail($demande['vendeur_email'], "Vente confirmée",
         "Bonjour {$demande['vendeur_pseudo']},\n\n" . match ($mode) {
             'auto' => "Aucun problème n'a été signalé sur la vente de « {$demande['titre']} » : elle est confirmée.",
             'equipe' => "L'équipe BIBLIOccaz a confirmé la vente de « {$demande['titre']} ».",
             default => "@{$demande['acheteur_pseudo']} a confirmé avoir bien reçu « {$demande['titre']} ».",
-        } . ($pointsCredites ? "\n\nVous gagnez " . POINTS_VENTE . " points BIBLIOccaz. Merci d'avoir donné une seconde vie à ce livre !" : ''),
+        } . ($pointsCredites ? "\n\nVous gagnez " . pointsMouvement($pdo, $idVendeur, 'vente', 'vente:' . $idDemande) . " points BIBLIOccaz. Merci d'avoir donné une seconde vie à ce livre !" : ''),
         SITE_URL . "/transaction.php?id=$idDemande", "Voir la transaction");
     return ['success', match ($mode) {
         'equipe' => "Vente confirmée par l'équipe" . ($pointsCredites ? ' : les points du vendeur sont crédités.' : '.'),

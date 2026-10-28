@@ -569,8 +569,8 @@ function enregistrerRetour(PDO $pdo, int $idEmprunt, int $idEquipe): array
         if ($joursRetard === 0) {
             $stmt = $pdo->prepare("SELECT id_mouvement FROM point_mouvement WHERE id_user = ? AND type = 'emprunt' AND statut = 'valide' AND date_mouvement >= DATE_FORMAT(NOW(), '%Y-%m-01') FOR UPDATE");
             $stmt->execute([$idUser]);
-            $pointsCredites = count($stmt->fetchAll(PDO::FETCH_COLUMN)) < EMPRUNTS_PAYES_PAR_MOIS
-                && crediterPoints($pdo, $idUser, POINTS_EMPRUNT, 'emprunt', "Emprunt rendu à l'heure : « {$emprunt['titre']} »", 'emprunt:' . $idEmprunt);
+            $pointsCredites = count($stmt->fetchAll(PDO::FETCH_COLUMN)) < quotaRegle($pdo, 'emprunt')
+                && crediterPoints($pdo, $idUser, pointsRegle($pdo, 'emprunt'), 'emprunt', "Emprunt rendu à l'heure : « {$emprunt['titre']} »", 'emprunt:' . $idEmprunt);
             verifierBadges($pdo, $idUser);
         }
 
@@ -588,14 +588,14 @@ function enregistrerRetour(PDO $pdo, int $idEmprunt, int $idEquipe): array
     insertLog('EMPRUNT', "Emprunt #$idEmprunt rendu" . ($joursRetard ? " avec $joursRetard j de retard" . ($joursBlocage ? ", blocage de $joursBlocage j" : '') : " à l'heure"));
     if ($joursRetard === 0) {
         $texte = "Merci d'avoir rendu « {$emprunt['titre']} » à l'heure !"
-            . ($pointsCredites ? "\n\n" . POINTS_EMPRUNT . " points ont été ajoutés à votre compte fidélité." : '');
+            . ($pointsCredites ? "\n\n" . pointsRegle($pdo, 'emprunt') . " points ont été ajoutés à votre compte fidélité." : '');
     } else {
         $texte = "Nous avons bien reçu « {$emprunt['titre']} », rendu avec $joursRetard jour" . ($joursRetard > 1 ? 's' : '') . " de retard."
             . ($joursBlocage ? "\n\nVos emprunts sont bloqués pendant $joursBlocage jour" . ($joursBlocage > 1 ? 's' : '') . ", jusqu'au " . date('d/m/Y', strtotime("+$joursBlocage days")) . ". Vous pourrez de nouveau réserver après cette date." : '');
     }
     prevenirEmprunteur($emprunt, "Retour enregistré : « {$emprunt['titre']} »", $texte);
     prevenirAttribution($pdo, $attribution);
-    return ['success', "Retour enregistré" . ($joursRetard ? " avec $joursRetard jour" . ($joursRetard > 1 ? 's' : '') . " de retard" . ($joursBlocage ? " : emprunts bloqués $joursBlocage jour" . ($joursBlocage > 1 ? 's' : '') : '') : " à l'heure" . ($pointsCredites ? ' : +' . POINTS_EMPRUNT . ' points pour le lecteur' : '')) . "."];
+    return ['success', "Retour enregistré" . ($joursRetard ? " avec $joursRetard jour" . ($joursRetard > 1 ? 's' : '') . " de retard" . ($joursBlocage ? " : emprunts bloqués $joursBlocage jour" . ($joursBlocage > 1 ? 's' : '') : '') : " à l'heure" . ($pointsCredites ? ' : +' . pointsRegle($pdo, 'emprunt') . ' points pour le lecteur' : '')) . "."];
 }
 
 function leverBlocage(PDO $pdo, int $idBlocage, int $idEquipe, string $motif): array
@@ -920,7 +920,7 @@ function supprimerExemplaireEmprunt(PDO $pdo, int $idExemplaire): array
     }
 }
 
-function telechargerTicketEmprunt(array $emprunt): void
+function telechargerTicketEmprunt(array $emprunt, PDO $pdo): void
 {
     require_once __DIR__ . '/vendor/autoload.php';
     $echapper = fn($texte) => htmlspecialchars((string) $texte, ENT_QUOTES, 'UTF-8');
@@ -956,7 +956,7 @@ function telechargerTicketEmprunt(array $emprunt): void
             <tr class="retour"><th>À rendre au plus tard le</th><td>' . $date($emprunt['date_retour_prevue']) . '</td></tr>') . '
             ' . ($emprunt['statut'] === 'rendu' ? '<tr><th>Rendu le</th><td>' . $date($emprunt['date_retour'], 'd/m/Y à H:i') . '</td></tr>' : '') . '
         </table>
-        <p class="mention">L\'emprunt est gratuit. ' . $echapper(textePenaliteEmprunt($emprunt)) . ' Un emprunt rendu à l\'heure rapporte ' . POINTS_EMPRUNT . ' points fidélité, dans la limite de ' . EMPRUNTS_PAYES_PAR_MOIS . ' emprunts récompensés par mois civil.
+        <p class="mention">L\'emprunt est gratuit. ' . $echapper(textePenaliteEmprunt($emprunt)) . ' Un emprunt rendu à l\'heure rapporte ' . pointsRegle($pdo, 'emprunt') . ' points fidélité, dans la limite de ' . quotaRegle($pdo, 'emprunt') . ' emprunts récompensés par mois civil.
         Le renouvellement se fait depuis la page Mes emprunts, si l\'emprunt n\'est pas en retard et si personne n\'attend ce livre.</p>
     </body></html>';
 

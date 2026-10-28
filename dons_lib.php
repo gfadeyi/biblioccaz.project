@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/notifications_lib.php';
+require_once __DIR__ . '/recompenses_regles_lib.php';
 
 const DON_POINTS = 20;
 const DON_MAX_RESERVATIONS = 3;

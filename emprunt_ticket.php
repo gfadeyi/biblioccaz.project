@@ -23,4 +23,4 @@ if (!file_exists(__DIR__ . '/vendor/autoload.php')) {
     header("Location: mes_emprunts.php");
     exit();
 }
-telechargerTicketEmprunt($emprunt);
+telechargerTicketEmprunt($emprunt, $pdo);

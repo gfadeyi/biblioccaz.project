@@ -60,10 +60,10 @@ try {
             $stmt = $pdo->prepare("SELECT titre FROM livre WHERE id_livre = ?");
             $stmt->execute([$idLivre]);
             $message .= match (proposerPointsAvis($pdo, $idUser, $idLivre, (string) $stmt->fetchColumn())) {
-                'en_attente' => " " . AVIS_POINTS . " points en attente de validation par notre équipe.",
+                'en_attente' => " " . pointsRegle($pdo, 'avis') . " points en attente de validation par notre équipe.",
                 'non_achete' => " Les points sont réservés aux avis sur un livre acheté sur le site.",
                 'deja_paye' => " Ce livre a déjà rapporté des points pour un avis.",
-                'quota' => " Vous avez atteint les " . AVIS_PAYES_PAR_MOIS . " avis rémunérés ce mois-ci.",
+                'quota' => " Vous avez atteint les " . quotaRegle($pdo, 'avis') . " avis rémunérés ce mois-ci.",
                 default => '',
             };
         }

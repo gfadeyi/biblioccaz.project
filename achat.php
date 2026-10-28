@@ -16,12 +16,12 @@ $idUser = (int) $_SESSION['user_id'];
 $niveau = niveauMembre($pdo, $idUser);
 attribuerBonAnniversaire($pdo, $idUser, $niveau);
 $solde = soldePoints($pdo, $idUser);
-$totaux = calculerTotauxPanier($_SESSION['panier'], 0, $niveau['livraison_des']);
+$totaux = calculerTotauxPanier($_SESSION['panier'], 0, $niveau['livraison_des'], pointsRegle($pdo, 'achat'));
 $options = optionsReduction($pdo, $idUser, $totaux, $solde);
 $scenarios = ['' => $totaux];
 foreach ($options as $cle => $option) {
     if ($option['possible']) {
-        $scenarios[$cle] = calculerTotauxPanier($_SESSION['panier'], $option['montant'], $niveau['livraison_des']);
+        $scenarios[$cle] = calculerTotauxPanier($_SESSION['panier'], $option['montant'], $niveau['livraison_des'], pointsRegle($pdo, 'achat'));
     }
 }
 $totalFinal = $totaux['total'];

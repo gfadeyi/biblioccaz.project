@@ -8,6 +8,9 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 $idUser = (int) $_SESSION['user_id'];
+$stmtPointsDons = $pdo->prepare("SELECT COALESCE(SUM(points), 0) FROM point_mouvement WHERE id_user = ? AND type = 'don' AND statut = 'valide'");
+$stmtPointsDons->execute([$idUser]);
+$pointsDonsGagnes = (int) $stmtPointsDons->fetchColumn();
 
 $stmt = $pdo->prepare("
     SELECT d.*, b.pseudo AS beneficiaire_pseudo
@@ -48,7 +51,7 @@ function ligneDon(array $d, string $infoPersonne): void { ?>
     <div class="row g-3 mb-4 text-center">
         <div class="col-4"><div class="bg-white border rounded-4 p-3"><div class="fs-3 fw-bold text-success"><?= count($donnes) ?></div><div class="small text-muted">dons publiés</div></div></div>
         <div class="col-4"><div class="bg-white border rounded-4 p-3"><div class="fs-3 fw-bold text-success"><?= $nbRecuperes ?></div><div class="small text-muted">livres donnés</div></div></div>
-        <div class="col-4"><div class="bg-white border rounded-4 p-3"><div class="fs-3 fw-bold text-success"><?= $nbRecuperes * DON_POINTS ?></div><div class="small text-muted">points gagnés</div></div></div>
+        <div class="col-4"><div class="bg-white border rounded-4 p-3"><div class="fs-3 fw-bold text-success"><?= $pointsDonsGagnes ?></div><div class="small text-muted">points gagnés</div></div></div>
     </div>
 
     <h5 class="fw-bold">Livres que j'ai donnés</h5>

@@ -48,7 +48,7 @@ foreach (arbreCategories($pdo) as $universCategorie) {
     ];
 }
 
-$totauxPanierAccueil = calculerTotauxPanier($_SESSION['panier'] ?? []);
+$totauxPanierAccueil = calculerTotauxPanier($_SESSION['panier'] ?? [], 0, 20, pointsRegle($pdo, 'achat'));
 
 $chiffresCommunaute = ['livres' => 0, 'dons' => 0, 'membres' => 0];
 try {
@@ -208,11 +208,11 @@ include 'header.php';
         <div class="row align-items-center g-4">
             <div class="col-lg-8">
                 <h2>De votre étagère à un nouveau lecteur</h2>
-                <p class="mb-0 text-body-secondary">Vos livres dorment dans un carton ? Donnez-les à la communauté : vous gagnez <strong><?= DON_POINTS ?> points fidélité</strong> à chaque don récupéré.</p>
+                <p class="mb-0 text-body-secondary">Vos livres dorment dans un carton ? Donnez-les à la communauté : vous gagnez <strong><?= pointsRegle($pdo, 'don') ?> points fidélité</strong> à chaque don récupéré.</p>
                 <ol class="etapes">
                     <li class="etape"><?= iconeDessin('plume') ?><strong>Je propose</strong><span>Titre, état, photo : deux minutes suffisent.</span></li>
                     <li class="etape"><?= iconeDessin('lecteur') ?><strong>Un lecteur réserve</strong><span>Il le récupère grâce au QR code du don.</span></li>
-                    <li class="etape"><?= iconeDessin('medaille') ?><strong>Je gagne des points</strong><span>+<?= DON_POINTS ?> points à utiliser sur mes achats.</span></li>
+                    <li class="etape"><?= iconeDessin('medaille') ?><strong>Je gagne des points</strong><span>+<?= pointsRegle($pdo, 'don') ?> points à utiliser sur mes achats.</span></li>
                 </ol>
                 <div class="d-flex flex-wrap align-items-center gap-3">
                     <a href="don_creer.php" class="bouton bouton-action"><?= iconeDessin('carton') ?> Donner mes livres</a>
@@ -264,7 +264,7 @@ include 'header.php';
                     <div class="vide-dons">
                         <span class="vide-dons__illustration" aria-hidden="true"><?= iconeDessin('carton') ?></span>
                         <strong>Le carton est vide… pour l'instant&nbsp;!</strong>
-                        <p>Vos livres méritent un second lecteur. Proposez-en un : +<?= DON_POINTS ?> points dès qu'il est récupéré.</p>
+                        <p>Vos livres méritent un second lecteur. Proposez-en un : +<?= pointsRegle($pdo, 'don') ?> points dès qu'il est récupéré.</p>
                         <a href="don_creer.php" class="bouton bouton-action"><?= iconeDessin('carton') ?> Proposer un don</a>
                     </div>
                 <?php endif; ?>

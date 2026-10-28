@@ -41,13 +41,13 @@ if ($don && $idUser && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['co
         $maj->execute([$idUser, $don['id_don'], $idUser]);
 
         if ($maj->rowCount()) {
-            crediterPoints($pdo, (int) $don['id_donneur'], DON_POINTS, 'don', 'Don récupéré : « ' . $don['titre'] . ' »', 'don:' . $don['id_don']);
+            crediterPoints($pdo, (int) $don['id_donneur'], pointsRegle($pdo, 'don'), 'don', 'Don récupéré : « ' . $don['titre'] . ' »', 'don:' . $don['id_don']);
             verifierBadges($pdo, (int) $don['id_donneur']);
             fermerConversationsObjet($pdo, 'don', (int) $don['id_don'], "Livre récupéré : l'échange est terminé. Bonne lecture !");
-            insertLog('DON', "Don #{$don['id_don']} récupéré (+" . DON_POINTS . " points pour le donneur)");
+            insertLog('DON', "Don #{$don['id_don']} récupéré (+" . pointsRegle($pdo, 'don') . " points pour le donneur)");
             notifierParMail($don['donneur_email'], "Votre don a été récupéré",
                 "Bonjour {$don['donneur_pseudo']},\n\nVotre livre « {$don['titre']} » a bien été récupéré par {$_SESSION['pseudo']}.\n"
-                . "Merci pour votre générosité ! Vous gagnez " . DON_POINTS . " points BIBLIOccaz.");
+                . "Merci pour votre générosité ! Vous gagnez " . pointsRegle($pdo, 'don') . " points BIBLIOccaz.");
             $succes = "Retrait validé ! Bonne lecture avec « {$don['titre']} ».";
             $don['statut'] = 'recupere';
         } else {

@@ -90,7 +90,7 @@ $pageActive = 'emprunts';
 $sousTitrePage = "Réservations à préparer, retraits au comptoir, emprunts en cours (retards en tête), retours et blocages.";
 include __DIR__ . '/_haut.php';
 
-function carteEmpruntAdmin(array $em, bool $resultatCode = false): void
+function carteEmpruntAdmin(array $em, PDO $pdo, bool $resultatCode = false): void
 {
     $id = (int) $em['id_emprunt'];
     $identifiantCarte = ($resultatCode ? 'resultat-' : '') . $id;
@@ -145,7 +145,7 @@ function carteEmpruntAdmin(array $em, bool $resultatCode = false): void
                     </form>
                 <?php endif; ?>
                 <?php if ($em['statut'] === 'en_cours'): ?>
-                    <form method="POST" data-confirmer="Enregistrer le retour de « <?= e($em['titre']) ?> » par @<?= e($em['pseudo']) ?> ?<?= $retard ? ' Retard de ' . $joursRetard . ' jour' . ($joursRetard > 1 ? 's' : '') . ((int) $em['blocage_retard'] ? ' : les emprunts du lecteur seront bloqués ' . min($joursRetard, BLOCAGE_MAX_JOURS) . ' jour' . (min($joursRetard, BLOCAGE_MAX_JOURS) > 1 ? 's' : '') . '.' : '.') : ' Rendu à l\'heure : +' . POINTS_EMPRUNT . ' points.' ?>" data-bouton-confirmer="Enregistrer le retour">
+                    <form method="POST" data-confirmer="Enregistrer le retour de « <?= e($em['titre']) ?> » par @<?= e($em['pseudo']) ?> ?<?= $retard ? ' Retard de ' . $joursRetard . ' jour' . ($joursRetard > 1 ? 's' : '') . ((int) $em['blocage_retard'] ? ' : les emprunts du lecteur seront bloqués ' . min($joursRetard, BLOCAGE_MAX_JOURS) . ' jour' . (min($joursRetard, BLOCAGE_MAX_JOURS) > 1 ? 's' : '') . '.' : '.') : ' Rendu à l\'heure : +' . pointsRegle($pdo, 'emprunt') . ' points.' ?>" data-bouton-confirmer="Enregistrer le retour">
                         <?= champCsrf() ?>
                         <input type="hidden" name="action" value="retour">
                         <input type="hidden" name="id_emprunt" value="<?= $id ?>">
@@ -215,7 +215,7 @@ function carteEmpruntAdmin(array $em, bool $resultatCode = false): void
     <?php if ($codeCherche !== ''): ?>
         <?php if ($empruntCode): ?>
             <h2 class="h6 fw-bold mb-2">Résultat pour le code <?= e($codeCherche) ?></h2>
-            <div class="row g-3 mb-4"><?php carteEmpruntAdmin($empruntCode, true); ?></div>
+            <div class="row g-3 mb-4"><?php carteEmpruntAdmin($empruntCode, $pdo, true); ?></div>
         <?php else: ?>
             <div class="alert alert-warning" role="status">Aucun emprunt avec le code « <?= e($codeCherche) ?> ».</div>
         <?php endif; ?>
@@ -293,7 +293,7 @@ function carteEmpruntAdmin(array $em, bool $resultatCode = false): void
         <?php endif; ?>
         <div class="row g-3">
             <?php foreach ($emprunts as $em): ?>
-                <?php carteEmpruntAdmin($em); ?>
+                <?php carteEmpruntAdmin($em, $pdo); ?>
             <?php endforeach; ?>
         </div>
     <?php endif; ?>

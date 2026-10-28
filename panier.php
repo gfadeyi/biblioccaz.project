@@ -14,7 +14,7 @@ if ($idUserPanier) {
     require_once 'points_lib.php';
     $niveauPanier = niveauMembre($pdo, $idUserPanier);
 }
-$totaux = calculerTotauxPanier($panier, 0, $niveauPanier['livraison_des'] ?? 20);
+$totaux = calculerTotauxPanier($panier, 0, $niveauPanier['livraison_des'] ?? 20, pointsRegle($pdo, 'achat'));
 if ($idUserPanier && $panier) {
     foreach (optionsReduction($pdo, $idUserPanier, $totaux, soldePoints($pdo, $idUserPanier)) as $option) {
         if ($option['possible'] && (!$meilleurBon || $option['montant'] > $meilleurBon['montant'])) {

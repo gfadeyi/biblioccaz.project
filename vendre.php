@@ -24,7 +24,7 @@ include 'header.php';
             <div class="card h-100 border-0 shadow-sm p-4 text-center" style="border-radius: 20px;">
                 <i class="bi bi-gift fs-1 mb-3" style="color:#274e13;"></i>
                 <h3 class="fw-bold">Donner un livre</h3>
-                <p class="text-muted">Publiez votre don en 2 minutes. Un lecteur le réserve et vient le chercher : il scanne le QR code de votre don, et c'est validé. Vous gagnez <strong><?= DON_POINTS ?> points</strong> par livre récupéré.</p>
+                <p class="text-muted">Publiez votre don en 2 minutes. Un lecteur le réserve et vient le chercher : il scanne le QR code de votre don, et c'est validé. Vous gagnez <strong><?= pointsRegle($pdo, 'don') ?> points</strong> par livre récupéré.</p>
                 <div class="d-grid gap-2 mt-auto">
                     <a href="don_creer.php" class="btn btn-success rounded-pill fw-bold py-2">Proposer un don</a>
                     <a href="dons.php" class="btn btn-outline-success rounded-pill">Voir les <?= $nbDonsDisponibles ?> livre<?= $nbDonsDisponibles > 1 ? 's' : '' ?> à donner</a>

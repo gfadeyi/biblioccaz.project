@@ -208,7 +208,7 @@ include 'header.php';
                 <h2 class="transaction-actions__titre">Vente conclue</h2>
                 <p class="transaction-actions__texte">
                     En attente de la confirmation de @<?= htmlspecialchars($demande['acheteur_pseudo']) ?>.
-                    <?= (int) $demande['en_litige'] ? '' : 'Vos ' . POINTS_VENTE . ' points seront crédités à sa confirmation, ou automatiquement le ' . dateLimiteConfirmation($demande) . ' sans signalement.' ?>
+                    <?= (int) $demande['en_litige'] ? '' : 'Vos ' . pointsMouvement($pdo, (int) $demande['id_vendeur'], 'vente', 'vente:' . $idDemande) . ' points seront crédités à sa confirmation, ou automatiquement le ' . dateLimiteConfirmation($demande) . ' sans signalement.' ?>
                 </p>
                 <a href="recu_vente.php?id=<?= $idDemande ?>" class="bouton bouton-principal w-100"><i class="bi bi-file-earmark-pdf" aria-hidden="true"></i> Télécharger le reçu</a>
                 <p class="transaction-actions__note">Reçu n° <?= htmlspecialchars((string) $demande['numero_recu']) ?></p>

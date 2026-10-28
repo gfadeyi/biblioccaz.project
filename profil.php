@@ -328,7 +328,7 @@ include 'header.php';
                     <span><strong><?= $donsEnCours ?></strong> en cours</span>
                     <span><strong><?= $donsRecuperes ?></strong> récupéré<?= $donsRecuperes > 1 ? 's' : '' ?></span>
                 </div>
-                <p class="texte-profil">Chaque don récupéré vous rapporte <?= DON_POINTS ?> points.</p>
+                <p class="texte-profil">Chaque don récupéré vous rapporte <?= pointsRegle($pdo, 'don') ?> points.</p>
                 <div class="d-flex flex-wrap gap-2 align-items-center">
                     <a href="don_creer.php" class="bouton bouton-contour bouton-petit"><i class="bi bi-plus-lg" aria-hidden="true"></i> Donner un livre</a>
                     <a href="mes_dons.php" class="lien-voir-tout">Mes dons <i class="bi bi-chevron-right" aria-hidden="true"></i></a>

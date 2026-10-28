@@ -143,7 +143,7 @@ include 'header.php';
             </div>
         </dl>
         <ol class="echelle-niveaux" aria-label="Les six niveaux">
-            <?php foreach (NIVEAUX as $index => $etape): ?>
+            <?php foreach (niveauxRegles($pdo) as $index => $etape): ?>
                 <li class="<?= $index < $niveau['index'] ? 'passe' : ($index === $niveau['index'] ? 'actuel' : '') ?>" <?= $index === $niveau['index'] ? 'aria-current="step"' : '' ?>>
                     <span class="echelle-niveaux__point" aria-hidden="true"></span>
                     <span class="echelle-niveaux__nom"><?= htmlspecialchars($etape['nom']) ?></span>
@@ -209,14 +209,14 @@ include 'header.php';
     <section class="mt-5" aria-labelledby="titreBadges">
         <div class="entete-section-compte">
             <h2 id="titreBadges" class="titre-section-compte">Mes badges</h2>
-            <span class="texte-doux"><?= $nombreBadges ?> sur <?= count($badges) ?> obtenus · bonus de 5, 15 et 30 points par palier</span>
+            <span class="texte-doux"><?= $nombreBadges ?> sur <?= count($badges) ?> obtenus · bonus de <?= pointsRegle($pdo, 'badge_bronze') ?>, <?= pointsRegle($pdo, 'badge_argent') ?> et <?= pointsRegle($pdo, 'badge_or') ?> points par palier</span>
         </div>
         <?php if ($nouveauxBadges): ?>
             <p class="annonce-badges" role="status"><i class="bi bi-award" aria-hidden="true"></i>
                 <?= count($nouveauxBadges) > 1 ? 'Nouveaux badges débloqués' : 'Nouveau badge débloqué' ?> : <?= htmlspecialchars(implode(', ', array_column($nouveauxBadges, 'nom'))) ?> !</p>
         <?php endif; ?>
         <ul class="grille-badges"><?php foreach ($badgesClassiques as $badge) { carteBadge($badge); } ?></ul>
-        <h3 class="sous-titre-badges">Badges rares <span class="texte-doux">+<?= BONUS_BADGE_RARE ?> points chacun</span></h3>
+        <h3 class="sous-titre-badges">Badges rares <span class="texte-doux">+<?= pointsRegle($pdo, 'badge_rare') ?> points chacun</span></h3>
         <ul class="grille-badges"><?php foreach ($badgesRares as $badge) { carteBadge($badge); } ?></ul>
     </section>
 
@@ -260,13 +260,13 @@ include 'header.php';
             <section class="carte-compte" aria-labelledby="titreGagner">
                 <h2 id="titreGagner" class="carte-compte__titre"><?= iconeDessin('seconde-vie') ?> Gagner des points</h2>
                 <ul class="regles-points">
-                    <li><strong>1 point</strong> par euro payé en livres</li>
-                    <li><strong>+<?= POINTS_PREMIER_ACHAT ?></strong> pour votre premier achat</li>
-                    <li><strong>+<?= AVIS_POINTS ?></strong> par avis validé sur un livre acheté (<?= AVIS_PAYES_PAR_MOIS ?> par mois)</li>
-                    <li><strong>+<?= POINTS_PREMIER_AVIS ?></strong> pour votre premier avis validé</li>
-                    <li><strong>+<?= DON_POINTS ?></strong> quand un de vos dons est récupéré</li>
-                    <li><strong>+<?= POINTS_PRESENCE ?></strong> par présence à un événement</li>
-                    <li><strong>+5 à +30</strong> à chaque badge débloqué</li>
+                    <li><strong><?= pointsRegle($pdo, 'achat') ?> point(s)</strong> par euro payé en livres</li>
+                    <li><strong>+<?= pointsRegle($pdo, 'premier_achat') ?></strong> pour votre premier achat</li>
+                    <li><strong>+<?= pointsRegle($pdo, 'avis') ?></strong> par avis validé sur un livre acheté (<?= quotaRegle($pdo, 'avis') ?> par mois)</li>
+                    <li><strong>+<?= pointsRegle($pdo, 'premier_avis') ?></strong> pour votre premier avis validé</li>
+                    <li><strong>+<?= pointsRegle($pdo, 'don') ?></strong> quand un de vos dons est récupéré</li>
+                    <li><strong>+<?= pointsRegle($pdo, 'presence') ?></strong> par présence à un événement</li>
+                    <li><strong>Bonus par palier</strong> à chaque nouveau badge débloqué, selon le barème affiché</li>
                 </ul>
                 <p class="texte-doux mb-0">Votre niveau dépend du total gagné : utiliser vos points ne vous fait jamais descendre.</p>
             </section>

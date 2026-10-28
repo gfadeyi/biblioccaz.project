@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/avis_lib.php';
 require_once __DIR__ . '/compte_lib.php';
+require_once __DIR__ . '/recompenses_regles_lib.php';
 
 $idLivreAvis = (int) $livre['id_livre'];
 $idUserCourant = (int) ($_SESSION['user_id'] ?? 0);
@@ -122,7 +123,7 @@ $lienTri = fn($t) => 'detail_livre.php?' . http_build_query(['id' => $idLivreAvi
                                   placeholder="Qu'avez-vous pensé de ce livre ?" required><?= htmlspecialchars($monAvis['commentaire'] ?? '') ?></textarea>
                         <button class="bouton bouton-principal bouton-petit w-100"><?= $monAvis ? 'Mettre à jour mon avis' : 'Publier mon avis' ?></button>
                         <?php if (!$monAvis && ($_SESSION['role'] ?? '') === 'client'): ?>
-                            <div class="form-text text-center">+<?= AVIS_POINTS ?> points fidélité pour votre avis</div>
+                            <div class="form-text text-center">+<?= pointsRegle($pdo, 'avis') ?> points fidélité pour un avis éligible validé</div>
                         <?php endif; ?>
                     </form>
                     <?php if ($monAvis): ?>

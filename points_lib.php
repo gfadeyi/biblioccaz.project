@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/recompenses_regles_lib.php';
 
 const NIVEAUX = [
     ['seuil' => 0, 'nom' => 'Lecteur curieux', 'bonus' => 0, 'livraison_des' => 20, 'prioritaire' => false, 'bon_mensuel' => false],
@@ -57,6 +58,7 @@ const STATUTS_MOUVEMENT = ['valide' => 'Validé', 'en_attente' => 'En attente', 
 
 function crediterPoints(PDO $pdo, int $idUser, int $points, string $type, string $libelle, string $reference, string $statut = 'valide'): bool
 {
+    if ($points === 0) { return false; }
     $stmt = $pdo->prepare("INSERT IGNORE INTO point_mouvement (id_user, points, type, libelle, reference, statut) VALUES (?, ?, ?, ?, ?, ?)");
     $stmt->execute([$idUser, $points, $type, mb_substr($libelle, 0, 255), $reference, $statut]);
     $insere = $stmt->rowCount() > 0;
@@ -105,17 +107,43 @@ function soldePoints(PDO $pdo, int $idUser, bool $verrouiller = false): int
     return (int) $stmt->fetchColumn();
 }
 
-function niveauPour(int $cumul): array
+function niveauxRegles(PDO $pdo): array
 {
+    $niveaux = NIVEAUX;
+    foreach (chargerReglesRecompenses($pdo)['regles']['niveaux'] as $index => $seuil) { $niveaux[$index]['seuil'] = $seuil; }
+    return $niveaux;
+}
+
+function badgesRegles(PDO $pdo): array
+{
+    $badges = BADGES;
+    foreach (chargerReglesRecompenses($pdo)['regles']['badges'] as $code => $paliers) { $badges[$code]['paliers'] = $paliers; }
+    $badges['un_an']['rare'] = 'Plus d’un an d’inscription et au moins ' . $badges['un_an']['paliers'][0] . ' commandes';
+    $badges['explorateur']['rare'] = 'Un livre acheté dans ' . $badges['explorateur']['paliers'][0] . ' univers';
+    $badges['collectionneur']['rare'] = $badges['collectionneur']['paliers'][0] . ' livres achetés dans un même univers';
+    $badges['pilier']['rare'] = $badges['pilier']['paliers'][0] . ' badges au palier or';
+    return $badges;
+}
+
+function pointsMouvement(PDO $pdo, int $idUser, string $type, string $reference): int
+{
+    $stmt = $pdo->prepare('SELECT points FROM point_mouvement WHERE id_user = ? AND type = ? AND reference = ?');
+    $stmt->execute([$idUser, $type, $reference]);
+    return (int) $stmt->fetchColumn();
+}
+
+function niveauPour(int $cumul, ?array $niveaux = null): array
+{
+    $niveaux ??= NIVEAUX;
     $index = 0;
-    foreach (NIVEAUX as $i => $niveau) {
+    foreach ($niveaux as $i => $niveau) {
         if ($cumul >= $niveau['seuil']) {
             $index = $i;
         }
     }
-    $niveau = NIVEAUX[$index] + ['index' => $index, 'cumul' => $cumul, 'prochain' => null, 'reste' => 0, 'progression' => 1.0];
-    if (isset(NIVEAUX[$index + 1])) {
-        $suivant = NIVEAUX[$index + 1];
+    $niveau = $niveaux[$index] + ['index' => $index, 'cumul' => $cumul, 'prochain' => null, 'reste' => 0, 'progression' => 1.0];
+    if (isset($niveaux[$index + 1])) {
+        $suivant = $niveaux[$index + 1];
         $niveau['prochain'] = $suivant + ['index' => $index + 1];
         $niveau['reste'] = $suivant['seuil'] - $cumul;
         $niveau['progression'] = ($cumul - $niveau['seuil']) / ($suivant['seuil'] - $niveau['seuil']);
@@ -126,7 +154,7 @@ function niveauPour(int $cumul): array
 function niveauMembre(PDO $pdo, int $idUser): array
 {
     try {
-        return niveauPour(cumulPoints($pdo, $idUser));
+        return niveauPour(cumulPoints($pdo, $idUser), niveauxRegles($pdo));
     } catch (PDOException $e) {
         return niveauPour(0);
     }
@@ -221,7 +249,7 @@ function verifierBadges(PDO $pdo, int $idUser): array
     }
     $nouveaux = [];
     $insertion = $pdo->prepare("INSERT IGNORE INTO badge_obtenu (id_user, code, palier) VALUES (?, ?, ?)");
-    foreach (BADGES as $code => $badge) {
+    foreach (badgesRegles($pdo) as $code => $badge) {
         if ($code === 'pilier') {
             $stmt = $pdo->prepare("SELECT COUNT(*) FROM badge_obtenu WHERE id_user = ? AND palier = 3");
             $stmt->execute([$idUser]);
@@ -237,7 +265,7 @@ function verifierBadges(PDO $pdo, int $idUser): array
                 continue;
             }
             $estRare = isset($badge['rare']);
-            $bonus = $estRare ? BONUS_BADGE_RARE : BONUS_BADGES[$palier];
+            $bonus = $estRare ? pointsRegle($pdo, 'badge_rare') : pointsRegle($pdo, 'badge_' . mb_strtolower(PALIERS_BADGES[$palier]));
             $libelle = 'Badge « ' . $badge['nom'] . ' »' . ($estRare ? '' : ' ' . mb_strtolower(PALIERS_BADGES[$palier]));
             crediterPoints($pdo, $idUser, $bonus, 'badge', $libelle, $code . ':' . $palier);
             $nouveaux[] = ['code' => $code, 'palier' => $palier];
@@ -257,7 +285,7 @@ function badgesMembre(PDO $pdo, int $idUser): array
     $mesures = mesuresBadges($pdo, $idUser);
 
     $badges = [];
-    foreach (BADGES as $code => $badge) {
+    foreach (badgesRegles($pdo) as $code => $badge) {
         $palierAtteint = empty($obtenus[$code]) ? 0 : max(array_keys($obtenus[$code]));
         $prochainSeuil = $badge['paliers'][$palierAtteint] ?? null;
         $seuilPrecedent = $palierAtteint > 0 ? $badge['paliers'][$palierAtteint - 1] : 0;
@@ -280,6 +308,7 @@ function badgesMembre(PDO $pdo, int $idUser): array
 
 function proposerPointsAvis(PDO $pdo, int $idUser, int $idLivre, string $titreLivre): string
 {
+    if (pointsRegle($pdo, 'avis') === 0) { return 'sans_points'; }
     $stmt = $pdo->prepare("SELECT COUNT(*) FROM commande_ligne cl INNER JOIN commande c ON c.id_commande = cl.id_commande
                            WHERE c.id_user = ? AND cl.id_livre = ? AND c.statut <> 'annulee'");
     $stmt->execute([$idUser, $idLivre]);
@@ -294,10 +323,10 @@ function proposerPointsAvis(PDO $pdo, int $idUser, int $idLivre, string $titreLi
     $stmt = $pdo->prepare("SELECT COUNT(*) FROM point_mouvement WHERE id_user = ? AND type = 'avis' AND statut IN ('valide', 'en_attente')
                            AND date_mouvement >= DATE_FORMAT(NOW(), '%Y-%m-01')");
     $stmt->execute([$idUser]);
-    if ((int) $stmt->fetchColumn() >= AVIS_PAYES_PAR_MOIS) {
+    if ((int) $stmt->fetchColumn() >= quotaRegle($pdo, 'avis')) {
         return 'quota';
     }
-    crediterPoints($pdo, $idUser, AVIS_POINTS, 'avis', 'Avis sur « ' . $titreLivre . ' »', 'livre:' . $idLivre, 'en_attente');
+    crediterPoints($pdo, $idUser, pointsRegle($pdo, 'avis'), 'avis', 'Avis sur « ' . $titreLivre . ' »', 'livre:' . $idLivre, 'en_attente');
     return 'en_attente';
 }
 
@@ -309,7 +338,7 @@ function validerPointsAvis(PDO $pdo, int $idUser, int $idLivre): bool
     $stmt = $pdo->prepare("SELECT COUNT(*) FROM avis WHERE id_user = ? AND statut = 'visible' AND date_validation IS NOT NULL");
     $stmt->execute([$idUser]);
     if ((int) $stmt->fetchColumn() === 1) {
-        crediterPoints($pdo, $idUser, POINTS_PREMIER_AVIS, 'premier_avis', 'Bonus premier avis validé', 'premier');
+        crediterPoints($pdo, $idUser, pointsRegle($pdo, 'premier_avis'), 'premier_avis', 'Bonus premier avis validé', 'premier');
     }
     return true;
 }
@@ -383,11 +412,9 @@ function annulerPointsCommande(PDO $pdo, array $commande): array
                            WHERE id_user = ? AND statut = 'valide' AND type IN ('achat', 'bonus_niveau') AND reference = ?");
     $stmt->execute([$idUser, $reference]);
     $gagnes = (int) $stmt->fetchColumn();
-    $stmt = $pdo->prepare("SELECT COUNT(*) FROM point_mouvement WHERE id_user = ? AND type = 'premier_achat' AND reference = ? AND statut = 'valide'");
+    $stmt = $pdo->prepare("SELECT COALESCE(SUM(points), 0) FROM point_mouvement WHERE id_user = ? AND type = 'premier_achat' AND reference = ? AND statut = 'valide'");
     $stmt->execute([$idUser, $reference]);
-    if ((int) $stmt->fetchColumn() > 0) {
-        $gagnes += POINTS_PREMIER_ACHAT;
-    }
+    $gagnes += (int) $stmt->fetchColumn();
     if ($gagnes > 0) {
         crediterPoints($pdo, $idUser, -$gagnes, 'annulation', "Points retirés : commande n° $idCommande annulée", $reference);
     }
@@ -405,7 +432,7 @@ function pointsPresence(PDO $pdo, array $inscription, string $titreEvenement, bo
         changerStatutMouvement($pdo, $idUser, 'presence', $reference, ['valide'], 'annule');
         return;
     }
-    if (!crediterPoints($pdo, $idUser, POINTS_PRESENCE, 'presence', 'Présence à « ' . $titreEvenement . ' »', $reference)) {
+    if (!crediterPoints($pdo, $idUser, pointsRegle($pdo, 'presence'), 'presence', 'Présence à « ' . $titreEvenement . ' »', $reference)) {
         changerStatutMouvement($pdo, $idUser, 'presence', $reference, ['annule'], 'valide');
     }
     verifierBadges($pdo, $idUser);
