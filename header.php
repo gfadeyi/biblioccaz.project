@@ -142,7 +142,7 @@ $classeRaccourci = fn(array $pages) => in_array($pageActuelle, $pages, true) ? '
         <form action="catalogue.php" method="GET" class="recherche-entete flex-grow-1 position-relative" role="search">
             <label for="barre-recherche" class="visually-hidden">Rechercher un livre</label>
             <input type="search" id="barre-recherche" name="q" autocomplete="off" class="champ-recherche"
-                   placeholder="Titre, auteur, ISBN…" value="<?= htmlspecialchars($_GET['q'] ?? '') ?>">
+                   maxlength="200" placeholder="Titre, auteur, ISBN…" value="<?= htmlspecialchars(is_string($_GET['q'] ?? null) ? mb_substr($_GET['q'], 0, 200) : '') ?>" aria-controls="suggestions-recherche" aria-expanded="false">
             <button type="submit" class="bouton-loupe" aria-label="Rechercher"><?= iconeDessin('loupe') ?></button>
             <div id="suggestions-recherche" class="suggestions-recherche list-group position-absolute w-100 mt-1 shadow d-none"></div>
         </form>

@@ -208,6 +208,8 @@ $peutAcheterEnMagasin = ($_SESSION['role'] ?? '') === 'client';
                 'Collection' => $livre['collection'] ?? '',
                 'Année' => $livre['annee_parution'] ?? '',
                 'ISBN' => $livre['isbn'] ?? '',
+                'Niveau scolaire' => $livre['niveau_scolaire'] ?? '',
+                'Matière' => $livre['matiere'] ?? '',
                 'Nombre de pages' => $livre['nb_pages'] ?? '',
                 'Format' => trim(($livre['reliure'] ?? '') . (!empty($livre['reliure']) && !empty($livre['dimensions']) ? ' · ' : '') . ($livre['dimensions'] ?? '')),
                 'Poids' => !empty($livre['poids']) ? $livre['poids'] . ' g' : '',

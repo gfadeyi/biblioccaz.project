@@ -2,6 +2,7 @@
 require_once 'config.php';
 require_once 'categories_lib.php';
 require_once 'livres_lib.php';
+require_once 'recherche_lib.php';
 
 redirigerAnciennesAdresses();
 
@@ -14,16 +15,18 @@ $sousTitre = $sousTitre ?? '';
 
 $f = array_merge([
     'q' => '', 'categorie' => '', 'tag' => '', 'etat' => '', 'offre' => '',
-    'prix_min' => '', 'prix_max' => '', 'tri' => 'recent', 'stock_bas' => '', 'note_min' => '',
-], $defauts, array_intersect_key($_GET, array_flip(['q', 'categorie', 'tag', 'etat', 'offre', 'prix_min', 'prix_max', 'tri', 'note_min'])), $preset);
+    'prix_min' => '', 'prix_max' => '', 'tri' => 'recent', 'stock_bas' => '', 'note_min' => '', 'niveau' => '', 'matiere' => '',
+], $defauts, array_intersect_key($_GET, array_flip(['q', 'categorie', 'tag', 'etat', 'offre', 'prix_min', 'prix_max', 'tri', 'note_min', 'niveau', 'matiere'])), $preset);
 
-$f = array_map(fn($v) => is_string($v) ? trim($v) : $v, $f);
+foreach ($f as $cle => $valeur) {
+    if ($cle !== 'tag') { $f[$cle] = texteRecherche(is_int($valeur) ? (string) $valeur : $valeur); }
+}
 $slugsTags = is_array($f['tag']) ? $f['tag'] : explode(',', (string) $f['tag']);
 $f['tag'] = array_slice(array_values(array_unique(array_filter(
     array_map(fn($slug) => is_string($slug) ? trim($slug) : '', $slugsTags),
     fn($slug) => preg_match('/^[a-z0-9-]{1,100}$/', $slug) === 1
 ))), 0, 8);
-$page = max(1, (int) ($_GET['page'] ?? 1));
+$page = filter_var($_GET['page'] ?? 1, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1, 'max_range' => 100000]]) ?: 1;
 
 $etatsPossibles = ['neuf' => 'Neuf', 'tres bon' => 'Très bon état', 'bon' => 'Bon état', 'use' => 'État usé'];
 $trisPossibles = [
@@ -40,9 +43,19 @@ $where = ["l.is_valide = 1"];
 $having = [];
 $params = [];
 
+foreach (['niveau' => 'niveau_scolaire', 'matiere' => 'matiere'] as $cle => $colonne) {
+    if ($f[$cle] !== '') {
+        $where[] = "l.$colonne = :$cle";
+        $params[$cle] = $f[$cle];
+    }
+}
+
 if ($f['q'] !== '') {
-    $where[] = "(l.titre LIKE :q1 OR l.auteur LIKE :q2 OR l.isbn LIKE :q3 OR l.editeur LIKE :q4)";
-    foreach (['q1', 'q2', 'q3', 'q4'] as $k) { $params[$k] = '%' . $f['q'] . '%'; }
+    $rechercheIsbn = isbnRecherche($f['q']);
+    $clauseIsbn = $rechercheIsbn !== '' ? "REPLACE(REPLACE(UPPER(l.isbn), '-', ''), ' ', '') = :q3" : "l.isbn LIKE :q3 ESCAPE '!'";
+    $where[] = "(l.titre LIKE :q1 ESCAPE '!' OR l.auteur LIKE :q2 ESCAPE '!' OR $clauseIsbn OR l.editeur LIKE :q4 ESCAPE '!')";
+    foreach (['q1', 'q2', 'q4'] as $k) { $params[$k] = motifRecherche($f['q']); }
+    $params['q3'] = $rechercheIsbn !== '' ? $rechercheIsbn : motifRecherche($f['q']);
 }
 if ($f['categorie'] !== '') {
     $marqueursCategorie = [];
@@ -119,6 +132,13 @@ $livres = $stmt->fetchAll();
 
 $arbre = arbreCategories($pdo);
 $tags = listerTags($pdo);
+$choixScolaires = [];
+foreach (['niveau' => 'niveau_scolaire', 'matiere' => 'matiere'] as $cle => $colonne) {
+    $stmtChoix = $pdo->prepare("SELECT DISTINCT $colonne FROM livre WHERE is_valide = 1 AND $colonne IS NOT NULL AND $colonne <> '' ORDER BY $colonne");
+    $stmtChoix->execute();
+    $choixScolaires[$cle] = $stmtChoix->fetchAll(PDO::FETCH_COLUMN);
+    if ($f[$cle] !== '' && !in_array($f[$cle], $choixScolaires[$cle], true)) { $choixScolaires[$cle][] = $f[$cle]; }
+}
 
 $stmt = $pdo->prepare("SELECT lt.id_tag, COUNT(*) FROM livre_tag lt WHERE lt.id_livre IN (SELECT l.id_livre $sqlBase) GROUP BY lt.id_tag");
 $stmt->execute($params);
@@ -146,6 +166,9 @@ if ($universCourant && !isset($preset['categorie']) && $titrePage === 'Catalogue
 }
 
 $filtresActifs = [];
+foreach (['niveau' => 'Niveau', 'matiere' => 'Matière'] as $cle => $libelle) {
+    if ($f[$cle] !== '' && !isset($preset[$cle])) { $filtresActifs[$cle] = $libelle . ' : ' . $f[$cle]; }
+}
 if ($f['q'] !== '' && !isset($preset['q'])) {
     $filtresActifs['q'] = '« ' . $f['q'] . ' »';
 }
@@ -331,6 +354,20 @@ echo etoilesStyle();
                         <?php endforeach; ?>
                     </select>
                 </div>
+
+                <?php foreach (['niveau' => 'Niveau scolaire', 'matiere' => 'Matière'] as $cle => $libelle): ?>
+                    <?php if ($choixScolaires[$cle] && !isset($preset[$cle])): ?>
+                        <div class="mb-3">
+                            <label for="filtre-<?= $cle ?>" class="form-label"><?= $libelle ?></label>
+                            <select id="filtre-<?= $cle ?>" name="<?= $cle ?>" class="form-select form-select-sm">
+                                <option value="">Tous</option>
+                                <?php foreach ($choixScolaires[$cle] as $choix): ?>
+                                    <option value="<?= htmlspecialchars($choix) ?>" <?= $f[$cle] === $choix ? 'selected' : '' ?>><?= htmlspecialchars($choix) ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                    <?php endif; ?>
+                <?php endforeach; ?>
 
                 <?php if (!isset($preset['offre'])): ?>
                     <div class="mb-3">

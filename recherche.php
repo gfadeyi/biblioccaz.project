@@ -1,13 +1,16 @@
 <?php
 require_once 'config.php';
+require_once 'recherche_lib.php';
 
-$search = isset($_GET['q']) ? trim($_GET['q']) : '';
+$search = texteRecherche($_GET['q'] ?? '');
 $results = array();
 
-if (!empty($search)) {
-    $query = "SELECT id_livre as id, titre, auteur FROM livre WHERE is_valide = 1 AND (titre LIKE ? OR auteur LIKE ?) ORDER BY titre LIMIT 8";
+if ($search !== '') {
+    $isbn = isbnRecherche($search);
+    $clauseIsbn = $isbn !== '' ? "REPLACE(REPLACE(UPPER(isbn), '-', ''), ' ', '') = ?" : "isbn LIKE ? ESCAPE '!'";
+    $query = "SELECT id_livre as id, titre, auteur FROM livre WHERE is_valide = 1 AND (titre LIKE ? ESCAPE '!' OR auteur LIKE ? ESCAPE '!' OR $clauseIsbn) ORDER BY titre, id_livre LIMIT 8";
     $stmt = $pdo->prepare($query);
-    $stmt->execute(["%$search%", "%$search%"]);
+    $stmt->execute([motifRecherche($search), motifRecherche($search), $isbn !== '' ? $isbn : motifRecherche($search)]);
     $results = $stmt->fetchAll();
 }
 

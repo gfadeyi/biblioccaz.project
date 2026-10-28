@@ -49,7 +49,7 @@ Une présence dans le code ne vaut pas recette. Les journaux de tests conservés
 
 ## Priorité recommandée
 
-Le lot de sécurisation de la récupération de mot de passe est désormais implémenté et testé en environnement isolé, en attente de revue et d'autorisation de commit. Ensuite, le parcours scolaire constitue un candidat cohérent car explicitement prévu dans la feuille de route et déjà préparé côté schéma.
+La récupération du mot de passe est publiée dans `5fc98c2`. Le lot sessions est publié dans `dfe605f` et le paramétrage des récompenses dans `5053cf8` ; leurs migrations principales restent à autoriser. Le parcours scolaire préparé côté schéma est raccordé pendant cette session. La définition du profil actif reste la prochaine décision métier nécessaire.
 
 La référence est maintenant disponible : elle confirme les champs scolaires de F2 et les filtres de F9, ainsi que le paramétrage des récompenses de F7/F10. Les critères précis du profil actif ne sont toutefois pas fixés : ce point requiert encore une décision métier. Les données de niveau/matière peuvent rester des libellés libres existants sans inventer de nomenclature scolaire.
 
@@ -137,3 +137,13 @@ Les propositions suivantes remplacent les correspondances hypothétiques précé
 Voir [le guide des règles](regles-recompenses.md). Barème et plafonds mensuels sont pris en compte dans achats, dons, ventes, emprunts et avis ; présences raccordées au même barème. Les seuils des six niveaux et paliers des badges existants sont modifiables. Les montants en attente sont des instantanés ; annulations et historiques utilisent les valeurs enregistrées, jamais le nouveau barème. Les badges obtenus sont conservés et les effets d'une baisse de seuil sont annoncés avant confirmation.
 
 Recette isolée : 69 assertions dédiées récompenses, puis 80 assertions F6/non-régression ciblée et 53 assertions récupération sur le code intégré. La migration `sql/maj_regles_recompenses.sql` est rejouable et incluse dans l'installation complète ; aucune migration principale de ce lot n'a été importée. Ni rendu visuel réel ni conformité WCAG exhaustive ne sont revendiqués.
+
+## Recherche et parcours scolaire — lot nocturne
+
+Le catalogue conserve ses offres, tris, tags, pagination et compteur Fetch. Les entrées HTTP non scalaires sont normalisées ; les caractères `%`, `_` et `!` sont recherchés littéralement. Les ISBN complets peuvent être saisis avec ou sans espaces/tirets, y compris dans les suggestions. Ces dernières sont temporisées et ignorent les réponses anciennes ; Échap et le clic extérieur les ferment sans réouverture tardive.
+
+Le back-office permet de renseigner niveau scolaire et matière, facultatifs et bornés à 50/80 caractères. La fiche les affiche et le catalogue les combine aux autres filtres à partir des libellés existants. Les colonnes proviennent de `sql/maj_livres_details.sql`, déjà présent et repris dans l'installation complète : aucune nouvelle migration scolaire créée ou appliquée. Une installation ancienne doit vérifier ce prérequis avant activation.
+
+Preuves : 54 assertions HTTP/normalisation sur la base isolée (filtres, ISBN, pagination, entrées invalides, droits, CSRF, création/modification scolaire), et 8 assertions JavaScript en simulation contrôlée (temporisation, annulation, réponses dans le désordre, erreurs, fermeture). Cela ne constitue pas une recette visuelle réelle : l'accès navigateur signale un hôte indisponible. Les recommandations personnalisées, filtres de localisation, mesure de performance sur grand volume et audit complet de tous les tris restent distincts.
+
+Propositions Google Docs : F2 « Champs spécifiques pour les livres scolaires/universitaires » et F9 filtres niveau/matière — jaune, à optimiser/recetter visuellement après activation ; F9 recherche simple et suggestions — jaune, périmètre testé précisé ci-dessus, sans prétendre que toute la recherche avancée est achevée. Ne modifier les couleurs qu'après rapprochement des libellés exacts dans le document partagé.

@@ -35,7 +35,7 @@ Les couvertures visibles sur ces captures sont générées pour l'aperçu : les 
 - **Fiche livre** : caractéristiques complètes, choix de l'état (neuf, très bon, bon, usé) avec le prix et le stock de chacun, liste « Toutes les offres » (magasin, annonces de particuliers et dons) triable par prix, état ou type, avis des lecteurs, suggestions
 - **Panier et commande** : remises automatiques (-5 % dès 30 €, -10 % dès 50 €), livraison offerte dès 20 €, carnet d'adresses, bons de réduction, mail de confirmation ; prix et stocks toujours relus en base, commande verrouillée en transaction
 - **Liste d'envies** et **alertes de retour en stock** par mail
-- **Recherche** avec suggestions instantanées
+- **Recherche** par titre, auteur ou ISBN (avec ou sans tirets), suggestions temporisées et filtres combinables par niveau scolaire et matière ; champs scolaires renseignables depuis le back-office
 
 ### Communauté
 - **Emprunts en magasin** : réservation gratuite de trois livres au maximum, retrait sous trois jours ouvrés avec code ou QR, liste d'attente avec attribution automatique, tickets PDF, renouvellements, rappels par mail, suivi des retours et blocages temporaires en cas de retard ; messagerie avec l'équipe, points pour les retours à l'heure et badge « Habitué de la bibliothèque »

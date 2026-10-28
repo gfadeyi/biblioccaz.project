@@ -20,9 +20,9 @@ $valeurs = $livre ?: [];
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     exigerPost($id ? "livre.php?id=$id" : 'livre.php');
 
-    $champs = ['titre', 'auteur', 'description', 'isbn', 'editeur', 'annee_parution', 'nb_pages', 'poids', 'dimensions', 'reliure'];
+    $champs = ['titre', 'auteur', 'description', 'isbn', 'editeur', 'annee_parution', 'nb_pages', 'poids', 'dimensions', 'reliure', 'niveau_scolaire', 'matiere'];
     foreach ($champs as $c) {
-        $valeurs[$c] = trim($_POST[$c] ?? '');
+        $valeurs[$c] = is_string($_POST[$c] ?? null) ? trim($_POST[$c]) : '';
     }
     $isbn = str_replace(['-', ' '], '', $valeurs['isbn']);
 
@@ -32,6 +32,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $erreur = "L'ISBN est obligatoire pour un nouveau livre.";
     } elseif ($isbn !== '' && !preg_match('/^(\d{9}[\dXx]|\d{13})$/', $isbn)) {
         $erreur = "L'ISBN doit comporter 10 ou 13 chiffres.";
+    } elseif (mb_strlen($valeurs['niveau_scolaire']) > 50 || mb_strlen($valeurs['matiere']) > 80
+        || (isset($_POST['niveau_scolaire']) && !is_string($_POST['niveau_scolaire'])) || (isset($_POST['matiere']) && !is_string($_POST['matiere']))) {
+        $erreur = 'Le niveau scolaire (50 caractères maximum) et la matière (80 maximum) doivent être des textes valides.';
     } else {
         [$image, $erreur] = enregistrerCouverture('image');
     }
@@ -46,11 +49,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $valeurs['poids'] ?: null,
             $valeurs['dimensions'] ?: null,
             in_array($valeurs['reliure'], ['Broché', 'Relié', 'Poche'], true) ? $valeurs['reliure'] : 'Broché',
+            $valeurs['niveau_scolaire'] ?: null,
+            $valeurs['matiere'] ?: null,
         ];
 
         if ($id) {
             $sql = "UPDATE livre SET titre = ?, auteur = ?, description = ?, isbn = ?, editeur = ?, annee_parution = ?,
-                    nb_pages = ?, poids = ?, dimensions = ?, reliure = ?" . ($image ? ", couverture = ?" : "") . " WHERE id_livre = ?";
+                    nb_pages = ?, poids = ?, dimensions = ?, reliure = ?, niveau_scolaire = ?, matiere = ?" . ($image ? ", couverture = ?" : "") . " WHERE id_livre = ?";
             if ($image) {
                 $donnees[] = $image;
             }
@@ -58,8 +63,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $pdo->prepare($sql)->execute($donnees);
         } else {
             $donnees[] = $image ?: 'default.png';
-            $pdo->prepare("INSERT INTO livre (titre, auteur, description, isbn, editeur, annee_parution, nb_pages, poids, dimensions, reliure, couverture)
-                           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")->execute($donnees);
+            $pdo->prepare("INSERT INTO livre (titre, auteur, description, isbn, editeur, annee_parution, nb_pages, poids, dimensions, reliure, niveau_scolaire, matiere, couverture)
+                           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")->execute($donnees);
             $id = (int) $pdo->lastInsertId();
         }
 
@@ -121,6 +126,16 @@ $v = fn(string $c) => e((string) ($valeurs[$c] ?? ''));
     </div>
 
     <h2 class="h6 fw-bold text-success mb-3">Caractéristiques</h2>
+    <div class="row g-3 mb-4">
+        <div class="col-md-6">
+            <label for="niveau_scolaire" class="form-label small fw-bold">Niveau scolaire (facultatif)</label>
+            <input id="niveau_scolaire" name="niveau_scolaire" class="form-control" maxlength="50" value="<?= $v('niveau_scolaire') ?>" placeholder="Ex. : Terminale">
+        </div>
+        <div class="col-md-6">
+            <label for="matiere" class="form-label small fw-bold">Matière (facultative)</label>
+            <input id="matiere" name="matiere" class="form-control" maxlength="80" value="<?= $v('matiere') ?>" placeholder="Ex. : Mathématiques">
+        </div>
+    </div>
     <div class="row g-3 mb-4">
         <div class="col-md-4">
             <label class="form-label small fw-bold" for="editeur">Éditeur</label>
