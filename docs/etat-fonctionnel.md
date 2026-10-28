@@ -174,4 +174,10 @@ Le propriétaire confirme manuellement le comportement ISBN par préfixe et l'ou
 
 Libellés de fin de session harmonisés et ancien déclenchement par `?session=expiree` supprimé. Cause issue uniquement du serveur, à usage unique ; 42 assertions HTTP de messages site/admin réussies, puis 66 supervision, 80 F6, 53 authentification et 69 récompenses. Total des bancs de cette reprise : 377 assertions, avec recouvrements fonctionnels possibles. Les nouvelles interfaces n'ont pas été observées en navigateur, toujours indisponible. Les réserves visuelles demeurent et aucune couleur Google Docs n'est modifiée.
 
-Aucun fichier de messagerie parmi les modifications locales à cette reprise ; ce chantier n'a pas été repris. Deux lots Git distincts restent préparés, sans indexation, commit ni publication. Les comptes rendus privés assurent le relais avant toute intervention de l'autre environnement de développement.
+Aucun fichier de messagerie parmi les modifications locales à cette reprise ; ce chantier n'a pas été repris. Deux lots Git distincts étaient alors préparés. Ils ont ensuite été publiés séparément : lot A `0aea7f9`, lot B `7c2e37e`. La recette visuelle des nouvelles interfaces reste distincte de cette livraison Git.
+
+### Lot C — activité et polling de la messagerie
+
+Le correctif de `config.php` exclut le polling automatique de l'actualisation de l'activité, tout en conservant les contrôles F6 à chaque requête. Les trois horloges restent stables pendant les polls ; navigation et envoi volontaire les actualisent. Session valide, activité d'usage et présence humaine instantanée restent des notions distinctes.
+
+21 assertions ciblées réussies sur base fictive, ainsi que 80 F6, 42 messages de fin de session et 53 authentification/récupération : 196 assertions exécutées pour cette reprise. Aucun changement SQL ni écriture principale. Correctif préparé, sans commit ni publication C. La réception et les refus ont été vérifiés en HTTP ; le comportement des onglets et des redirections Fetch reste à observer en navigateur. Aucun nouveau statut Google Docs n'est proposé comme opérationnel sur la seule base de ce correctif ; les réserves de recette visuelle sont conservées.

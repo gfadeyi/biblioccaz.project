@@ -45,6 +45,16 @@ Checklist visuelle sur copie fictive à 375, 768 et 1440 px :
 
 Les comptes à très grand nombre de sessions ont leurs détails chargés ensemble. Une pagination interne des sessions et une recette de charge à grande échelle restent des pistes si les volumes réels le justifient. Les indicateurs sont ceux du registre au moment de l'instantané ; ils ne constituent pas un contrôle du contenu des fichiers PHP de session sur disque.
 
+## Polling de la messagerie
+
+Le rafraîchissement automatique de `message_nouveaux.php` vérifie toujours la validité de la session, les droits, la suspension, le mot de passe, l'expiration et la révocation. Il n'actualise plus l'horloge PHP, la dernière activité du registre F6 ni `user.last_activity`. Recevoir une réponse de polling ne constitue donc pas une nouvelle activité d'usage. Une session valide ne prouve pas une présence humaine instantanée.
+
+La navigation et l'envoi volontaire d'un message continuent à actualiser l'activité. Les endpoints automatiques `en_ligne_donnees.php` et `logs_donnees.php` étaient déjà traités comme des requêtes d'observation. Les requêtes de recherche déclenchées par une saisie ne sont pas exclues.
+
+La recette HTTP isolée du correctif comporte 21 assertions : polls répétés, nouveaux messages, navigation, envoi, CSRF, accès tiers et refus après expiration, révocation, suspension, changement de rôle ou de mot de passe. Les campagnes F6 (80), messages de fin de session (42) et authentification (53) passent également. Aucun test n'écrit sur la base principale et aucune migration n'est nécessaire.
+
+Le comportement visuel et les redirections Fetch restent à vérifier dans un navigateur : laisser une conversation ouverte sans interaction au-delà de dix minutes, vérifier l'expiration, puis refaire avec une fermeture distante ; vérifier aussi la réception avant expiration et l'ouverture du bandeau des nouveaux messages. Ne pas assimiler ces contrôles manuels à la recette HTTP automatisée.
+
 ## Activation SQL du 28 octobre 2026
 
 Après autorisation explicite, sauvegarde complète fraîche et restauration isolée vérifiée, `maj_sessions_supervision.sql` a été appliquée sur `biblioccaz`, code de sortie 0. Les 36 tables préexistantes conservent leurs nombres de lignes et checksums. Le registre conserve ses trois lignes et toutes leurs anciennes valeurs ; seul `role_connexion VARCHAR(20) NULL` est ajouté après `espace`, avec collation utf8mb4. Clés, contraintes et index sont inchangés. Les trois rôles historiques restent NULL : les anciennes sessions doivent se reconnecter pour enregistrer leur rôle. Contrôle global d'encodage réussi. Aucun parcours HTTP ni écriture métier supplémentaire exécuté sur la base principale. Recette visuelle et livraison Git restent distinctes et en attente.
