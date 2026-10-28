@@ -1,19 +1,26 @@
 <?php
 require_once 'config.php';
 require_once 'avis_lib.php';
+require_once 'recuperation_mdp_lib.php';
 if (session_status() === PHP_SESSION_NONE) { session_start(); }
+
+header('Cache-Control: no-store');
+header('Referrer-Policy: no-referrer');
 
 const MDP_LONGUEUR_MIN = 8;
 
-$token = $_POST['token'] ?? $_GET['token'] ?? '';
+$jetonSaisi = $_POST['token'] ?? $_GET['token'] ?? '';
+$token = is_string($jetonSaisi) ? $jetonSaisi : '';
 $erreur = '';
 $user = null;
 $mode = null;
 
-if ($token !== '') {
-    $stmt = $pdo->prepare("SELECT id, prenom FROM user WHERE reset_token_hash = ? AND reset_expire > NOW()");
-    $stmt->execute([hash('sha256', $token)]);
-    $user = $stmt->fetch();
+if (isset($_POST['token']) || isset($_GET['token'])) {
+    if (preg_match('/\A[a-f0-9]{64}\z/', $token)) {
+        $stmt = $pdo->prepare("SELECT id, prenom FROM user WHERE reset_token_hash = ? AND reset_expire > NOW()");
+        $stmt->execute([hash('sha256', $token)]);
+        $user = $stmt->fetch();
+    }
     $mode = 'reset';
 } elseif (isset($_SESSION['user_id'])) {
     $stmt = $pdo->prepare("SELECT id, prenom, mot_de_passe FROM user WHERE id = ?");
@@ -28,29 +35,43 @@ if ($token !== '') {
 $lienInvalide = ($mode === 'reset' && !$user);
 
 if ($user && $_SERVER['REQUEST_METHOD'] === 'POST') {
-    $nouveau = $_POST['nouveau_mdp'] ?? '';
-    $confirmation = $_POST['confirmation'] ?? '';
+    $nouveau = is_string($_POST['nouveau_mdp'] ?? null) ? $_POST['nouveau_mdp'] : '';
+    $confirmation = is_string($_POST['confirmation'] ?? null) ? $_POST['confirmation'] : '';
+    $motDePasseActuel = is_string($_POST['mdp_actuel'] ?? null) ? $_POST['mdp_actuel'] : '';
 
-    if (!verifierCsrf()) {
+    if (!is_string($_POST['csrf'] ?? null) || !verifierCsrf()) {
         $erreur = "Session expirée, merci de réessayer.";
-    } elseif ($mode === 'connecte' && !password_verify($_POST['mdp_actuel'] ?? '', $user['mot_de_passe'])) {
+    } elseif ($mode === 'connecte' && !password_verify($motDePasseActuel, $user['mot_de_passe'])) {
         $erreur = "Votre mot de passe actuel est incorrect.";
     } elseif (mb_strlen($nouveau) < MDP_LONGUEUR_MIN) {
         $erreur = "Le nouveau mot de passe doit contenir au moins " . MDP_LONGUEUR_MIN . " caractères.";
     } elseif ($nouveau !== $confirmation) {
         $erreur = "Les deux mots de passe ne correspondent pas.";
+    } elseif (strlen($nouveau) > 72 || str_contains($nouveau, "\0")) {
+        $erreur = "Le nouveau mot de passe est trop long ou contient un caractère non autorisé.";
     } else {
-        $stmt = $pdo->prepare("UPDATE user SET mot_de_passe = ?, reset_token_hash = NULL, reset_expire = NULL WHERE id = ?");
-        $stmt->execute([password_hash($nouveau, PASSWORD_DEFAULT), $user['id']]);
-
         if ($mode === 'reset') {
+            $modifie = consommerJetonRecuperation($pdo, (int) $user['id'], $token, $nouveau);
+        } else {
+            $stmt = $pdo->prepare("UPDATE user SET mot_de_passe = ?, reset_token_hash = NULL, reset_expire = NULL WHERE id = ? AND mot_de_passe = ?");
+            $stmt->execute([password_hash($nouveau, PASSWORD_DEFAULT), $user['id'], $user['mot_de_passe']]);
+            $modifie = $stmt->rowCount() === 1;
+        }
+
+        if (!$modifie) {
+            $erreur = "Ce lien ou cette session n'est plus valide. Merci de recommencer.";
+        } elseif ($mode === 'reset') {
             insertLog('SECURITE', "Mot de passe réinitialisé via le lien de récupération (user #{$user['id']})");
+            $_SESSION = [];
+            session_regenerate_id(true);
             header("Location: login.php?mdp=1");
+            exit();
         } else {
             insertLog('SECURITE', "Mot de passe modifié depuis le profil");
+            session_regenerate_id(true);
             header("Location: profil.php?mdp=1");
+            exit();
         }
-        exit();
     }
 }
 
