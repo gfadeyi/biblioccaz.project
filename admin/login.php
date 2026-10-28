@@ -81,13 +81,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
 
         <?php if (isset($_GET['timeout'])): ?>
-            <div class="alert alert-warning small">Vous avez été déconnecté après une période d'inactivité.</div>
+            <div class="alert alert-warning small" role="status">Vous avez été déconnecté après une période d'inactivité.</div>
         <?php endif; ?>
         <?php if (isset($_GET['deconnecte'])): ?>
-            <div class="alert alert-success small">Vous êtes déconnecté.</div>
+            <div class="alert alert-success small" role="status">Vous êtes déconnecté.</div>
         <?php endif; ?>
         <?php if ($erreur): ?>
-            <div class="alert alert-danger small"><?= e($erreur) ?></div>
+            <div class="alert alert-danger small" role="alert"><?= e($erreur) ?></div>
         <?php endif; ?>
 
         <form method="POST" action="login.php">

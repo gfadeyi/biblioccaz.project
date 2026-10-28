@@ -86,7 +86,7 @@ if ($user && $_SERVER['REQUEST_METHOD'] === 'POST') {
 include 'header.php';
 ?>
 
-<main class="page-formulaire">
+<div class="page-formulaire">
     <div class="carte-formulaire">
         <div class="carte-formulaire__icone"><i class="bi bi-shield-lock" aria-hidden="true"></i></div>
         <h1><?= $mode === 'reset' ? 'Nouveau mot de passe' : 'Changer mon mot de passe' ?></h1>
@@ -131,6 +131,6 @@ include 'header.php';
             <a href="<?= $mode === 'connecte' ? 'profil.php' : 'login.php' ?>"><?= $mode === 'connecte' ? 'Retour à mon compte' : 'Retour à la connexion' ?></a>
         </p>
     </div>
-</main>
+</div>
 
 <?php include 'footer.php'; ?>

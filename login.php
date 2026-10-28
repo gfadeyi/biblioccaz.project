@@ -26,7 +26,7 @@ if (isset($_GET['mdp'])) { $success = "Mot de passe modifié ! Vous pouvez vous 
 if (isset($_GET['inscription'])) { $success = "Compte créé ! Un mail de validation vient de vous être envoyé : cliquez sur son lien avant de vous connecter."; }
 ?>
 
-<main class="page-formulaire">
+<div class="page-formulaire">
     <div class="carte-formulaire">
         <div class="carte-formulaire__icone"><?= iconeDessin('lecteur') ?></div>
         <h1>Se connecter</h1>
@@ -63,7 +63,7 @@ if (isset($_GET['inscription'])) { $success = "Compte créé ! Un mail de valida
         </form>
         <p class="carte-formulaire__pied">Pas encore de compte ? <a href="inscription.php">Créer un compte</a></p>
     </div>
-</main>
+</div>
 
 <div class="modal fade" id="captchaModal" tabindex="-1" aria-labelledby="titreCaptcha" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">

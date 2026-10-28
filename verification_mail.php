@@ -45,13 +45,13 @@ $etats = [
 include 'header.php';
 ?>
 
-<main class="page-formulaire">
+<div class="page-formulaire">
     <div class="carte-formulaire text-center">
         <div class="carte-formulaire__icone<?= $classeIcone ?>"><i class="bi <?= $icone ?>" aria-hidden="true"></i></div>
         <h1><?= $titre ?></h1>
         <p class="carte-formulaire__intro"><?= htmlspecialchars($message) ?></p>
         <a href="<?= $lien ?>" class="bouton <?= $classeBouton ?>"><?= $libelleLien ?></a>
     </div>
-</main>
+</div>
 
 <?php include 'footer.php'; ?>

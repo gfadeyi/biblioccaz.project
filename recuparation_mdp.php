@@ -51,7 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 include 'header.php';
 ?>
 
-<main class="page-formulaire">
+<div class="page-formulaire">
     <div class="carte-formulaire">
         <div class="carte-formulaire__icone"><i class="bi bi-key" aria-hidden="true"></i></div>
         <h1>Mot de passe oublié</h1>
@@ -74,6 +74,6 @@ include 'header.php';
         </form>
         <p class="carte-formulaire__pied"><a href="login.php">Retour à la connexion</a></p>
     </div>
-</main>
+</div>
 
 <?php include 'footer.php'; ?>

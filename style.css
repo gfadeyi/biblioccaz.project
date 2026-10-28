@@ -104,6 +104,9 @@ h1, h2, h3, .titre { font-family: var(--police-titre); font-weight: 700; letter-
 .logo-slogan { font-size: .72rem; color: var(--encre-douce); margin-top: 3px; }
 .recherche-entete .champ-recherche { width: 100%; height: 48px; border-radius: var(--rayon-pilule); border: 1.5px solid var(--trait); background: var(--papier);
                                      color: var(--encre); padding: 0 3.5rem 0 1.3rem; }
+.recherche-entete .champ-recherche::-webkit-search-cancel-button { -webkit-appearance: none; appearance: none; width: 14px; height: 14px; background: var(--texte-vert); cursor: pointer;
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3 3l10 10M13 3L3 13' stroke='%23000' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E") center / contain no-repeat;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3 3l10 10M13 3L3 13' stroke='%23000' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E") center / contain no-repeat; }
 .recherche-entete .champ-recherche:focus { outline: none; border-color: var(--texte-vert); background: var(--surface); box-shadow: 0 0 0 4px var(--vert-50); }
 .icone-dessin { width: 1.3em; height: 1.3em; flex-shrink: 0; fill: none; stroke: currentColor; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; vertical-align: -.25em; overflow: visible; }
 .atout .icone-dessin { padding: 10px; }
@@ -1724,6 +1727,7 @@ h1, h2, h3, .titre { font-family: var(--police-titre); font-weight: 700; letter-
 @media (max-width: 991.98px) {
     .messagerie { grid-template-columns: minmax(0, 1fr); }
     .messagerie__liste { position: static; max-height: none; }
+    .messagerie__fil--vide { display: none; }
     .page-messages--fil .messagerie__liste { display: none; }
     .page-messages--fil .conversation__retour { display: grid; }
     .page-messages--fil .titre-page-compte + p { display: none; }

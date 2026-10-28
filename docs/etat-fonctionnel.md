@@ -196,3 +196,23 @@ Propositions de suivi, à rapprocher des lignes actuelles du Google Docs sans ch
 | Messagerie et interaction avec les sessions | Jaune « À optimiser » : recette HTTP et JavaScript ciblée réussie, correction des redirections à livrer et navigation réelle à confirmer. Ne pas assimiler cette preuve à une couverture complète des courses anti-spam. |
 | Cinq lignes Emprunts F5 | Conserver les propositions détaillées existantes fondées sur les 141 assertions historiques et la validation graphique manuelle ; pas de nouvelle validation globale lors de cette recette, scan physique QR toujours non attesté. |
 | Administration des récompenses, recherche et profils | Aucun nouveau changement de statut justifié par cette recette ; règles métier inchangées et profil participant toujours à définir. |
+
+### Recette navigateur du 28 octobre 2026
+
+Recette réalisée dans Chrome headless (Playwright, profil temporaire) sur copie isolée et base fictive, à 1440, 768 et 375 px. Aucune session réelle fermée, aucune règle de récompense modifiée et aucune écriture sur la base principale.
+
+Validé en navigateur : tableau « En ligne » (indicateurs, recherches pseudo/nom/e-mail, filtres de rôle et multi-session, pagination, fermeture d'une session ou de toutes, protection des autres administrateurs, confirmation chiffrée de la fermeture globale) ; messages de fin de session (fermée, expirée, mot de passe, suspension, cause inconnue, back-office), affichés une seule fois et sans boucle ; messagerie (réservation d'un don, envoi, réception par polling en 30 secondes, bandeau, non-lus, accès tiers refusé, signalement, masquage, réponse de l'équipe sur un emprunt, quota horaire, limite de mails) ; navigation visible vers la connexion après expiration, fermeture à distance et dix minutes réelles d'inactivité pendant le polling ; recherche ISBN par préfixe avec et sans tirets, suggestions, résultats vides, filtres niveau et matière ; pages de règles et de niveaux des récompenses, validations et droits.
+
+Corrections d'interface issues de la recette : un seul repère `main` par page, nom accessible du bouton des catégories sur mobile, rôles ARIA des alertes de connexion du back-office, bandeau de nouveau message annoncé aux technologies d'assistance, brouillon conservé après un envoi refusé, focus clavier renforcé dans le back-office, libellé de la messagerie actualisé, panneau vide masqué sur mobile, croix de recherche aux couleurs du site.
+
+Limites : onglet masqué simulé par l'API de visibilité, reconnexion par session de test plutôt que par le puzzle de connexion, aucun lecteur d'écran réel, aucun audit WCAG exhaustif ni mesure de contraste automatisée.
+
+| Périmètre | Proposition |
+|---|---|
+| Supervision et contrôle des sessions | Vert « Opérationnel » sur le périmètre local testé, sous réserve de la publication des corrections d'interface. |
+| Messages de fin de session | Vert « Opérationnel ». |
+| Messagerie liée aux transactions | Vert « Opérationnel » après publication des corrections ; jaune si la ligne exige un signalement visible des erreurs réseau du polling. |
+| Recherche ISBN et suggestions | Vert « Opérationnel » sur le périmètre recherche simple. |
+| Champs et filtres scolaires | Vert « Opérationnel » pour niveau et matière. |
+| Administration des règles de récompenses | Vert « Opérationnel » pour l'affichage, les contrôles et les droits ; aucune nouvelle règle métier. |
+| Profil participant actif | Inchangé : orange, critères non décidés. |

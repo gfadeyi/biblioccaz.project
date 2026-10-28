@@ -164,7 +164,7 @@ $titreDocument = $annonce ? 'Modifier mon annonce' : 'Vendre un livre';
 include 'header.php';
 ?>
 
-<main class="page-formulaire">
+<div class="page-formulaire">
     <div class="carte-formulaire carte-formulaire--annonce">
         <div class="carte-formulaire__icone"><?= iconeDessin('etiquette') ?></div>
         <h1><?= $annonce ? 'Modifier mon annonce' : 'Vendre un livre' ?></h1>
@@ -299,7 +299,7 @@ include 'header.php';
         <p class="carte-formulaire__pied"><a href="mes_annonces.php">Mes annonces</a> · <a href="vendre.php">Donner ou revendre</a></p>
         <?php endif; ?>
     </div>
-</main>
+</div>
 
 <?php if (!$annonce && $raisonInterdiction === ''): ?>
 <script>

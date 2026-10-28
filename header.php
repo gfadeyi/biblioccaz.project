@@ -262,7 +262,7 @@ $classeRaccourci = fn(array $pages) => in_array($pageActuelle, $pages, true) ? '
     </div>
 
     <div class="container-xxl barre-raccourcis">
-        <button class="bouton-categories" type="button" data-bs-toggle="offcanvas" data-bs-target="#menuCategories" aria-controls="menuCategories">
+        <button class="bouton-categories" type="button" data-bs-toggle="offcanvas" data-bs-target="#menuCategories" aria-controls="menuCategories" aria-label="Toutes les catégories">
             <?= iconeDessin('pile') ?> <span>Toutes les catégories</span>
         </button>
         <nav class="defilement-raccourcis" aria-label="Raccourcis">

@@ -55,7 +55,7 @@ $lienSessions = fn(int $numero) => 'en_ligne.php?' . http_build_query(['q'=>$rec
                     <?= (int) $membre['nombre'] ?> session(s)</span>
             </h3>
             <p class="small text-muted text-break mb-2">
-                <?= e(trim(($membre['prenom'] ?? '') . ' ' . ($membre['nom'] ?? ''))) ?> · <?= e(ROLES_LIBELLES[$membre['role']] ?? $membre['role']) ?> · <?= e($membre['email']) ?>
+                <?= e(implode(' · ', array_filter([trim(($membre['prenom'] ?? '') . ' ' . ($membre['nom'] ?? '')), ROLES_LIBELLES[$membre['role']] ?? $membre['role'], $membre['email']], 'strlen'))) ?>
             </p>
             <details>
                 <summary class="py-3">Consulter les sessions de @<?= e($membre['pseudo']) ?>

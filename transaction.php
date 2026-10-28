@@ -26,14 +26,14 @@ if (!$estVendeur && !$estAcheteur) {
     $titreDocument = 'Transaction introuvable';
     include 'header.php';
     ?>
-    <main class="page-formulaire">
+    <div class="page-formulaire">
         <div class="carte-formulaire text-center">
             <div class="carte-formulaire__icone"><?= iconeDessin('etiquette') ?></div>
             <h1>Transaction introuvable</h1>
             <p class="carte-formulaire__intro">Cette transaction n'existe pas ou ne vous concerne pas.</p>
             <a href="mes_transactions.php" class="bouton bouton-principal">Mes ventes et achats</a>
         </div>
-    </main>
+    </div>
     <?php
     include 'footer.php';
     exit();

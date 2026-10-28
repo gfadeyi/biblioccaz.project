@@ -4,6 +4,11 @@ $conversationOuverte = $conversation['statut'] === 'ouverte';
 $autreSuspendu = $autre && in_array($autre['statut'], ['refuse_temporaire', 'refuse_definitif'], true);
 $dernierMessage = $messages ? (int) end($messages)['id_message'] : 0;
 $idFil = 'fil-' . (int) $conversation['id_conversation'];
+$brouillon = '';
+if (($_SESSION['brouillon_message'][0] ?? null) === (int) $conversation['id_conversation']) {
+    $brouillon = (string) $_SESSION['brouillon_message'][1];
+    unset($_SESSION['brouillon_message']);
+}
 ?>
 <section class="conversation" id="conversation" aria-labelledby="titre-<?= $idFil ?>"
          data-conversation="<?= (int) $conversation['id_conversation'] ?>" data-dernier="<?= $dernierMessage ?>">
@@ -89,11 +94,13 @@ $idFil = 'fil-' . (int) $conversation['id_conversation'];
         <?php endforeach; ?>
     </div>
 
-    <p class="conversation__nouveaux" hidden>
-        <a href="<?= htmlspecialchars($retourConversation === 'objet' && $conversation['objet']['lien'] ? $conversation['objet']['lien'] . '#conversation' : 'messages.php?id=' . (int) $conversation['id_conversation'] . '#conversation') ?>">
-            <i class="bi bi-arrow-down-circle" aria-hidden="true"></i> <span>Nouveau message</span> · afficher
-        </a>
-    </p>
+    <div role="status">
+        <p class="conversation__nouveaux" hidden>
+            <a href="<?= htmlspecialchars($retourConversation === 'objet' && $conversation['objet']['lien'] ? $conversation['objet']['lien'] . '#conversation' : 'messages.php?id=' . (int) $conversation['id_conversation'] . '#conversation') ?>">
+                <i class="bi bi-arrow-down-circle" aria-hidden="true"></i> <span>Nouveau message</span> · afficher
+            </a>
+        </p>
+    </div>
 
     <?php if ($conversationOuverte && !$autreSuspendu): ?>
         <form action="message_action.php" method="POST" class="conversation__saisie">
@@ -103,7 +110,7 @@ $idFil = 'fil-' . (int) $conversation['id_conversation'];
             <input type="hidden" name="retour" value="<?= htmlspecialchars($retourConversation) ?>">
             <label for="saisie-<?= $idFil ?>" class="visually-hidden">Votre message à <?= $autre ? '@' . htmlspecialchars($autre['pseudo']) : "l'équipe" ?></label>
             <textarea id="saisie-<?= $idFil ?>" name="contenu" rows="2" maxlength="<?= MESSAGE_LONGUEUR_MAX ?>" required
-                      placeholder="Écrivez à <?= $autre ? '@' . htmlspecialchars($autre['pseudo']) : "l'équipe BIBLIOccaz" ?>…" data-compteur="compteur-<?= $idFil ?>"></textarea>
+                      placeholder="Écrivez à <?= $autre ? '@' . htmlspecialchars($autre['pseudo']) : "l'équipe BIBLIOccaz" ?>…" data-compteur="compteur-<?= $idFil ?>"><?= htmlspecialchars($brouillon) ?></textarea>
             <div class="conversation__envoi">
                 <span class="conversation__compteur" id="compteur-<?= $idFil ?>" aria-live="polite"></span>
                 <button class="bouton bouton-principal bouton-petit"><i class="bi bi-send" aria-hidden="true"></i> Envoyer</button>

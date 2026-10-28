@@ -18,14 +18,14 @@ if (!$visible) {
     $titreDocument = 'Annonce indisponible';
     include 'header.php';
     ?>
-    <main class="page-formulaire">
+    <div class="page-formulaire">
         <div class="carte-formulaire text-center">
             <div class="carte-formulaire__icone"><?= iconeDessin('etiquette') ?></div>
             <h1>Annonce indisponible</h1>
             <p class="carte-formulaire__intro">Cette annonce a été vendue, retirée par son vendeur ou n'existe pas.</p>
             <a href="catalogue.php?offre=particulier" class="bouton bouton-principal">Voir les annonces entre particuliers</a>
         </div>
-    </main>
+    </div>
     <?php
     include 'footer.php';
     exit();

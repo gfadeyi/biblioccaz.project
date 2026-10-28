@@ -35,7 +35,10 @@ $resultat = match ($_POST['action'] ?? '') {
     'signaler' => signalerMessage($pdo, (int) ($_POST['id_message'] ?? 0), $idUser, (string) ($_POST['motif'] ?? ''), (string) ($_POST['commentaire'] ?? '')),
     default => ['danger', "Action inconnue."],
 };
-if ($resultat[0] === 'success' && ($_POST['action'] ?? '') === 'envoyer') {
-    retourConversation($conversation, 'envoye', '');
+if (($_POST['action'] ?? '') === 'envoyer') {
+    if ($resultat[0] === 'success') {
+        retourConversation($conversation, 'envoye', '');
+    }
+    $_SESSION['brouillon_message'] = [(int) $conversation['id_conversation'], mb_substr((string) ($_POST['contenu'] ?? ''), 0, MESSAGE_LONGUEUR_MAX)];
 }
 retourConversation($conversation, $resultat[0], $resultat[1]);

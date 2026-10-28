@@ -127,7 +127,8 @@ h2, .h5, .h6 { color: var(--vert-nuit); }
 
 .btn { font-weight: 600; border-radius: 10px; transition: background-color var(--duree-rapide) var(--courbe), border-color var(--duree-rapide) var(--courbe), color var(--duree-rapide) var(--courbe), box-shadow var(--duree-rapide) var(--courbe), scale var(--duree-rapide) var(--courbe); }
 .btn:active { scale: .97; }
-.btn:focus-visible { box-shadow: 0 0 0 3px rgba(63, 125, 37, .35); }
+:focus-visible { outline: 3px solid var(--vert-500); outline-offset: 2px; }
+.btn:focus-visible { box-shadow: none; outline: 3px solid var(--vert-500); outline-offset: 2px; }
 .btn.rounded-pill { border-radius: var(--rayon-pilule); }
 .btn-vert, .btn-success { --bs-btn-bg: var(--vert); --bs-btn-border-color: var(--vert); --bs-btn-hover-bg: var(--vert-fonce); --bs-btn-hover-border-color: var(--vert-fonce);
                           --bs-btn-active-bg: var(--vert-nuit); --bs-btn-active-border-color: var(--vert-nuit); --bs-btn-color: #fff; --bs-btn-hover-color: #fff; background: var(--bs-btn-bg); color: #fff; border: 1px solid var(--bs-btn-border-color); }
@@ -148,6 +149,7 @@ h2, .h5, .h6 { color: var(--vert-nuit); }
 .form-control, .form-select { border-color: var(--trait-fort); border-radius: 10px; color: var(--encre); }
 .form-control:focus, .form-select:focus { border-color: var(--vert-400); box-shadow: 0 0 0 3px rgba(63, 125, 37, .18); }
 .form-check-input:checked { background-color: var(--vert-500); border-color: var(--vert-500); }
+.form-check-input:focus { border-color: var(--vert-500); box-shadow: 0 0 0 3px rgba(63, 125, 37, .35); }
 .form-label { font-weight: 600; color: var(--encre-douce); }
 .barre-filtres-admin { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; padding: .9rem 1.15rem; border-bottom: 1px solid var(--trait); }
 .barre-filtres-admin .form-control, .barre-filtres-admin .form-select { width: auto; min-width: 0; }

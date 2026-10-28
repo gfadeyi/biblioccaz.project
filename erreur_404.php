@@ -8,7 +8,7 @@ $titreDocument = 'Page introuvable';
 include 'header.php';
 ?>
 
-<main class="page-formulaire">
+<div class="page-formulaire">
     <div class="carte-formulaire carte-formulaire--large text-center page-introuvable">
         <p class="page-introuvable__code" aria-hidden="true">404</p>
         <h1>Ce livre n'est pas dans nos rayons</h1>
@@ -26,6 +26,6 @@ include 'header.php';
             <a href="dons.php" class="bouton bouton-contour bouton-petit">Livres à donner</a>
         </div>
     </div>
-</main>
+</div>
 
 <?php include 'footer.php'; ?>

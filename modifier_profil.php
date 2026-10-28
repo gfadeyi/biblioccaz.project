@@ -50,7 +50,7 @@ if ($erreur) {
 include 'header.php';
 ?>
 
-<main class="page-formulaire">
+<div class="page-formulaire">
     <div class="carte-formulaire carte-formulaire--large">
         <div class="carte-formulaire__icone"><i class="bi bi-person-gear" aria-hidden="true"></i></div>
         <h1>Modifier mes infos</h1>
@@ -95,6 +95,6 @@ include 'header.php';
             <a href="profil.php">Retour à mon compte</a> · <a href="modifier_mdp.php">Changer mon mot de passe</a>
         </p>
     </div>
-</main>
+</div>
 
 <?php include 'footer.php'; ?>

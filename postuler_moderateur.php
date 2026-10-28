@@ -62,7 +62,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 include 'header.php';
 ?>
 
-<main class="page-formulaire">
+<div class="page-formulaire">
     <div class="carte-formulaire carte-formulaire--large">
         <div class="carte-formulaire__icone"><i class="bi bi-shield-plus" aria-hidden="true"></i></div>
         <h1>Rejoindre l'équipe</h1>
@@ -112,6 +112,6 @@ include 'header.php';
         <?php endif; ?>
         <p class="carte-formulaire__pied">Vous cherchez plutôt un compte lecteur ? <a href="inscription.php">Créer un compte</a></p>
     </div>
-</main>
+</div>
 
 <?php include 'footer.php'; ?>

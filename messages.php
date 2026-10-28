@@ -58,7 +58,7 @@ include 'header.php';
     </nav>
 
     <h1 class="titre-page-compte mb-1">Mes messages</h1>
-    <p class="text-muted mb-4">Les échanges liés à vos dons, et bientôt à vos ventes et emprunts. Une conversation s'ouvre avec chaque transaction.</p>
+    <p class="text-muted mb-4">Les échanges liés à vos dons, ventes et emprunts. Une conversation s'ouvre avec chaque transaction.</p>
 
     <?php if (!$messagerieInstallee): ?>
         <div class="alert alert-warning rounded-3">La messagerie n'est pas encore installée : importez <code>sql/maj_messagerie.sql</code>.</div>
@@ -111,7 +111,7 @@ include 'header.php';
                 </ul>
             </nav>
 
-            <div class="messagerie__fil carte-compte">
+            <div class="messagerie__fil carte-compte<?= $conversation ? '' : ' messagerie__fil--vide' ?>">
                 <?php if ($conversation): ?>
                     <?php include 'partie_conversation.php'; ?>
                 <?php else: ?>
