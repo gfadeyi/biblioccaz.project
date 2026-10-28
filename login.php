@@ -1,7 +1,5 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+require_once 'config.php';
 
 header("Cache-Control: no-cache, no-store, must-revalidate"); 
 header("Pragma: no-cache"); 
@@ -10,6 +8,7 @@ include 'header.php';
 
 $error = "";
 $success = "";
+if (($_GET['session'] ?? '') === 'expiree') { $error = 'Votre connexion a expiré ou a été fermée. Merci de vous reconnecter.'; }
 
 if (isset($_GET['error'])) {
     if ($_GET['error'] == '1') { $error = "Identifiants incorrects."; }
@@ -18,6 +17,7 @@ if (isset($_GET['error'])) {
     elseif ($_GET['error'] == 'en_attente_moderateur') { $error = "Votre demande d'inscription en tant que modérateur est en cours d'examen."; }
     elseif ($_GET['error'] == 'refuse_temporaire') { $error = "Votre candidature n'a pas été retenue pour l'instant."; }
     elseif ($_GET['error'] == 'refuse_definitif') { $error = "Votre demande a été rejetée définitivement."; }
+    elseif ($_GET['error'] == 'technique') { $error = 'Connexion temporairement indisponible. Merci de réessayer.'; }
 }
 
 if (isset($_GET['verif'])) { $success = "Compte validé ! Vous pouvez vous connecter."; }

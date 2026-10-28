@@ -6,6 +6,8 @@ if (estEquipe()) {
 }
 
 $erreur = '';
+if (($_GET['session'] ?? '') === 'expiree') { $erreur = 'Votre connexion a expiré ou a été fermée. Merci de vous reconnecter.'; }
+if (($_GET['connexion'] ?? '') === 'indisponible') { $erreur = 'Connexion temporairement indisponible. Merci de réessayer.'; }
 $identifiant = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -43,6 +45,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['nom'] = $user['nom'];
         $_SESSION['prenom'] = $user['prenom'];
         $_SESSION['connexion_time'] = time();
+        try {
+            enregistrerSessionUtilisateur($pdo, $user);
+        } catch (RuntimeException $e) {
+            insertLog('ERREUR', 'Connexion au back-office temporairement indisponible');
+            rediriger('login.php?connexion=indisponible');
+        }
 
         insertLog('CONNEXION', "Connexion au back-office");
         $retour = $_SESSION['admin_retour'] ?? '';

@@ -216,7 +216,7 @@ $classeRaccourci = fn(array $pages) => in_array($pageActuelle, $pages, true) ? '
                             </li>
                         <?php endforeach; ?>
                         <li><hr class="dropdown-divider"></li>
-                        <li><a class="lien-menu-compte deconnexion" href="logout.php"><?= iconeDessin('porte') ?><span>Déconnexion</span></a></li>
+                        <li><form method="POST" action="logout.php"><input type="hidden" name="csrf" value="<?= htmlspecialchars(jetonCsrf(), ENT_QUOTES, 'UTF-8') ?>"><button type="submit" class="lien-menu-compte deconnexion border-0 bg-transparent w-100 text-start"><?= iconeDessin('porte') ?><span>Déconnexion</span></button></form></li>
                     <?php else: ?>
                         <li class="menu-entete__accueil">Bienvenue ! Retrouvez vos favoris, vos points et vos commandes.</li>
                         <li><a class="lien-menu-compte" href="login.php"><?= iconeDessin('porte') ?><span>Se connecter</span></a></li>

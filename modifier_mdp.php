@@ -53,8 +53,9 @@ if ($user && $_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($mode === 'reset') {
             $modifie = consommerJetonRecuperation($pdo, (int) $user['id'], $token, $nouveau);
         } else {
+            $nouveauHash = password_hash($nouveau, PASSWORD_DEFAULT);
             $stmt = $pdo->prepare("UPDATE user SET mot_de_passe = ?, reset_token_hash = NULL, reset_expire = NULL WHERE id = ? AND mot_de_passe = ?");
-            $stmt->execute([password_hash($nouveau, PASSWORD_DEFAULT), $user['id'], $user['mot_de_passe']]);
+            $stmt->execute([$nouveauHash, $user['id'], $user['mot_de_passe']]);
             $modifie = $stmt->rowCount() === 1;
         }
 
@@ -62,13 +63,20 @@ if ($user && $_SERVER['REQUEST_METHOD'] === 'POST') {
             $erreur = "Ce lien ou cette session n'est plus valide. Merci de recommencer.";
         } elseif ($mode === 'reset') {
             insertLog('SECURITE', "Mot de passe réinitialisé via le lien de récupération (user #{$user['id']})");
+            terminerSuiviSession($pdo);
             $_SESSION = [];
             session_regenerate_id(true);
             header("Location: login.php?mdp=1");
             exit();
         } else {
             insertLog('SECURITE', "Mot de passe modifié depuis le profil");
+            terminerSuiviSession($pdo);
             session_regenerate_id(true);
+            try {
+                enregistrerSessionUtilisateur($pdo, ['id' => $user['id'], 'mot_de_passe' => $nouveauHash]);
+            } catch (RuntimeException $e) {
+                refuserSession($pdo, 'Reconnexion nécessaire après modification simultanée du compte');
+            }
             header("Location: profil.php?mdp=1");
             exit();
         }

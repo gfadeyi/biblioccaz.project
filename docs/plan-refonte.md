@@ -74,6 +74,8 @@ Le bouton « Toutes les catégories » ouvre un panneau à gauche, dans l'esprit
 ## Phase 8 — Fonctionnalités restantes du cahier des charges
 État au 28 octobre 2026 : badges et niveaux (F7), revente entre particuliers (F3) et emprunt de livres (F5) implémentés. Pour le détail de F5, voir [le plan et les validations](plan-f5.md). Les rapports locaux complètent les contrôles et limites ; ne pas traiter cette ancienne liste comme des fonctionnalités à recommencer.
 
+Contrôle des sessions (F6) : implémentation et recette isolée réalisées, migration principale et recette visuelle encore à valider ; voir [le plan F6](plan-f6.md). Aucun import principal, commit ou déploiement implicite.
+
 ## Phase future — Déploiement public « BibliOccaz Demo »
 
 À engager après la finalisation de la majorité ou de l'ensemble des fonctionnalités et après validation explicite. Objectif : une démonstration consultable depuis GitHub, le CV et le portfolio.

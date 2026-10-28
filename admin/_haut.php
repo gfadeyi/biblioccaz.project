@@ -130,7 +130,7 @@ $iconesFlash = ['success' => 'check-circle-fill', 'danger' => 'x-octagon-fill', 
                 <ul class="dropdown-menu dropdown-menu-end shadow-sm">
                     <li><a class="dropdown-item" href="mot_de_passe.php"><i class="bi bi-shield-lock me-2"></i>Changer mon mot de passe</a></li>
                     <li><hr class="dropdown-divider"></li>
-                    <li><a class="dropdown-item text-danger" href="deconnexion.php"><i class="bi bi-box-arrow-right me-2"></i>Déconnexion</a></li>
+                    <li><form method="POST" action="deconnexion.php"><?= champCsrf() ?><button type="submit" class="dropdown-item text-danger"><i class="bi bi-box-arrow-right me-2"></i>Déconnexion</button></form></li>
                 </ul>
             </div>
         <?php endif; ?>

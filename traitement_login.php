@@ -55,6 +55,7 @@ try {
         $_SESSION['prenom'] = $user['prenom'];
 
         $_SESSION['connexion_time'] = time();
+        enregistrerSessionUtilisateur($pdo, $user);
 
         insertLog('CONNEXION', "Connexion réussie");
 
@@ -68,7 +69,9 @@ try {
         header("Location: login.php?error=1");
         exit();
     }
-} catch (PDOException $e) {
-    die("Erreur technique : " . $e->getMessage());
+} catch (RuntimeException $e) {
+    insertLog('ERREUR', 'Connexion temporairement indisponible');
+    header('Location: login.php?error=technique');
+    exit();
 }
 ?>

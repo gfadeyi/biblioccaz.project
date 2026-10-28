@@ -197,7 +197,7 @@ include 'header.php';
             <?php if ($estEquipe): ?>
                 <a href="admin/index.php" class="bouton bouton-principal bouton-petit"><i class="bi bi-speedometer2" aria-hidden="true"></i> Back-office</a>
             <?php endif; ?>
-            <a href="logout.php" class="bouton bouton-discret bouton-petit"><i class="bi bi-box-arrow-right" aria-hidden="true"></i> Déconnexion</a>
+            <form method="POST" action="logout.php"><input type="hidden" name="csrf" value="<?= htmlspecialchars(jetonCsrf(), ENT_QUOTES, 'UTF-8') ?>"><button type="submit" class="bouton bouton-discret bouton-petit"><i class="bi bi-box-arrow-right" aria-hidden="true"></i> Déconnexion</button></form>
         </div>
     </section>
 

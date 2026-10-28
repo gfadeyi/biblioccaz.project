@@ -77,7 +77,7 @@ Le développement métier suivant n'est pas sélectionné définitivement sans l
 
 La reprise initiale ci-dessus était un audit sans modification métier. La session suivante a reçu l'autorisation de sécuriser la récupération : modifications ciblées de `recuparation_mdp.php` et `modifier_mdp.php`, ajout de `recuperation_mdp_lib.php`, sans migration, changement graphique ou modification du README. Le délai entre deux émissions d'un compte est de 60 secondes, appliqué atomiquement en base avec les colonnes existantes ; la session autorise cinq demandes en quinze minutes, que l'email soit connu ou non. La réponse reste générique, y compris en cas de limitation ou d'erreur d'envoi. Une durée minimale de réponse de 400 ms réduit les écarts courants ; l'envoi SMTP synchrone peut encore créer des écarts temporels, donc aucune garantie de temps constant n'est revendiquée.
 
-Le jeton est revérifié dans l'UPDATE qui change le mot de passe et le consomme. La session du navigateur est renouvelée après succès et, en mode récupération, vidée avant retour à la connexion. Cela ne révoque pas automatiquement les autres sessions déjà ouvertes sur d'autres appareils : aucun mécanisme global de révocation n'a été ajouté dans cette correction ciblée.
+Le jeton est revérifié dans l'UPDATE qui change le mot de passe et le consomme. La session du navigateur est renouvelée après succès et, en mode récupération, vidée avant retour à la connexion. La correction initiale de récupération ne révoquait pas les autres appareils ; l'évolution F6 décrite ci-dessous invalide désormais les anciennes connexions à leur prochaine requête.
 
 53 assertions fonctionnelles/de non-régression réussies avec le compte SQL restreint de l'environnement de test existant : accès à `biblioccaz` refusé avant le serveur, routage test et SMTP local vérifiés ; emails fictifs capturés par Mailpit. La connexion réelle a été testée avec un état CAPTCHA prévalidé en fixture ; l'interaction visuelle du puzzle n'a pas été exécutée. Syntaxe PHP et `git diff --check` vérifiés. Pas de nouvelle campagne F5 ni de validation visuelle desktop/mobile : structure et styles conservés, contrôles HTTP sans erreur PHP. Aucun accès applicatif à la base principale, aucun commit ni push.
 
@@ -89,6 +89,28 @@ Les couleurs de référence sont : vert « Opérationnel », jaune « À optimis
 |---|---|---|
 | Demande de récupération du mot de passe / envoi du lien | Vert — Opérationnel, sur le périmètre local testé | CSRF absent/invalide refusé, email inconnu non révélé par le message, jeton haché, expiration, anti-répétition et capture Mailpit vérifiés. À appliquer seulement si le libellé ne promet pas un envoi en production ou une protection anti-abus distribuée. |
 | Réinitialisation par lien à usage unique | Vert — Opérationnel, sur le périmètre local testé | Succès, expiration, rejeu et concurrence vérifiés ; ancien mot de passe refusé et nouveau accepté. |
-| Sécurité globale de l'authentification / gestion complète des sessions, si une telle ligne existe | Jaune — À optimiser | Révocation globale des sessions non réalisée, anti-abus par IP/service non ajouté et absence de garantie de temps constant ; aucune recette exhaustive inscription/captcha/rôles revendiquée. |
+| Sécurité globale de l'authentification / gestion complète des sessions, si une telle ligne existe | Jaune — À optimiser tant que la livraison complète n'est pas activée | Révocation et invalidation des anciennes sessions ajoutées/testées par F6, mais migration principale et rendu visuel restent à valider. Anti-abus par IP/service non ajouté et absence de garantie de temps constant ; aucune recette exhaustive inscription/captcha/rôles revendiquée. |
 
 Le propriétaire doit valider ces correspondances avant toute modification du document partagé. La couverture contractuelle globale reste à rapprocher du contenu Google Docs réel.
+
+## Audit F6 — contrôle des sessions
+
+L'audit initial a confirmé que la page En ligne ne supervisait que des membres récemment actifs, sans distinguer les connexions ni proposer de révocation. L'évolution du [plan F6](plan-f6.md) est maintenant implémentée et vérifiée en base isolée : sessions PHP conservées, registre d'empreintes, contrôle central des droits/suspensions et du mot de passe, fermeture individuelle ou globale avec POST/CSRF/confirmation. Les connexions d'un autre administrateur sont protégées côté serveur, conformément à l'option validée.
+
+80 assertions F6/non-régression ciblée et 53 assertions de récupération réussies sur le code intégré. Migration du registre créée et rejouée uniquement dans la base isolée ; syntaxe et diff vérifiés. Les anciennes sessions sont refusées après révocation, modification de rôle, suspension ou changement du mot de passe. Un changement de rôle impose une reconnexion ; l'inactivité est de dix minutes et le rafraîchissement automatique ne la prolonge pas.
+
+Statut proposé F6 : orange « En cours » pour la livraison globale tant que migration principale, revue/commit et recette visuelle ne sont pas achevés. Le parcours technique isolé est vérifié, sans revendication de rendu observé ni de migration réelle. Aucun statut Google Docs modifié.
+
+## Propositions F5 pour les cinq lignes signalées rouges
+
+L'accès Google Docs reste indisponible (lecture web et export texte en échec, aucune session documentaire connectée). Les cinq lignes ci-dessous sont une correspondance proposée avec les cinq axes de livraison F5 décrits par le plan local, pas une transcription des libellés réels ni des couleurs observées. Ne pas modifier le document partagé sans rapprochement effectif.
+
+| Axe à rapprocher de la ligne réelle | Proposition | Preuves conservées et limites |
+|---|---|---|
+| Mise à disposition d'un livre en emprunt et réglages | Vert — Opérationnel sur la recette locale | Journal parcours : huit mises à disposition ; non-régression stock vente/emprunt et tests des réglages de pénalité. La migration principale est attestée séparément par son rapport. |
+| Réservation, limite et attente | Vert — Opérationnel sur la recette locale | Journaux parcours, attente, HTTP et concurrence : limite de trois, doublons, éligibilité, attribution, CSRF, deux lecteurs pour un exemplaire et quatre réservations simultanées. Les positions à date identique ont aussi un test ciblé conservé. |
+| Retrait par code/QR et tickets | Jaune — À optimiser si la ligne englobe la validation physique/visuelle | Retrait POST, double retrait, normalisation du contenu QR, droits de téléchargement et tickets PDF vérifiés techniquement. Scan physique sur smartphone et mise en page PDF observée non attestés. Si la ligne se limite au retrait par code, le vert peut être justifié par les tests disponibles. |
+| Retours, renouvellements et blocages | Vert — Opérationnel sur la recette locale | Journaux parcours et compléments : renouvellement et refus, retour à l'heure/en retard, blocage plafonné, levée motivée, limite mensuelle de points et instantané de pénalité. Cela n'atteste pas une nouvelle recette sur la vraie base. |
+| Mails, rappels et relances | Vert pour le déclenchement à l'ouverture des pages ; jaune si l'exigence impose un envoi sans visite | Captures Mailpit : réservation, renouvellement, retour, attribution, expiration, J-3, jour J et retard ; test anti-doublon des relances. Pas de tâche planifiée : un rappel sans accès aux pages n'est pas démontré ni implémenté. Aucun envoi réel de production testé. |
+
+Les preuves permettent de remettre en question les cinq rouges, pas de les remplacer indistinctement par cinq verts. Aucun statut Google Docs changé.

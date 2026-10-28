@@ -3,50 +3,14 @@ if (!file_exists(__DIR__ . '/secrets.php')) {
     die("Configuration manquante : copie secrets.example.php en secrets.php et remplis-le.");
 }
 require_once __DIR__ . '/secrets.php';
+require_once __DIR__ . '/sessions_lib.php';
 if (session_status() === PHP_SESSION_NONE) {
+    ini_set('session.use_strict_mode', '1');
+    ini_set('session.use_only_cookies', '1');
+    session_set_cookie_params(['httponly' => true, 'samesite' => 'Lax', 'secure' => !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off']);
     session_start();
 }
-
-$inactivity_limit = 600; 
-
-if (isset($_SESSION['last_activity'])) {
-    $duration = time() - $_SESSION['last_activity'];
-    if ($duration > $inactivity_limit) {
-
-    if (isset($_SESSION['user_id'])) {
-            try {
-                $pdo_auto = new PDO("mysql:host=" . DB_HOST . ";dbname=" . DB_NAME . ";charset=utf8mb4", DB_USER, DB_PASS, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
-                
-                $stmt_u = $pdo_auto->prepare("SELECT last_activity FROM user WHERE id = ?");
-                $stmt_u->execute([$_SESSION['user_id']]);
-                $u_data = $stmt_u->fetch(PDO::FETCH_ASSOC);
-                $date_exacte_deco = $u_data['last_activity'] ?? date('Y-m-d H:i:s');
-
-                $stmt_log = $pdo_auto->prepare("INSERT INTO logs (action_type, description, date_action, adresse_ip, id_user) VALUES ('LOGOUT', 'Déconnexion automatique (inactivité 300s)', ?, ?, ?)");
-                $stmt_log->execute([$date_exacte_deco, $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1', $_SESSION['user_id']]);
-            } catch (\PDOException $e) {
-
-            }
-        }
-
-        session_unset();
-        session_destroy();
-        header("Location: login.php?timeout=1");
-        exit();
-    }
-}
-$_SESSION['last_activity'] = time();
-
-$isLocal = ($_SERVER['REMOTE_ADDR'] == '127.0.0.1' || $_SERVER['REMOTE_ADDR'] == '::1');
-$timeout_duration = 600;
-
-if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity'] > $timeout_duration)) {
-    session_unset();
-    session_destroy();
-    header("Location: login.php?msg=inactive");
-    exit();
-}
-$_SESSION['last_activity'] = time();
+$isLocal = in_array($_SERVER['REMOTE_ADDR'] ?? '', ['127.0.0.1', '::1'], true);
 
 $host = DB_HOST;
 $db   = DB_NAME;
@@ -67,9 +31,15 @@ try {
     die("Erreur de connexion : " . $e->getMessage());
 }
 
+$actualiserSession = !in_array(basename($_SERVER['SCRIPT_FILENAME'] ?? ''), ['en_ligne_donnees.php', 'logs_donnees.php'], true);
+controlerSessionUtilisateur($pdo, $actualiserSession);
+
 if (isset($_SESSION['user_id'])) {
-    $stmt = $pdo->prepare("UPDATE user SET last_activity = NOW() WHERE id = ?");
-    $stmt->execute([$_SESSION['user_id']]);
+    header('Cache-Control: no-store');
+    if ($actualiserSession) {
+        $stmt = $pdo->prepare("UPDATE user SET last_activity = NOW() WHERE id = ?");
+        $stmt->execute([$_SESSION['user_id']]);
+    }
 }
 
 function insertLog($type, $message) {

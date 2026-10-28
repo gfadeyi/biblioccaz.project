@@ -1,13 +1,13 @@
 <?php
 require_once __DIR__ . '/_init.php';
+if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !is_string($_POST['csrf'] ?? null) || !verifierCsrf()) {
+    http_response_code(403);
+    exit('Requête de déconnexion invalide.');
+}
 if (isset($_SESSION['user_id'])) {
     insertLog('DECONNEXION', "Déconnexion du back-office");
 }
-$_SESSION = [];
-if (ini_get('session.use_cookies')) {
-    $p = session_get_cookie_params();
-    setcookie(session_name(), '', time() - 3600, $p['path'], $p['domain'], $p['secure'], $p['httponly']);
-}
-session_destroy();
+terminerSuiviSession($pdo);
+detruireSessionCourante();
 header('Location: login.php?deconnecte=1');
 exit();

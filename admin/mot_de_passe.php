@@ -6,21 +6,34 @@ const MDP_LONGUEUR_MIN = 8;
 $erreur = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!is_string($_POST['csrf'] ?? null)) { rediriger('mot_de_passe.php', 'danger', 'Requête invalide.'); }
     exigerPost('mot_de_passe.php');
     $stmt = $pdo->prepare("SELECT mot_de_passe FROM user WHERE id = ?");
     $stmt->execute([$_SESSION['user_id']]);
     $actuel = (string) $stmt->fetchColumn();
-    $nouveau = $_POST['nouveau_mdp'] ?? '';
+    $nouveau = is_string($_POST['nouveau_mdp'] ?? null) ? $_POST['nouveau_mdp'] : '';
+    $ancien = is_string($_POST['mdp_actuel'] ?? null) ? $_POST['mdp_actuel'] : '';
 
-    if (!password_verify($_POST['mdp_actuel'] ?? '', $actuel)) {
+    if (!password_verify($ancien, $actuel)) {
         $erreur = "Votre mot de passe actuel est incorrect.";
     } elseif (mb_strlen($nouveau) < MDP_LONGUEUR_MIN) {
         $erreur = "Le nouveau mot de passe doit contenir au moins " . MDP_LONGUEUR_MIN . " caractères.";
     } elseif ($nouveau !== ($_POST['confirmation'] ?? '')) {
         $erreur = "Les deux mots de passe ne correspondent pas.";
+    } elseif (strlen($nouveau) > 72 || str_contains($nouveau, "\0")) {
+        $erreur = 'Le nouveau mot de passe est trop long ou contient un caractère non autorisé.';
     } else {
-        $pdo->prepare("UPDATE user SET mot_de_passe = ?, reset_token_hash = NULL, reset_expire = NULL WHERE id = ?")
-            ->execute([password_hash($nouveau, PASSWORD_DEFAULT), $_SESSION['user_id']]);
+        $nouveauHash = password_hash($nouveau, PASSWORD_DEFAULT);
+        $stmt = $pdo->prepare("UPDATE user SET mot_de_passe = ?, reset_token_hash = NULL, reset_expire = NULL WHERE id = ? AND mot_de_passe = ?");
+        $stmt->execute([$nouveauHash, $_SESSION['user_id'], $actuel]);
+        if ($stmt->rowCount() !== 1) { rediriger('mot_de_passe.php', 'danger', 'Le compte a changé. Merci de réessayer.'); }
+        terminerSuiviSession($pdo);
+        session_regenerate_id(true);
+        try {
+            enregistrerSessionUtilisateur($pdo, ['id' => $_SESSION['user_id'], 'mot_de_passe' => $nouveauHash]);
+        } catch (RuntimeException $e) {
+            refuserSession($pdo, 'Reconnexion nécessaire après modification simultanée du compte');
+        }
         insertLog('SECURITE', "Mot de passe modifié depuis le back-office");
         rediriger('index.php', 'success', "Mot de passe modifié.");
     }
