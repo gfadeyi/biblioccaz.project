@@ -137,6 +137,11 @@ function controlerSessionUtilisateur(PDO $pdo, bool $actualiser = true): void
     if ($actualiser) { $_SESSION['last_activity'] = time(); }
 }
 
+function finSessionSuspendue(): bool
+{
+    return ($_SESSION['motif_deconnexion'] ?? '') === 'suspendue';
+}
+
 function messageFinSession(): string
 {
     $raison = $_SESSION['motif_deconnexion'] ?? '';

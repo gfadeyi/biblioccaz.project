@@ -8,8 +8,8 @@ include 'header.php';
 
 $error = "";
 $success = "";
+$compteSuspendu = finSessionSuspendue();
 $finSession = messageFinSession();
-if ($finSession !== '') { $error = $finSession; }
 
 if (isset($_GET['error'])) {
     if ($_GET['error'] == '1') { $error = "Identifiants incorrects."; }
@@ -35,6 +35,7 @@ if (isset($_GET['inscription'])) { $success = "Compte créé ! Un mail de valida
         <?php if (isset($_GET['timeout']) || (isset($_GET['msg']) && $_GET['msg'] === 'inactive')): ?>
             <div class="alert alert-info small" role="status"><strong>Déconnexion automatique</strong> après 10 minutes d'inactivité.</div>
         <?php endif; ?>
+        <?php if ($finSession): ?><div class="alert <?= $compteSuspendu ? 'alert-danger' : 'alert-info' ?> small" role="<?= $compteSuspendu ? 'alert' : 'status' ?>"><?= htmlspecialchars($finSession) ?></div><?php endif; ?>
         <?php if ($error): ?><div class="alert alert-danger small" role="alert"><?= htmlspecialchars($error) ?></div><?php endif; ?>
         <?php if ($success): ?><div class="alert alert-success small" role="status"><?= htmlspecialchars($success) ?></div><?php endif; ?>
 

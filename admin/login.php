@@ -6,8 +6,8 @@ if (estEquipe()) {
 }
 
 $erreur = '';
+$compteSuspendu = finSessionSuspendue();
 $finSession = messageFinSession();
-if ($finSession !== '') { $erreur = $finSession; }
 if (($_GET['connexion'] ?? '') === 'indisponible') { $erreur = 'Connexion temporairement indisponible. Merci de réessayer.'; }
 $identifiant = '';
 
@@ -85,6 +85,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?php endif; ?>
         <?php if (isset($_GET['deconnecte'])): ?>
             <div class="alert alert-success small" role="status">Vous êtes déconnecté.</div>
+        <?php endif; ?>
+        <?php if ($finSession): ?>
+            <div class="alert <?= $compteSuspendu ? 'alert-danger' : 'alert-info' ?> small" role="<?= $compteSuspendu ? 'alert' : 'status' ?>"><?= e($finSession) ?></div>
         <?php endif; ?>
         <?php if ($erreur): ?>
             <div class="alert alert-danger small" role="alert"><?= e($erreur) ?></div>

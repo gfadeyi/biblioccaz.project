@@ -11,7 +11,8 @@ if (($_SESSION['brouillon_message'][0] ?? null) === (int) $conversation['id_conv
 }
 ?>
 <section class="conversation" id="conversation" aria-labelledby="titre-<?= $idFil ?>"
-         data-conversation="<?= (int) $conversation['id_conversation'] ?>" data-dernier="<?= $dernierMessage ?>">
+         data-conversation="<?= (int) $conversation['id_conversation'] ?>" data-dernier="<?= $dernierMessage ?>"
+         data-membre="<?= (int) $idUser ?>" data-envoi="<?= ($flashConversation[0] ?? '') === 'envoye' ? 'reussi' : '' ?>">
     <header class="conversation__entete">
         <?php if (!empty($lienRetourListe)): ?>
             <a href="messages.php" class="conversation__retour" aria-label="Retour à mes messages"><i class="bi bi-arrow-left" aria-hidden="true"></i></a>
@@ -99,6 +100,9 @@ if (($_SESSION['brouillon_message'][0] ?? null) === (int) $conversation['id_conv
             <a href="<?= htmlspecialchars($retourConversation === 'objet' && $conversation['objet']['lien'] ? $conversation['objet']['lien'] . '#conversation' : 'messages.php?id=' . (int) $conversation['id_conversation'] . '#conversation') ?>">
                 <i class="bi bi-arrow-down-circle" aria-hidden="true"></i> <span>Nouveau message</span> · afficher
             </a>
+        </p>
+        <p class="conversation__connexion" hidden>
+            <i class="bi bi-wifi-off" aria-hidden="true"></i> Connexion au serveur interrompue. Les nouveaux messages s'afficheront dès son retour.
         </p>
     </div>
 

@@ -263,7 +263,7 @@ h1, h2, h3, .titre { font-family: var(--police-titre); font-weight: 700; letter-
 .btn-check:checked + .puce-tag .compte-tag { background: rgba(255, 255, 255, .2); color: #fff; }
 .btn-check:focus-visible + .puce-tag { outline: 2px solid var(--texte-vif); outline-offset: 2px; }
 .btn-check:active + .puce-tag { transform: scale(.96); }
-.pied-volet-filtres { position: sticky; bottom: 0; margin: 1rem -1rem -1rem; padding: .85rem 1rem; background: var(--surface); border-top: 1px solid var(--trait); }
+.pied-volet-filtres { position: sticky; bottom: -1rem; margin: 1rem -1rem -1rem; padding: .85rem 1rem; background: var(--surface); border-top: 1px solid var(--trait); }
 .pied-volet-filtres .en-calcul { opacity: .7; }
 @media (max-width: 991.98px) {
     .volet-filtres { --bs-offcanvas-width: min(360px, 92vw); }
@@ -1712,6 +1712,7 @@ h1, h2, h3, .titre { font-family: var(--police-titre); font-weight: 700; letter-
 .signalement-message .form-label { margin: 0; font-size: .85rem; font-weight: 600; color: var(--encre); }
 .conversation__nouveaux { margin: 0; padding: .5rem; text-align: center; background: var(--vert-50); border-top: 1px solid var(--trait); }
 .conversation__nouveaux a { font-weight: 700; color: var(--texte-vert); }
+.conversation__connexion { margin: 0; padding: .4rem .75rem; text-align: center; font-size: .85rem; color: var(--encre-douce); background: var(--papier); border-top: 1px solid var(--trait); }
 .conversation__saisie { display: grid; gap: .5rem; padding: 1rem 1.25rem .5rem; border-top: 1px solid var(--trait); background: var(--surface); }
 .conversation__saisie textarea { width: 100%; min-height: 52px; max-height: 220px; padding: .75rem 1rem; border: 1px solid var(--trait); border-radius: var(--rayon-grand); background: var(--papier);
                                  resize: none; font: inherit; color: var(--encre); transition: border-color var(--transition), box-shadow var(--transition); }
