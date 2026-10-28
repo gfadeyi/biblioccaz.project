@@ -16,6 +16,8 @@ Un accord explicite est nécessaire pour :
 
 Une autorisation précise reste valable pour les opérations qu'elle couvre dans la session : ne pas la redemander à chaque commande, ni l'étendre à d'autres opérations. Une autorisation de commit ne vaut pas autorisation de push. Si une protection technique refuse une opération, analyser le refus, ne pas le contourner et poursuivre les travaux indépendants. Consigner l'action refusée et la limite rencontrée.
 
+L'assistant exécute lui-même les commandes Git autorisées ; il ne renvoie pas systématiquement leur exécution à l'utilisateur. Distinguer l'accord explicite sur le contenu du commit ou la publication et la permission technique d'exécution. Si le sandbox exige une permission supplémentaire, utiliser le mécanisme officiel de demande d'autorisation pour la seule commande nécessaire, conformément aux règles de l'environnement. Cette demande ne remplace jamais l'accord sur le commit ou le push. Ne pas modifier les permissions de `.git`, désactiver les protections ou employer une autre méthode pour les contourner. Si l'autorisation technique n'est pas disponible ou est refusée, conserver le travail et expliquer précisément le blocage.
+
 ## 1. Audit initial
 
 - Lire les instructions locales, le README, la feuille de route et le dernier rapport pertinent. Les rapports sensibles sont conservés hors Git ; rechercher aussi le suivi local existant.
@@ -84,9 +86,15 @@ Préparer des commits cohérents avec des messages clairs en français et une li
 
 ## 10. Validation et publication
 
-Après autorisation explicite, revérifier branche, index, fichiers et patches avant d'indexer uniquement le contenu prévu. Contrôler `git diff --cached --check`, puis examiner intégralement le contenu indexé avant chaque commit. Vérifier ensuite auteurs, messages, fichiers, contenu cumulé et état local. Ne jamais modifier l'identité Git ou ajouter une attribution automatique à une IA dans les commits, PR ou fichiers versionnés. Les éventuelles obligations de déclaration auprès de l'établissement restent applicables.
+Avant chaque commit, effectuer la revue complète, présenter les fichiers et fragments concernés ainsi que le message proposé, puis demander l'accord explicite de l'utilisateur. Ne pas demander de nouveau cet accord s'il a déjà été donné pour ce commit précis et que le contenu reste conforme.
 
-Un push nécessite son autorisation propre et un contrôle de la destination. Aucun `git push --force`, `git reset --hard` ou `git clean` susceptible de supprimer du travail. Aucun changement de branche, modification d'historique ou suppression de travail pour résoudre un refus. Si un contrôle échoue, arrêter l'opération concernée sans réécrire l'historique, conserver l'état et expliquer le problème.
+Après cet accord, l'assistant revérifie `refonte`, l'index, les fichiers et les patches, puis exécute lui-même `git add --` avec les chemins explicites ou applique le patch prévu uniquement à l'index. Contrôler `git diff --cached --check`, puis examiner intégralement le contenu indexé avant d'exécuter `git commit`. Utiliser si nécessaire la demande officielle de permission technique limitée à l'opération concernée. Vérifier ensuite l'identifiant, l'auteur, le message, les fichiers, le contenu cumulé et l'état local. Un commit déjà créé ne doit pas être recréé, amendé ou modifié pour rejouer une procédure devenue ancienne.
+
+Demander séparément l'autorisation de publier les commits identifiés vers `origin/refonte`. Vérifier la destination et l'état distant réel avant de proposer le push : une référence locale `origin/refonte` peut être ancienne ; une lecture distante telle que `git ls-remote origin refs/heads/refonte` permet de contrôler la pointe sans modifier les références locales. Si cette vérification échoue, ne pas affirmer que GitHub est synchronisé. Un fetch ou un pull n'est pas implicite dans cette lecture.
+
+Après accord explicite sur la publication, l'assistant exécute lui-même `git push origin refonte`, avec la permission technique officielle si nécessaire. Vérifier ensuite la pointe distante par rapport au commit local et exécuter `git status --short --branch`. Ne pas imposer un second terminal à l'utilisateur lorsque les outils autorisés permettent l'opération. Si le dépôt distant a évolué de façon incompatible, s'arrêter et expliquer l'écart sans forcer la publication.
+
+Ne jamais modifier l'identité Git ou ajouter une attribution automatique à une IA dans les commits, PR ou fichiers versionnés. Les éventuelles obligations de déclaration auprès de l'établissement restent applicables. Aucun `git push --force`, `git reset --hard` ou `git clean` susceptible de supprimer du travail. Aucun changement de branche, modification d'historique ou suppression de travail pour résoudre un refus. Si un contrôle échoue, arrêter l'opération concernée sans réécrire l'historique, conserver l'état et expliquer le problème.
 
 Préserver le README comme vitrine : présentation, aperçus, structure et explications accessibles. Le mettre à jour pour les fonctionnalités réellement livrées ; conserver procédures internes et rapports détaillés dans leurs documents dédiés.
 
