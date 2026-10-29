@@ -120,6 +120,7 @@ include __DIR__ . '/_haut.php';
         <button class="btn btn-outline-secondary" aria-label="Rechercher"><i class="bi bi-search" aria-hidden="true"></i></button>
         <?php if ($q !== '' || $filtreRole !== ''): ?><a href="utilisateurs.php" class="btn btn-link">Effacer</a><?php endif; ?>
     </form>
+    <a href="membre_creer.php" class="btn btn-success"><i class="bi bi-person-plus me-1" aria-hidden="true"></i> Créer un compte</a>
     <a href="export_membres.php" class="btn btn-outline-secondary"><i class="bi bi-file-earmark-pdf me-1"></i> Export PDF</a>
 </div>
 

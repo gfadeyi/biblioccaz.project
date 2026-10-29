@@ -3,6 +3,7 @@
 const RECUPERATION_DELAI_SECONDES = 60;
 const RECUPERATION_FENETRE_SECONDES = 900;
 const RECUPERATION_DEMANDES_SESSION = 5;
+const INVITATION_DUREE_HEURES = 48;
 
 function autoriserDemandeRecuperation(): bool
 {
@@ -21,7 +22,7 @@ function preparerRecuperation(PDO $pdo, string $email): ?array
     $jeton = bin2hex(random_bytes(32));
     $empreinte = hash('sha256', $jeton);
     $stmt = $pdo->prepare("UPDATE user SET reset_token_hash = ?, reset_expire = DATE_ADD(NOW(), INTERVAL 1 HOUR)
-        WHERE email = ? AND (reset_expire IS NULL OR reset_expire <= DATE_SUB(DATE_ADD(NOW(), INTERVAL 1 HOUR), INTERVAL " . RECUPERATION_DELAI_SECONDES . " SECOND))");
+        WHERE email = ? AND (reset_expire IS NULL OR reset_expire <= DATE_SUB(DATE_ADD(NOW(), INTERVAL 1 HOUR), INTERVAL " . RECUPERATION_DELAI_SECONDES . " SECOND) OR reset_expire > DATE_ADD(NOW(), INTERVAL 1 HOUR))");
     $stmt->execute([$empreinte, $email]);
     if ($stmt->rowCount() !== 1) {
         return null;
@@ -34,8 +35,16 @@ function preparerRecuperation(PDO $pdo, string $email): ?array
 
 function consommerJetonRecuperation(PDO $pdo, int $idUser, string $jeton, string $motDePasse): bool
 {
-    $stmt = $pdo->prepare('UPDATE user SET mot_de_passe = ?, reset_token_hash = NULL, reset_expire = NULL
+    $stmt = $pdo->prepare('UPDATE user SET mot_de_passe = ?, reset_token_hash = NULL, reset_expire = NULL, email_verifie = 1, est_verifie = 1, email_token = NULL
         WHERE id = ? AND reset_token_hash = ? AND reset_expire > NOW()');
     $stmt->execute([password_hash($motDePasse, PASSWORD_DEFAULT), $idUser, hash('sha256', $jeton)]);
     return $stmt->rowCount() === 1;
+}
+
+function preparerInvitation(PDO $pdo, int $idUser): string
+{
+    $jeton = bin2hex(random_bytes(32));
+    $pdo->prepare('UPDATE user SET reset_token_hash = ?, reset_expire = DATE_ADD(NOW(), INTERVAL ' . INVITATION_DUREE_HEURES . ' HOUR) WHERE id = ?')
+        ->execute([hash('sha256', $jeton), $idUser]);
+    return $jeton;
 }

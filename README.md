@@ -71,7 +71,7 @@ Les couvertures visibles sur ces captures sont générées pour l'aperçu : les 
 - **Tableau de bord** : chiffre d'affaires, commandes, nouveaux membres, stock, ventes sur 30 jours et par univers, liste « À traiter »
 - **Catalogue** : fiches, exemplaires par état, inventaire avec alertes de rupture, catégories et tags, validation des livres proposés par les auteurs, **modération des annonces** entre particuliers (photos, motif de refus ou de retrait, modification par l'équipe), **suivi des ventes entre lecteurs** (ventes en retard, litiges : valider, annuler avec retrait des points, classer)
 - **Commandes** : liste filtrable, fiche détaillée, annulation (stock remis, points rendus, client prévenu)
-- **Communauté** : avis à valider et signalés, messages signalés (masquer un message, clore une conversation, suspendre un compte), dons, événements et présences, niveaux et badges des membres, membres (rôles, suspension), candidatures à la modération et candidatures auteur (accepter, refuser avec message, historique, masquer une page auteur), utilisateurs en ligne, newsletter
+- **Communauté** : avis à valider et signalés, messages signalés (masquer un message, clore une conversation, suspendre un compte), dons, événements et présences, niveaux et badges des membres, membres (rôles, suspension, **création d'un compte** par l'administrateur : la personne reçoit une invitation valable 48 heures pour choisir elle-même son mot de passe, ce qui confirme aussi son adresse), candidatures à la modération et candidatures auteur (accepter, refuser avec message, historique, masquer une page auteur), utilisateurs en ligne, newsletter
 - **Système** : journal d'activité, images du captcha, export PDF des membres
 
 ### Qualité

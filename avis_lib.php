@@ -45,7 +45,7 @@ function jetonCsrf(): string
 
 function verifierCsrf(): bool
 {
-    return !empty($_POST['csrf']) && !empty($_SESSION['csrf']) && hash_equals($_SESSION['csrf'], $_POST['csrf']);
+    return is_string($_POST['csrf'] ?? null) && $_POST['csrf'] !== '' && is_string($_SESSION['csrf'] ?? null) && $_SESSION['csrf'] !== '' && hash_equals($_SESSION['csrf'], $_POST['csrf']);
 }
 
 function etoilesStyle(): string
