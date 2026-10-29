@@ -1,1 +1,9 @@
 ErrorDocument 404 /projet_web/biblioccaz/erreur_404.php
+Options -Indexes
+
+RewriteEngine On
+RewriteRule (^|/)(\.[^/]+|secure_data|sauvegardes|sql|docs|vendor|nbproject)(/|$) - [F,END,NC]
+
+<FilesMatch "(?i)(\.(md|sql|log|ini|env|bak|old|orig|save|swp|dist|ya?ml|toml|lock|zip|7z|tar|gz)$|~$|^composer\.(json|lock)$|^secrets.*\.php$|^config\.php$|^mailer\.php$|_lib\.php$|^partie_.*\.php$|^(header|footer|panier_calcul)\.php$)">
+    Require all denied
+</FilesMatch>
