@@ -239,7 +239,7 @@ Preuves : 94 assertions sur base isolée (score, poids, repli, exclusions, cache
 
 ### Candidatures et pages auteur (F1 création de compte, F10 gestion des utilisateurs)
 
-Implémenté sur la branche `refonte`, migration `sql/maj_candidatures_auteur.sql` testée sur base isolée (rejouée deux fois, données existantes inchangées) ; import dans `biblioccaz` en attente d'accord.
+Implémenté sur la branche `refonte`, migration `sql/maj_candidatures_auteur.sql` testée sur base isolée (rejouée deux fois, données existantes inchangées), puis importée dans `biblioccaz` le 29 octobre 2026 après sauvegarde complète : les 39 tables existantes sont identiques avant et après, encodage vérifié.
 
 - Inscription : le choix « Auteur » ne donne plus directement le rôle ; il mène à `candidature_auteur.php`, qui crée un compte lecteur et la candidature en une seule fois. Un lecteur connecté candidate depuis son profil.
 - Fiche : nom de plume, biographie (50 à 3 000 caractères), motivation (réservée à l'équipe), 1 à 10 ouvrages (titre obligatoire, ISBN-10 ou 13 vérifié par sa clé), liens http ou https, photo facultative contrôlée comme les autres images.

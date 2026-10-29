@@ -158,9 +158,15 @@ function enregistrerCategorieEtTags(PDO $pdo, int $idLivre, array $post): void
     }
 }
 
-function creerSlug(string $texte): string
+const LETTRES_SANS_ACCENT = [
+    'à' => 'a', 'â' => 'a', 'ä' => 'a', 'á' => 'a', 'ã' => 'a', 'å' => 'a', 'æ' => 'ae', 'ç' => 'c',
+    'é' => 'e', 'è' => 'e', 'ê' => 'e', 'ë' => 'e', 'í' => 'i', 'ì' => 'i', 'î' => 'i', 'ï' => 'i',
+    'ñ' => 'n', 'ó' => 'o', 'ò' => 'o', 'ô' => 'o', 'ö' => 'o', 'õ' => 'o', 'ø' => 'o', 'œ' => 'oe',
+    'ú' => 'u', 'ù' => 'u', 'û' => 'u', 'ü' => 'u', 'ý' => 'y', 'ÿ' => 'y', 'ß' => 'ss',
+];
+
+function creerSlug(string $texte, string $parDefaut = 'sans-nom'): string
 {
-    $texte = iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $texte);
-    $texte = strtolower(preg_replace('/[^A-Za-z0-9]+/', '-', $texte));
-    return trim($texte, '-') ?: 'sans-nom';
+    $texte = strtr(mb_strtolower($texte, 'UTF-8'), LETTRES_SANS_ACCENT);
+    return trim(preg_replace('/[^a-z0-9]+/', '-', $texte), '-') ?: $parDefaut;
 }

@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/livres_lib.php';
 require_once __DIR__ . '/upload_lib.php';
+require_once __DIR__ . '/categories_lib.php';
 
 const AUTEUR_DELAI_NOUVELLE_DEMANDE_JOURS = 7;
 const AUTEUR_OUVRAGES_MAX = 10;
@@ -276,20 +277,9 @@ function ouvragesCandidature(array $candidature): array
     return is_array($ouvrages) ? $ouvrages : [];
 }
 
-function slugAuteur(string $texte): string
-{
-    $texte = strtr(mb_strtolower($texte), [
-        'à' => 'a', 'â' => 'a', 'ä' => 'a', 'á' => 'a', 'ã' => 'a', 'å' => 'a', 'æ' => 'ae', 'ç' => 'c',
-        'é' => 'e', 'è' => 'e', 'ê' => 'e', 'ë' => 'e', 'í' => 'i', 'ì' => 'i', 'î' => 'i', 'ï' => 'i',
-        'ñ' => 'n', 'ó' => 'o', 'ò' => 'o', 'ô' => 'o', 'ö' => 'o', 'õ' => 'o', 'ø' => 'o', 'œ' => 'oe',
-        'ú' => 'u', 'ù' => 'u', 'û' => 'u', 'ü' => 'u', 'ý' => 'y', 'ÿ' => 'y', 'ß' => 'ss',
-    ]);
-    return trim(preg_replace('/[^a-z0-9]+/', '-', $texte), '-') ?: 'auteur';
-}
-
 function slugAuteurLibre(PDO $pdo, string $nomPlume, int $idUser): string
 {
-    $base = rtrim(substr(slugAuteur($nomPlume), 0, 90), '-');
+    $base = rtrim(substr(creerSlug($nomPlume, 'auteur'), 0, 90), '-');
     $stmt = $pdo->prepare('SELECT 1 FROM fiche_auteur WHERE slug = ? AND id_user <> ?');
     for ($suffixe = 1; ; $suffixe++) {
         $slug = $suffixe === 1 ? $base : $base . '-' . $suffixe;
