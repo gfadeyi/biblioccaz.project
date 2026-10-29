@@ -4,10 +4,17 @@ document.addEventListener('DOMContentLoaded', function () {
     let formulaireEnAttente = null;
 
     document.querySelectorAll('form[data-confirmer]').forEach(function (formulaire) {
+        if (modale) {
+            formulaire.querySelectorAll('[data-confirmation-sans-js]').forEach(function (repli) {
+                repli.hidden = true;
+                repli.querySelectorAll('input').forEach(function (champ) { champ.required = false; });
+            });
+        }
         formulaire.addEventListener('submit', function (evenement) {
             if (formulaire.dataset.confirme === '1' || !modale) return;
             evenement.preventDefault();
             formulaireEnAttente = formulaire;
+            document.getElementById('titreConfirmation').textContent = formulaire.dataset.titreConfirmer || "Confirmer l'action";
             document.getElementById('texteConfirmation').textContent = formulaire.dataset.confirmer;
             document.getElementById('boutonConfirmer').textContent = formulaire.dataset.boutonConfirmer || 'Confirmer';
             modale.show();
@@ -19,6 +26,7 @@ document.addEventListener('DOMContentLoaded', function () {
         boutonConfirmer.addEventListener('click', function () {
             if (!formulaireEnAttente) return;
             formulaireEnAttente.dataset.confirme = '1';
+            formulaireEnAttente.querySelectorAll('[data-confirmation-sans-js] input').forEach(function (champ) { champ.checked = true; });
             boutonConfirmer.disabled = true;
             if (formulaireEnAttente.requestSubmit) {
                 formulaireEnAttente.requestSubmit();

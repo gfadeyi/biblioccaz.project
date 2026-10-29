@@ -14,6 +14,26 @@ function roleSessionDisponible(PDO $pdo): bool
     catch (PDOException $e) { if (in_array((int) ($e->errorInfo[1] ?? 0),[1146,1054],true)) { return false; } throw $e; }
 }
 
+function appareilSessionDisponible(PDO $pdo): bool
+{
+    try { $pdo->prepare('SELECT appareil FROM session_utilisateur LIMIT 0')->execute(); return true; }
+    catch (PDOException $e) { if (in_array((int) ($e->errorInfo[1] ?? 0),[1146,1054],true)) { return false; } throw $e; }
+}
+
+function libelleAppareil(string $agent): ?string
+{
+    $navigateurs = ['SamsungBrowser' => 'Samsung Internet', 'Edg' => 'Edge', 'OPR/' => 'Opera', 'Firefox/' => 'Firefox', 'FxiOS' => 'Firefox', 'CriOS' => 'Chrome', 'Chrome/' => 'Chrome', 'Safari/' => 'Safari'];
+    $systemes = ['Windows' => 'Windows', 'Android' => 'Android', 'iPhone' => 'iPhone', 'iPad' => 'iPad', 'CrOS' => 'ChromeOS', 'Macintosh' => 'macOS', 'Linux' => 'Linux'];
+    $trouver = function (array $motifs) use ($agent): ?string {
+        foreach ($motifs as $motif => $libelle) {
+            if (str_contains($agent, $motif)) { return $libelle; }
+        }
+        return null;
+    };
+    $parties = array_filter([$trouver($navigateurs), $trouver($systemes)]);
+    return $parties ? implode(' · ', $parties) : null;
+}
+
 function empreinteSessionCourante(): string
 {
     return hash('sha256', session_name() . ':' . session_id());
@@ -80,10 +100,11 @@ function enregistrerSessionUtilisateur(PDO $pdo, array $membre): void
         if (!$actuel || ($membre['role'] ?? $_SESSION['role'] ?? null) !== $actuel['role'] || !hash_equals($membre['mot_de_passe'], $actuel['mot_de_passe']) || !(int) $actuel['email_verifie'] || in_array($actuel['statut'], ['refuse_temporaire', 'refuse_definitif', 'banni'], true)) {
             throw new RuntimeException('Le compte a changé. Merci de vous reconnecter.');
         }
-        $avecRole = roleSessionDisponible($pdo);
+        $colonnes = ['id_user', 'empreinte', 'empreinte_mdp', 'espace'];
         $valeurs = [$membre['id'], empreinteSessionCourante(), $_SESSION['empreinte_auth'], session_name() === 'BIBLIOCCAZ_ADMIN' ? 'admin' : 'site'];
-        if ($avecRole) { $valeurs[] = $actuel['role']; }
-        $pdo->prepare('INSERT INTO session_utilisateur (id_user, empreinte, empreinte_mdp, espace' . ($avecRole ? ', role_connexion' : '') . ') VALUES (?, ?, ?, ?' . ($avecRole ? ', ?' : '') . ')')->execute($valeurs);
+        if (roleSessionDisponible($pdo)) { $colonnes[] = 'role_connexion'; $valeurs[] = $actuel['role']; }
+        if (appareilSessionDisponible($pdo)) { $colonnes[] = 'appareil'; $valeurs[] = libelleAppareil((string) ($_SERVER['HTTP_USER_AGENT'] ?? '')); }
+        $pdo->prepare('INSERT INTO session_utilisateur (' . implode(', ', $colonnes) . ') VALUES (' . implode(', ', array_fill(0, count($colonnes), '?')) . ')')->execute($valeurs);
         $pdo->commit();
     } catch (Throwable $e) {
         if ($pdo->inTransaction()) { $pdo->rollBack(); }

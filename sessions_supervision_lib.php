@@ -22,18 +22,40 @@ function tableauSessions(PDO $pdo, string $recherche = '', string $role = '', bo
         $groupe = $base . ' GROUP BY u.id,u.pseudo,u.nom,u.prenom,u.email,u.role' . ($multiples ? ' HAVING COUNT(*) > 1' : '');
         $stmt = $pdo->prepare('SELECT COUNT(*) FROM (SELECT u.id' . $groupe . ') filtres'); $stmt->execute($params); $total = (int) $stmt->fetchColumn();
         $pages = max(1,(int) ceil($total/20)); $page = max(1,min($page,$pages));
-        $stmt = $pdo->prepare('SELECT u.id, u.pseudo, u.nom, u.prenom, u.email, u.role, COUNT(*) AS nombre' . $groupe . ' ORDER BY u.pseudo, u.id LIMIT 20 OFFSET ' . (($page-1)*20));
+        $stmt = $pdo->prepare('SELECT u.id, u.pseudo, u.nom, u.prenom, u.email, u.role, COUNT(*) AS nombre, MAX(s.derniere_activite) AS derniere_activite' . $groupe . ' ORDER BY MAX(s.derniere_activite) DESC, u.pseudo, u.id LIMIT 20 OFFSET ' . (($page-1)*20));
         $stmt->execute($params); $membres = $stmt->fetchAll();
         $sessions = [];
         if ($membres) {
             $ids = array_column($membres,'id');
-            $stmt = $pdo->prepare('SELECT s.id_suivi,s.id_user,s.espace,s.date_connexion,s.derniere_activite,(s.empreinte = ?) AS courante' . $base . ' AND u.id IN (' . implode(',', array_fill(0,count($ids),'?')) . ') ORDER BY s.derniere_activite DESC,s.id_suivi DESC');
+            $stmt = $pdo->prepare('SELECT s.id_suivi,s.id_user,s.espace,' . (appareilSessionDisponible($pdo) ? 's.appareil' : 'NULL AS appareil') . ',s.date_connexion,s.derniere_activite,(s.empreinte = ?) AS courante' . $base . ' AND u.id IN (' . implode(',', array_fill(0,count($ids),'?')) . ') ORDER BY s.derniere_activite DESC,s.id_suivi DESC');
             $stmt->execute(array_merge([empreinteSessionCourante()],$params,$ids));
             foreach ($stmt->fetchAll() as $session) { $sessions[$session['id_user']][] = $session; }
         }
         $pdo->commit();
         return compact('instant','indicateurs','cibles','membres','sessions','total','pages','page');
     } catch (Throwable $e) { if ($pdo->inTransaction()) { $pdo->rollBack(); } throw $e; }
+}
+
+function ilYA(string $date, string $instant): string
+{
+    $secondes = max(0, strtotime($instant) - strtotime($date));
+    if ($secondes < 60) { return "à l'instant"; }
+    if ($secondes < 3600) { return 'il y a ' . intdiv($secondes, 60) . ' min'; }
+    if ($secondes < 86400) {
+        $minutes = intdiv($secondes % 3600, 60);
+        return 'il y a ' . intdiv($secondes, 3600) . ' h' . ($minutes ? ' ' . sprintf('%02d', $minutes) : '');
+    }
+    $jours = intdiv($secondes, 86400);
+    return 'il y a ' . $jours . ' jour' . ($jours > 1 ? 's' : '');
+}
+
+function dateConnexion(string $date, string $instant): string
+{
+    $jour = date('Y-m-d', strtotime($date));
+    $heure = date('H:i', strtotime($date));
+    if ($jour === date('Y-m-d', strtotime($instant))) { return "aujourd'hui à " . $heure; }
+    if ($jour === date('Y-m-d', strtotime($instant . ' -1 day'))) { return 'hier à ' . $heure; }
+    return 'le ' . date('d/m/Y', strtotime($date)) . ' à ' . $heure;
 }
 
 function revoquerSessionsClientsAuteurs(PDO $pdo, int $idAdministrateur, int $comptesAttendus, int $sessionsAttendues): array

@@ -952,6 +952,7 @@ CREATE TABLE IF NOT EXISTS session_utilisateur (
     empreinte_mdp CHAR(64) NOT NULL,
     espace ENUM('site', 'admin') NOT NULL,
     role_connexion VARCHAR(20) NULL,
+    appareil VARCHAR(60) NULL,
     date_connexion DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     derniere_activite DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     date_revocation DATETIME NULL,

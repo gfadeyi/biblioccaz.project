@@ -49,7 +49,7 @@ Les comptes à très grand nombre de sessions ont leurs détails chargés ensemb
 
 Le rafraîchissement automatique de `message_nouveaux.php` vérifie toujours la validité de la session, les droits, la suspension, le mot de passe, l'expiration et la révocation. Il n'actualise plus l'horloge PHP, la dernière activité du registre F6 ni `user.last_activity`. Recevoir une réponse de polling ne constitue donc pas une nouvelle activité d'usage. Une session valide ne prouve pas une présence humaine instantanée.
 
-La navigation et l'envoi volontaire d'un message continuent à actualiser l'activité. Les endpoints automatiques `en_ligne_donnees.php` et `logs_donnees.php` étaient déjà traités comme des requêtes d'observation. Les requêtes de recherche déclenchées par une saisie ne sont pas exclues.
+La navigation et l'envoi volontaire d'un message continuent à actualiser l'activité. L'endpoint automatique `logs_donnees.php` est traité comme une requête d'observation (l'ancien `en_ligne_donnees.php`, inutilisé, a été supprimé). Les requêtes de recherche déclenchées par une saisie ne sont pas exclues.
 
 La recette HTTP isolée du correctif comporte 21 assertions : polls répétés, nouveaux messages, navigation, envoi, CSRF, accès tiers et refus après expiration, révocation, suspension, changement de rôle ou de mot de passe. Les campagnes F6 (80), messages de fin de session (42) et authentification (53) passent également. Aucun test n'écrit sur la base principale et aucune migration n'est nécessaire.
 
@@ -72,3 +72,9 @@ Après autorisation explicite, sauvegarde complète fraîche et restauration iso
 Les messages suivent désormais les libellés validés : « Votre session a expiré. Veuillez vous reconnecter. », « Votre session a été fermée. Veuillez vous reconnecter. » et, sans cause prouvée, « Votre session n'est plus valide. Veuillez vous reconnecter. ». Mot de passe et suspension gardent leurs explications spécifiques. La redirection ne contient plus de cause GET ; même l'ancien `?session=expiree` seul ne déclenche aucun motif affiché.
 
 42 assertions supplémentaires vérifient ces messages sur le site et le back-office : passage par une vraie redirection HTTP, message serveur à usage unique, fermeture prioritaire sur une inactivité simultanée, paramètres forgés ignorés et déconnexion volontaire sans fausse alerte. Les 66 assertions de supervision, 80 F6 et 53 authentification sont de nouveau réussies. Les 69 assertions récompenses confirment les parcours utilisant le contrôle commun. Aucun nouveau test ne modifie la base principale ; la migration n'est pas réappliquée. Le rendu graphique reste à observer, le navigateur demeurant indisponible.
+
+## Lisibilité de la page « Connexions actives »
+
+La page regroupe les connexions par membre, triées par activité la plus récente. Chaque connexion affiche l'espace (site ou back-office), un appareil en libellé court (« Chrome · Windows »), la date de connexion et la dernière activité sous la forme « il y a 5 min ». Le libellé est déduit de l'en-tête du navigateur au moment de la connexion ; le texte complet n'est jamais conservé. Les connexions ouvertes avant `sql/maj_sessions_appareil.sql`, ou dont le navigateur n'est pas reconnu, affichent « Appareil inconnu ». Sans la migration, la page et la connexion restent utilisables.
+
+Les fermetures (une connexion, toutes celles d'un membre, fermeture globale dans la « Zone sensible ») passent par la fenêtre de confirmation du back-office. Sans JavaScript, une case de confirmation obligatoire la remplace. Le fonctionnement et les protections ne changent pas : POST, jeton CSRF, confirmation, administrateurs tiers protégés.

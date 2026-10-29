@@ -32,7 +32,7 @@ try {
 }
 
 $fermetureGlobaleSessions = basename($_SERVER['SCRIPT_FILENAME'] ?? '') === 'en_ligne.php' && ($_SERVER['REQUEST_METHOD'] ?? '') === 'POST' && ($_POST['action'] ?? '') === 'clients_auteurs';
-$actualiserSession = !$fermetureGlobaleSessions && !in_array(basename($_SERVER['SCRIPT_FILENAME'] ?? ''), ['en_ligne_donnees.php', 'logs_donnees.php', 'message_nouveaux.php'], true);
+$actualiserSession = !$fermetureGlobaleSessions && !in_array(basename($_SERVER['SCRIPT_FILENAME'] ?? ''), ['logs_donnees.php', 'message_nouveaux.php'], true);
 controlerSessionUtilisateur($pdo, $actualiserSession);
 
 if (isset($_SESSION['user_id'])) {
@@ -77,7 +77,7 @@ $racineSite = str_replace('\\', '/', __DIR__);
 $currentPage = strpos($cheminScript, $racineSite . '/') === 0
     ? substr($cheminScript, strlen($racineSite) + 1)
     : basename($_SERVER['PHP_SELF']);
-$ignoredPages = ['admin/logs_donnees.php', 'admin/en_ligne_donnees.php', 'recherche.php',
+$ignoredPages = ['admin/logs_donnees.php', 'recherche.php',
                  'get_captcha_image.php', 'captcha_piece.php', 'captcha_verifier.php',
                  'admin/puzzle_image.php', 'admin/puzzle_piece.php', 'admin/puzzle_verifier.php'];
 
