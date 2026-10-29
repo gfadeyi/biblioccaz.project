@@ -37,6 +37,13 @@ try {
 $flashCompte = $_SESSION['flash_compte'] ?? null;
 unset($_SESSION['flash_compte']);
 
+require_once 'recommandations_lib.php';
+$idLecteurSuggestions = $idUserConnecte && in_array($_SESSION['role'] ?? '', ROLES_SUGGESTIONS, true) ? $idUserConnecte : 0;
+if ($idLecteurSuggestions && (int) $livre['is_valide'] === 1) {
+    enregistrerConsultation($pdo, $idLecteurSuggestions, (int) $livre['id_livre']);
+}
+$livresProches = (int) $livre['is_valide'] === 1 ? livresSimilaires($pdo, $livre, $idLecteurSuggestions) : [];
+
 function formulaireCompte(string $action, int $idLivre, string $contenu, string $classe, string $titre = ''): string
 {
     return '<form action="compte_action.php" method="POST" class="d-inline">'
@@ -378,5 +385,22 @@ $peutAcheterEnMagasin = ($_SESSION['role'] ?? '') === 'client';
 <?php endif; ?>
 
 <?php include 'partie_avis.php'; ?>
+
+<?php if ($livresProches): ?>
+    <section class="container mb-5 section-accueil" aria-labelledby="titre-proches">
+        <div class="entete-section">
+            <div>
+                <h2 id="titre-proches">Vous aimerez aussi</h2>
+                <p>Des livres disponibles proches de celui-ci<?= $idLecteurSuggestions ? ', choisis aussi selon vos goûts' : '' ?>.</p>
+            </div>
+            <?php if ($idLecteurSuggestions): ?>
+                <a href="suggestions.php" class="lien-voir-tout">Mes suggestions <i class="bi bi-chevron-right" aria-hidden="true"></i></a>
+            <?php endif; ?>
+        </div>
+        <div class="carrousel">
+            <?php foreach ($livresProches as $l): include 'partie_carte_livre.php'; endforeach; ?>
+        </div>
+    </section>
+<?php endif; ?>
 
 <?php include 'footer.php'; ?>

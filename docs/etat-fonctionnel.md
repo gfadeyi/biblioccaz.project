@@ -216,3 +216,23 @@ Limites : onglet masqué simulé par l'API de visibilité, reconnexion par sessi
 | Champs et filtres scolaires | Vert « Opérationnel » pour niveau et matière. |
 | Administration des règles de récompenses | Vert « Opérationnel » pour l'affichage, les contrôles et les droits ; aucune nouvelle règle métier. |
 | Profil participant actif | Inchangé : orange, critères non décidés. |
+
+### Recommandations (F1 profil, F9 suggestions)
+
+Livré sur la branche `refonte`. Migration `sql/maj_recommandations.sql` testée sur base isolée (rejouée deux fois), puis importée dans `biblioccaz` le 29 octobre 2026 après sauvegarde complète : les 36 tables existantes sont identiques avant et après, encodage vérifié.
+
+- Profil : téléphone facultatif (contrôle de format, visible du titulaire et de l'administrateur seulement) et préférences de lecture facultatives par univers, catégories et thèmes, modifiables à tout moment.
+- Algorithme dans `recommandations_lib.php`, poids centralisés dans `POIDS_RECOMMANDATION` : préférence de catégorie +5, de thème +3, achat +4, emprunt +3, note de 4 ou 5 +3, note de 1 ou 2 −2, favori +2, fiche consultée +1 ; univers parent et tags comptés à moitié. Score sur 100 : 60 affinité, 25 popularité (ventes et favoris, échelle logarithmique), 15 note moyenne pondérée par le nombre d'avis ; repli 60 popularité et 40 note sans aucune donnée. Trois livres au plus par catégorie. Exclusions : déjà achetés ou empruntés, indisponibles, écrits ou proposés par le lecteur.
+- Affichage : page « Suggestions pour vous », carte du profil, carrousel « Pour vous » de l'accueil (lecteurs connectés ayant au moins un signal), bloc « Vous aimerez aussi » sur la fiche livre ; chaque livre porte sa raison. Tri « Pertinence » dans le catalogue, par défaut seulement lors d'une recherche.
+- Vie privée : historique réservé aux lecteurs et auteurs connectés, 20 fiches au plus, 90 jours au plus, actif par défaut avec explication, suspendable et effaçable ; aucune donnée pour les visiteurs ni pour l'équipe.
+- Fiche livre : l'influence du profil du lecteur est plafonnée à la moitié du poids du livre consulté, pour que la proximité reste la raison affichée même pour un gros acheteur.
+- Performance : liste calculée une fois puis gardée 10 minutes en session ; disponibilité et exclusions relues à chaque affichage.
+
+Preuves : 94 assertions sur base isolée (score, poids, repli, exclusions, cache, historique, CSRF, droits, téléphone, tri, fonctionnement sans migration) et bancs de non-régression ; recette navigateur à 1440, 768 et 375 px sans débordement ni erreur JavaScript. Recette en lecture sur le vrai catalogue avec un compte de démonstration à 1440 et 375 px : 80 cartes vérifiées une à une (explications justes, aucun doublon, aucun livre indisponible, déjà acheté ou emprunté), historique du compte effacé ensuite.
+
+| Périmètre | Proposition |
+|---|---|
+| F1 Gestion du profil | Vert « Opérationnel ». |
+| F9 Suggestions personnalisées | Vert « Opérationnel ». |
+| F9 Algorithme simple de recommandation | Vert « Opérationnel ». |
+| F9 Affichage des résultats (tri par pertinence) | Vert « Opérationnel ». |

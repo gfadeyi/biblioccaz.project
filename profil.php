@@ -106,6 +106,8 @@ $evenementsAVenir = lignesProfil($pdo, "
     FROM evenement_inscription i INNER JOIN evenement e ON e.id_evenement = i.id_evenement
     WHERE i.id_user = ? AND i.statut IN ('inscrit', 'attente') AND e.statut = 'publie' AND e.date_fin >= NOW()
     ORDER BY e.date_debut LIMIT 3", [$idUser]);
+require_once 'recommandations_lib.php';
+$suggestionsProfil = in_array($role, ROLES_SUGGESTIONS, true) ? recommandationsPour($pdo, $idUser, 4) : [];
 $dons = lignesProfil($pdo, "SELECT statut, date_limite FROM don WHERE id_donneur = ?", [$idUser]);
 $donsEnCours = count(array_filter($dons, fn($don) => in_array(statutDon($don), ['disponible', 'reserve'], true)));
 $donsRecuperes = count(array_filter($dons, fn($don) => $don['statut'] === 'recupere'));
@@ -181,6 +183,7 @@ include 'header.php';
             <?php endif; ?>
             <ul class="profil-identite__details">
                 <li><i class="bi bi-envelope" aria-hidden="true"></i> <?= htmlspecialchars($user['email']) ?></li>
+                <?php if (!empty($user['telephone'])): ?><li><i class="bi bi-telephone" aria-hidden="true"></i> <?= htmlspecialchars($user['telephone']) ?></li><?php endif; ?>
                 <?php if (!empty($user['ville'])): ?><li><i class="bi bi-geo-alt" aria-hidden="true"></i> <?= htmlspecialchars(trim(($user['cp'] ?? '') . ' ' . $user['ville'])) ?></li><?php endif; ?>
                 <li><i class="bi bi-calendar-heart" aria-hidden="true"></i> Membre depuis <?= $membreDepuis ?></li>
             </ul>
@@ -240,6 +243,26 @@ include 'header.php';
                     <a href="proposer_evenement.php" class="bouton bouton-contour bouton-petit">Proposer un événement</a>
                     <a href="proposer_ouvrage.php" class="bouton bouton-discret bouton-petit">Proposer un livre</a>
                 </div>
+            </section>
+        <?php endif; ?>
+
+        <?php if ($suggestionsProfil): ?>
+            <section class="carte-compte" aria-labelledby="titre-suggestions-profil">
+                <h2 class="carte-compte__titre" id="titre-suggestions-profil"><?= iconeDessin('lunettes') ?> Suggestions pour vous</h2>
+                <ul class="suggestions-profil">
+                    <?php foreach ($suggestionsProfil as $suggestion): ?>
+                        <li>
+                            <a href="detail_livre.php?id=<?= (int) $suggestion['id_livre'] ?>">
+                                <img src="<?= htmlspecialchars(urlImage($suggestion['couverture'] ?: 'default.png')) ?>" alt="" loading="lazy">
+                                <span>
+                                    <strong><?= htmlspecialchars($suggestion['titre']) ?></strong>
+                                    <small><?= htmlspecialchars($suggestion['raison']) ?></small>
+                                </span>
+                            </a>
+                        </li>
+                    <?php endforeach; ?>
+                </ul>
+                <a href="suggestions.php" class="lien-voir-tout">Toutes mes suggestions <i class="bi bi-chevron-right" aria-hidden="true"></i></a>
             </section>
         <?php endif; ?>
 

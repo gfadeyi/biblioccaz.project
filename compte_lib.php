@@ -257,3 +257,8 @@ function adresseEnLigne(array $a): string
 {
     return trim($a['adresse'] . ($a['complement'] ? ', ' . $a['complement'] : '') . ', ' . $a['code_postal'] . ' ' . $a['ville']);
 }
+
+function telephoneValide(string $telephone): bool
+{
+    return $telephone === '' || preg_match('/^[0-9 +().-]{6,20}$/', $telephone) === 1;
+}

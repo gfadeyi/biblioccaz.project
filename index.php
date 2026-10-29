@@ -35,6 +35,13 @@ $selectionLecteurs = privilegierVraiesCouvertures($selectionLecteurs, 12);
 $nouveautes = privilegierVraiesCouvertures($pdo->query($selectionCartes . " ORDER BY l.id_livre DESC LIMIT 24")->fetchAll(), 12);
 $petitsPrix = privilegierVraiesCouvertures($pdo->query($selectionCartes . " HAVING prix < 10 ORDER BY prix ASC, l.id_livre DESC LIMIT 24")->fetchAll(), 12);
 
+require_once 'recommandations_lib.php';
+$suggestionsAccueil = [];
+if (isset($_SESSION['user_id']) && in_array($_SESSION['role'] ?? '', ROLES_SUGGESTIONS, true)
+    && !donneesRecommandation($pdo, (int) $_SESSION['user_id'])['repli']) {
+    $suggestionsAccueil = recommandationsPour($pdo, (int) $_SESSION['user_id']);
+}
+
 $couverturesBandeau = array_slice(array_values(array_filter($nouveautes, fn($livre) => aUneVraieCouverture($livre['couverture']))), 0, 3);
 
 $univers = [['classe' => 'univers-bons-plans', 'icone' => 'etiquette', 'nom' => 'Bons plans', 'detail' => 'Moins de 10 €, dernière chance, nouveautés', 'lien' => 'petits_prix.php']];
@@ -155,6 +162,21 @@ include 'header.php';
         </div>
         <div class="carrousel">
             <?php foreach ($selectionLecteurs as $l): include 'partie_carte_livre.php'; endforeach; ?>
+        </div>
+    </section>
+<?php endif; ?>
+
+<?php if ($suggestionsAccueil): ?>
+    <section class="section-accueil container-xxl" aria-labelledby="titre-pour-vous">
+        <div class="entete-section">
+            <div>
+                <h2 id="titre-pour-vous">Pour vous</h2>
+                <p>Choisis d'après vos goûts, vos lectures et vos notes.</p>
+            </div>
+            <a href="suggestions.php" class="lien-voir-tout">Toutes mes suggestions <i class="bi bi-chevron-right"></i></a>
+        </div>
+        <div class="carrousel">
+            <?php foreach ($suggestionsAccueil as $l): include 'partie_carte_livre.php'; endforeach; ?>
         </div>
     </section>
 <?php endif; ?>

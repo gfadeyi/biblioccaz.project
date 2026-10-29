@@ -44,6 +44,9 @@ $empruntSeulement = $sansPrix && !$donSeulement;
     <div class="carte-livre__corps">
         <h3 class="carte-livre__titre"><a href="<?= $lienLivre ?>"><?= htmlspecialchars($l['titre']) ?></a></h3>
         <p class="carte-livre__auteur"><?= htmlspecialchars($l['auteur'] ?? '') ?></p>
+        <?php if (!empty($l['raison'])): ?>
+            <p class="carte-livre__raison"><i class="bi bi-stars" aria-hidden="true"></i> <?= htmlspecialchars($l['raison']) ?></p>
+        <?php endif; ?>
         <?php if (isset($l['nb_avis'])): ?>
             <div class="carte-livre__note">
                 <?php if ($l['nb_avis'] > 0): ?>

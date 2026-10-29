@@ -3,6 +3,7 @@ require_once 'config.php';
 require_once 'categories_lib.php';
 require_once 'livres_lib.php';
 require_once 'recherche_lib.php';
+require_once 'recommandations_lib.php';
 
 redirigerAnciennesAdresses();
 
@@ -15,7 +16,7 @@ $sousTitre = $sousTitre ?? '';
 
 $f = array_merge([
     'q' => '', 'categorie' => '', 'tag' => '', 'etat' => '', 'offre' => '',
-    'prix_min' => '', 'prix_max' => '', 'tri' => 'recent', 'stock_bas' => '', 'note_min' => '', 'niveau' => '', 'matiere' => '',
+    'prix_min' => '', 'prix_max' => '', 'tri' => '', 'stock_bas' => '', 'note_min' => '', 'niveau' => '', 'matiere' => '',
 ], $defauts, array_intersect_key($_GET, array_flip(['q', 'categorie', 'tag', 'etat', 'offre', 'prix_min', 'prix_max', 'tri', 'note_min', 'niveau', 'matiere'])), $preset);
 
 foreach ($f as $cle => $valeur) {
@@ -30,6 +31,7 @@ $page = filter_var($_GET['page'] ?? 1, FILTER_VALIDATE_INT, ['options' => ['min_
 
 $etatsPossibles = ['neuf' => 'Neuf', 'tres bon' => 'Très bon état', 'bon' => 'Bon état', 'use' => 'État usé'];
 $trisPossibles = [
+    'pertinence' => ['Pertinence', 'pertinence DESC, l.id_livre DESC'],
     'recent'    => ['Nouveautés', 'l.id_livre DESC'],
     'prix_asc'  => ['Prix croissant', 'prix ASC, l.titre ASC'],
     'prix_desc' => ['Prix décroissant', 'prix DESC, l.titre ASC'],
@@ -37,7 +39,8 @@ $trisPossibles = [
     'note'      => ['Mieux notés', 'note_moyenne IS NULL, note_moyenne DESC, nb_avis DESC'],
     'ventes'    => ['Meilleures ventes', '(SELECT COALESCE(SUM(cl.quantite), 0) FROM commande_ligne cl WHERE cl.id_livre = l.id_livre) DESC, l.id_livre DESC'],
 ];
-if (!isset($trisPossibles[$f['tri']])) { $f['tri'] = 'recent'; }
+if (!isset($trisPossibles[$f['tri']])) { $f['tri'] = ''; }
+$triActif = $f['tri'] !== '' ? $f['tri'] : ($f['q'] !== '' ? 'pertinence' : 'recent');
 
 $where = ["l.is_valide = 1"];
 $having = [];
@@ -95,6 +98,42 @@ if (!empty($f['stock_bas'])) {
     $having[] = "SUM(CASE WHEN e.origine = 'magasin' THEN e.quantite END) <= 2";
 }
 
+$paramsTri = [];
+$selectPertinence = '';
+if ($triActif === 'pertinence') {
+    $termesPertinence = [
+        "LEAST(10, 2 * (SELECT COALESCE(SUM(cl.quantite), 0) FROM commande_ligne cl WHERE cl.id_livre = l.id_livre))",
+        "2 * COALESCE(av.moyenne, 0)",
+    ];
+    if ($f['q'] !== '' && isbnRecherche($f['q']) === '') {
+        $termesPertinence[] = "CASE WHEN l.titre LIKE :pertinence_debut ESCAPE '!' THEN 40 WHEN l.titre LIKE :pertinence_titre ESCAPE '!' THEN 30
+                                    WHEN l.auteur LIKE :pertinence_auteur ESCAPE '!' THEN 20 ELSE 0 END";
+        $paramsTri['pertinence_debut'] = substr(motifRecherche($f['q']), 1);
+        $paramsTri['pertinence_titre'] = motifRecherche($f['q']);
+        $paramsTri['pertinence_auteur'] = motifRecherche($f['q']);
+    }
+    $idLecteurPertinence = in_array($_SESSION['role'] ?? '', ROLES_SUGGESTIONS, true) ? (int) ($_SESSION['user_id'] ?? 0) : 0;
+    if ($idLecteurPertinence) {
+        $marqueursPertinence = [];
+        foreach (categoriesPertinence($pdo, $idLecteurPertinence) as $index => $idCategorie) {
+            $marqueursPertinence[] = ':pertinence_categorie' . $index;
+            $paramsTri['pertinence_categorie' . $index] = $idCategorie;
+        }
+        if ($marqueursPertinence) {
+            $termesPertinence[] = "CASE WHEN l.id_categorie IN (" . implode(', ', $marqueursPertinence) . ") THEN 15 ELSE 0 END";
+        }
+        $marqueursPertinence = [];
+        foreach (preferencesLecteur($pdo, $idLecteurPertinence)['tags'] as $index => $idTag) {
+            $marqueursPertinence[] = ':pertinence_tag' . $index;
+            $paramsTri['pertinence_tag' . $index] = $idTag;
+        }
+        if ($marqueursPertinence) {
+            $termesPertinence[] = "CASE WHEN EXISTS (SELECT 1 FROM livre_tag lp WHERE lp.id_livre = l.id_livre AND lp.id_tag IN (" . implode(', ', $marqueursPertinence) . ")) THEN 8 ELSE 0 END";
+        }
+    }
+    $selectPertinence = ",\n           (" . implode(' + ', $termesPertinence) . ") AS pertinence";
+}
+
 $sqlBase = "
     FROM livre l
     INNER JOIN " . sqlOffres($originesOffre) . " e ON e.id_livre = l.id_livre
@@ -126,11 +165,11 @@ $stmt = $pdo->prepare("
            SUBSTRING_INDEX(GROUP_CONCAT(e.etat ORDER BY e.origine IN ('don', 'emprunt'), e.prix ASC), ',', 1) AS etat,
            SUM(CASE WHEN e.origine = 'magasin' THEN e.quantite END) AS stock,
            GROUP_CONCAT(DISTINCT e.origine ORDER BY e.origine) AS origines,
-           av.moyenne AS note_moyenne, COALESCE(av.nb, 0) AS nb_avis
+           av.moyenne AS note_moyenne, COALESCE(av.nb, 0) AS nb_avis$selectPertinence
     $sqlBase
-    ORDER BY {$trisPossibles[$f['tri']][1]}
+    ORDER BY {$trisPossibles[$triActif][1]}
     LIMIT " . LIVRES_PAR_PAGE . " OFFSET $offset");
-$stmt->execute($params);
+$stmt->execute($params + $paramsTri);
 $livres = $stmt->fetchAll();
 
 $arbre = arbreCategories($pdo);
@@ -307,7 +346,7 @@ echo etoilesStyle();
             <label for="filtre-tri" class="small text-muted text-nowrap">Trier par</label>
             <select id="filtre-tri" name="tri" class="form-select form-select-sm rounded-pill" onchange="this.form.submit()">
                 <?php foreach ($trisPossibles as $cle => [$libelle]): ?>
-                    <option value="<?= $cle ?>" <?= $f['tri'] === $cle ? 'selected' : '' ?>><?= $libelle ?></option>
+                    <option value="<?= $cle ?>" <?= $triActif === $cle ? 'selected' : '' ?>><?= $libelle ?></option>
                 <?php endforeach; ?>
             </select>
         </form>
@@ -331,7 +370,9 @@ echo etoilesStyle();
             </div>
             <div class="offcanvas-body p-lg-0">
             <form method="GET" class="filtres-box p-3 shadow-sm" id="formulaireFiltres">
-                <input type="hidden" name="tri" value="<?= htmlspecialchars($f['tri']) ?>">
+                <?php if ($f['tri'] !== ''): ?>
+                    <input type="hidden" name="tri" value="<?= htmlspecialchars($f['tri']) ?>">
+                <?php endif; ?>
 
                 <div class="mb-3">
                     <label for="filtre-recherche" class="form-label">Recherche</label>

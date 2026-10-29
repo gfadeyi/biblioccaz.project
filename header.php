@@ -53,6 +53,7 @@ $liensMenuCompte = [];
 if ($resumeCompte) {
     $liensMenuCompte = [
         ['points_badges.php', 'medaille', 'Mes points et badges', 0],
+        ['suggestions.php', 'lunettes', 'Suggestions pour vous', 0],
         ['commandes.php', 'colis', 'Mes achats', $resumeCompte['commandes']],
         ['wishlist.php', 'marque-page', 'Mes favoris', $nb_favoris],
         ['alertes.php', 'clochette', 'Mes alertes', $resumeCompte['alertes']],
@@ -68,6 +69,7 @@ if ($resumeCompte) {
 } elseif ($connected && $userRole === 'auteur') {
     $liensMenuCompte = [
         ['dashboard_auteur.php', 'plume', 'Espace créateur', 0],
+        ['suggestions.php', 'lunettes', 'Suggestions pour vous', 0],
         ['proposer_evenement.php', 'ticket', 'Proposer un événement', 0],
         ['proposer_ouvrage.php', 'livre-ouvert', 'Proposer un livre', 0],
         ['mes_annonces.php', 'etiquette', 'Mes annonces', 0],

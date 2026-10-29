@@ -31,10 +31,11 @@ Les couvertures visibles sur ces captures sont générées pour l'aperçu : les 
 ## Fonctionnalités
 
 ### Boutique
-- **Catalogue en 6 univers** (BD, Manga & Jeunesse, Littérature, Art & Culture, Scolaire & Études, Savoirs & Pro, Vie pratique) et un rayon Bons plans, avec méga-menu, fil d'Ariane, catégories, tags en trois familles (thèmes, public, particularités), filtres (type d'offre : magasin, entre particuliers ou don, prix, état, note), tris et pagination ; filtres repliés dans un volet sur téléphone
-- **Fiche livre** : caractéristiques complètes, choix de l'état (neuf, très bon, bon, usé) avec le prix et le stock de chacun, liste « Toutes les offres » (magasin, annonces de particuliers et dons) triable par prix, état ou type, avis des lecteurs, suggestions
+- **Catalogue en 6 univers** (BD, Manga & Jeunesse, Littérature, Art & Culture, Scolaire & Études, Savoirs & Pro, Vie pratique) et un rayon Bons plans, avec méga-menu, fil d'Ariane, catégories, tags en trois familles (thèmes, public, particularités), filtres (type d'offre : magasin, entre particuliers ou don, prix, état, note), tris (dont la **pertinence**, par défaut lors d'une recherche) et pagination ; filtres repliés dans un volet sur téléphone
+- **Fiche livre** : caractéristiques complètes, choix de l'état (neuf, très bon, bon, usé) avec le prix et le stock de chacun, liste « Toutes les offres » (magasin, annonces de particuliers et dons) triable par prix, état ou type, avis des lecteurs, bloc « Vous aimerez aussi » (même catégorie, même univers ou thèmes communs, chaque livre avec sa raison)
 - **Panier et commande** : remises automatiques (-5 % dès 30 €, -10 % dès 50 €), livraison offerte dès 20 €, carnet d'adresses, bons de réduction, mail de confirmation ; prix et stocks toujours relus en base, commande verrouillée en transaction
 - **Liste d'envies** et **alertes de retour en stock** par mail
+- **Suggestions personnalisées** : page « Suggestions pour vous », carte dans le profil et carrousel « Pour vous » sur l'accueil, calculées sans apprentissage automatique d'après les préférences de lecture, les achats, emprunts, favoris, notes et fiches consultées, pondérés par la popularité et la note moyenne ; une phrase explique chaque choix (« Parce que vous aimez « Mangas » ») ; livres déjà achetés, empruntés, indisponibles ou du lecteur lui-même exclus ; meilleures ventes et mieux notés quand on ne connaît pas encore ses goûts
 - **Recherche** par titre, auteur ou ISBN (avec ou sans tirets), suggestions temporisées et filtres combinables par niveau scolaire et matière ; champs scolaires renseignables depuis le back-office
 
 ### Communauté
@@ -57,7 +58,8 @@ Les couvertures visibles sur ces captures sont générées pour l'aperçu : les 
 ### Comptes
 - Inscription avec confirmation par mail, connexion protégée par un **puzzle captcha** maison vérifié côté serveur, mot de passe oublié avec lien à usage unique valable 1 heure
 - Rôles : lecteur, auteur, modérateur, gestionnaire, administrateur ; **candidatures à la modération** avec motivations, étudiées depuis le back-office
-- Espace « Mon compte » : profil, photo (recadrée et convertie en WebP), commandes, favoris, alertes, adresses, dons, événements, avis
+- Espace « Mon compte » : profil avec téléphone facultatif (visible seulement par l'administrateur) et **préférences de lecture** (univers, catégories, thèmes), photo (recadrée et convertie en WebP), commandes, favoris, alertes, adresses, dons, événements, avis
+- **Historique de consultation** respectueux de la vie privée : 20 dernières fiches au plus, gardées 90 jours, visibles du seul lecteur, effaçables et suspendables à tout moment
 - Déconnexion automatique après 10 minutes d'inactivité
 
 ### Back-office (`admin/`)
@@ -140,6 +142,8 @@ Pour les emprunts, sauvegarder la base avant toute mise à jour. Si les tables F
 Pour le suivi individuel des connexions et son tableau de bord, sauvegarder la base puis appliquer `sql/maj_sessions.sql` et `sql/maj_sessions_supervision.sql`. Les sessions anciennes devront se reconnecter pour enregistrer leur rôle d'ouverture. Sans les structures requises, la page signale que la supervision est indisponible. Voir le [guide des connexions](docs/supervision-sessions.md).
 
 Pour administrer les récompenses, appliquer après sauvegarde `sql/maj_regles_recompenses.sql`. Sans cette migration, les règles historiques restent utilisées. Le [guide des récompenses](docs/regles-recompenses.md) précise les effets des changements et leurs limites.
+
+Pour les suggestions personnalisées, appliquer `sql/maj_recommandations.sql` (téléphone, préférences de lecture et historique de consultation). Sans cette migration, les suggestions s'appuient seulement sur les achats, emprunts, favoris et notes, aucun historique n'est enregistré et les préférences sont signalées comme indisponibles.
 
 ## Organisation du code
 

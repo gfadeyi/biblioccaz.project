@@ -62,11 +62,17 @@ if (isset(ROLES_LIBELLES[$filtreRole])) {
     $where[] = "role = ?";
     $params[] = $filtreRole;
 }
-$stmt = $pdo->prepare("
-    SELECT id, pseudo, email, nom, prenom, role, statut, email_verifie, is_newsletter, date_inscription, last_activity
+$requeteMembres = "
+    SELECT id, pseudo, email, nom, prenom, role, statut, email_verifie, is_newsletter, date_inscription, last_activity%s
     FROM user WHERE " . implode(' AND ', $where) . "
-    ORDER BY FIELD(role, 'admin', 'gestionnaire', 'moderateur', 'auteur', 'client'), pseudo");
-$stmt->execute($params);
+    ORDER BY FIELD(role, 'admin', 'gestionnaire', 'moderateur', 'auteur', 'client'), pseudo";
+try {
+    $stmt = $pdo->prepare(sprintf($requeteMembres, ', telephone'));
+    $stmt->execute($params);
+} catch (PDOException $e) {
+    $stmt = $pdo->prepare(sprintf($requeteMembres, ''));
+    $stmt->execute($params);
+}
 $membres = $stmt->fetchAll();
 
 $nbCandidatures = (int) $pdo->query("SELECT COUNT(*) FROM user WHERE statut = 'en_attente_moderateur'")->fetchColumn();
@@ -137,6 +143,7 @@ include __DIR__ . '/_haut.php';
                             <div class="fw-bold">@<?= e($m['pseudo']) ?> <?php if ($moi): ?><span class="badge bg-secondary">vous</span><?php endif; ?></div>
                             <div class="small text-muted">
                                 <?= e(trim($m['prenom'] . ' ' . $m['nom'])) ?> · <?= e($m['email']) ?>
+                                <?php if (!empty($m['telephone'])): ?> · <i class="bi bi-telephone" aria-hidden="true"></i><span class="visually-hidden">Téléphone :</span> <?= e($m['telephone']) ?><?php endif; ?>
                                 <?php if ($m['is_newsletter']): ?><span class="badge bg-success-subtle text-success border border-success-subtle"><i class="bi bi-envelope-paper"></i> newsletter</span><?php endif; ?>
                                 <?php if (!$m['email_verifie']): ?><span class="badge bg-light text-muted border">email non confirmé</span><?php endif; ?>
                             </div>
