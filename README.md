@@ -117,6 +117,10 @@ Une cinquantaine de livres aux ISBN vérifiés, des lecteurs à tous les niveaux
 /c/xampp/mysql/bin/mysql.exe -u root --default-character-set=utf8mb4 biblioccaz < sql/donnees_demo.sql
 /c/xampp/php/php.exe sql/verifier_encodage.php
 ```
+Un second jeu étoffe le catalogue : environ 100 livres dans tous les univers et 54 manuels et œuvres au programme, du CP aux études supérieures, proposés à l'emprunt avec une dizaine d'exemplaires chacun. Tous les ISBN viennent du catalogue de la BnF. Le jeu ajoute aussi une vingtaine de lecteurs, des fiches auteur et quatre candidatures auteur en attente. Le script peut être rejoué sans créer de doublon ; à importer après `donnees_demo.sql` :
+```bash
+/c/xampp/mysql/bin/mysql.exe -u root --default-character-set=utf8mb4 biblioccaz < sql/donnees_demo_catalogue.sql
+```
 Les couvertures d'éditeurs ne sont pas versionnées : les livres concernés affichent la couverture par défaut.
 
 ### 5. Configurer
