@@ -107,6 +107,9 @@ $evenementsAVenir = lignesProfil($pdo, "
     WHERE i.id_user = ? AND i.statut IN ('inscrit', 'attente') AND e.statut = 'publie' AND e.date_fin >= NOW()
     ORDER BY e.date_debut LIMIT 3", [$idUser]);
 require_once 'recommandations_lib.php';
+require_once 'auteurs_lib.php';
+$candidatureAuteur = $estClient && candidaturesAuteurDisponibles($pdo) ? etatCandidatureAuteur($pdo, $user) : null;
+$ficheAuteur = $estAuteur ? ficheAuteurDe($pdo, $idUser) : null;
 $suggestionsProfil = in_array($role, ROLES_SUGGESTIONS, true) ? recommandationsPour($pdo, $idUser, 4) : [];
 $dons = lignesProfil($pdo, "SELECT statut, date_limite FROM don WHERE id_donneur = ?", [$idUser]);
 $donsEnCours = count(array_filter($dons, fn($don) => in_array(statutDon($don), ['disponible', 'reserve'], true)));
@@ -243,6 +246,29 @@ include 'header.php';
                     <a href="proposer_evenement.php" class="bouton bouton-contour bouton-petit">Proposer un événement</a>
                     <a href="proposer_ouvrage.php" class="bouton bouton-discret bouton-petit">Proposer un livre</a>
                 </div>
+                <?php if ($ficheAuteur && $ficheAuteur['est_publique']): ?>
+                    <a href="auteur.php?a=<?= rawurlencode($ficheAuteur['slug']) ?>" class="lien-voir-tout">Ma page publique <i class="bi bi-chevron-right" aria-hidden="true"></i></a>
+                <?php else: ?>
+                    <a href="modifier_fiche_auteur.php" class="lien-voir-tout"><?= $ficheAuteur ? 'Ma page auteur (masquée)' : 'Créer ma page auteur' ?> <i class="bi bi-chevron-right" aria-hidden="true"></i></a>
+                <?php endif; ?>
+            </section>
+        <?php endif; ?>
+
+        <?php if ($candidatureAuteur && $candidatureAuteur['etat'] !== 'interdite'): ?>
+            <section class="carte-compte" aria-labelledby="titre-devenir-auteur">
+                <h2 class="carte-compte__titre" id="titre-devenir-auteur"><?= iconeDessin('plume') ?> Devenir auteur</h2>
+                <?php if ($candidatureAuteur['etat'] === 'en_attente'): ?>
+                    <p class="texte-profil"><span class="etiquette-profil">En cours d'étude</span> Votre candidature « <?= htmlspecialchars($candidatureAuteur['candidature']['nom_plume']) ?> » du <?= date('d/m/Y', strtotime($candidatureAuteur['candidature']['date_candidature'])) ?> est entre les mains de l'équipe. Vous recevrez sa réponse par mail.</p>
+                <?php elseif ($candidatureAuteur['etat'] === 'refusee_recente'): ?>
+                    <p class="texte-profil">Votre candidature du <?= date('d/m/Y', strtotime($candidatureAuteur['candidature']['date_candidature'])) ?> n'a pas été retenue.</p>
+                    <?php if ($candidatureAuteur['candidature']['message_decision']): ?>
+                        <blockquote class="message-equipe"><?= nl2br(htmlspecialchars($candidatureAuteur['candidature']['message_decision'])) ?></blockquote>
+                    <?php endif; ?>
+                    <p class="texte-profil mb-0">Nouvelle demande possible à partir du <strong><?= date('d/m/Y à H:i', strtotime($candidatureAuteur['date_possible'])) ?></strong>.</p>
+                <?php else: ?>
+                    <p class="texte-profil">Vous écrivez ? Présentez-vous et présentez vos livres : après validation, vous aurez votre page d'auteur et pourrez proposer vos rencontres.</p>
+                    <a href="candidature_auteur.php" class="bouton bouton-contour bouton-petit"><?= $candidatureAuteur['candidature'] ? 'Déposer une nouvelle candidature' : 'Proposer ma candidature' ?></a>
+                <?php endif; ?>
             </section>
         <?php endif; ?>
 

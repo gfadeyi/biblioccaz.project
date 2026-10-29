@@ -468,3 +468,10 @@ a.stat:hover, a.stat:focus-visible { translate: 0 -3px; box-shadow: var(--ombre-
 .chiffre-emprunt__libelle { font-size: .8rem; color: var(--bs-secondary-color); }
 .chiffre-emprunt--alerte { border-left: 4px solid var(--rouge); }
 .chiffre-emprunt--alerte .chiffre-emprunt__nombre, .chiffre-emprunt--alerte i { color: var(--rouge); }
+.candidature-auteur__entete { display: flex; gap: 1rem; align-items: center; }
+.candidature-auteur__portrait { flex-shrink: 0; width: 64px; height: 64px; border-radius: 50%; overflow: hidden; display: grid; place-items: center; background: var(--vert-50); color: var(--vert-fonce); font-weight: 700; font-size: 1.6rem; }
+.candidature-auteur__portrait img { width: 100%; height: 100%; object-fit: cover; }
+.candidature-auteur__decision { margin-top: 1.25rem; padding-top: 1.25rem; border-top: 1px solid var(--trait); }
+.liste-ouvrages-admin { list-style: none; margin: 0; padding: 0; }
+.liste-ouvrages-admin li { padding: .45rem 0; border-bottom: 1px solid var(--trait); overflow-wrap: anywhere; }
+.liste-ouvrages-admin li:last-child { border-bottom: 0; }

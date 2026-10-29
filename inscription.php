@@ -5,7 +5,7 @@ require_once 'config.php';
 use PHPMailer\PHPMailer\Exception;
 
 $erreur = "";
-$saisie = ['prenom' => '', 'nom' => '', 'pseudo' => '', 'email' => '', 'role' => 'client'];
+$saisie = ['prenom' => '', 'nom' => '', 'pseudo' => '', 'email' => ''];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $pseudo = trim($_POST['pseudo'] ?? '');
@@ -14,8 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $confirmation = $_POST['confirmation'] ?? '';
     $nom = trim($_POST['nom'] ?? '');
     $prenom = trim($_POST['prenom'] ?? '');
-    $role = ($_POST['role'] ?? '') === 'auteur' ? 'auteur' : 'client';
-    $saisie = ['prenom' => $prenom, 'nom' => $nom, 'pseudo' => $pseudo, 'email' => $email, 'role' => $role];
+    $saisie = ['prenom' => $prenom, 'nom' => $nom, 'pseudo' => $pseudo, 'email' => $email];
 
     if (!$pseudo || !$email || !$mdp || !$nom || !$prenom) {
         $erreur = "Veuillez remplir tous les champs obligatoires.";
@@ -31,9 +30,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $hash = password_hash($mdp, PASSWORD_DEFAULT);
             $token = bin2hex(random_bytes(32));
 
-            $stmt = $pdo->prepare("INSERT INTO user (pseudo, email, mot_de_passe, nom, prenom, role, email_token, email_verifie) VALUES (?, ?, ?, ?, ?, ?, ?, 0)");
+            $stmt = $pdo->prepare("INSERT INTO user (pseudo, email, mot_de_passe, nom, prenom, role, email_token, email_verifie) VALUES (?, ?, ?, ?, ?, 'client', ?, 0)");
 
-            if ($stmt->execute([$pseudo, $email, $hash, $nom, $prenom, $role, $token])) {
+            if ($stmt->execute([$pseudo, $email, $hash, $nom, $prenom, $token])) {
                 $url = SITE_URL . "/verification_mail.php?token=" . $token;
                 $mail = creerMailer();
                 try {
@@ -94,19 +93,12 @@ include 'header.php';
                     <input type="password" id="confirmation" name="confirmation" class="form-control" autocomplete="new-password" required>
                 </div>
 
-                <fieldset class="col-12">
-                    <legend class="form-label">Type de compte *</legend>
-                    <div class="choix-role">
-                        <label>
-                            <input class="form-check-input" type="radio" name="role" value="client" <?= $saisie['role'] === 'client' ? 'checked' : '' ?>>
-                            <span><strong>Lecteur</strong><span>Acheter, donner des livres et participer aux événements</span></span>
-                        </label>
-                        <label>
-                            <input class="form-check-input" type="radio" name="role" value="auteur" <?= $saisie['role'] === 'auteur' ? 'checked' : '' ?>>
-                            <span><strong>Auteur</strong><span>Proposer mes propres œuvres et mes événements</span></span>
-                        </label>
+                <div class="col-12">
+                    <div class="carte-formulaire__encart">
+                        <p>Vous êtes auteur ? Créez votre compte avec votre candidature : votre page d'auteur sera publiée après validation par l'équipe.</p>
+                        <a href="candidature_auteur.php" class="bouton bouton-contour bouton-petit"><?= iconeDessin('plume') ?> Créer un compte auteur</a>
                     </div>
-                </fieldset>
+                </div>
 
                 <div class="col-12">
                     <div class="carte-formulaire__encart">

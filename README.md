@@ -58,6 +58,8 @@ Les couvertures visibles sur ces captures sont générées pour l'aperçu : les 
 ### Comptes
 - Inscription avec confirmation par mail, connexion protégée par un **puzzle captcha** maison vérifié côté serveur, mot de passe oublié avec lien à usage unique valable 1 heure
 - Rôles : lecteur, auteur, modérateur, gestionnaire, administrateur ; **candidatures à la modération** avec motivations, étudiées depuis le back-office
+- **Candidature auteur** à l'inscription ou depuis le compte : nom de plume, biographie, ouvrages publiés (ISBN vérifié par sa clé), liens et photo ; le compte reste lecteur jusqu'à la validation par l'équipe, qui répond par mail (refus motivé, nouvelle demande possible après 7 jours)
+- **Pages auteur publiques** et page « Nos auteurs » avec recherche : biographie, ouvrages, livres disponibles sur le site et rencontres ; l'auteur modifie sa page à tout moment (modifications publiées et inscrites au journal), l'équipe peut la masquer
 - Espace « Mon compte » : profil avec téléphone facultatif (visible seulement par l'administrateur) et **préférences de lecture** (univers, catégories, thèmes), photo (recadrée et convertie en WebP), commandes, favoris, alertes, adresses, dons, événements, avis
 - **Historique de consultation** respectueux de la vie privée : 20 dernières fiches au plus, gardées 90 jours, visibles du seul lecteur, effaçables et suspendables à tout moment
 - Déconnexion automatique après 10 minutes d'inactivité
@@ -69,7 +71,7 @@ Les couvertures visibles sur ces captures sont générées pour l'aperçu : les 
 - **Tableau de bord** : chiffre d'affaires, commandes, nouveaux membres, stock, ventes sur 30 jours et par univers, liste « À traiter »
 - **Catalogue** : fiches, exemplaires par état, inventaire avec alertes de rupture, catégories et tags, validation des livres proposés par les auteurs, **modération des annonces** entre particuliers (photos, motif de refus ou de retrait, modification par l'équipe), **suivi des ventes entre lecteurs** (ventes en retard, litiges : valider, annuler avec retrait des points, classer)
 - **Commandes** : liste filtrable, fiche détaillée, annulation (stock remis, points rendus, client prévenu)
-- **Communauté** : avis à valider et signalés, messages signalés (masquer un message, clore une conversation, suspendre un compte), dons, événements et présences, niveaux et badges des membres, membres (rôles, suspension), candidatures, utilisateurs en ligne, newsletter
+- **Communauté** : avis à valider et signalés, messages signalés (masquer un message, clore une conversation, suspendre un compte), dons, événements et présences, niveaux et badges des membres, membres (rôles, suspension), candidatures à la modération et candidatures auteur (accepter, refuser avec message, historique, masquer une page auteur), utilisateurs en ligne, newsletter
 - **Système** : journal d'activité, images du captcha, export PDF des membres
 
 ### Qualité
@@ -143,6 +145,8 @@ Pour le suivi individuel des connexions et son tableau de bord, sauvegarder la b
 
 Pour administrer les récompenses, appliquer après sauvegarde `sql/maj_regles_recompenses.sql`. Sans cette migration, les règles historiques restent utilisées. Le [guide des récompenses](docs/regles-recompenses.md) précise les effets des changements et leurs limites.
 
+Pour les candidatures et pages auteur, appliquer `sql/maj_candidatures_auteur.sql`. Sans cette migration, les pages concernées indiquent que les candidatures ouvrent bientôt et le reste du site fonctionne normalement.
+
 Pour les suggestions personnalisées, appliquer `sql/maj_recommandations.sql` (téléphone, préférences de lecture et historique de consultation). Sans cette migration, les suggestions s'appuient seulement sur les achats, emprunts, favoris et notes, aucun historique n'est enregistré et les préférences sont signalées comme indisponibles.
 
 ## Organisation du code
@@ -159,4 +163,4 @@ Code partagé : `config.php` (connexion, session), `mailer.php` (mails), bibliot
 Droits dans le back-office (`admin/_init.php`) :
 - **Modérateur** : tableau de bord, fiches à valider, annonces, avis, messages, dons
 - **Gestionnaire** : en plus, livres, stock, commandes, événements et emprunts (mise à disposition, retrait, retour et levée motivée des blocages)
-- **Administrateur** : tout, dont membres, candidatures, catégories, newsletter, journal, captcha et export PDF
+- **Administrateur** : tout, dont membres, candidatures (la validation des auteurs dépend du seul droit `candidatures_auteur`, à étendre au gestionnaire ou au modérateur si besoin), catégories, newsletter, journal, captcha et export PDF

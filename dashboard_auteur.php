@@ -44,6 +44,9 @@ $stmt = $pdo->prepare("SELECT id_livre, titre, auteur, couverture, is_valide FRO
 $stmt->execute([$idAuteur]);
 $mesLivres = $stmt->fetchAll();
 
+require_once 'auteurs_lib.php';
+$ficheAuteur = ficheAuteurDe($pdo, $idAuteur);
+
 $flash = $_SESSION['flash_auteur'] ?? null;
 unset($_SESSION['flash_auteur']);
 
@@ -66,6 +69,29 @@ include 'header.php';
             <a href="proposer_ouvrage.php" class="bouton bouton-contour bouton-petit"><i class="bi bi-journal-plus" aria-hidden="true"></i> Proposer un livre</a>
         </div>
     </div>
+
+    <?php if (candidaturesAuteurDisponibles($pdo)): ?>
+        <section class="carte-compte mb-4 carte-page-auteur" aria-labelledby="titre-page-auteur">
+            <div>
+                <h2 class="carte-compte__titre mb-1" id="titre-page-auteur"><?= iconeDessin('plume') ?> Ma page auteur</h2>
+                <p class="texte-profil mb-0">
+                    <?php if (!$ficheAuteur): ?>
+                        Pas encore de page : présentez-vous et listez vos ouvrages pour apparaître dans « Nos auteurs ».
+                    <?php elseif ($ficheAuteur['est_masquee']): ?>
+                        Votre page est masquée par l'équipe depuis le <?= date('d/m/Y', strtotime($ficheAuteur['date_masquage'])) ?>.
+                    <?php else: ?>
+                        « <?= htmlspecialchars($ficheAuteur['nom_plume']) ?> » est en ligne · mise à jour le <?= date('d/m/Y', strtotime($ficheAuteur['date_modification'])) ?>.
+                    <?php endif; ?>
+                </p>
+            </div>
+            <div class="d-flex flex-wrap gap-2">
+                <?php if ($ficheAuteur && $ficheAuteur['est_publique']): ?>
+                    <a href="auteur.php?a=<?= rawurlencode($ficheAuteur['slug']) ?>" class="bouton bouton-discret bouton-petit"><i class="bi bi-eye" aria-hidden="true"></i> Voir ma page</a>
+                <?php endif; ?>
+                <a href="modifier_fiche_auteur.php" class="bouton bouton-contour bouton-petit"><i class="bi bi-pencil" aria-hidden="true"></i> <?= $ficheAuteur ? 'Modifier ma page' : 'Créer ma page' ?></a>
+            </div>
+        </section>
+    <?php endif; ?>
 
     <?php if ($flash): ?>
         <div class="alert alert-<?= htmlspecialchars($flash[0]) ?> rounded-3" role="status"><?= htmlspecialchars($flash[1]) ?></div>

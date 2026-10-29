@@ -29,6 +29,7 @@ $menu = [
         ['evenements', 'evenements.php', 'calendar-event', 'Événements', 'evenements', $compteurs['evenements_proposes'] ?? 0],
         ['utilisateurs', 'utilisateurs.php', 'people', 'Membres', 'admin', 0],
         ['candidatures', 'candidatures.php', 'person-plus', 'Candidatures', 'admin', $compteurs['candidatures']],
+        ['candidatures_auteur', 'candidatures_auteur.php', 'feather', 'Candidatures auteur', 'candidatures_auteur', $compteurs['candidatures_auteur'] ?? 0],
         ['en_ligne', 'en_ligne.php', 'broadcast', 'En ligne', 'admin', 0],
         ['newsletter', 'newsletter.php', 'megaphone', 'Newsletter', 'admin', 0],
     ],

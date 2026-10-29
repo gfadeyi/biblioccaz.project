@@ -38,6 +38,7 @@ $flashCompte = $_SESSION['flash_compte'] ?? null;
 unset($_SESSION['flash_compte']);
 
 require_once 'recommandations_lib.php';
+require_once 'auteurs_lib.php';
 $idLecteurSuggestions = $idUserConnecte && in_array($_SESSION['role'] ?? '', ROLES_SUGGESTIONS, true) ? $idUserConnecte : 0;
 if ($idLecteurSuggestions && (int) $livre['is_valide'] === 1) {
     enregistrerConsultation($pdo, $idLecteurSuggestions, (int) $livre['id_livre']);
@@ -148,7 +149,8 @@ $peutAcheterEnMagasin = ($_SESSION['role'] ?? '') === 'client';
                     <a href="login.php" class="btn btn-outline-secondary rounded-circle bouton-favori" title="Connectez-vous pour ajouter ce livre à vos favoris"><i class="bi bi-heart"></i></a>
                 <?php endif; ?>
             </div>
-            <p class="text-muted h5 mb-2">Par <?= htmlspecialchars($livre['auteur']) ?></p>
+            <?php $slugAuteur = slugFichePublique($pdo, isset($livre['id_user_auteur']) ? (int) $livre['id_user_auteur'] : null); ?>
+            <p class="text-muted h5 mb-2">Par <?php if ($slugAuteur): ?><a href="auteur.php?a=<?= rawurlencode($slugAuteur) ?>" class="lien-auteur-livre"><?= htmlspecialchars($livre['auteur']) ?></a><?php else: ?><?= htmlspecialchars($livre['auteur']) ?><?php endif; ?></p>
             <?php
             require_once 'avis_lib.php';
             $noteEntete = noteDuLivre($pdo, (int) $livre['id_livre']);

@@ -1932,3 +1932,71 @@ h1, h2, h3, .titre { font-family: var(--police-titre); font-weight: 700; letter-
 .preferences-lecture__groupe { margin-bottom: 1.1rem; }
 .preferences-lecture__groupe legend { font-size: .82rem; font-weight: 700; text-transform: uppercase; letter-spacing: .03em; color: var(--texte-vert); margin-bottom: .45rem; }
 @media (prefers-reduced-motion: reduce) { .historique-consultation a:hover img { transform: none; } }
+.fiche-auteur-form__bloc { border: 0; padding: 0; margin: 0 0 1.75rem; }
+.fiche-auteur-form__bloc legend { font-family: var(--police-titre); font-size: 1.15rem; font-weight: 700; color: var(--titre); padding-bottom: .4rem; margin-bottom: .9rem; border-bottom: 1px solid var(--trait); }
+.liste-ouvrages-form { list-style: none; margin: .75rem 0; padding: 0; display: grid; gap: .65rem; }
+.ouvrage-form { display: flex; gap: .75rem; align-items: flex-start; padding: .75rem; border: 1px solid var(--trait); border-radius: var(--rayon); background: var(--surface); }
+.ouvrage-form[hidden] { display: none; }
+.ouvrage-form__numero { flex-shrink: 0; width: 1.8rem; height: 1.8rem; margin-top: 1.55rem; display: grid; place-items: center; border-radius: 50%; background: var(--vert-50); color: var(--texte-vert); font-weight: 700; font-size: .85rem; }
+.ouvrage-form .form-label { margin-bottom: .2rem; color: var(--encre-douce); }
+.photo-auteur-actuelle { display: flex; align-items: center; gap: .9rem; margin-bottom: .6rem; }
+.photo-auteur-actuelle img { width: 64px; height: 64px; object-fit: cover; border-radius: 50%; border: 1px solid var(--trait); }
+.etat-candidature { max-width: 720px; }
+.message-equipe { margin: 0 0 .9rem; padding: .75rem 1rem; border-left: 3px solid var(--vert-300); background: var(--vert-50); border-radius: 0 var(--rayon) var(--rayon) 0; color: var(--encre); font-size: .95rem; overflow-wrap: anywhere; }
+.carte-page-auteur { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem; }
+.lien-auteur-livre { color: inherit; text-decoration: underline; text-decoration-color: var(--vert-300); text-underline-offset: .2em; }
+.lien-auteur-livre:hover { color: var(--texte-vert); }
+.auteur-entete { display: flex; align-items: center; gap: 1.5rem; margin: .5rem 0 1.75rem; }
+.auteur-entete__portrait { flex-shrink: 0; width: 132px; height: 132px; border-radius: 50%; overflow: hidden; display: grid; place-items: center; background: var(--vert-50); border: 1px solid var(--vert-200);
+    color: var(--texte-vert); font-family: var(--police-titre); font-size: 3rem; font-weight: 700; }
+.auteur-entete__portrait img { width: 100%; height: 100%; object-fit: cover; }
+.auteur-entete__surtitre { margin: 0 0 .2rem; font-size: .8rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--texte-vert); }
+.auteur-entete h1 { font-family: var(--police-titre); color: var(--titre); margin: 0 0 .6rem; font-size: clamp(1.8rem, 4vw, 2.6rem); overflow-wrap: anywhere; }
+.auteur-liens { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: .5rem; }
+.auteur-liens a { display: inline-flex; align-items: center; gap: .35rem; padding: .3rem .8rem; border: 1px solid var(--trait); border-radius: var(--rayon-pilule); color: var(--texte-vert); font-weight: 600; font-size: .9rem; text-decoration: none; transition: border-color var(--transition), background var(--transition); }
+.auteur-liens a:hover { border-color: var(--vert-300); background: var(--vert-50); }
+.auteur-grille { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: 1.5rem; align-items: start; }
+.auteur-biographie__texte { color: var(--encre); line-height: 1.7; max-width: 70ch; overflow-wrap: anywhere; }
+.auteur-ouvrages { list-style: none; margin: 0; padding: 0; display: grid; gap: .1rem; }
+.auteur-ouvrages li { display: flex; flex-wrap: wrap; align-items: baseline; gap: .15rem .6rem; padding: .6rem 0; border-bottom: 1px solid var(--trait); }
+.auteur-ouvrages li:last-child { border-bottom: 0; }
+.auteur-ouvrages strong { color: var(--encre); overflow-wrap: anywhere; }
+.auteur-ouvrages a { color: var(--texte-vert); text-decoration: none; }
+.auteur-ouvrages a:hover { text-decoration: underline; }
+.auteur-ouvrages small { flex-basis: 100%; color: var(--encre-douce); font-size: .85rem; }
+.titre-section-auteur { font-family: var(--police-titre); color: var(--titre); font-size: 1.4rem; margin-bottom: 1rem; }
+.auteur-periode { font-family: var(--police-texte); font-size: .8rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--encre-douce); margin: 1rem 0 .5rem; }
+.auteur-evenements { list-style: none; margin: 0; padding: 0; display: grid; gap: .6rem; }
+.auteur-evenements a { display: flex; align-items: center; gap: 1rem; padding: .75rem 1rem; background: var(--surface); border: 1px solid var(--trait); border-radius: var(--rayon); color: var(--encre); text-decoration: none; transition: border-color var(--transition), box-shadow var(--transition); }
+.auteur-evenements a:hover { border-color: var(--vert-300); box-shadow: var(--ombre); }
+.auteur-evenements__date { flex-shrink: 0; width: 64px; text-align: center; line-height: 1.1; color: var(--texte-vert); }
+.auteur-evenements__date strong { display: block; font-family: var(--police-titre); font-size: 1.5rem; }
+.auteur-evenements__date small { font-size: .75rem; }
+.auteur-evenements__texte { flex-grow: 1; min-width: 0; display: flex; flex-direction: column; }
+.auteur-evenements__texte small { color: var(--encre-douce); }
+.auteur-evenements--passes a { opacity: .8; }
+.recherche-auteurs { display: flex; gap: .5rem; width: min(100%, 420px); }
+.grille-auteurs { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.25rem; }
+.carte-auteur { position: relative; display: flex; gap: 1rem; padding: 1.25rem; background: var(--surface); border: 1px solid var(--trait); border-radius: var(--rayon-grand); box-shadow: var(--ombre); transition: border-color var(--transition), box-shadow var(--transition); }
+.carte-auteur:hover { border-color: var(--vert-300); box-shadow: var(--ombre-survol); }
+.carte-auteur__portrait { flex-shrink: 0; width: 72px; height: 72px; border-radius: 50%; overflow: hidden; display: grid; place-items: center; background: var(--vert-50); color: var(--texte-vert); font-family: var(--police-titre); font-size: 1.8rem; font-weight: 700; }
+.carte-auteur__portrait img { width: 100%; height: 100%; object-fit: cover; }
+.carte-auteur__texte { min-width: 0; }
+.carte-auteur h2 { font-size: 1.15rem; margin: 0 0 .35rem; }
+.carte-auteur h2 a { color: var(--titre); text-decoration: none; }
+.carte-auteur h2 a::after { content: ""; position: absolute; inset: 0; border-radius: inherit; }
+.carte-auteur h2 a:focus-visible { outline: none; }
+.carte-auteur:has(a:focus-visible) { outline: 3px solid var(--vert-400); outline-offset: 2px; }
+.carte-auteur p { margin: 0 0 .4rem; color: var(--encre-douce); font-size: .92rem; line-height: 1.5; overflow-wrap: anywhere; }
+.carte-auteur small { color: var(--texte-vert); font-weight: 600; }
+@media (max-width: 991.98px) {
+    .auteur-grille { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 575.98px) {
+    .auteur-entete { flex-direction: column; align-items: flex-start; gap: 1rem; }
+    .auteur-entete__portrait { width: 96px; height: 96px; font-size: 2.2rem; }
+    .ouvrage-form { flex-direction: column; padding: .6rem; gap: .5rem; }
+    .ouvrage-form__numero { margin-top: 0; }
+    .grille-auteurs { grid-template-columns: minmax(0, 1fr); }
+    .recherche-auteurs { width: 100%; }
+}

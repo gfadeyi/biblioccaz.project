@@ -236,3 +236,17 @@ Preuves : 94 assertions sur base isolée (score, poids, repli, exclusions, cache
 | F9 Suggestions personnalisées | Vert « Opérationnel ». |
 | F9 Algorithme simple de recommandation | Vert « Opérationnel ». |
 | F9 Affichage des résultats (tri par pertinence) | Vert « Opérationnel ». |
+
+### Candidatures et pages auteur (F1 création de compte, F10 gestion des utilisateurs)
+
+Implémenté sur la branche `refonte`, migration `sql/maj_candidatures_auteur.sql` testée sur base isolée (rejouée deux fois, données existantes inchangées) ; import dans `biblioccaz` en attente d'accord.
+
+- Inscription : le choix « Auteur » ne donne plus directement le rôle ; il mène à `candidature_auteur.php`, qui crée un compte lecteur et la candidature en une seule fois. Un lecteur connecté candidate depuis son profil.
+- Fiche : nom de plume, biographie (50 à 3 000 caractères), motivation (réservée à l'équipe), 1 à 10 ouvrages (titre obligatoire, ISBN-10 ou 13 vérifié par sa clé), liens http ou https, photo facultative contrôlée comme les autres images.
+- Une seule candidature en attente ; après un refus, nouvelle demande possible 7 jours plus tard, avec la date affichée.
+- Back-office `admin/candidatures_auteur.php` (onglet à côté des candidatures modérateur) : accepter (email confirmé exigé), refuser avec message obligatoire, mail au candidat, historique, liste des pages publiées avec masquage. Droit unique `candidatures_auteur` dans `DROITS`, réservé à l'administrateur.
+- Acceptation : le compte passe auteur, ses sessions se ferment, la page publique est créée depuis la candidature. Les auteurs déjà inscrits créent leur page sans nouvelle validation.
+- Page publique `auteur.php?a=…` (biographie, ouvrages reliés au catalogue par l'ISBN, livres disponibles, rencontres à venir et passées) et page « Nos auteurs » avec recherche ; invisibles si la page est masquée, le compte suspendu ou plus auteur. Le nom de l'auteur sur la fiche livre mène à sa page.
+
+Preuves : 121 assertions sur base isolée et bancs de non-régression verts ; recette navigateur à 1440, 768 et 375 px sans débordement ni erreur JavaScript.
+

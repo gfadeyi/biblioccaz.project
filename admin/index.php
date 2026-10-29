@@ -177,6 +177,9 @@ if (aLeDroit('evenements')) {
 if (aLeDroit('admin')) {
     $aTraiter[] = ['person-badge', 'Candidatures modérateur', 'Membres à valider', $compteurs['candidatures'], 'candidatures.php'];
 }
+if (aLeDroit('candidatures_auteur')) {
+    $aTraiter[] = ['feather', 'Candidatures auteur', 'Fiches auteur à étudier', $compteurs['candidatures_auteur'] ?? 0, 'candidatures_auteur.php'];
+}
 $totalATraiter = array_sum(array_column($aTraiter, 3));
 
 $titrePage = 'Tableau de bord';

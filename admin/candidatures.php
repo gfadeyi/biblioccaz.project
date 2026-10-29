@@ -100,6 +100,13 @@ $sousTitrePage = "Les personnes qui souhaitent rejoindre l'équipe de modératio
 include __DIR__ . '/_haut.php';
 ?>
 
+<?php if (aLeDroit('candidatures_auteur')): ?>
+    <ul class="nav nav-pills mb-3">
+        <li class="nav-item"><a class="nav-link active bg-success" href="candidatures.php" aria-current="page">Modération</a></li>
+        <li class="nav-item"><a class="nav-link text-success" href="candidatures_auteur.php">Auteurs<?php if (($compteurs['candidatures_auteur'] ?? 0) > 0): ?> <span class="badge rounded-pill bg-success ms-1"><?= (int) $compteurs['candidatures_auteur'] ?></span><?php endif; ?></a></li>
+    </ul>
+<?php endif; ?>
+
 <?php if ($tableAbsente): ?>
     <div class="alert alert-warning"><i class="bi bi-exclamation-triangle me-1" aria-hidden="true"></i> Importez <code>sql/maj_candidatures.sql</code> pour enregistrer les motivations et l'historique des décisions.</div>
 <?php endif; ?>
