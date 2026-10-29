@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', function () {
     const fenetre = document.getElementById('fenetreConfirmation');
-    const modale = fenetre ? bootstrap.Modal.getOrCreateInstance(fenetre) : null;
+    const modale = fenetre && window.bootstrap?.Modal ? window.bootstrap.Modal.getOrCreateInstance(fenetre) : null;
     let formulaireEnAttente = null;
 
     document.querySelectorAll('form[data-confirmer]').forEach(function (formulaire) {
@@ -42,7 +42,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     document.querySelectorAll('[data-bs-toggle="tooltip"], .actions-ligne [title], .bouton-action[title]').forEach(function (element) {
         if (!element.getAttribute('aria-label')) element.setAttribute('aria-label', element.getAttribute('title'));
-        new bootstrap.Tooltip(element, { trigger: 'hover focus' });
+        if (window.bootstrap?.Tooltip) new window.bootstrap.Tooltip(element, { trigger: 'hover focus' });
     });
 
     document.querySelectorAll('[data-disparition]').forEach(function (message) {
