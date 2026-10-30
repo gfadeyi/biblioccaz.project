@@ -12,7 +12,6 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !isset($_SESSION['user_id'])) {
 
 $idDon = (int) ($_POST['id_don'] ?? 0);
 $idUser = (int) $_SESSION['user_id'];
-$estAdmin = ($_SESSION['role'] ?? '') === 'admin';
 $retour = "don_detail.php?id=$idDon";
 
 function terminer(string $url, string $type, string $message): void
@@ -90,13 +89,13 @@ switch ($_POST['action'] ?? '') {
         terminer($retour, 'success', "Le don est de nouveau disponible.");
 
     case 'annuler':
-        if ((int) $don['id_donneur'] !== $idUser && !$estAdmin) {
+        if ((int) $don['id_donneur'] !== $idUser) {
             terminer($retour, 'danger', "Action non autorisée.");
         }
         $maj = $pdo->prepare("UPDATE don SET statut = 'annule' WHERE id_don = ? AND statut IN ('disponible', 'reserve')");
         $maj->execute([$idDon]);
         fermerConversationsObjet($pdo, 'don', $idDon, "Le don a été annulé : la conversation est terminée.");
-        insertLog('DON', "Don #$idDon annulé" . ($estAdmin && (int) $don['id_donneur'] !== $idUser ? ' par un administrateur' : ''));
+        insertLog('DON', "Don #$idDon annulé");
         terminer($retour, 'success', "Le don est annulé.");
 }
 

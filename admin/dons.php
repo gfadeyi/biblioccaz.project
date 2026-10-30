@@ -4,24 +4,16 @@ require_once __DIR__ . '/../dons_lib.php';
 require_once __DIR__ . '/../messagerie_lib.php';
 exigerDroit('equipe');
 
-$filtre = $_GET['statut'] ?? 'en_cours';
-$q = trim($_GET['q'] ?? '');
+$filtre = is_string($_GET['statut'] ?? null) ? $_GET['statut'] : 'en_cours';
+$q = is_string($_GET['q'] ?? null) ? mb_substr(trim($_GET['q']), 0, 100) : '';
+$page = max(1, filter_input(INPUT_GET, 'page', FILTER_VALIDATE_INT) ?: 1);
+$total = 0;
+$nombrePages = 1;
 $retour = 'dons.php?' . http_build_query(['statut' => $filtre, 'q' => $q]);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     exigerPost($retour);
-    if (($_POST['action'] ?? '') === 'annuler') {
-        $idDon = (int) ($_POST['id_don'] ?? 0);
-        $maj = $pdo->prepare("UPDATE don SET statut = 'annule' WHERE id_don = ? AND statut IN ('disponible', 'reserve')");
-        $maj->execute([$idDon]);
-        if ($maj->rowCount()) {
-            insertLog('DON', "Don #$idDon annulé par l'équipe");
-            fermerConversationsObjet($pdo, 'don', $idDon, "Le don a été annulé par l'équipe : la conversation est terminée.");
-            rediriger($retour, 'success', "Le don #$idDon est annulé.");
-        }
-        rediriger($retour, 'warning', "Ce don ne peut plus être annulé.");
-    }
-    rediriger($retour);
+    rediriger('don.php?id=' . max(0, (int) ($_POST['id_don'] ?? 0)), 'info', 'Consultez le don puis indiquez le motif de votre intervention.');
 }
 
 $conditions = [
@@ -39,20 +31,26 @@ if (!isset($conditions[$filtre])) {
 $where = [$conditions[$filtre]];
 $params = [];
 if ($q !== '') {
-    $where[] = "(d.titre LIKE ? OR d.code_court = ? OR donneur.pseudo LIKE ?)";
-    array_push($params, "%$q%", strtoupper($q), "%$q%");
+    $where[] = "(d.titre LIKE ? OR d.code_court = ? OR donneur.pseudo LIKE ? OR benef.pseudo LIKE ?)";
+    array_push($params, "%$q%", strtoupper($q), "%$q%", "%$q%");
 }
 
 $dons = [];
 $tablePresente = true;
 try {
+    $compter = $pdo->prepare("SELECT COUNT(*) FROM don d INNER JOIN user donneur ON donneur.id = d.id_donneur LEFT JOIN user benef ON benef.id = d.id_beneficiaire WHERE " . implode(' AND ', $where));
+    $compter->execute($params);
+    $total = (int) $compter->fetchColumn();
+    $nombrePages = max(1, (int) ceil($total / 20));
+    $page = min($page, $nombrePages);
+    $decalage = ($page - 1) * 20;
     $stmt = $pdo->prepare("
         SELECT d.*, livre_don.couverture AS couverture_don, donneur.pseudo AS pseudo_donneur, benef.pseudo AS pseudo_beneficiaire
         FROM don d LEFT JOIN livre livre_don ON livre_don.id_livre = d.id_livre
         INNER JOIN user donneur ON donneur.id = d.id_donneur
         LEFT JOIN user benef ON benef.id = d.id_beneficiaire
         WHERE " . implode(' AND ', $where) . "
-        ORDER BY d.date_creation DESC LIMIT 200");
+        ORDER BY d.date_creation DESC, d.id_don DESC LIMIT 20 OFFSET " . $decalage);
     $stmt->execute($params);
     $dons = $stmt->fetchAll();
 } catch (PDOException $e) {
@@ -81,12 +79,12 @@ $onglets = ['en_cours' => 'En cours', 'disponible' => 'Disponibles', 'reserve' =
 
 <form class="d-flex gap-2 mb-3" method="GET">
     <input type="hidden" name="statut" value="<?= e($filtre) ?>">
-    <input type="search" name="q" value="<?= e($q) ?>" class="form-control" aria-label="Rechercher un don" style="max-width: 320px;" placeholder="Titre, code ou pseudo du donneur">
+    <input type="search" name="q" value="<?= e($q) ?>" class="form-control" aria-label="Rechercher un don" style="max-width: 320px;" placeholder="Titre, code ou pseudo">
     <button class="btn btn-outline-secondary" aria-label="Rechercher"><i class="bi bi-search" aria-hidden="true"></i></button>
 </form>
 
 <div class="carte">
-    <div class="carte-entete"><?= count($dons) ?> don<?= count($dons) > 1 ? 's' : '' ?></div>
+    <div class="carte-entete"><?= $total ?> don<?= $total > 1 ? 's' : '' ?></div>
     <div class="table-responsive">
         <table class="table align-middle">
             <thead class="table-light small text-uppercase">
@@ -115,15 +113,7 @@ $onglets = ['en_cours' => 'En cours', 'disponible' => 'Disponibles', 'reserve' =
                         </td>
                         <td><?= badgeStatutDon($d) ?></td>
                         <td class="text-end text-nowrap">
-                            <a href="../don_detail.php?id=<?= $d['id_don'] ?>" target="_blank" class="btn btn-sm btn-outline-secondary" title="Voir l'annonce"><i class="bi bi-eye"></i></a>
-                            <?php if (in_array($d['statut'], ['disponible', 'reserve'], true)): ?>
-                                <form method="POST" class="d-inline" data-confirmer="Annuler ce don ? Le donneur et le bénéficiaire éventuel ne pourront plus l'utiliser.">
-                                    <?= champCsrf() ?>
-                                    <input type="hidden" name="action" value="annuler">
-                                    <input type="hidden" name="id_don" value="<?= $d['id_don'] ?>">
-                                    <button class="btn btn-sm btn-outline-danger" title="Annuler le don"><i class="bi bi-x-circle"></i></button>
-                                </form>
-                            <?php endif; ?>
+                            <a href="don.php?id=<?= (int) $d['id_don'] ?>" class="btn btn-sm btn-outline-success">Voir le suivi</a>
                         </td>
                     </tr>
                 <?php endforeach; ?>
@@ -132,4 +122,13 @@ $onglets = ['en_cours' => 'En cours', 'disponible' => 'Disponibles', 'reserve' =
     </div>
 </div>
 
+<?php if ($nombrePages > 1): ?>
+    <nav class="d-flex flex-wrap gap-3 align-items-center justify-content-between mt-3" aria-label="Pages des dons">
+        <span>Page <?= $page ?> sur <?= $nombrePages ?></span>
+        <div class="d-flex gap-2">
+            <?php if ($page > 1): ?><a class="btn btn-outline-success" href="?<?= e(http_build_query(['statut' => $filtre, 'q' => $q, 'page' => $page - 1])) ?>">Précédente</a><?php endif; ?>
+            <?php if ($page < $nombrePages): ?><a class="btn btn-outline-success" href="?<?= e(http_build_query(['statut' => $filtre, 'q' => $q, 'page' => $page + 1])) ?>">Suivante</a><?php endif; ?>
+        </div>
+    </nav>
+<?php endif; ?>
 <?php include __DIR__ . '/_bas.php'; ?>

@@ -148,7 +148,7 @@ function boutonActionDon(string $action, int $idDon, string $csrf, string $libel
 
                 <?php if ($estAdmin && !$estDonneur && in_array($statut, ['disponible', 'reserve', 'expire'], true)): ?>
                     <hr>
-                    <?= boutonActionDon('annuler', (int) $don['id_don'], $csrf, 'Annuler (modération)', 'btn-outline-danger btn-sm', 'Annuler ce don en tant qu\'administrateur ?') ?>
+                    <a href="admin/don.php?id=<?= (int) $don['id_don'] ?>" class="btn btn-outline-danger btn-sm">Gérer ce don dans le back-office</a>
                 <?php endif; ?>
             </div>
         </div>
