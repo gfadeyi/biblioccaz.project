@@ -5,7 +5,7 @@ if (PHP_SAPI !== 'cli') {
 }
 
 const MARQUEUR_DOSSIER = '.biblioccaz-a-envoyer';
-const SCRIPTS_INSTALLATION = ['sql/biblioccaz.sql', 'sql/donnees_demo.sql', 'sql/donnees_demo_catalogue.sql'];
+const SCRIPTS_INSTALLATION = ['sql/biblioccaz.sql', 'sql/donnees_demo.sql', 'sql/donnees_demo_catalogue.sql', 'sql/donnees_catalogue_300.sql', 'sql/maj_couvertures_catalogue.sql'];
 const MOT_DE_PASSE_NEUTRALISE = '!compte-de-demonstration-sans-connexion';
 const DOSSIERS_EXCLUS = ['docs/', 'sql/', 'outils/', 'nbproject/', 'sauvegardes/', 'secure_data/', 'vendor/', 'img/', '.git/'];
 const FICHIERS_EXCLUS = ['.gitignore', '.gitattributes', 'composer.json', 'composer.lock', 'secrets.php', 'secrets.example.php', 'reset_password'];

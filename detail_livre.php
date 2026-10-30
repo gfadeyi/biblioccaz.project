@@ -135,7 +135,7 @@ $peutAcheterEnMagasin = ($_SESSION['role'] ?? '') === 'client';
             <img src="<?= htmlspecialchars(urlImage($livre['couverture'])) ?>" alt="Couverture de <?= htmlspecialchars($livre['titre']) ?>" class="img-fluid rounded shadow-sm" style="max-height: 450px;">
         </div>
 
-        <div class="col-md-5">
+        <div class="col-md-8 col-lg-5">
             <?php if ($flashCompte): ?>
                 <div class="alert alert-<?= htmlspecialchars($flashCompte[0]) ?> rounded-3 py-2 small"><?= htmlspecialchars($flashCompte[1]) ?></div>
             <?php endif; ?>
@@ -237,7 +237,7 @@ $peutAcheterEnMagasin = ($_SESSION['role'] ?? '') === 'client';
             <?php endif; ?>
         </div>
 
-        <div class="col-md-3">
+        <div class="col-12 col-lg-3">
             <div class="card p-4 shadow-sm border-0 bg-white" style="border-radius: 15px;">
                 <?php if ($offre_selectionnee): ?>
                     <h2 class="fw-bold text-success"><?= formaterPrix($offre_selectionnee['prix']) ?></h2>

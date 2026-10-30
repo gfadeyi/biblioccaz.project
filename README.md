@@ -130,6 +130,15 @@ Un second jeu étoffe le catalogue : environ 100 livres dans tous les univers et
 ```
 Les couvertures d'éditeurs ne sont pas versionnées : les livres concernés affichent la couverture par défaut.
 
+Un troisième jeu ajoute **300 références françaises**, avec quatre états de vente et quatre exemplaires à l'emprunt par titre. Les prix et les stocks sont des exemples de démonstration : 1 200 offres de vente représentent 4 800 exemplaires, auxquels s'ajoutent 1 200 exemplaires à emprunter. Les notices et les couvertures sont issues d'[Open Library](https://openlibrary.org), avec des compléments du [catalogue de la BnF](https://catalogue.bnf.fr). Les sources par ISBN sont conservées dans `docs/catalogue-300.json`. Les couvertures sont chargées depuis Open Library, sans copier les images dans le dépôt. À importer après les jeux précédents :
+
+```bash
+/c/xampp/mysql/bin/mysql.exe -u root --default-character-set=utf8mb4 biblioccaz < sql/donnees_catalogue_300.sql
+```
+
+Ce script ne crée aucun compte et ne modifie aucun stock existant. Son rejeu ne réapprovisionne pas les exemplaires déjà présents. Le script complémentaire `sql/maj_couvertures_catalogue.sql` rétablit 81 couvertures originales du catalogue précédent, uniquement si la référence et son ancienne couverture correspondent encore. Les images locales restent hors du dépôt ; le générateur de livraison les inclut avec `--avec-couvertures-editeur`.
+
+
 ### 5. Configurer
 Copier `secrets.example.php` en `secrets.php` et y renseigner l'accès à la base, l'adresse du site et l'envoi des mails. Ce fichier est ignoré par Git. En local, laisser `MODE_PRODUCTION` à `false`.
 

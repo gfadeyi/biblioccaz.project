@@ -9,6 +9,9 @@ function libelleEtat(string $etat): string
 
 function aUneVraieCouverture(?string $fichier): bool
 {
+    if ($fichier && preg_match('~\Ahttps://covers\.openlibrary\.org/b/id/[1-9][0-9]*-[SML]\.jpg\z~', $fichier)) {
+        return true;
+    }
     return $fichier
         && is_file(__DIR__ . '/img/' . $fichier)
         && !str_ends_with(pathinfo($fichier, PATHINFO_FILENAME), '-generee');

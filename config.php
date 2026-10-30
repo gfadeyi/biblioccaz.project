@@ -88,6 +88,9 @@ function insertLog($type, $message) {
 
 function urlImage(?string $fichier, string $racine = ''): string
 {
+    if ($fichier && preg_match('~\Ahttps://covers\.openlibrary\.org/b/id/[1-9][0-9]*-[SML]\.jpg\z~', $fichier)) {
+        return $fichier;
+    }
     $chemin = $fichier && is_file(__DIR__ . '/img/' . $fichier) ? $fichier : 'default.png';
     return $racine . 'img/' . implode('/', array_map('rawurlencode', explode('/', $chemin)));
 }

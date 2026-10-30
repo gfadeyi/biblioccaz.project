@@ -65,6 +65,7 @@ $iconesFlash = ['success' => 'check-circle-fill', 'danger' => 'x-octagon-fill', 
     <link rel="stylesheet" href="<?= urlStatique('ressources/bootstrap-5.3.0/bootstrap.min.css', '../') ?>">
     <link rel="stylesheet" href="<?= urlStatique('ressources/bootstrap-icons-1.11.0/bootstrap-icons.min.css', '../') ?>">
     <link rel="stylesheet" href="admin.css?v=<?= filemtime(__DIR__ . '/admin.css') ?>">
+    <script src="<?= urlStatique('javascript/couvertures.js', '../') ?>" data-defaut="../img/default.png"></script>
 </head>
 <body class="admin">
 

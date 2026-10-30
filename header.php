@@ -129,6 +129,7 @@ $classeRaccourci = fn(array $pages) => in_array($pageActuelle, $pages, true) ? '
     <script src="javascript/raccourcis.js?v=<?= filemtime(__DIR__ . '/javascript/raccourcis.js') ?>" defer></script>
     <script src="javascript/menu_univers.js?v=<?= filemtime(__DIR__ . '/javascript/menu_univers.js') ?>" defer></script>
     <script src="javascript/menu_compte.js?v=<?= filemtime(__DIR__ . '/javascript/menu_compte.js') ?>" defer></script>
+    <script src="<?= urlStatique('javascript/couvertures.js') ?>" data-defaut="img/default.png"></script>
 </head>
 <body>
 
