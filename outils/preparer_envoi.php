@@ -10,14 +10,14 @@ const MOT_DE_PASSE_NEUTRALISE = '!compte-de-demonstration-sans-connexion';
 const DOSSIERS_EXCLUS = ['docs/', 'sql/', 'outils/', 'nbproject/', 'sauvegardes/', 'secure_data/', 'vendor/', 'img/', '.git/'];
 const FICHIERS_EXCLUS = ['.gitignore', '.gitattributes', 'composer.json', 'composer.lock', 'secrets.php', 'secrets.example.php', 'reset_password'];
 const EXTENSIONS_EXCLUES = ['md', 'sql', 'bak', 'old', 'orig', 'log', 'txt', 'zip', 'gz', '7z', 'db', 'ini', 'env', 'lock'];
-const DOSSIERS_ENVOI_VIDES = ['img/annonces', 'img/dons', 'img/profils', 'img/livres', 'secure_data'];
-const MOTIFS_INTERDITS = ['~(^|/)secrets\.php$~i', '~\.(sql|md|bak|log|db)$~i', '~(^|/)(docs|sql|sauvegardes|outils|nbproject)/~i', '~(^|/)\.(?!htaccess$)[^/]+(/|$)~', '~^secure_data/(?!\.htaccess$)~i'];
+const DOSSIERS_ENVOI_VIDES = ['img/annonces', 'img/dons', 'img/profils', 'img/livres'];
+const MOTIFS_INTERDITS = ['~(^|/)secrets\.php$~i', '~\.(sql|md|bak|log|db)$~i', '~(^|/)(docs|sql|sauvegardes|outils|nbproject)/~i', '~(^|/)\.(?!htaccess$)[^/]+(/|$)~', '~^secure_data/~i'];
 
 $racineProjet = dirname(__DIR__);
-$options = getopt('', ['destination:', 'chemin-site:', 'avec-couvertures-editeur', 'aide']);
+$options = getopt('', ['destination:', 'chemin-site:', 'dossier-public:', 'dossier-prive:', 'parametres:', 'avec-couvertures-editeur', 'aide']);
 
 if (isset($options['aide'])) {
-    echo "Usage : php outils/preparer_envoi.php [--destination=DOSSIER] [--chemin-site=/] [--avec-couvertures-editeur]" . PHP_EOL;
+    echo "Usage : php outils/preparer_envoi.php [--destination=DOSSIER] [--chemin-site=/] [--dossier-public=public] [--dossier-prive=secure_data] [--parametres=FICHIER.json] [--avec-couvertures-editeur]" . PHP_EOL;
     exit(0);
 }
 
@@ -197,10 +197,76 @@ function imagesReferencees(string $racine, string $sql, bool $avecCouverturesEdi
     return $images;
 }
 
+function lireParametres(?string $fichier): array
+{
+    if ($fichier === null) {
+        return [];
+    }
+    $parametres = is_file($fichier) ? json_decode((string) file_get_contents($fichier), true) : null;
+    if (!is_array($parametres)) {
+        arreter("Fichier de paramètres illisible ou JSON invalide : $fichier");
+    }
+    foreach (array_merge(array_keys($parametres['constantes'] ?? []), array_keys($parametres['infos_legales'] ?? [])) as $cle) {
+        if (preg_match('/PASS|JETON|SECRET|MOT_DE_PASSE/i', (string) $cle)) {
+            arreter("Le fichier de paramètres ne doit contenir aucun mot de passe ni jeton : $cle");
+        }
+    }
+    return $parametres;
+}
+
+function remplacerConstante(string $contenu, string $constante, string $expression): string
+{
+    $contenu = preg_replace_callback('~^define\(\'' . preg_quote($constante, '~') . '\', .*\);$~m', fn() => "define('$constante', $expression);", $contenu, 1, $remplacements);
+    if ($remplacements !== 1) {
+        arreter("Constante $constante absente de secrets.example.php.");
+    }
+    return $contenu;
+}
+
+function modeleSecretsProduction(string $racine, array $parametres, string $dossierPrive): string
+{
+    $contenu = file_get_contents($racine . '/secrets.example.php');
+    $valeurs = array_merge($parametres['constantes'] ?? [], ['MODE_PRODUCTION' => true, 'DB_PASS' => '', 'SMTP_PASS' => '', 'JETON_INSTALLATION' => bin2hex(random_bytes(24))]);
+    foreach ($valeurs as $constante => $valeur) {
+        $contenu = remplacerConstante($contenu, $constante, var_export($valeur, true));
+    }
+    $contenu = remplacerConstante($contenu, 'DOSSIER_PRIVE', 'dirname(__DIR__) . ' . var_export('/' . $dossierPrive, true));
+    foreach ($parametres['infos_legales'] ?? [] as $cle => $valeur) {
+        $contenu = preg_replace_callback('~^(\s*\'' . preg_quote($cle, '~') . '\'\s*=>\s*)\'[^\']*\',$~m', fn($debut) => $debut[1] . var_export((string) $valeur, true) . ',', $contenu, 1, $remplacements);
+        if ($remplacements !== 1) {
+            arreter("Information légale $cle absente de secrets.example.php.");
+        }
+    }
+    return $contenu;
+}
+
+function verifierSyntaxe(string $fichier): void
+{
+    $processus = proc_open([PHP_BINARY, '-l', $fichier], [1 => ['pipe', 'w'], 2 => ['pipe', 'w']], $tubes);
+    $sortie = stream_get_contents($tubes[1]) . stream_get_contents($tubes[2]);
+    fclose($tubes[1]);
+    fclose($tubes[2]);
+    if (proc_close($processus) !== 0) {
+        arreter("Syntaxe invalide dans $fichier : " . trim($sortie));
+    }
+}
+
 $destination = cheminNormalise($options['destination'] ?? (getenv('USERPROFILE') ?: getenv('HOME')) . '/biblioccaz-a-envoyer');
 $cheminSite = '/' . trim($options['chemin-site'] ?? '/', '/') . '/';
 $cheminSite = $cheminSite === '//' ? '/' : $cheminSite;
+$dossierPublic = $options['dossier-public'] ?? 'public';
+$dossierPrive = $options['dossier-prive'] ?? 'secure_data';
 $avecCouverturesEditeur = isset($options['avec-couvertures-editeur']);
+$parametres = lireParametres($options['parametres'] ?? null);
+
+foreach ([$dossierPublic, $dossierPrive] as $nomDossier) {
+    if (!preg_match('/^[A-Za-z0-9_-]+$/', $nomDossier)) {
+        arreter("Nom de dossier invalide : $nomDossier");
+    }
+}
+if ($dossierPublic === $dossierPrive) {
+    arreter('Le dossier public et le dossier privé doivent être différents.');
+}
 
 if ($destination === '' || str_starts_with($destination . '/', cheminNormalise($racineProjet) . '/')) {
     arreter('La destination doit se trouver hors du dossier du projet.');
@@ -221,7 +287,7 @@ $sqlInstallation = construireInstallation($racineProjet, $bilan);
 [$fichiersProjet, $nonSuivis] = fichiersDuDepot($racineProjet);
 $aEnvoyer = array_values(array_filter($fichiersProjet, 'fichierAEnvoyer'));
 $aEnvoyer = array_values(array_diff($aEnvoyer, ['.htaccess']));
-foreach (['img/.htaccess', 'img/profils/.htaccess', 'img/icones.svg', 'img/default.png', 'secure_data/.htaccess'] as $fichierProtege) {
+foreach (['img/.htaccess', 'img/profils/.htaccess', 'img/icones.svg', 'img/default.png'] as $fichierProtege) {
     if (is_file($racineProjet . '/' . $fichierProtege)) {
         $aEnvoyer[] = $fichierProtege;
     }
@@ -253,31 +319,40 @@ foreach ($aEnvoyer as $fichier) {
     }
 }
 
-mkdir($destination . '/site', 0755, true);
+$racineServeur = $destination . '/serveur';
+$racinePublique = $racineServeur . '/' . $dossierPublic;
+$racinePrivee = $racineServeur . '/' . $dossierPrive;
+mkdir($racinePublique, 0755, true);
+mkdir($racinePrivee . '/sessions', 0700, true);
 mkdir($destination . '/base', 0755, true);
 file_put_contents($destination . '/' . MARQUEUR_DOSSIER, date('c') . PHP_EOL);
 
 $manifeste = [];
 foreach ($aEnvoyer as $fichier) {
-    copierFichier($racineProjet . '/' . $fichier, $destination . '/site/' . $fichier);
-    $manifeste[] = hash_file('sha256', $racineProjet . '/' . $fichier) . '  ' . $fichier;
+    copierFichier($racineProjet . '/' . $fichier, $racinePublique . '/' . $fichier);
+    $manifeste[] = hash_file('sha256', $racineProjet . '/' . $fichier) . '  ' . $dossierPublic . '/' . $fichier;
 }
-file_put_contents($destination . '/site/.htaccess', htaccessProduction($racineProjet, $cheminSite));
-$manifeste[] = hash_file('sha256', $destination . '/site/.htaccess') . '  .htaccess (version production)';
+file_put_contents($racinePublique . '/.htaccess', htaccessProduction($racineProjet, $cheminSite));
+$manifeste[] = hash_file('sha256', $racinePublique . '/.htaccess') . '  ' . $dossierPublic . '/.htaccess (version production)';
+copierFichier($racineProjet . '/secure_data/.htaccess', $racinePrivee . '/.htaccess');
+$manifeste[] = hash_file('sha256', $racinePrivee . '/.htaccess') . '  ' . $dossierPrive . '/.htaccess';
 foreach (DOSSIERS_ENVOI_VIDES as $dossierVide) {
-    if (!is_dir($destination . '/site/' . $dossierVide)) {
-        mkdir($destination . '/site/' . $dossierVide, 0755, true);
+    if (!is_dir($racinePublique . '/' . $dossierVide)) {
+        mkdir($racinePublique . '/' . $dossierVide, 0755, true);
     }
 }
 
 file_put_contents($destination . '/base/installation_biblioccaz.sql', $sqlInstallation);
-copierFichier($racineProjet . '/secrets.example.php', $destination . '/secrets-modele.php');
+file_put_contents($destination . '/secrets-production.php', modeleSecretsProduction($racineProjet, $parametres, $dossierPrive));
+verifierSyntaxe($destination . '/secrets-production.php');
 sort($manifeste);
 file_put_contents($destination . '/fichiers-du-site.txt', implode(PHP_EOL, $manifeste) . PHP_EOL);
 
 $nonSuivisEnvoyes = array_values(array_intersect($nonSuivis, $aEnvoyer));
 echo 'Dossier prêt : ' . $destination . PHP_EOL;
-echo '  site/ : ' . (count($aEnvoyer) + 1) . ' fichiers à envoyer à la racine du site' . PHP_EOL;
+echo '  serveur/' . $dossierPublic . '/ : ' . (count($aEnvoyer) + 1) . ' fichiers à envoyer dans /' . $dossierPublic . ' (racine web)' . PHP_EOL;
+echo '  serveur/' . $dossierPrive . '/ : dossier privé à envoyer dans /' . $dossierPrive . ' (hors racine web)' . PHP_EOL;
+echo '  secrets-production.php : ' . ($parametres ? 'réglages de production repris de ' . $options['parametres'] : 'réglages génériques, aucun fichier de paramètres') . ', mots de passe vides' . PHP_EOL;
 echo '  base/installation_biblioccaz.sql : ' . number_format(strlen($sqlInstallation) / 1024, 0, ',', ' ') . ' Ko, ' . substr_count($sqlInstallation, ";\n\n") . ' requêtes' . PHP_EOL;
 echo '  Requêtes retirées : ' . count($bilan['requetes_retirees']) . PHP_EOL;
 foreach ($bilan['requetes_retirees'] as $requeteRetiree) {

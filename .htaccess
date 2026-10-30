@@ -1,5 +1,6 @@
 ErrorDocument 404 /projet_web/biblioccaz/erreur_404.php
 Options -Indexes
+DirectoryIndex index.php
 
 RewriteEngine On
 RewriteRule ^\.well-known/acme-challenge/[A-Za-z0-9_-]+$ - [END]

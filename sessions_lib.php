@@ -14,12 +14,24 @@ function connexionHttps(): bool
         || strtolower((string) ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '')) === 'https';
 }
 
+function dossierPrive(string $chemin = ''): string
+{
+    $dossier = defined('DOSSIER_PRIVE') && DOSSIER_PRIVE !== '' ? rtrim(str_replace('\\', '/', DOSSIER_PRIVE), '/') : __DIR__ . '/secure_data';
+    return $chemin === '' ? $dossier : $dossier . '/' . $chemin;
+}
+
 function demarrerSession(): void
 {
     if (PHP_SAPI === 'cli' || session_status() !== PHP_SESSION_NONE) {
         return;
     }
     require_once __DIR__ . '/secrets.php';
+    $dossierSessions = dossierPrive('sessions');
+    if (modeProduction() && (is_dir($dossierSessions) || mkdir($dossierSessions, 0700, true) || is_dir($dossierSessions))) {
+        session_save_path($dossierSessions);
+        ini_set('session.gc_probability', '1');
+        ini_set('session.gc_divisor', '100');
+    }
     ini_set('session.use_strict_mode', '1');
     ini_set('session.use_only_cookies', '1');
     session_set_cookie_params(['httponly' => true, 'samesite' => 'Lax', 'secure' => modeProduction() || connexionHttps()]);

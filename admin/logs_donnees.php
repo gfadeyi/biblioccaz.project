@@ -3,7 +3,7 @@ require_once __DIR__ . '/_init.php';
 exigerDroit('admin', true);
 header('Content-Type: application/json; charset=utf-8');
 
-$logFile = __DIR__ . '/../secure_data/logs.txt';
+$logFile = dossierPrive('logs.txt');
 $response = [
     'totalConnexions' => 0,
     'sessionMoyenne' => 0,

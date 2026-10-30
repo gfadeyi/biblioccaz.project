@@ -2,6 +2,8 @@
 
 define('MODE_PRODUCTION', false);
 
+define('DOSSIER_PRIVE', __DIR__ . '/secure_data');
+
 define('SITE_URL', 'http://localhost/projet_web/biblioccaz');
 
 define('DB_HOST', 'localhost');

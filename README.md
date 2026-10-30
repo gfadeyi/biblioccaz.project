@@ -84,12 +84,13 @@ Les couvertures visibles sur ces captures sont générées pour l'aperçu : les 
 - **Aucune ressource tierce** : polices, Bootstrap, icônes et générateur de QR code sont hébergés dans `ressources/` (versions fixes, licences jointes), si bien qu'aucune adresse IP de visiteur n'est transmise à un service externe
 - **Mentions légales** et **politique de confidentialité** (données collectées, finalités, durées de conservation, droits), liées dans le pied de page
 - **Mode production** réglé dans `secrets.php` : erreurs masquées et journalisées dans un fichier privé, redirection vers HTTPS, cookies de session `Secure`, `HttpOnly` et `SameSite`, en-têtes de sécurité
+- **Dossier privé réglable** (`DOSSIER_PRIVE` dans `secrets.php`) : journaux, erreurs PHP et sessions de production peuvent être placés hors de la racine web
 - **Relances d'emprunt automatiques** : script `cron/relances_emprunts.php` lancé par une tâche planifiée (rappel avant échéance, le jour même, relance hebdomadaire en cas de retard, expiration des réservations), refusé s'il est appelé depuis le web
-- **Préparation de la mise en ligne** : `outils/preparer_envoi.php` crée hors du dépôt un dossier propre à envoyer (sans documentation, scripts SQL ni fichiers privés) et un script SQL d'installation sans compte utilisable
+- **Préparation de la mise en ligne** : `outils/preparer_envoi.php` crée hors du dépôt un dossier propre à envoyer, organisé comme l'hébergement (racine web et dossier privé séparés, sans documentation, scripts SQL ni fichiers privés), un modèle de `secrets.php` de production sans mot de passe et un script SQL d'installation sans compte utilisable
 
 ## Technologies
 
-PHP 8.2 (PDO) · MySQL / MariaDB · HTML, CSS et JavaScript sans framework · Bootstrap 5 · PHPMailer · Dompdf · Composer · Git
+PHP 8.2 à 8.4 (PDO) · MySQL / MariaDB · HTML, CSS et JavaScript sans framework · Bootstrap 5 · PHPMailer · Dompdf · Composer · Git
 
 ## Installation pas à pas (Windows + XAMPP)
 

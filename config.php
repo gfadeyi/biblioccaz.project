@@ -13,7 +13,7 @@ if ($modeProduction) {
     ini_set('display_errors', '0');
     ini_set('display_startup_errors', '0');
     ini_set('log_errors', '1');
-    ini_set('error_log', __DIR__ . '/secure_data/php_erreurs.log');
+    ini_set('error_log', dossierPrive('php_erreurs.log'));
     if (!$enLigneDeCommande) {
         header_remove('X-Powered-By');
     }
@@ -69,7 +69,7 @@ if (!$enLigneDeCommande) {
 }
 
 function insertLog($type, $message) {
-    $logFile = __DIR__ . '/secure_data/logs.txt';
+    $logFile = dossierPrive('logs.txt');
     $date = date('Y-m-d H:i:s');
     $ip = $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
     
