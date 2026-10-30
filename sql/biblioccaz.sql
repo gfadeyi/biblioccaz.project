@@ -1096,3 +1096,19 @@ CREATE TABLE IF NOT EXISTS regle_emprunt_historique (
 
 INSERT IGNORE INTO regle_emprunt (id_regle, version, configuration) VALUES
 (1, 1, '{"emprunts_max":3,"attentes_max":3,"reservation_jours_ouvres":3,"duree_jours":21,"renouvellements_max":2,"renouvellement_jours":14}');
+
+SET NAMES utf8mb4;
+
+CREATE TABLE IF NOT EXISTS changement_email (
+    id_user INT NOT NULL PRIMARY KEY,
+    nouvelle_email VARCHAR(150) NULL,
+    ancienne_email VARCHAR(150) NULL,
+    jeton_hash CHAR(64) NULL,
+    empreinte_mdp CHAR(64) NULL,
+    date_expiration DATETIME NULL,
+    derniere_tentative DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    debut_fenetre DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    tentatives TINYINT NOT NULL DEFAULT 1,
+    UNIQUE KEY uq_changement_email_jeton (jeton_hash),
+    CONSTRAINT fk_changement_email_user FOREIGN KEY (id_user) REFERENCES user(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

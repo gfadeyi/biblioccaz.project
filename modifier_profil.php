@@ -34,7 +34,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action === 'preferences') {
 } elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $nom = trim($_POST['nom'] ?? '');
     $prenom = trim($_POST['prenom'] ?? '');
-    $email = trim($_POST['email'] ?? '');
     $ville = trim($_POST['ville'] ?? '');
     $cp = trim($_POST['cp'] ?? '');
     $telephone = trim((string) ($_POST['telephone'] ?? ''));
@@ -43,26 +42,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action === 'preferences') {
         $erreur = "La session a expiré, merci de renvoyer le formulaire.";
     } elseif (!$nom || !$prenom || !$ville || !$cp) {
         $erreur = "Veuillez remplir tous les champs.";
-    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        $erreur = "Veuillez entrer une adresse email valide.";
     } elseif (!telephoneValide($telephone)) {
         $erreur = "Le numéro de téléphone n'est pas valide.";
     } else {
-        $stmt = $pdo->prepare("SELECT id FROM user WHERE email = ? AND id <> ?");
-        $stmt->execute([$email, $user_id]);
-        if ($stmt->fetch()) {
-            $erreur = "Cette adresse email est déjà utilisée par un autre compte.";
-        } else {
-            try {
-                $stmt = $pdo->prepare("UPDATE user SET nom = ?, prenom = ?, email = ?, ville = ?, cp = ?, telephone = ? WHERE id = ?");
-                $stmt->execute([$nom, $prenom, $email, $ville, $cp, $telephone !== '' ? $telephone : null, $user_id]);
-            } catch (PDOException $e) {
-                $stmt = $pdo->prepare("UPDATE user SET nom = ?, prenom = ?, email = ?, ville = ?, cp = ? WHERE id = ?");
-                $stmt->execute([$nom, $prenom, $email, $ville, $cp, $user_id]);
-            }
-            header('Location: modifier_profil.php?enregistre=1');
-            exit();
+        try {
+            $stmt = $pdo->prepare("UPDATE user SET nom = ?, prenom = ?, ville = ?, cp = ?, telephone = ? WHERE id = ?");
+            $stmt->execute([$nom, $prenom, $ville, $cp, $telephone !== '' ? $telephone : null, $user_id]);
+        } catch (PDOException $e) {
+            if ((int) ($e->errorInfo[1] ?? 0) !== 1054) { throw $e; }
+            $stmt = $pdo->prepare("UPDATE user SET nom = ?, prenom = ?, ville = ?, cp = ? WHERE id = ?");
+            $stmt->execute([$nom, $prenom, $ville, $cp, $user_id]);
         }
+        header('Location: modifier_profil.php?enregistre=1');
+        exit();
     }
 }
 
@@ -71,7 +63,7 @@ $stmt->execute([$user_id]);
 $user = $stmt->fetch();
 
 if ($erreur) {
-    $user = array_merge($user, ['nom' => $nom, 'prenom' => $prenom, 'email' => $email, 'ville' => $ville, 'cp' => $cp, 'telephone' => $telephone]);
+    $user = array_merge($user, ['nom' => $nom, 'prenom' => $prenom, 'ville' => $ville, 'cp' => $cp, 'telephone' => $telephone]);
 }
 
 $afficherPreferences = in_array($user['role'], ROLES_SUGGESTIONS, true);
@@ -111,8 +103,9 @@ include 'header.php';
                     <input type="text" id="nom" name="nom" class="form-control" autocomplete="family-name" value="<?= htmlspecialchars($user['nom'] ?? '') ?>" required>
                 </div>
                 <div class="col-md-7">
-                    <label for="email" class="form-label">Adresse email *</label>
-                    <input type="email" id="email" name="email" class="form-control" autocomplete="email" value="<?= htmlspecialchars($user['email'] ?? '') ?>" required>
+                    <span class="form-label d-block">Adresse email actuelle</span>
+                    <p class="text-break mb-1"><?= htmlspecialchars($user['email'] ?? '') ?></p>
+                    <a href="modifier_email.php" class="small">Changer mon adresse email</a>
                 </div>
                 <div class="col-md-5">
                     <label for="telephone" class="form-label">Téléphone</label>

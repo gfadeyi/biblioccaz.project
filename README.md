@@ -62,6 +62,7 @@ Les couvertures visibles sur ces captures sont générées pour l'aperçu : les 
 - **Candidature auteur** à l'inscription ou depuis le compte : nom de plume, biographie, ouvrages publiés (ISBN vérifié par sa clé), liens et photo ; le compte reste lecteur jusqu'à la validation par l'équipe, qui répond par mail (refus motivé, nouvelle demande possible après 7 jours)
 - **Pages auteur publiques** et page « Nos auteurs » avec recherche : biographie, ouvrages, livres disponibles sur le site et rencontres ; l'auteur modifie sa page à tout moment (modifications publiées et inscrites au journal), l'équipe peut la masquer
 - Espace « Mon compte » : profil avec téléphone facultatif (visible seulement par l'administrateur) et **préférences de lecture** (univers, catégories, thèmes), photo (recadrée et convertie en WebP), commandes, favoris, alertes, adresses, dons, événements, avis
+- **Changement d’adresse email confirmé** : mot de passe actuel, lien à usage unique valable une heure sur la nouvelle adresse, ancienne adresse conservée avant confirmation, annulation possible, limitation des tentatives et notifications ; reconnexion après confirmation. Migration : `sql/maj_changement_email.sql`.
 - **Historique de consultation** respectueux de la vie privée : 20 dernières fiches au plus, gardées 90 jours, visibles du seul lecteur, effaçables et suspendables à tout moment
 - Déconnexion automatique après 10 minutes d'inactivité
 
