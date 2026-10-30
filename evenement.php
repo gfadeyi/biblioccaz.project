@@ -222,7 +222,7 @@ include 'header.php';
 </div>
 
 <?php if ($statutInscription === 'inscrit' && $estPublic && $etat !== 'annule'): ?>
-    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+    <script src="<?= urlStatique('ressources/qrcode-generator-1.4.4/qrcode.js') ?>"></script>
     <script>
     (function () {
         const zone = document.getElementById('qr-billet');

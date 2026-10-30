@@ -81,6 +81,7 @@ Les couvertures visibles sur ces captures sont générées pour l'aperçu : les 
 - Responsive du téléphone au grand écran, menus qui restent toujours dans l'écran
 - Accessibilité : contrastes suffisants, libellés reliés aux champs, textes alternatifs, focus visible au clavier, zones tactiles d'au moins 44 px sur écran tactile
 - Page 404 aux couleurs du site
+- **Aucune ressource tierce** : polices, Bootstrap, icônes et générateur de QR code sont hébergés dans `ressources/` (versions fixes, licences jointes), si bien qu'aucune adresse IP de visiteur n'est transmise à un service externe
 - **Mentions légales** et **politique de confidentialité** (données collectées, finalités, durées de conservation, droits), liées dans le pied de page
 - **Mode production** réglé dans `secrets.php` : erreurs masquées et journalisées dans un fichier privé, redirection vers HTTPS, cookies de session `Secure`, `HttpOnly` et `SameSite`, en-têtes de sécurité
 - **Relances d'emprunt automatiques** : script `cron/relances_emprunts.php` lancé par une tâche planifiée (rappel avant échéance, le jour même, relance hebdomadaire en cas de retard, expiration des réservations), refusé s'il est appelé depuis le web

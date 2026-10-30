@@ -74,6 +74,9 @@ function fichiersDuDepot(string $racine): array
 
 function fichierAEnvoyer(string $chemin): bool
 {
+    if (str_starts_with($chemin, 'ressources/')) {
+        return true;
+    }
     foreach (DOSSIERS_EXCLUS as $dossier) {
         if (str_starts_with($chemin, $dossier)) {
             return false;

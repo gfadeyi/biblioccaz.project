@@ -68,7 +68,7 @@ include 'header.php';
             <li>Les autres membres voient votre pseudo, votre photo de profil et ce que vous publiez (avis, annonces, dons, messages dans une transaction). Votre adresse email n'est jamais affichée.</li>
             <li>L'équipe BIBLIOccaz y accède selon son rôle (administration, gestion, modération).</li>
             <li>L'hébergeur du site les stocke pour notre compte : <?= infoLegale('hebergeur_nom', "nom de l'hébergeur") ?>.</li>
-            <li>Les pages chargent des polices et des feuilles de style depuis Google Fonts et jsDelivr : ces services reçoivent votre adresse IP lors de l'affichage.</li>
+            <li>Les polices, feuilles de style et scripts sont hébergés sur le site lui-même : l'affichage des pages ne transmet aucune donnée à un service tiers.</li>
         </ul>
     </section>
 

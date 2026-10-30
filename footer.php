@@ -101,7 +101,7 @@ $messageNewsletter = $messagesNewsletter[$_GET['newsletter'] ?? ''] ?? null;
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="<?= urlStatique('ressources/bootstrap-5.3.0/bootstrap.bundle.min.js') ?>"></script>
 <script src="javascript/favoris.js?v=<?= filemtime(__DIR__ . '/javascript/favoris.js') ?>"></script>
 <script src="javascript/confirmation.js?v=<?= filemtime(__DIR__ . '/javascript/confirmation.js') ?>"></script>
 <?php foreach ($scriptsPage ?? [] as $scriptPage): ?>

@@ -92,6 +92,12 @@ function urlImage(?string $fichier, string $racine = ''): string
     return $racine . 'img/' . implode('/', array_map('rawurlencode', explode('/', $chemin)));
 }
 
+function urlStatique(string $chemin, string $racine = ''): string
+{
+    $fichier = __DIR__ . '/' . $chemin;
+    return $racine . $chemin . (is_file($fichier) ? '?v=' . filemtime($fichier) : '');
+}
+
 function formaterPrix(float|int|string|null $montant): string
 {
     return number_format((float) $montant, 2, ',', "\u{00A0}") . "\u{00A0}€";
