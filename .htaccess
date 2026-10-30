@@ -14,4 +14,7 @@ RewriteRule (^|/)(\.[^/]+|secure_data|sauvegardes|sql|docs|vendor|nbproject|cron
     Header always set X-Content-Type-Options "nosniff"
     Header always set X-Frame-Options "SAMEORIGIN"
     Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    <FilesMatch "^(modifier_email|confirmer_email|modifier_mdp|verification_mail)\.php$">
+        Header always set Referrer-Policy "no-referrer"
+    </FilesMatch>
 </IfModule>
