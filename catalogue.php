@@ -374,10 +374,9 @@ echo etoilesStyle();
                     <input type="hidden" name="tri" value="<?= htmlspecialchars($f['tri']) ?>">
                 <?php endif; ?>
 
-                <div class="mb-3">
-                    <label for="filtre-recherche" class="form-label">Recherche</label>
-                    <input type="search" id="filtre-recherche" name="q" class="form-control form-control-sm" placeholder="Titre, auteur, ISBN..." value="<?= htmlspecialchars($f['q']) ?>">
-                </div>
+                <?php if ($f['q'] !== ''): ?>
+                    <input type="hidden" name="q" value="<?= htmlspecialchars($f['q']) ?>">
+                <?php endif; ?>
 
                 <?php if (!isset($preset['offre'])): ?>
                     <div class="mb-3">
