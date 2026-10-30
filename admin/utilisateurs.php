@@ -2,56 +2,64 @@
 require_once __DIR__ . '/_init.php';
 exigerDroit('admin');
 
+$q = is_string($_GET['q'] ?? null) ? mb_substr(trim($_GET['q']), 0, 100) : '';
+$filtreRole = is_string($_GET['role'] ?? null) && isset(ROLES_LIBELLES[$_GET['role']]) ? $_GET['role'] : '';
+$tris = [
+    'recents' => ['Les plus récents', 'date_inscription DESC, id DESC'],
+    'anciens' => ['Les plus anciens', 'date_inscription ASC, id ASC'],
+    'roles' => ['Par rôle puis pseudo', "FIELD(role, 'admin', 'gestionnaire', 'moderateur', 'auteur', 'client'), pseudo, id"],
+];
+$tri = is_string($_GET['tri'] ?? null) && isset($tris[$_GET['tri']]) ? $_GET['tri'] : 'recents';
+$retourMembres = 'utilisateurs.php?' . http_build_query(['q' => $q, 'role' => $filtreRole, 'tri' => $tri]);
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    exigerPost('utilisateurs.php');
+    exigerPost($retourMembres);
     $idUser = (int) ($_POST['user_id'] ?? 0);
     $action = $_POST['action'] ?? '';
 
     if ($idUser === (int) $_SESSION['user_id']) {
-        rediriger('utilisateurs.php', 'warning', "Vous ne pouvez pas modifier votre propre compte ici.");
+        rediriger($retourMembres, 'warning', "Vous ne pouvez pas modifier votre propre compte ici.");
     }
 
     $stmt = $pdo->prepare("SELECT pseudo, role FROM user WHERE id = ?");
     $stmt->execute([$idUser]);
     $cible = $stmt->fetch();
     if (!$cible) {
-        rediriger('utilisateurs.php', 'warning', "Ce compte n'existe pas.");
+        rediriger($retourMembres, 'warning', "Ce compte n'existe pas.");
     }
     $pseudo = $cible['pseudo'];
     if ($cible['role'] === 'admin') {
-        rediriger('utilisateurs.php', 'warning', "Un compte administrateur ne peut pas être modifié, suspendu ou supprimé depuis cette page.");
+        rediriger($retourMembres, 'warning', "Un compte administrateur ne peut pas être modifié, suspendu ou supprimé depuis cette page.");
     }
 
     switch ($action) {
         case 'changer_role':
             $role = $_POST['nouveau_role'] ?? '';
             if (!in_array($role, ROLES_ATTRIBUABLES, true)) {
-                rediriger('utilisateurs.php', 'danger', "Rôle inconnu.");
+                rediriger($retourMembres, 'danger', "Rôle inconnu.");
             }
             $pdo->prepare("UPDATE user SET role = ? WHERE id = ?")->execute([$role, $idUser]);
             insertLog('ADMIN', "Rôle de @$pseudo changé en $role");
-            rediriger('utilisateurs.php', 'success', "@$pseudo est maintenant " . mb_strtolower(ROLES_LIBELLES[$role]) . ".");
+            rediriger($retourMembres, 'success', "@$pseudo est maintenant " . mb_strtolower(ROLES_LIBELLES[$role]) . ".");
 
         case 'suspendre':
             $pdo->prepare("UPDATE user SET statut = 'refuse_definitif' WHERE id = ?")->execute([$idUser]);
             insertLog('ADMIN', "Compte de @$pseudo suspendu");
-            rediriger('utilisateurs.php', 'success', "Le compte de @$pseudo est suspendu : il ne peut plus se connecter.");
+            rediriger($retourMembres, 'success', "Le compte de @$pseudo est suspendu : il ne peut plus se connecter.");
 
         case 'reactiver':
             $pdo->prepare("UPDATE user SET statut = 'actif' WHERE id = ?")->execute([$idUser]);
             insertLog('ADMIN', "Compte de @$pseudo réactivé");
-            rediriger('utilisateurs.php', 'success', "Le compte de @$pseudo est réactivé.");
+            rediriger($retourMembres, 'success', "Le compte de @$pseudo est réactivé.");
 
         case 'supprimer':
             $pdo->prepare("DELETE FROM user WHERE id = ?")->execute([$idUser]);
             insertLog('ADMIN', "Suppression définitive du compte #$idUser (@$pseudo)");
-            rediriger('utilisateurs.php', 'success', "Le compte de @$pseudo a été supprimé.");
+            rediriger($retourMembres, 'success', "Le compte de @$pseudo a été supprimé.");
     }
-    rediriger('utilisateurs.php');
+    rediriger($retourMembres);
 }
 
-$q = trim($_GET['q'] ?? '');
-$filtreRole = $_GET['role'] ?? '';
 $where = ["statut <> 'en_attente_moderateur'"];
 $params = [];
 if ($q !== '') {
@@ -65,7 +73,7 @@ if (isset(ROLES_LIBELLES[$filtreRole])) {
 $requeteMembres = "
     SELECT id, pseudo, email, nom, prenom, role, statut, email_verifie, is_newsletter, date_inscription, last_activity%s
     FROM user WHERE " . implode(' AND ', $where) . "
-    ORDER BY FIELD(role, 'admin', 'gestionnaire', 'moderateur', 'auteur', 'client'), pseudo";
+    ORDER BY " . $tris[$tri][1];
 try {
     $stmt = $pdo->prepare(sprintf($requeteMembres, ', telephone'));
     $stmt->execute($params);
@@ -117,8 +125,13 @@ include __DIR__ . '/_haut.php';
                 <option value="<?= $cle ?>" <?= $filtreRole === $cle ? 'selected' : '' ?>><?= $libelle ?></option>
             <?php endforeach; ?>
         </select>
+        <select name="tri" class="form-select" aria-label="Trier les membres" style="max-width: 240px;" onchange="this.form.submit()">
+            <?php foreach ($tris as $cle => [$libelle]): ?>
+                <option value="<?= e($cle) ?>" <?= $tri === $cle ? 'selected' : '' ?>><?= e($libelle) ?></option>
+            <?php endforeach; ?>
+        </select>
         <button class="btn btn-outline-secondary" aria-label="Rechercher"><i class="bi bi-search" aria-hidden="true"></i></button>
-        <?php if ($q !== '' || $filtreRole !== ''): ?><a href="utilisateurs.php" class="btn btn-link">Effacer</a><?php endif; ?>
+        <?php if ($q !== '' || $filtreRole !== ''): ?><a href="utilisateurs.php?<?= e(http_build_query(['tri' => $tri])) ?>" class="btn btn-link">Effacer</a><?php endif; ?>
     </form>
     <a href="membre_creer.php" class="btn btn-success"><i class="bi bi-person-plus me-1" aria-hidden="true"></i> Créer un compte</a>
     <a href="export_membres.php" class="btn btn-outline-secondary"><i class="bi bi-file-earmark-pdf me-1"></i> Export PDF</a>
