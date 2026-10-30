@@ -2,8 +2,15 @@ ErrorDocument 404 /projet_web/biblioccaz/erreur_404.php
 Options -Indexes
 
 RewriteEngine On
-RewriteRule (^|/)(\.[^/]+|secure_data|sauvegardes|sql|docs|vendor|nbproject)(/|$) - [F,END,NC]
+RewriteRule ^\.well-known/acme-challenge/[A-Za-z0-9_-]+$ - [END]
+RewriteRule (^|/)(\.[^/]+|secure_data|sauvegardes|sql|docs|vendor|nbproject|cron|outils)(/|$) - [F,END,NC]
 
 <FilesMatch "(?i)(\.(md|sql|log|ini|env|bak|old|orig|save|swp|dist|ya?ml|toml|lock|zip|7z|tar|gz)$|~$|^composer\.(json|lock)$|^secrets.*\.php$|^config\.php$|^mailer\.php$|_lib\.php$|^partie_.*\.php$|^(header|footer|panier_calcul)\.php$)">
     Require all denied
 </FilesMatch>
+
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>

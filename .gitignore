@@ -1,6 +1,7 @@
 vendor/
 secure_data/*
 !secure_data/.gitkeep
+!secure_data/.htaccess
 img/*
 !img/default.png
 !img/icones.svg

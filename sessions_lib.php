@@ -2,6 +2,30 @@
 
 const SESSION_INACTIVITE = 600;
 
+function modeProduction(): bool
+{
+    return defined('MODE_PRODUCTION') && MODE_PRODUCTION === true;
+}
+
+function connexionHttps(): bool
+{
+    return (!empty($_SERVER['HTTPS']) && strtolower((string) $_SERVER['HTTPS']) !== 'off')
+        || (string) ($_SERVER['SERVER_PORT'] ?? '') === '443'
+        || strtolower((string) ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '')) === 'https';
+}
+
+function demarrerSession(): void
+{
+    if (PHP_SAPI === 'cli' || session_status() !== PHP_SESSION_NONE) {
+        return;
+    }
+    require_once __DIR__ . '/secrets.php';
+    ini_set('session.use_strict_mode', '1');
+    ini_set('session.use_only_cookies', '1');
+    session_set_cookie_params(['httponly' => true, 'samesite' => 'Lax', 'secure' => modeProduction() || connexionHttps()]);
+    session_start();
+}
+
 function conditionSessionValide(bool $verifierRole = true): string
 {
     return "s.date_revocation IS NULL AND s.derniere_activite > DATE_SUB(?, INTERVAL 600 SECOND)

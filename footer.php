@@ -67,6 +67,10 @@ $messageNewsletter = $messagesNewsletter[$_GET['newsletter'] ?? ''] ?? null;
         </div>
         <div class="pied-bas">
             <span>&copy; <?= date('Y') ?> BIBLIOccaz · Projet ESGI</span>
+            <nav class="liens-legaux" aria-label="Informations légales">
+                <a href="mentions_legales.php">Mentions légales</a>
+                <a href="confidentialite.php">Confidentialité</a>
+            </nav>
             <div class="d-flex align-items-center gap-2">
                 <span>Paiement sécurisé</span>
                 <div class="moyens-paiement">

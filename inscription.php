@@ -109,6 +109,7 @@ include 'header.php';
 
                 <div class="col-12 mt-4">
                     <button type="submit" class="bouton bouton-principal">Créer mon compte</button>
+                    <p class="small text-muted mt-3 mb-0">Vos données servent à gérer votre compte et vos échanges sur BIBLIOccaz. Pour en savoir plus et exercer vos droits, consultez la <a href="confidentialite.php">politique de confidentialité</a>.</p>
                 </div>
             </div>
         </form>

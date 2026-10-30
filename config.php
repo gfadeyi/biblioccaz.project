@@ -4,12 +4,27 @@ if (!file_exists(__DIR__ . '/secrets.php')) {
 }
 require_once __DIR__ . '/secrets.php';
 require_once __DIR__ . '/sessions_lib.php';
-if (session_status() === PHP_SESSION_NONE) {
-    ini_set('session.use_strict_mode', '1');
-    ini_set('session.use_only_cookies', '1');
-    session_set_cookie_params(['httponly' => true, 'samesite' => 'Lax', 'secure' => !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off']);
-    session_start();
+
+$modeProduction = modeProduction();
+$enLigneDeCommande = PHP_SAPI === 'cli';
+
+if ($modeProduction) {
+    error_reporting(E_ALL);
+    ini_set('display_errors', '0');
+    ini_set('display_startup_errors', '0');
+    ini_set('log_errors', '1');
+    ini_set('error_log', __DIR__ . '/secure_data/php_erreurs.log');
+    if (!$enLigneDeCommande) {
+        header_remove('X-Powered-By');
+    }
+    if (!$enLigneDeCommande && !connexionHttps()) {
+        $origineSite = parse_url(SITE_URL, PHP_URL_SCHEME) . '://' . parse_url(SITE_URL, PHP_URL_HOST);
+        header('Location: ' . $origineSite . ($_SERVER['REQUEST_URI'] ?? '/'), true, 301);
+        exit();
+    }
 }
+
+demarrerSession();
 $isLocal = in_array($_SERVER['REMOTE_ADDR'] ?? '', ['127.0.0.1', '::1'], true);
 
 $host = DB_HOST;
@@ -24,22 +39,32 @@ $options = [
     PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
     PDO::ATTR_EMULATE_PREPARES   => false,
 ];
+if ($modeProduction) {
+    $options[PDO::MYSQL_ATTR_INIT_COMMAND] = "SET SESSION sql_mode = 'STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION'";
+}
 
 try {
     $pdo = new PDO($dsn, $user, $pass, $options);
 } catch (\PDOException $e) {
+    if ($modeProduction) {
+        error_log('Connexion à la base impossible : ' . $e->getMessage());
+        http_response_code(503);
+        die("Le site est momentanément indisponible. Merci de réessayer dans quelques minutes.");
+    }
     die("Erreur de connexion : " . $e->getMessage());
 }
 
-$fermetureGlobaleSessions = basename($_SERVER['SCRIPT_FILENAME'] ?? '') === 'en_ligne.php' && ($_SERVER['REQUEST_METHOD'] ?? '') === 'POST' && ($_POST['action'] ?? '') === 'clients_auteurs';
-$actualiserSession = !$fermetureGlobaleSessions && !in_array(basename($_SERVER['SCRIPT_FILENAME'] ?? ''), ['logs_donnees.php', 'message_nouveaux.php'], true);
-controlerSessionUtilisateur($pdo, $actualiserSession);
+if (!$enLigneDeCommande) {
+    $fermetureGlobaleSessions = basename($_SERVER['SCRIPT_FILENAME'] ?? '') === 'en_ligne.php' && ($_SERVER['REQUEST_METHOD'] ?? '') === 'POST' && ($_POST['action'] ?? '') === 'clients_auteurs';
+    $actualiserSession = !$fermetureGlobaleSessions && !in_array(basename($_SERVER['SCRIPT_FILENAME'] ?? ''), ['logs_donnees.php', 'message_nouveaux.php'], true);
+    controlerSessionUtilisateur($pdo, $actualiserSession);
 
-if (isset($_SESSION['user_id'])) {
-    header('Cache-Control: no-store');
-    if ($actualiserSession) {
-        $stmt = $pdo->prepare("UPDATE user SET last_activity = NOW() WHERE id = ?");
-        $stmt->execute([$_SESSION['user_id']]);
+    if (isset($_SESSION['user_id'])) {
+        header('Cache-Control: no-store');
+        if ($actualiserSession) {
+            $stmt = $pdo->prepare("UPDATE user SET last_activity = NOW() WHERE id = ?");
+            $stmt->execute([$_SESSION['user_id']]);
+        }
     }
 }
 
@@ -81,7 +106,7 @@ $ignoredPages = ['admin/logs_donnees.php', 'recherche.php',
                  'get_captcha_image.php', 'captcha_piece.php', 'captcha_verifier.php',
                  'admin/puzzle_image.php', 'admin/puzzle_piece.php', 'admin/puzzle_verifier.php'];
 
-if (!in_array($currentPage, $ignoredPages) && strpos($currentPage, 'traitement_') === false) {
+if (!$enLigneDeCommande && !in_array($currentPage, $ignoredPages) && strpos($currentPage, 'traitement_') === false) {
     insertLog('VISITE', "Consultation de la page : " . $currentPage);
 }
 ?>

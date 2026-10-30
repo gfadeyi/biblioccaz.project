@@ -73,6 +73,7 @@ Les couvertures visibles sur ces captures sont générées pour l'aperçu : les 
 - **Commandes** : liste filtrable, fiche détaillée, annulation (stock remis, points rendus, client prévenu)
 - **Communauté** : avis à valider et signalés, messages signalés (masquer un message, clore une conversation, suspendre un compte), dons, événements et présences, niveaux et badges des membres, membres (rôles, suspension, **création d'un compte** par l'administrateur : la personne reçoit une invitation valable 48 heures pour choisir elle-même son mot de passe, ce qui confirme aussi son adresse), candidatures à la modération et candidatures auteur (accepter, refuser avec message, historique, masquer une page auteur), utilisateurs en ligne, newsletter
 - **Système** : journal d'activité, images du captcha, export PDF des membres
+- **Premier administrateur** créé depuis une page d'installation à usage unique, protégée par un jeton défini dans `secrets.php` et fermée dès qu'un administrateur existe
 
 ### Qualité
 - Requêtes préparées partout, échappement de toutes les sorties, **jeton CSRF** sur chaque formulaire qui modifie des données, uploads vérifiés (contenu réel, taille, renommage)
@@ -80,6 +81,10 @@ Les couvertures visibles sur ces captures sont générées pour l'aperçu : les 
 - Responsive du téléphone au grand écran, menus qui restent toujours dans l'écran
 - Accessibilité : contrastes suffisants, libellés reliés aux champs, textes alternatifs, focus visible au clavier, zones tactiles d'au moins 44 px sur écran tactile
 - Page 404 aux couleurs du site
+- **Mentions légales** et **politique de confidentialité** (données collectées, finalités, durées de conservation, droits), liées dans le pied de page
+- **Mode production** réglé dans `secrets.php` : erreurs masquées et journalisées dans un fichier privé, redirection vers HTTPS, cookies de session `Secure`, `HttpOnly` et `SameSite`, en-têtes de sécurité
+- **Relances d'emprunt automatiques** : script `cron/relances_emprunts.php` lancé par une tâche planifiée (rappel avant échéance, le jour même, relance hebdomadaire en cas de retard, expiration des réservations), refusé s'il est appelé depuis le web
+- **Préparation de la mise en ligne** : `outils/preparer_envoi.php` crée hors du dépôt un dossier propre à envoyer (sans documentation, scripts SQL ni fichiers privés) et un script SQL d'installation sans compte utilisable
 
 ## Technologies
 
@@ -124,7 +129,7 @@ Un second jeu étoffe le catalogue : environ 100 livres dans tous les univers et
 Les couvertures d'éditeurs ne sont pas versionnées : les livres concernés affichent la couverture par défaut.
 
 ### 5. Configurer
-Copier `secrets.example.php` en `secrets.php` et y renseigner l'accès à la base, l'adresse du site et l'envoi des mails. Ce fichier est ignoré par Git.
+Copier `secrets.example.php` en `secrets.php` et y renseigner l'accès à la base, l'adresse du site et l'envoi des mails. Ce fichier est ignoré par Git. En local, laisser `MODE_PRODUCTION` à `false`.
 
 ### 6. Recevoir les mails en local
 Lancer [Mailpit](https://github.com/axllent/mailpit) : les mails du site (confirmation d'inscription, commande, mot de passe…) sont capturés sur http://localhost:8025, sans rien envoyer réellement. C'est la configuration par défaut de `secrets.example.php` (SMTP `localhost:1025`).

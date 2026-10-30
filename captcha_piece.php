@@ -1,6 +1,7 @@
 <?php
 
-if (session_status() === PHP_SESSION_NONE) { session_start(); }
+require_once __DIR__ . '/sessions_lib.php';
+demarrerSession();
 
 const LARGEUR = 300;
 const HAUTEUR = 150;

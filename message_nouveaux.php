@@ -1,5 +1,6 @@
 <?php
-session_start();
+require_once __DIR__ . '/sessions_lib.php';
+demarrerSession();
 $activiteReelle = $_SESSION['last_activity'] ?? null;
 require_once 'config.php';
 require_once 'messagerie_lib.php';

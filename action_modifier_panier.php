@@ -1,5 +1,6 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) { session_start(); }
+require_once __DIR__ . '/sessions_lib.php';
+demarrerSession();
 require_once 'config.php';
 require_once 'avis_lib.php';
 require_once 'livres_lib.php';
