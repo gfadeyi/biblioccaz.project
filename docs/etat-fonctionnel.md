@@ -250,3 +250,10 @@ Implémenté sur la branche `refonte`, migration `sql/maj_candidatures_auteur.sq
 
 Preuves : 121 assertions sur base isolée et bancs de non-régression verts ; recette navigateur à 1440, 768 et 375 px sans débordement ni erreur JavaScript.
 
+
+
+### Règles des emprunts et profil actif — 30 octobre 2026
+
+Les règles générales des emprunts sont administrables : limites par lecteur, délai de retrait, durée et renouvellements proposés pour les nouveaux exemplaires, durée de prolongation enregistrée à la réservation. Historique versionné et droits administrateur. Migration testée sur restauration privée et installation neuve, puis appliquée en production avec les anciennes valeurs conservées.
+
+Le profil actif est un badge informatif pour les lecteurs et auteurs : une connexion et au moins une action validée sur les 30 derniers jours (achat non annulé, don récupéré, emprunt rendu, avis visible validé, présence confirmée). Période et minimum d'actions sont réglables dans les règles de récompenses. Aucun point ou avantage supplémentaire. Calcul à la consultation, sans statut administratif réécrit ni nouvelle table. L'ancienne configuration de récompenses reste lisible avec ces valeurs par défaut. Tests logiques isolés et recette navigateur à 375, 768 et 1440 px réussis ; la vérification de livraison est conservée dans le suivi privé.

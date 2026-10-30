@@ -64,6 +64,8 @@ Les couvertures visibles sur ces captures sont générées pour l'aperçu : les 
 - **Historique de consultation** respectueux de la vie privée : 20 dernières fiches au plus, gardées 90 jours, visibles du seul lecteur, effaçables et suspendables à tout moment
 - Déconnexion automatique après 10 minutes d'inactivité
 
+- **Profil actif** : badge informatif pour les lecteurs et auteurs, calculé sur une connexion et au moins une action validée dans les 30 derniers jours ; période et minimum d’actions réglables dans les règles de récompenses. Achats annulés et contenus non validés exclus, sans points ni priorité supplémentaires.
+
 ### Back-office (`admin/`)
 - Session séparée du site, droits par rôle, menu latéral et fil d'Ariane
 - **Connexions actives** : synthèse des sessions et utilisateurs, recherche, filtres et consultation par membre (appareil en libellé court, connexion et dernière activité lisibles, activité la plus récente en premier) ; fermetures individuelles et globale des clients/auteurs avec confirmation, autres administrateurs protégés, anciennes connexions invalidées après changement du mot de passe

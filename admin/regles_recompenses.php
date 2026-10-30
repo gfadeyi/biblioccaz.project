@@ -56,6 +56,12 @@ include __DIR__ . '/_haut.php';
             <div class="col-md-6 col-xl-4"><label for="niveau-<?= $index ?>" class="form-label"><?= e($niveau['nom']) ?></label><input id="niveau-<?= $index ?>" name="niveaux[<?= $index ?>]" type="number" class="form-control" min="0" max="1000000" step="1" required value="<?= $regles['niveaux'][$index] ?>"></div>
         <?php endforeach; ?>
         </div>
+        <h2 class="h5">Profil actif</h2>
+        <p class="small text-muted">Badge informatif pour les lecteurs et auteurs : une connexion et le nombre d'actions validées ci-dessous sur la même période. Comptent les achats non annulés, les dons récupérés, les emprunts rendus, les avis visibles validés et les présences confirmées à un événement.</p>
+        <div class="row g-3 mb-4">
+            <div class="col-md-6"><label for="profil-periode" class="form-label">Période observée (jours)</label><input type="number" id="profil-periode" name="profil_actif[periode_jours]" class="form-control" min="1" max="365" step="1" required value="<?= $regles['profil_actif']['periode_jours'] ?>"></div>
+            <div class="col-md-6"><label for="profil-actions" class="form-label">Nombre minimum d'actions validées</label><input type="number" id="profil-actions" name="profil_actif[actions_min]" class="form-control" min="1" max="100" step="1" required value="<?= $regles['profil_actif']['actions_min'] ?>"></div>
+        </div>
         <h2 class="h5">Paliers des badges</h2>
         <?php foreach (badgesRegles($pdo) as $code => $badge): ?>
             <fieldset class="border rounded p-3 mb-3"><legend class="float-none w-auto px-2 fs-6"><?= e($badge['nom']) ?></legend>

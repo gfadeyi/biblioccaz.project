@@ -25,7 +25,7 @@ const SEUILS_BADGES_RECOMPENSES = [
 function reglesRecompensesParDefaut(): array
 {
     return ['points' => array_map(fn($regle) => $regle[1], BAREME_RECOMPENSES), 'quotas' => QUOTAS_RECOMPENSES,
-        'niveaux' => [0, 150, 400, 900, 1800, 3500], 'badges' => SEUILS_BADGES_RECOMPENSES];
+        'niveaux' => [0, 150, 400, 900, 1800, 3500], 'badges' => SEUILS_BADGES_RECOMPENSES, 'profil_actif' => ['periode_jours' => 30, 'actions_min' => 1]];
 }
 
 function entierRegle(mixed $valeur, int $minimum, int $maximum): int
@@ -36,13 +36,16 @@ function entierRegle(mixed $valeur, int $minimum, int $maximum): int
     return (int) $valeur;
 }
 
-function validerReglesRecompenses(array $saisie): array
+function validerReglesRecompenses(array $saisie, bool $configurationHistorique = false): array
 {
     $defauts = reglesRecompensesParDefaut();
+    if ($configurationHistorique && !array_key_exists('profil_actif', $saisie)) { $saisie['profil_actif'] = $defauts['profil_actif']; }
     if (array_diff(array_keys($saisie), array_keys($defauts)) || array_diff(array_keys($defauts), array_keys($saisie))) { throw new DomainException('Configuration incomplète ou inconnue.'); }
     foreach ($defauts as $section => $champs) {
         if (!is_array($saisie[$section]) || array_diff(array_keys($saisie[$section]), array_keys($champs)) || array_diff(array_keys($champs), array_keys($saisie[$section]))) { throw new DomainException('Champs de configuration invalides.'); }
     }
+    $defauts['profil_actif']['periode_jours'] = entierRegle($saisie['profil_actif']['periode_jours'], 1, 365);
+    $defauts['profil_actif']['actions_min'] = entierRegle($saisie['profil_actif']['actions_min'], 1, 100);
     foreach (BAREME_RECOMPENSES as $cle => $regle) { $defauts['points'][$cle] = entierRegle($saisie['points'][$cle], 0, $regle[2]); }
     foreach (QUOTAS_RECOMPENSES as $cle => $valeur) { $defauts['quotas'][$cle] = entierRegle($saisie['quotas'][$cle], 0, 100); }
     ksort($saisie['niveaux']);
@@ -72,7 +75,7 @@ function lireReglesRecompenses(PDO $pdo): array
         $stmt->execute();
         $ligne = $stmt->fetch(PDO::FETCH_ASSOC);
         if (!$ligne) { return ['version' => 0, 'disponible' => true, 'regles' => reglesRecompensesParDefaut()]; }
-        return ['version' => (int) $ligne['version'], 'disponible' => true, 'regles' => validerReglesRecompenses(json_decode($ligne['configuration'], true, 512, JSON_THROW_ON_ERROR))];
+        return ['version' => (int) $ligne['version'], 'disponible' => true, 'regles' => validerReglesRecompenses(json_decode($ligne['configuration'], true, 512, JSON_THROW_ON_ERROR), true)];
     } catch (PDOException $e) {
         if ((int) ($e->errorInfo[1] ?? 0) !== 1146) { throw $e; }
         return ['version' => 0, 'disponible' => false, 'regles' => reglesRecompensesParDefaut()];
@@ -110,7 +113,7 @@ function enregistrerReglesRecompenses(PDO $pdo, int $idAdministrateur, array $sa
         $stmt->execute();
         $avant = $stmt->fetch(PDO::FETCH_ASSOC);
         if (!$avant || (int) $avant['version'] !== $version) { throw new DomainException('Les règles ont changé. Rechargez la page avant de réessayer.'); }
-        if (validerReglesRecompenses(json_decode($avant['configuration'], true, 512, JSON_THROW_ON_ERROR)) === $regles) { $pdo->commit(); return false; }
+        if (validerReglesRecompenses(json_decode($avant['configuration'], true, 512, JSON_THROW_ON_ERROR), true) === $regles) { $pdo->commit(); return false; }
         $json = json_encode($regles, JSON_THROW_ON_ERROR);
         $pdo->prepare('UPDATE regle_recompense SET configuration = ?, version = version + 1, id_modifie_par = ?, date_modification = NOW() WHERE id_regle = 1')->execute([$json, $idAdministrateur]);
         $pdo->prepare('INSERT INTO regle_recompense_historique (version, ancienne_configuration, nouvelle_configuration, id_modifie_par) VALUES (?, ?, ?, ?)')->execute([$version + 1, $avant['configuration'], $json, $idAdministrateur]);

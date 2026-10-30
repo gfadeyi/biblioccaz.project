@@ -1,5 +1,6 @@
 <?php
 require_once 'config.php';
+require_once __DIR__ . '/profil_actif_lib.php';
 if (session_status() === PHP_SESSION_NONE) { session_start(); }
 
 if (!isset($_SESSION['user_id'])) {
@@ -73,6 +74,7 @@ $role = $user['role'];
 $estClient = $role === 'client';
 $estEquipe = in_array($role, ['admin', 'gestionnaire', 'moderateur'], true);
 $estAuteur = $role === 'auteur';
+$participation = ($estClient || $estAuteur) ? participationMembre($pdo, $idUser) : null;
 $libellesRolesProfil = ['admin' => 'Administrateur', 'gestionnaire' => 'Gestionnaire', 'moderateur' => 'Modérateur', 'auteur' => 'Auteur', 'client' => 'Lecteur'];
 $moisFr = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
 $dateInscription = strtotime($user['date_inscription']);
@@ -206,6 +208,22 @@ include 'header.php';
             <form method="POST" action="logout.php"><input type="hidden" name="csrf" value="<?= htmlspecialchars(jetonCsrf(), ENT_QUOTES, 'UTF-8') ?>"><button type="submit" class="bouton bouton-discret bouton-petit"><i class="bi bi-box-arrow-right" aria-hidden="true"></i> Déconnexion</button></form>
         </div>
     </section>
+
+    <?php if ($participation): ?>
+        <section class="carte-compte p-4 mb-4" aria-labelledby="participation-titre">
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
+                <h2 id="participation-titre" class="h5 mb-0">Votre participation</h2>
+                <?php if ($participation['disponible']): ?><span class="badge rounded-pill <?= $participation['actif'] ? 'bg-success' : 'bg-light text-dark border' ?>"><?= $participation['actif'] ? 'Profil actif' : 'En progression' ?></span><?php endif; ?>
+            </div>
+            <?php if (!$participation['disponible']): ?>
+                <p class="text-muted mb-0">Le suivi de votre participation est temporairement indisponible.</p>
+            <?php else: ?>
+                <p class="text-muted mb-2">Une connexion et au moins <?= $participation['actions_min'] ?> action<?= $participation['actions_min'] > 1 ? 's' : '' ?> validée<?= $participation['actions_min'] > 1 ? 's' : '' ?> sur les <?= $participation['periode_jours'] ?> derniers jours.</p>
+                <p class="mb-2"><?= $participation['connexion_recente'] ? 'Connexion récente confirmée' : 'Connexion récente attendue' ?> · <?= $participation['actions'] ?> action<?= $participation['actions'] > 1 ? 's' : '' ?> validée<?= $participation['actions'] > 1 ? 's' : '' ?>.</p>
+                <details><summary>Quelles actions comptent ?</summary><p class="small text-muted mt-2 mb-0">Un achat non annulé, un don récupéré par un autre lecteur, un emprunt rendu, un avis validé et visible, ou une présence confirmée à un événement. Ce badge reflète uniquement votre participation récente.</p></details>
+            <?php endif; ?>
+        </section>
+    <?php endif; ?>
 
     <?php if ($estClient): ?>
         <a href="points_badges.php" class="carte-compte profil-niveau">
