@@ -5,7 +5,7 @@ if (PHP_SAPI !== 'cli') {
 }
 
 const MARQUEUR_DOSSIER = '.biblioccaz-a-envoyer';
-const SCRIPTS_INSTALLATION = ['sql/biblioccaz.sql', 'sql/donnees_demo.sql', 'sql/donnees_demo_catalogue.sql', 'sql/donnees_catalogue_300.sql', 'sql/maj_couvertures_catalogue.sql'];
+const SCRIPTS_INSTALLATION = ['sql/biblioccaz.sql', 'sql/donnees_demo.sql', 'sql/donnees_demo_catalogue.sql', 'sql/donnees_catalogue_300.sql', 'sql/maj_couvertures_catalogue.sql', 'sql/maj_couvertures_completes.sql'];
 const MOT_DE_PASSE_NEUTRALISE = '!compte-de-demonstration-sans-connexion';
 const DOSSIERS_EXCLUS = ['docs/', 'sql/', 'outils/', 'nbproject/', 'sauvegardes/', 'secure_data/', 'vendor/', 'img/', '.git/'];
 const FICHIERS_EXCLUS = ['.gitignore', '.gitattributes', 'composer.json', 'composer.lock', 'secrets.php', 'secrets.example.php', 'reset_password'];
@@ -14,10 +14,10 @@ const DOSSIERS_ENVOI_VIDES = ['img/annonces', 'img/dons', 'img/profils', 'img/li
 const MOTIFS_INTERDITS = ['~(^|/)secrets\.php$~i', '~\.(sql|md|bak|log|db)$~i', '~(^|/)(docs|sql|sauvegardes|outils|nbproject)/~i', '~(^|/)\.(?!htaccess$)[^/]+(/|$)~', '~^secure_data/~i'];
 
 $racineProjet = dirname(__DIR__);
-$options = getopt('', ['destination:', 'chemin-site:', 'dossier-public:', 'dossier-prive:', 'parametres:', 'avec-couvertures-editeur', 'aide']);
+$options = getopt('', ['destination:', 'chemin-site:', 'dossier-public:', 'dossier-prive:', 'parametres:', 'avec-couvertures-editeur', 'sans-couvertures-editeur', 'aide']);
 
 if (isset($options['aide'])) {
-    echo "Usage : php outils/preparer_envoi.php [--destination=DOSSIER] [--chemin-site=/] [--dossier-public=public] [--dossier-prive=secure_data] [--parametres=FICHIER.json] [--avec-couvertures-editeur]" . PHP_EOL;
+    echo "Usage : php outils/preparer_envoi.php [--destination=DOSSIER] [--chemin-site=/] [--dossier-public=public] [--dossier-prive=secure_data] [--parametres=FICHIER.json] [--sans-couvertures-editeur]" . PHP_EOL;
     exit(0);
 }
 
@@ -256,7 +256,7 @@ $cheminSite = '/' . trim($options['chemin-site'] ?? '/', '/') . '/';
 $cheminSite = $cheminSite === '//' ? '/' : $cheminSite;
 $dossierPublic = $options['dossier-public'] ?? 'public';
 $dossierPrive = $options['dossier-prive'] ?? 'secure_data';
-$avecCouverturesEditeur = isset($options['avec-couvertures-editeur']);
+$avecCouverturesEditeur = !isset($options['sans-couvertures-editeur']);
 $parametres = lireParametres($options['parametres'] ?? null);
 
 foreach ([$dossierPublic, $dossierPrive] as $nomDossier) {

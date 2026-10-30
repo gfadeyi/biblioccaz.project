@@ -1,0 +1,4109 @@
+{
+  "date": "2026-10-30",
+  "livres": [
+    {
+      "id_livre": 1,
+      "titre": "Harry Potter et la Coupe de Feu",
+      "isbn": "9782070643059",
+      "couverture": "Harry Potter et la Coupe de Feu.jpg",
+      "type": "originale",
+      "source": null
+    },
+    {
+      "id_livre": 2,
+      "titre": "Jujutsu Kaisen - Tome 22",
+      "isbn": "9791032716205",
+      "couverture": "Jujutsu-Kaisen-T22.jpg",
+      "type": "originale",
+      "source": null
+    },
+    {
+      "id_livre": 3,
+      "titre": "Bleach - Tome 01",
+      "isbn": "9782723442275",
+      "couverture": "Bleach-Tome-01.jpg",
+      "type": "originale",
+      "source": null
+    },
+    {
+      "id_livre": 4,
+      "titre": "L'Étranger",
+      "isbn": "9782070360024",
+      "couverture": "L-Etranger.jpg",
+      "type": "originale",
+      "source": null
+    },
+    {
+      "id_livre": 5,
+      "titre": "Thérèse Raquin",
+      "isbn": "9782266082587",
+      "couverture": "Thérèse-Raquin.jpg",
+      "type": "originale",
+      "source": null
+    },
+    {
+      "id_livre": 6,
+      "titre": "Le Problème à trois corps",
+      "isbn": "9782330113551",
+      "couverture": "Le-Probleme-a-trois-corps.jpg",
+      "type": "originale",
+      "source": null
+    },
+    {
+      "id_livre": 7,
+      "titre": "L'Arabe du futur - Volume 6",
+      "isbn": "9782370734242",
+      "couverture": "L-Arabe-du-futur-Volume-6.jpg",
+      "type": "originale",
+      "source": null
+    },
+    {
+      "id_livre": 8,
+      "titre": "La Chronique des Bridgerton - Tomes 1 & 2",
+      "isbn": "9782290359426",
+      "couverture": "La chronique des Bridgerton.jpg",
+      "type": "originale",
+      "source": null
+    },
+    {
+      "id_livre": 9,
+      "titre": "I Am Not Your Negro",
+      "isbn": "9782264073655",
+      "couverture": "1775768218_I-am-not-your-Negro.jpg",
+      "type": "originale",
+      "source": null
+    },
+    {
+      "id_livre": 10,
+      "titre": "Absolute Batman - Tome 2",
+      "isbn": "9791026824084",
+      "couverture": "Absolute-Batman-Tome 2.jpg",
+      "type": "originale",
+      "source": null
+    },
+    {
+      "id_livre": 1001,
+      "titre": "La Passe-miroir - Livre 1 : Les Fiancés de l'hiver",
+      "isbn": "9782075215466",
+      "couverture": "livres/couvertures-20261030/9782075215466.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782075215466-475x500-1.jpg"
+    },
+    {
+      "id_livre": 1002,
+      "titre": "Les Fleurs du mal",
+      "isbn": "9782253240570",
+      "couverture": "livres/couvertures-20261030/9782253240570.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782253240570-475x500-1.jpg"
+    },
+    {
+      "id_livre": 1003,
+      "titre": "Histoire de l'art",
+      "isbn": "9781838666699",
+      "couverture": "livres/couvertures-20261030/9781838666699.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9781838666699-475x500-1.jpg"
+    },
+    {
+      "id_livre": 1004,
+      "titre": "Une chambre à soi",
+      "isbn": "9782264073853",
+      "couverture": "livres/couvertures-20261030/9782264073853.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782264073853-475x500-1.jpg"
+    },
+    {
+      "id_livre": 1005,
+      "titre": "Le Robert Junior illustré",
+      "isbn": "9782321019893",
+      "couverture": "livres/couvertures-20261030/9782321019893.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782321019893-475x500-1.jpg"
+    },
+    {
+      "id_livre": 1006,
+      "titre": "Bescherelle - La conjugaison pour tous",
+      "isbn": "9782401104754",
+      "couverture": "livres/couvertures-20261030/9782401104754.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782401104754-475x500-1.jpg"
+    },
+    {
+      "id_livre": 1007,
+      "titre": "ABC du Bac - Mathématiques Terminale spécialité - Annales 2025",
+      "isbn": "9782095035723",
+      "couverture": "livres/couvertures-20261030/9782095035723.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782095035723-475x500-1.jpg"
+    },
+    {
+      "id_livre": 1008,
+      "titre": "J'intègre - Maths MPSI-MP2I : exercices incontournables",
+      "isbn": "9782100828845",
+      "couverture": "livres/couvertures-20261030/9782100828845.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782100828845-475x500-1.jpg"
+    },
+    {
+      "id_livre": 1009,
+      "titre": "Lexique des termes juridiques 2025-2026",
+      "isbn": "9782247240258",
+      "couverture": "livres/couvertures-20261030/9782247240258.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782247240258-475x500-1.jpg"
+    },
+    {
+      "id_livre": 1010,
+      "titre": "Une brève histoire du temps",
+      "isbn": "9782080297136",
+      "couverture": "livres/couvertures-20261030/9782080297136.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782080297136-475x500-1.jpg"
+    },
+    {
+      "id_livre": 1011,
+      "titre": "Le Charme discret de l'intestin",
+      "isbn": "9782330188481",
+      "couverture": "livres/couvertures-20261030/9782330188481.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782330188481-475x500-1.jpg"
+    },
+    {
+      "id_livre": 1012,
+      "titre": "Bescherelle - L'anglais pour tous",
+      "isbn": "9782401085237",
+      "couverture": "livres/couvertures-20261030/9782401085237.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782401085237-475x500-1.jpg"
+    },
+    {
+      "id_livre": 1013,
+      "titre": "Je sais cuisiner",
+      "isbn": "9782226441133",
+      "couverture": "livres/couvertures-20261030/9782226441133.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782226441133-475x500-1.jpg"
+    },
+    {
+      "id_livre": 1014,
+      "titre": "Born to run",
+      "isbn": "9782375021491",
+      "couverture": "livres/couvertures-20261030/9782375021491.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782375021491-475x500-1.jpg"
+    },
+    {
+      "id_livre": 1015,
+      "titre": "Le Potager du paresseux",
+      "isbn": "9782266338981",
+      "couverture": "livres/couvertures-20261030/9782266338981.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782266338981-475x500-1.jpg"
+    },
+    {
+      "id_livre": 1016,
+      "titre": "Les Ombres de la Croix-Rousse",
+      "isbn": null,
+      "couverture": "livres/demo/ombres-croix-rousse-generee.png",
+      "type": "demonstration",
+      "source": null
+    },
+    {
+      "id_livre": 1017,
+      "titre": "Pixel et Moustache - Tome 1 : Le chat qui voulait voler",
+      "isbn": null,
+      "couverture": "livres/demo/pixel-moustache-1-generee.png",
+      "type": "demonstration",
+      "source": null
+    },
+    {
+      "id_livre": 1018,
+      "titre": "Pixel et Moustache - Tome 2 : Panique au musée",
+      "isbn": null,
+      "couverture": "livres/demo/pixel-moustache-2-generee.png",
+      "type": "demonstration",
+      "source": null
+    },
+    {
+      "id_livre": 1019,
+      "titre": "Matilda",
+      "isbn": "9782070601585",
+      "couverture": "livres/couvertures-20261030/9782070601585.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782070601585-475x500-1.jpg"
+    },
+    {
+      "id_livre": 1020,
+      "titre": "Le Capital au XXIe siècle",
+      "isbn": "9782757876503",
+      "couverture": "livres/couvertures-20261030/9782757876503.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782757876503-475x500-1.jpg"
+    },
+    {
+      "id_livre": 1021,
+      "titre": "L'Anomalie",
+      "isbn": "9782072965821",
+      "couverture": "livres/couvertures-20261030/9782072965821.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782072965821-475x500-1.jpg"
+    },
+    {
+      "id_livre": 1022,
+      "titre": "Introduction à l'algorithmique",
+      "isbn": "9782100039227",
+      "couverture": "livres/couvertures-20261030/9782100039227.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782100039227-475x500-1.jpg"
+    },
+    {
+      "id_livre": 1023,
+      "titre": "Watchmen",
+      "isbn": "9782809406405",
+      "couverture": "livres/couvertures-20261030/9782809406405.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782809406405-475x500-1.jpg"
+    },
+    {
+      "id_livre": 1024,
+      "titre": "L'Usage du monde",
+      "isbn": "9782707179012",
+      "couverture": "livres/couvertures-20261030/9782707179012.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782707179012-475x500-1.jpg"
+    },
+    {
+      "id_livre": 1025,
+      "titre": "1984",
+      "isbn": "9782072878497",
+      "couverture": "livres/couvertures-20261030/9782072878497.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782072878497-475x500-1.jpg"
+    },
+    {
+      "id_livre": 1026,
+      "titre": "Les Rivières pourpres",
+      "isbn": "9782253171676",
+      "couverture": "livres/couvertures-20261030/9782253171676.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782253171676-475x500-1.jpg"
+    },
+    {
+      "id_livre": 1027,
+      "titre": "Coder proprement",
+      "isbn": "9782326002272",
+      "couverture": "livres/couvertures-20261030/9782326002272.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782326002272-475x500-1.jpg"
+    },
+    {
+      "id_livre": 1028,
+      "titre": "Blacksad - Tome 1 : Quelque part entre les ombres",
+      "isbn": "9782205049657",
+      "couverture": "livres/couvertures-20261030/9782205049657.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782205049657-475x500-1.jpg"
+    },
+    {
+      "id_livre": 1029,
+      "titre": "Hunger Games - Tome 1",
+      "isbn": "9782266260770",
+      "couverture": "livres/couvertures-20261030/9782266260770.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782266260770-475x500-1.jpg"
+    },
+    {
+      "id_livre": 1030,
+      "titre": "La Chenille qui fait des trous",
+      "isbn": "9782871424574",
+      "couverture": "livres/couvertures-20261030/9782871424574.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782871424574-475x500-1.jpg"
+    },
+    {
+      "id_livre": 1031,
+      "titre": "Astérix le Gaulois",
+      "isbn": "9782012101333",
+      "couverture": "livres/couvertures-20261030/9782012101333.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782012101333-475x500-1.jpg"
+    },
+    {
+      "id_livre": 1032,
+      "titre": "Max et les Maximonstres",
+      "isbn": "9782211222716",
+      "couverture": "livres/couvertures-20261030/9782211222716.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782211222716-475x500-1.jpg"
+    },
+    {
+      "id_livre": 1033,
+      "titre": "Dune - Tome 1",
+      "isbn": "9782266320481",
+      "couverture": "livres/couvertures-20261030/9782266320481.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782266320481-475x500-1.jpg"
+    },
+    {
+      "id_livre": 1034,
+      "titre": "Avant toi",
+      "isbn": "9782811215576",
+      "couverture": "livres/couvertures-20261030/9782811215576.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782811215576-475x500-1.jpg"
+    },
+    {
+      "id_livre": 1035,
+      "titre": "Sapiens : une brève histoire de l'humanité",
+      "isbn": "9782226257017",
+      "couverture": "livres/couvertures-20261030/9782226257017.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782226257017-475x500-1.jpg"
+    },
+    {
+      "id_livre": 1036,
+      "titre": "Le Petit Prince",
+      "isbn": "9782070612758",
+      "couverture": "livres/couvertures-20261030/9782070612758.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782070612758-475x500-1.jpg"
+    },
+    {
+      "id_livre": 1037,
+      "titre": "Chanson douce",
+      "isbn": "9782072764929",
+      "couverture": "livres/couvertures-20261030/9782072764929.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782072764929-475x500-1.jpg"
+    },
+    {
+      "id_livre": 1038,
+      "titre": "One Piece - Édition originale - Tome 01",
+      "isbn": "9782723488525",
+      "couverture": "livres/couvertures-20261030/9782723488525.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782723488525-475x500-1.jpg"
+    },
+    {
+      "id_livre": 1039,
+      "titre": "Les Quatre Accords toltèques",
+      "isbn": "9782889116546",
+      "couverture": "livres/couvertures-20261030/9782889116546.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782889116546-475x500-1.jpg"
+    },
+    {
+      "id_livre": 1040,
+      "titre": "Principes de l'économie",
+      "isbn": "9782807313217",
+      "couverture": "livres/couvertures-20261030/9782807313217.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782807313217-475x500-1.jpg"
+    },
+    {
+      "id_livre": 1041,
+      "titre": "Hitchcock / Truffaut - Édition définitive",
+      "isbn": "9782070735747",
+      "couverture": "livres/couvertures-20261030/9782070735747.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782070735747-475x500-1.jpg"
+    },
+    {
+      "id_livre": 1042,
+      "titre": "Cyrano de Bergerac",
+      "isbn": "9782070409310",
+      "couverture": "livres/couvertures-20261030/9782070409310.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782070409310-475x500-1.jpg"
+    },
+    {
+      "id_livre": 1043,
+      "titre": "La Vérité sur l'affaire Harry Quebert",
+      "isbn": "9791032102114",
+      "couverture": "livres/couvertures-20261030/9791032102114.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9791032102114-475x500-1.jpg"
+    },
+    {
+      "id_livre": 1044,
+      "titre": "Comme un roman",
+      "isbn": "9782070388905",
+      "couverture": "livres/couvertures-20261030/9782070388905.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782070388905-475x500-1.jpg"
+    },
+    {
+      "id_livre": 1045,
+      "titre": "Campbell Biologie (9e édition)",
+      "isbn": "9782761350655",
+      "couverture": "livres/couvertures-20261030/9782761350655.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782761350655-475x500-1.jpg"
+    },
+    {
+      "id_livre": 1046,
+      "titre": "Madame Bovary",
+      "isbn": "9782070413119",
+      "couverture": "livres/couvertures-20261030/9782070413119.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782070413119-475x500-1.jpg"
+    },
+    {
+      "id_livre": 1047,
+      "titre": "Le Petit Nicolas",
+      "isbn": "9782070612765",
+      "couverture": "livres/couvertures-20261030/9782070612765.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782070612765-475x500-1.jpg"
+    },
+    {
+      "id_livre": 1099,
+      "titre": "Le Mage du Kremlin",
+      "isbn": null,
+      "couverture": "livres/couvertures-20261030/9782072958168.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782072958168-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2001,
+      "titre": "Pilotis CP - Méthode de lecture",
+      "isbn": "9782017316749",
+      "couverture": "livres/couvertures-20261030/9782017316749.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782017316749-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2002,
+      "titre": "Taoki et compagnie CP - Méthode de lecture",
+      "isbn": "9782013947763",
+      "couverture": "livres/couvertures-20261030/9782013947763.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782013947763-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2003,
+      "titre": "Cap maths CP",
+      "isbn": "9782218998805",
+      "couverture": "livres/couvertures-20261030/9782218998805.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782218998805-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2004,
+      "titre": "Pour comprendre les mathématiques CE1",
+      "isbn": "9782011162526",
+      "couverture": "livres/couvertures-20261030/9782011162526.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782011162526-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2005,
+      "titre": "Cap maths CE2",
+      "isbn": "9782218964404",
+      "couverture": "livres/couvertures-20261030/9782218964404.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782218964404-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2006,
+      "titre": "Pour comprendre les mathématiques CM1",
+      "isbn": "9782012457768",
+      "couverture": "livres/couvertures-20261030/9782012457768.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782012457768-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2007,
+      "titre": "Bled CM1-CM2",
+      "isbn": "9782017872504",
+      "couverture": "livres/couvertures-20261030/9782017872504.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782017872504-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2008,
+      "titre": "Les Nouveaux Outils pour les maths CM2",
+      "isbn": "9782210503212",
+      "couverture": "livres/couvertures-20261030/9782210503212.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782210503212-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2009,
+      "titre": "Les Contes rouges du chat perché",
+      "isbn": "9782070577095",
+      "couverture": "livres/originales-20261030/9782070577095.jpg",
+      "type": "originale",
+      "source": null
+    },
+    {
+      "id_livre": 2010,
+      "titre": "L'Enfant et la rivière",
+      "isbn": "9782075137782",
+      "couverture": "livres/originales-20261030/9782075137782.jpg",
+      "type": "originale",
+      "source": null
+    },
+    {
+      "id_livre": 2011,
+      "titre": "Myriade - Maths 6e",
+      "isbn": "9782047403624",
+      "couverture": "livres/couvertures-20261030/9782047403624.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782047403624-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2012,
+      "titre": "Transmath 5e",
+      "isbn": "9782095066055",
+      "couverture": "livres/couvertures-20261030/9782095066055.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782095066055-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2013,
+      "titre": "Transmath 4e",
+      "isbn": "9782091729381",
+      "couverture": "livres/couvertures-20261030/9782091729381.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782091729381-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2014,
+      "titre": "Transmath 3e",
+      "isbn": "9782091719191",
+      "couverture": "livres/couvertures-20261030/9782091719191.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782091719191-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2015,
+      "titre": "Myriade - Maths 5e",
+      "isbn": "9782047337769",
+      "couverture": "livres/couvertures-20261030/9782047337769.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782047337769-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2016,
+      "titre": "Physique-chimie cycle 4",
+      "isbn": "9782017025245",
+      "couverture": "livres/couvertures-20261030/9782017025245.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782017025245-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2017,
+      "titre": "SVT cycle 4",
+      "isbn": "9791035822859",
+      "couverture": "livres/couvertures-20261030/9791035822859.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9791035822859-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2018,
+      "titre": "Histoire géographie EMC 3e",
+      "isbn": "9782401077454",
+      "couverture": "livres/couvertures-20261030/9782401077454.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782401077454-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2019,
+      "titre": "Histoire géographie EMC 5e",
+      "isbn": "9782401020115",
+      "couverture": "livres/couvertures-20261030/9782401020115.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782401020115-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2020,
+      "titre": "Fleurs d'encre 5e",
+      "isbn": "9782017291558",
+      "couverture": "livres/couvertures-20261030/9782017291558.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782017291558-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2021,
+      "titre": "Les Fourberies de Scapin",
+      "isbn": "9782401079717",
+      "couverture": "livres/couvertures-20261030/9782401079717.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782401079717-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2022,
+      "titre": "Le Médecin malgré lui",
+      "isbn": "9782401084575",
+      "couverture": "livres/couvertures-20261030/9782401084575.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782401084575-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2023,
+      "titre": "Le Horla",
+      "isbn": "9782218962820",
+      "couverture": "livres/couvertures-20261030/9782218962820.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782218962820-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2024,
+      "titre": "Antigone",
+      "isbn": "9782710300250",
+      "couverture": "livres/originales-20261030/9782710300250.jpg",
+      "type": "originale",
+      "source": null
+    },
+    {
+      "id_livre": 2025,
+      "titre": "L'Odyssée",
+      "isbn": "9782070571673",
+      "couverture": "livres/couvertures-20261030/9782070571673.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782070571673-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2026,
+      "titre": "Barbazo - Mathématiques 2de",
+      "isbn": "9782017227175",
+      "couverture": "livres/couvertures-20261030/9782017227175.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782017227175-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2027,
+      "titre": "Physique-chimie 2de",
+      "isbn": "9782017227199",
+      "couverture": "livres/couvertures-20261030/9782017227199.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782017227199-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2028,
+      "titre": "Physique-chimie 1re spécialité",
+      "isbn": "9782013954952",
+      "couverture": "livres/couvertures-20261030/9782013954952.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782013954952-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2029,
+      "titre": "SVT 2de",
+      "isbn": "9782047402054",
+      "couverture": "livres/couvertures-20261030/9782047402054.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782047402054-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2030,
+      "titre": "Histoire 1re",
+      "isbn": "9782017257196",
+      "couverture": "livres/couvertures-20261030/9782017257196.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782017257196-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2031,
+      "titre": "Philosophie Terminale",
+      "isbn": "9782218921179",
+      "couverture": "livres/couvertures-20261030/9782218921179.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782218921179-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2032,
+      "titre": "Phèdre",
+      "isbn": "9782072858918",
+      "couverture": "livres/couvertures-20261030/9782072858918.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782072858918-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2033,
+      "titre": "Juste la fin du monde",
+      "isbn": "9782846816120",
+      "couverture": "livres/couvertures-20261030/9782846816120.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782846816120-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2034,
+      "titre": "Gargantua",
+      "isbn": "9782072944383",
+      "couverture": "livres/originales-20261030/9782072944383.jpg",
+      "type": "originale",
+      "source": null
+    },
+    {
+      "id_livre": 2035,
+      "titre": "La Princesse de Clèves",
+      "isbn": "9782072909047",
+      "couverture": "livres/couvertures-20261030/9782072909047.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782072909047-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2036,
+      "titre": "Les Contemplations",
+      "isbn": "9782070320509",
+      "couverture": "livres/couvertures-20261030/9782070320509.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782070320509-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2037,
+      "titre": "Le Malade imaginaire",
+      "isbn": "9782072912887",
+      "couverture": "livres/originales-20261030/9782072912887.jpg",
+      "type": "originale",
+      "source": null
+    },
+    {
+      "id_livre": 2038,
+      "titre": "Vendredi ou la Vie sauvage",
+      "isbn": "9782070650644",
+      "couverture": "livres/originales-20261030/9782070650644.jpg",
+      "type": "originale",
+      "source": null
+    },
+    {
+      "id_livre": 2039,
+      "titre": "Fables",
+      "isbn": "9782401056831",
+      "couverture": "livres/couvertures-20261030/9782401056831.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782401056831-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2040,
+      "titre": "Le Cid",
+      "isbn": "9782070793686",
+      "couverture": "livres/originales-20261030/9782070793686.jpg",
+      "type": "originale",
+      "source": null
+    },
+    {
+      "id_livre": 2041,
+      "titre": "Ruy Blas",
+      "isbn": "9782070401574",
+      "couverture": "livres/originales-20261030/9782070401574.jpg",
+      "type": "originale",
+      "source": null
+    },
+    {
+      "id_livre": 2042,
+      "titre": "On ne badine pas avec l'amour",
+      "isbn": "9782073052094",
+      "couverture": "livres/couvertures-20261030/9782073052094.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782073052094-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2043,
+      "titre": "Le Mariage de Figaro",
+      "isbn": "9782072858901",
+      "couverture": "livres/couvertures-20261030/9782072858901.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782072858901-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2044,
+      "titre": "Les Liaisons dangereuses",
+      "isbn": "9782070358410",
+      "couverture": "livres/couvertures-20261030/9782070358410.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782070358410-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2045,
+      "titre": "Les Caractères",
+      "isbn": "9782072944338",
+      "couverture": "livres/originales-20261030/9782072944338.jpg",
+      "type": "originale",
+      "source": null
+    },
+    {
+      "id_livre": 2046,
+      "titre": "Physique tout-en-un PCSI",
+      "isbn": "9782100749898",
+      "couverture": "livres/couvertures-20261030/9782100749898.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782100749898-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2047,
+      "titre": "Chimie tout-en-un PCSI",
+      "isbn": "9782100783762",
+      "couverture": "livres/couvertures-20261030/9782100783762.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782100783762-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2048,
+      "titre": "Maths PCSI tout-en-un",
+      "isbn": "9782100863952",
+      "couverture": "livres/couvertures-20261030/9782100863952.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782100863952-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2049,
+      "titre": "Chimie organique",
+      "isbn": "9782804174415",
+      "couverture": "livres/couvertures-20261030/9782804174415.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782804174415-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2050,
+      "titre": "Macroéconomie",
+      "isbn": "9782326001619",
+      "couverture": "livres/couvertures-20261030/9782326001619.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782326001619-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2051,
+      "titre": "Biologie moléculaire de la cellule",
+      "isbn": "9782257000965",
+      "couverture": "livres/originales-20261030/9782257000965.jpg",
+      "type": "originale",
+      "source": null
+    },
+    {
+      "id_livre": 2052,
+      "titre": "Psychologie",
+      "isbn": "9782257206657",
+      "couverture": "livres/couvertures-20261030/9782257206657.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782257206657-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2053,
+      "titre": "Physique - Tome 3 : Ondes, optique et physique moderne",
+      "isbn": "9782804193812",
+      "couverture": "livres/couvertures-20261030/9782804193812.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782804193812-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2054,
+      "titre": "Introduction à la microéconomie",
+      "isbn": "9782807321410",
+      "couverture": "livres/couvertures-20261030/9782807321410.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782807321410-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2101,
+      "titre": "Charlie et la chocolaterie",
+      "isbn": "9782070655496",
+      "couverture": "livres/couvertures-20261030/9782070655496.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782070655496-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2102,
+      "titre": "L'Œil du loup",
+      "isbn": "9782266294003",
+      "couverture": "livres/couvertures-20261030/9782266294003.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782266294003-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2103,
+      "titre": "Le Royaume de Kensuké",
+      "isbn": "9782070649716",
+      "couverture": "livres/couvertures-20261030/9782070649716.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782070649716-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2104,
+      "titre": "Fantastique Maître Renard",
+      "isbn": "9782075097109",
+      "couverture": "livres/couvertures-20261030/9782075097109.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782075097109-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2105,
+      "titre": "Persepolis",
+      "isbn": "9782844149596",
+      "couverture": "livres/couvertures-20261030/9782844149596.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782844149596-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2106,
+      "titre": "Le Chat du rabbin - Tome 1 : La Bar-Mitsva",
+      "isbn": "9782205066456",
+      "couverture": "livres/couvertures-20261030/9782205066456.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782205066456-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2107,
+      "titre": "Les Vieux Fourneaux - Tome 1 : Ceux qui restent",
+      "isbn": "9782505073024",
+      "couverture": "livres/couvertures-20261030/9782505073024.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782505073024-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2108,
+      "titre": "Culottées - Tome 1",
+      "isbn": "9782075211956",
+      "couverture": "livres/couvertures-20261030/9782075211956.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782075211956-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2109,
+      "titre": "Maus",
+      "isbn": "9782081494817",
+      "couverture": "livres/couvertures-20261030/9782081494817.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782081494817-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2110,
+      "titre": "V pour Vendetta",
+      "isbn": "9791026827474",
+      "couverture": "livres/couvertures-20261030/9791026827474.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9791026827474-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2111,
+      "titre": "Batman : Année un",
+      "isbn": "9791026817284",
+      "couverture": "livres/couvertures-20261030/9791026817284.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9791026817284-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2112,
+      "titre": "Saga - Tome 1",
+      "isbn": "9791026820291",
+      "couverture": "livres/couvertures-20261030/9791026820291.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9791026820291-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2113,
+      "titre": "Death Note - Tome 1",
+      "isbn": "9782505000327",
+      "couverture": "livres/originales-20261030/9782505000327.jpg",
+      "type": "originale",
+      "source": null
+    },
+    {
+      "id_livre": 2114,
+      "titre": "L'Attaque des Titans - Tome 1",
+      "isbn": "9782811611699",
+      "couverture": "livres/originales-20261030/9782811611699.jpg",
+      "type": "originale",
+      "source": null
+    },
+    {
+      "id_livre": 2115,
+      "titre": "Naruto - Tome 1",
+      "isbn": "9782871294146",
+      "couverture": "livres/originales-20261030/9782871294146.jpg",
+      "type": "originale",
+      "source": null
+    },
+    {
+      "id_livre": 2116,
+      "titre": "Spy x Family - Tome 1",
+      "isbn": "9782380710243",
+      "couverture": "livres/originales-20261030/9782380710243.jpg",
+      "type": "originale",
+      "source": null
+    },
+    {
+      "id_livre": 2117,
+      "titre": "Frieren - Tome 1",
+      "isbn": "9791032710838",
+      "couverture": "livres/originales-20261030/9791032710838.jpg",
+      "type": "originale",
+      "source": null
+    },
+    {
+      "id_livre": 2118,
+      "titre": "Le Gruffalo",
+      "isbn": "9782075210065",
+      "couverture": "livres/couvertures-20261030/9782075210065.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782075210065-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2119,
+      "titre": "Petit-Bleu et Petit-Jaune",
+      "isbn": "9782211310635",
+      "couverture": "livres/couvertures-20261030/9782211310635.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782211310635-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2120,
+      "titre": "Les Trois Brigands",
+      "isbn": "9782211232579",
+      "couverture": "livres/originales-20261030/9782211232579.jpg",
+      "type": "originale",
+      "source": null
+    },
+    {
+      "id_livre": 2121,
+      "titre": "Loulou",
+      "isbn": "9782211335232",
+      "couverture": "livres/couvertures-20261030/9782211335232.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782211335232-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2122,
+      "titre": "Nos étoiles contraires",
+      "isbn": "9782266283304",
+      "couverture": "livres/originales-20261030/9782266283304.jpg",
+      "type": "originale",
+      "source": null
+    },
+    {
+      "id_livre": 2123,
+      "titre": "Divergente - Tome 1",
+      "isbn": "9782092552988",
+      "couverture": "livres/originales-20261030/9782092552988.jpg",
+      "type": "originale",
+      "source": null
+    },
+    {
+      "id_livre": 2124,
+      "titre": "L'Élégance du hérisson",
+      "isbn": "9782070391653",
+      "couverture": "livres/originales-20261030/9782070391653.jpg",
+      "type": "originale",
+      "source": null
+    },
+    {
+      "id_livre": 2125,
+      "titre": "Veiller sur elle",
+      "isbn": "9782378803759",
+      "couverture": "livres/couvertures-20261030/9782378803759.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782378803759-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2126,
+      "titre": "Les Choses humaines",
+      "isbn": "9782072921117",
+      "couverture": "livres/originales-20261030/9782072921117.jpg",
+      "type": "originale",
+      "source": null
+    },
+    {
+      "id_livre": 2127,
+      "titre": "La Horde du Contrevent",
+      "isbn": "9782072822049",
+      "couverture": "livres/originales-20261030/9782072822049.jpg",
+      "type": "originale",
+      "source": null
+    },
+    {
+      "id_livre": 2128,
+      "titre": "Fondation",
+      "isbn": "9782070360536",
+      "couverture": "livres/originales-20261030/9782070360536.jpg",
+      "type": "originale",
+      "source": null
+    },
+    {
+      "id_livre": 2129,
+      "titre": "Fahrenheit 451",
+      "isbn": "9782072892950",
+      "couverture": "livres/originales-20261030/9782072892950.jpg",
+      "type": "originale",
+      "source": null
+    },
+    {
+      "id_livre": 2130,
+      "titre": "Le Nom du vent",
+      "isbn": "9782352949152",
+      "couverture": "livres/couvertures-20261030/9782352949152.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782352949152-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2131,
+      "titre": "Le Silence des agneaux",
+      "isbn": "9782266120159",
+      "couverture": "livres/originales-20261030/9782266120159.jpg",
+      "type": "originale",
+      "source": null
+    },
+    {
+      "id_livre": 2132,
+      "titre": "Glacé",
+      "isbn": "9782266269193",
+      "couverture": "livres/couvertures-20261030/9782266269193.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782266269193-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2133,
+      "titre": "Ils étaient dix",
+      "isbn": "9782253241553",
+      "couverture": "livres/couvertures-20261030/9782253241553.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782253241553-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2134,
+      "titre": "Orgueil et préjugés",
+      "isbn": "9791041427925",
+      "couverture": "livres/couvertures-20261030/9791041427925.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9791041427925-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2135,
+      "titre": "Un jour",
+      "isbn": "9782266224161",
+      "couverture": "livres/couvertures-20261030/9782266224161.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782266224161-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2136,
+      "titre": "Alcools",
+      "isbn": "9782070300075",
+      "couverture": "livres/originales-20261030/9782070300075.jpg",
+      "type": "originale",
+      "source": null
+    },
+    {
+      "id_livre": 2137,
+      "titre": "Paroles",
+      "isbn": "9782070793969",
+      "couverture": "livres/couvertures-20261030/9782070793969.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782070793969-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2138,
+      "titre": "En attendant Godot",
+      "isbn": "9782707301482",
+      "couverture": "livres/couvertures-20261030/9782707301482.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782707301482-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2139,
+      "titre": "Huis clos",
+      "isbn": "9782070368075",
+      "couverture": "livres/originales-20261030/9782070368075.jpg",
+      "type": "originale",
+      "source": null
+    },
+    {
+      "id_livre": 2140,
+      "titre": "Le Comte de Monte-Cristo - Tome 1",
+      "isbn": "9782073131317",
+      "couverture": "livres/couvertures-20261030/9782073131317.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782073131317-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2141,
+      "titre": "Germinal",
+      "isbn": "9782070411429",
+      "couverture": "livres/originales-20261030/9782070411429.jpg",
+      "type": "originale",
+      "source": null
+    },
+    {
+      "id_livre": 2142,
+      "titre": "Le Rouge et le Noir",
+      "isbn": "9782072908941",
+      "couverture": "livres/couvertures-20261030/9782072908941.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782072908941-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2143,
+      "titre": "Bel-Ami",
+      "isbn": "9782072885068",
+      "couverture": "livres/couvertures-20261030/9782072885068.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782072885068-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2144,
+      "titre": "Sorcières",
+      "isbn": "9782355221224",
+      "couverture": "livres/originales-20261030/9782355221224.jpg",
+      "type": "originale",
+      "source": null
+    },
+    {
+      "id_livre": 2145,
+      "titre": "Petite Poucette",
+      "isbn": "9782746506053",
+      "couverture": "livres/originales-20261030/9782746506053.jpg",
+      "type": "originale",
+      "source": null
+    },
+    {
+      "id_livre": 2146,
+      "titre": "Factfulness",
+      "isbn": "9782080289674",
+      "couverture": "livres/couvertures-20261030/9782080289674.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782080289674-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2147,
+      "titre": "L'Étrange Défaite",
+      "isbn": "9782070325696",
+      "couverture": "livres/originales-20261030/9782070325696.jpg",
+      "type": "originale",
+      "source": null
+    },
+    {
+      "id_livre": 2148,
+      "titre": "SPQR",
+      "isbn": "9782262097417",
+      "couverture": "livres/couvertures-20261030/9782262097417.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782262097417-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2149,
+      "titre": "Si c'est un homme",
+      "isbn": "9782266351416",
+      "couverture": "livres/couvertures-20261030/9782266351416.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782266351416-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2150,
+      "titre": "La Chambre claire",
+      "isbn": "9782070205417",
+      "couverture": "livres/originales-20261030/9782070205417.jpg",
+      "type": "originale",
+      "source": null
+    },
+    {
+      "id_livre": 2151,
+      "titre": "Van Gogh",
+      "isbn": "9783836541213",
+      "couverture": "livres/couvertures-20261030/9783836541213.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9783836541213-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2152,
+      "titre": "Just Kids",
+      "isbn": "9782070453603",
+      "couverture": "livres/originales-20261030/9782070453603.jpg",
+      "type": "originale",
+      "source": null
+    },
+    {
+      "id_livre": 2153,
+      "titre": "Life",
+      "isbn": "9782757855911",
+      "couverture": "livres/couvertures-20261030/9782757855911.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782757855911-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2154,
+      "titre": "Dans les forêts de Sibérie",
+      "isbn": "9782072821974",
+      "couverture": "livres/couvertures-20261030/9782072821974.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782072821974-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2155,
+      "titre": "Into the wild",
+      "isbn": "9782264079534",
+      "couverture": "livres/couvertures-20261030/9782264079534.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782264079534-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2156,
+      "titre": "Sur les chemins noirs",
+      "isbn": "9782072823428",
+      "couverture": "livres/originales-20261030/9782072823428.jpg",
+      "type": "originale",
+      "source": null
+    },
+    {
+      "id_livre": 2157,
+      "titre": "Droit constitutionnel",
+      "isbn": "9782275159577",
+      "couverture": "livres/couvertures-20261030/9782275159577.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782275159577-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2158,
+      "titre": "Introduction générale au droit",
+      "isbn": "9782247240425",
+      "couverture": "livres/couvertures-20261030/9782247240425.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782247240425-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2159,
+      "titre": "Économie du bien commun",
+      "isbn": "9782130807667",
+      "couverture": "livres/couvertures-20261030/9782130807667.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782130807667-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2160,
+      "titre": "Freakonomics",
+      "isbn": "9782070341795",
+      "couverture": "livres/originales-20261030/9782070341795.jpg",
+      "type": "originale",
+      "source": null
+    },
+    {
+      "id_livre": 2161,
+      "titre": "Apprendre à programmer avec Python 3",
+      "isbn": "9782212134346",
+      "couverture": "livres/couvertures-20261030/9782212134346.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782212134346-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2162,
+      "titre": "Réseaux",
+      "isbn": "9782326002395",
+      "couverture": "livres/couvertures-20261030/9782326002395.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782326002395-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2163,
+      "titre": "Le Gène égoïste",
+      "isbn": "9782738112439",
+      "couverture": "livres/originales-20261030/9782738112439.jpg",
+      "type": "originale",
+      "source": null
+    },
+    {
+      "id_livre": 2164,
+      "titre": "La Plus Belle Histoire du monde",
+      "isbn": "9782020505765",
+      "couverture": "livres/originales-20261030/9782020505765.jpg",
+      "type": "originale",
+      "source": null
+    },
+    {
+      "id_livre": 2165,
+      "titre": "L'Erreur de Descartes",
+      "isbn": "9782738124579",
+      "couverture": "livres/couvertures-20261030/9782738124579.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782738124579-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2166,
+      "titre": "Une histoire du corps humain à l'usage de ses occupants",
+      "isbn": "9782228933025",
+      "couverture": "livres/couvertures-20261030/9782228933025.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782228933025-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2167,
+      "titre": "Simple",
+      "isbn": "9782011356833",
+      "couverture": "livres/originales-20261030/9782011356833.jpg",
+      "type": "originale",
+      "source": null
+    },
+    {
+      "id_livre": 2168,
+      "titre": "Le Grand Larousse gastronomique",
+      "isbn": "9782035602275",
+      "couverture": "livres/originales-20261030/9782035602275.jpg",
+      "type": "originale",
+      "source": null
+    },
+    {
+      "id_livre": 2169,
+      "titre": "Un rien peut tout changer",
+      "isbn": "9782035969200",
+      "couverture": "livres/originales-20261030/9782035969200.jpg",
+      "type": "originale",
+      "source": null
+    },
+    {
+      "id_livre": 2170,
+      "titre": "Le Pouvoir du moment présent",
+      "isbn": "9782290238806",
+      "couverture": "livres/couvertures-20261030/9782290238806.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782290238806-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2171,
+      "titre": "Open",
+      "isbn": "9782259209427",
+      "couverture": "livres/couvertures-20261030/9782259209427.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782259209427-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2172,
+      "titre": "Courir",
+      "isbn": "9782707320483",
+      "couverture": "livres/originales-20261030/9782707320483.jpg",
+      "type": "originale",
+      "source": null
+    },
+    {
+      "id_livre": 2173,
+      "titre": "La Magie du rangement",
+      "isbn": "9782754071277",
+      "couverture": "livres/couvertures-20261030/9782754071277.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782754071277-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2174,
+      "titre": "Vingt mille lieues sous les mers",
+      "isbn": "9782253006329",
+      "couverture": "livres/originales-20261030/9782253006329.jpg",
+      "type": "originale",
+      "source": null
+    },
+    {
+      "id_livre": 2175,
+      "titre": "Le Monde de Narnia",
+      "isbn": "9782070524327",
+      "couverture": "livres/originales-20261030/9782070524327.jpg",
+      "type": "originale",
+      "source": null
+    },
+    {
+      "id_livre": 2176,
+      "titre": "Le Seigneur des anneaux",
+      "isbn": "9782073130013",
+      "couverture": "livres/couvertures-20261030/9782073130013.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782073130013-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2177,
+      "titre": "La Femme au carnet rouge",
+      "isbn": "9782290104637",
+      "couverture": "livres/originales-20261030/9782290104637.jpg",
+      "type": "originale",
+      "source": null
+    },
+    {
+      "id_livre": 2178,
+      "titre": "Le Deuxième Sexe - Tome 1",
+      "isbn": "9782070323517",
+      "couverture": "livres/originales-20261030/9782070323517.jpg",
+      "type": "originale",
+      "source": null
+    },
+    {
+      "id_livre": 2179,
+      "titre": "Le Programmeur pragmatique",
+      "isbn": "9782744068867",
+      "couverture": "livres/couvertures-20261030/9782744068867.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782744068867-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2180,
+      "titre": "Le Grand Méchant Renard",
+      "isbn": "9782756051246",
+      "couverture": "livres/originales-20261030/9782756051246.jpg",
+      "type": "originale",
+      "source": null
+    },
+    {
+      "id_livre": 2181,
+      "titre": "One Punch Man - Tome 1",
+      "isbn": "9791042020613",
+      "couverture": "livres/couvertures-20261030/9791042020613.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9791042020613-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2182,
+      "titre": "Ma vie avec Mozart",
+      "isbn": "9782226168207",
+      "couverture": "livres/originales-20261030/9782226168207.jpg",
+      "type": "originale",
+      "source": null
+    },
+    {
+      "id_livre": 2183,
+      "titre": "Voir le voir",
+      "isbn": "9782917855508",
+      "couverture": "livres/couvertures-20261030/9782917855508.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782917855508-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2184,
+      "titre": "Pourquoi nous dormons",
+      "isbn": "9782266287234",
+      "couverture": "livres/couvertures-20261030/9782266287234.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782266287234-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2185,
+      "titre": "Les Décisions absurdes",
+      "isbn": "9782070315420",
+      "couverture": "livres/originales-20261030/9782070315420.jpg",
+      "type": "originale",
+      "source": null
+    },
+    {
+      "id_livre": 2186,
+      "titre": "La Cuisine de référence",
+      "isbn": "9782857085737",
+      "couverture": "livres/couvertures-20261030/9782857085737.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782857085737-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2187,
+      "titre": "Guide des mouvements de musculation",
+      "isbn": "9782711424115",
+      "couverture": "livres/couvertures-20261030/9782711424115.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782711424115-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2188,
+      "titre": "Permaculture",
+      "isbn": "9782330152710",
+      "couverture": "livres/couvertures-20261030/9782330152710.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782330152710-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2189,
+      "titre": "Ikigai",
+      "isbn": "9782266286688",
+      "couverture": "livres/originales-20261030/9782266286688.jpg",
+      "type": "originale",
+      "source": null
+    },
+    {
+      "id_livre": 2190,
+      "titre": "L'Alchimiste",
+      "isbn": "9782290258064",
+      "couverture": "livres/originales-20261030/9782290258064.jpg",
+      "type": "originale",
+      "source": null
+    },
+    {
+      "id_livre": 2191,
+      "titre": "Le Parfum",
+      "isbn": "9782253123460",
+      "couverture": "livres/couvertures-20261030/9782253123460.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782253123460-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2192,
+      "titre": "La Vie devant soi",
+      "isbn": "9782072915291",
+      "couverture": "livres/couvertures-20261030/9782072915291.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782072915291-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2193,
+      "titre": "L'Ami retrouvé",
+      "isbn": "9782070659852",
+      "couverture": "livres/couvertures-20261030/9782070659852.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782070659852-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2194,
+      "titre": "Sa Majesté des mouches",
+      "isbn": "9782075120401",
+      "couverture": "livres/couvertures-20261030/9782075120401.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782075120401-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2195,
+      "titre": "Le Vieil Homme et la mer",
+      "isbn": "9782072762086",
+      "couverture": "livres/couvertures-20261030/9782072762086.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782072762086-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2196,
+      "titre": "Le Liseur",
+      "isbn": "9782072961700",
+      "couverture": "livres/couvertures-20261030/9782072961700.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782072961700-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2197,
+      "titre": "Le Meilleur des mondes",
+      "isbn": "9782266346849",
+      "couverture": "livres/couvertures-20261030/9782266346849.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782266346849-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2198,
+      "titre": "Chroniques martiennes",
+      "isbn": "9782070417742",
+      "couverture": "livres/couvertures-20261030/9782070417742.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782070417742-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2199,
+      "titre": "Tintin au Tibet",
+      "isbn": "9782203007642",
+      "couverture": "livres/couvertures-20261030/9782203007642.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782203007642-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2200,
+      "titre": "Le Monde de Sophie",
+      "isbn": "9782757883334",
+      "couverture": "livres/couvertures-20261030/9782757883334.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782757883334-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2201,
+      "titre": "Les Années",
+      "isbn": "9782070402472",
+      "couverture": "livres/originales-20261030/9782070402472.jpg",
+      "type": "originale",
+      "source": null
+    },
+    {
+      "id_livre": 2202,
+      "titre": "Battle Royale",
+      "isbn": "9782253122357",
+      "couverture": "livres/couvertures-20261030/9782253122357.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782253122357-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2203,
+      "titre": "Berserk - Tome 01",
+      "isbn": "9782344020685",
+      "couverture": "livres/couvertures-20261030/9782344020685.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782344020685-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2204,
+      "titre": "Heartstopper 1",
+      "isbn": "9782017160212",
+      "couverture": "livres/couvertures-20261030/9782017160212.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782017160212-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2205,
+      "titre": "Les Royaumes de Feu",
+      "isbn": "9782075077170",
+      "couverture": "livres/couvertures-20261030/9782075077170.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782075077170-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2206,
+      "titre": "Nimona",
+      "isbn": "9782205073829",
+      "couverture": "livres/couvertures-20261030/9782205073829.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782205073829-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2207,
+      "titre": "Les rois des sables",
+      "isbn": "9782290356197",
+      "couverture": "livres/couvertures-20261030/9782290356197.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782290356197-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2208,
+      "titre": "La maison du péril",
+      "isbn": "9782702400791",
+      "couverture": "livres/couvertures-20261030/9782702400791.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782702400791-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2209,
+      "titre": "Anne au Domaine des peupliers",
+      "isbn": "9780921556084",
+      "couverture": "livres/couvertures-20261030/9780921556084.jpg",
+      "type": "originale",
+      "source": "https://covers.openlibrary.org/b/isbn/9780921556084-L.jpg?default=false"
+    },
+    {
+      "id_livre": 2210,
+      "titre": "La Faucheuse",
+      "isbn": "9782221198674",
+      "couverture": "livres/couvertures-20261030/9782221198674.jpg",
+      "type": "originale",
+      "source": "https://products-images.di-static.com/image/couverture/9782221198674-475x500-1.jpg"
+    },
+    {
+      "id_livre": 2211,
+      "titre": "Mechant Petit Lapin",
+      "isbn": "9780723220497",
+      "couverture": "livres/couvertures-20261030/9780723220497.jpg",
+      "type": "originale",
+      "source": "https://covers.openlibrary.org/b/id/14589623-L.jpg"
+    },
+    {
+      "id_livre": 2212,
+      "titre": "Jamais plus",
+      "isbn": "9782755637083",
+      "couverture": "livres/couvertures-20261030/9782755637083.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/083/9782755637083_1_75.jpg"
+    },
+    {
+      "id_livre": 2213,
+      "titre": "L'art de la guerre",
+      "isbn": "9782842050757",
+      "couverture": "livres/couvertures-20261030/9782842050757.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/757/9782842050757_1_75.jpg"
+    },
+    {
+      "id_livre": 2214,
+      "titre": "Sapiens",
+      "isbn": "9782226479822",
+      "couverture": "livres/couvertures-20261030/9782226479822.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/822/9782226479822_1_75.jpg"
+    },
+    {
+      "id_livre": 2215,
+      "titre": "Power: Les 48 lois du pouvoir",
+      "isbn": "9782848992549",
+      "couverture": "livres/couvertures-20261030/9782848992549.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/549/9782848992549_1_75.jpg"
+    },
+    {
+      "id_livre": 2216,
+      "titre": "Une histoire de tout, ou presque ...",
+      "isbn": "9782228906555",
+      "couverture": "livres/couvertures-20261030/9782228906555.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/555/9782228906555_1_75.jpg"
+    },
+    {
+      "id_livre": 2217,
+      "titre": "Les grands économistes",
+      "isbn": "9782020045506",
+      "couverture": "livres/couvertures-20261030/9782020045506.jpg",
+      "type": "originale",
+      "source": "https://covers.openlibrary.org/b/id/15106804-L.jpg"
+    },
+    {
+      "id_livre": 2218,
+      "titre": "Les irresistibles recettes",
+      "isbn": "9782070590308",
+      "couverture": "livres/couvertures-20261030/9782070590308.jpg",
+      "type": "originale",
+      "source": "https://covers.openlibrary.org/b/id/13766909-L.jpg"
+    },
+    {
+      "id_livre": 2219,
+      "titre": "Le langage C",
+      "isbn": "9782225830358",
+      "couverture": "livres/couvertures-20261030/9782225830358.jpg",
+      "type": "originale",
+      "source": "https://covers.openlibrary.org/b/id/10557818-L.jpg"
+    },
+    {
+      "id_livre": 2220,
+      "titre": "Les femmes savantes",
+      "isbn": "9782038716641",
+      "couverture": "livres/couvertures-20261030/9782038716641.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/641/9782038716641_1_75.jpg"
+    },
+    {
+      "id_livre": 2221,
+      "titre": "Batman",
+      "isbn": "9782365773478",
+      "couverture": "livres/couvertures-20261030/9782365773478.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/478/9782365773478_1_75.jpg"
+    },
+    {
+      "id_livre": 2222,
+      "titre": "Sailor Moon, tome 1",
+      "isbn": "9782723418539",
+      "couverture": "livres/couvertures-20261030/9782723418539.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/539/9782723418539_1_75.jpg"
+    },
+    {
+      "id_livre": 2223,
+      "titre": "Super Chien",
+      "isbn": "9781443155014",
+      "couverture": "livres/couvertures-20261030/9781443155014.jpg",
+      "type": "originale",
+      "source": "https://covers.openlibrary.org/b/id/12818414-L.jpg"
+    },
+    {
+      "id_livre": 2224,
+      "titre": "Poucette",
+      "isbn": "9782081602540",
+      "couverture": "livres/couvertures-20261030/9782081602540.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/540/9782081602540_1_75.jpg"
+    },
+    {
+      "id_livre": 2225,
+      "titre": "Le Ciel Lui Tombe sur la Tête",
+      "isbn": "9782864971702",
+      "couverture": "livres/couvertures-20261030/9782864971702.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/702/9782864971702_1_75.jpg"
+    },
+    {
+      "id_livre": 2226,
+      "titre": "La vallée de la peur",
+      "isbn": "9782253010449",
+      "couverture": "livres/couvertures-20261030/9782253010449.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/449/9782253010449_1_75.jpg"
+    },
+    {
+      "id_livre": 2227,
+      "titre": "Chronique d'une mort annoncée",
+      "isbn": "9782246267416",
+      "couverture": "livres/couvertures-20261030/9782246267416.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/416/9782246267416_1_75.jpg"
+    },
+    {
+      "id_livre": 2228,
+      "titre": "La guerre des clans t.6 ; une sombre prophétie",
+      "isbn": "9782266176989",
+      "couverture": "livres/couvertures-20261030/9782266176989.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/989/9782266176989_1_75.jpg"
+    },
+    {
+      "id_livre": 2229,
+      "titre": "Oh, un oiseau sur ta tête!",
+      "isbn": "9782848014265",
+      "couverture": "livres/couvertures-20261030/9782848014265.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/265/9782848014265_1_75.jpg"
+    },
+    {
+      "id_livre": 2230,
+      "titre": "Manifeste du parti communiste",
+      "isbn": "9782253014911",
+      "couverture": "livres/couvertures-20261030/9782253014911.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/911/9782253014911_1_75.jpg"
+    },
+    {
+      "id_livre": 2231,
+      "titre": "Hommage à la Catalogne",
+      "isbn": "9782264030382",
+      "couverture": "livres/couvertures-20261030/9782264030382.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/382/9782264030382_1_75.jpg"
+    },
+    {
+      "id_livre": 2232,
+      "titre": "Walden",
+      "isbn": "9782351785935",
+      "couverture": "livres/couvertures-20261030/9782351785935.jpg",
+      "type": "originale",
+      "source": "https://covers.openlibrary.org/b/id/10582002-L.jpg"
+    },
+    {
+      "id_livre": 2233,
+      "titre": "Biologie",
+      "isbn": "9782761306539",
+      "couverture": "livres/couvertures-20261030/9782761306539.jpg",
+      "type": "originale",
+      "source": "https://covers.openlibrary.org/b/id/9483070-L.jpg"
+    },
+    {
+      "id_livre": 2234,
+      "titre": "L' investisseur intelligent",
+      "isbn": "9782909356006",
+      "couverture": "livres/couvertures-20261030/9782909356006.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/006/9782909356006_1_75.jpg"
+    },
+    {
+      "id_livre": 2235,
+      "titre": "Ma cuisine",
+      "isbn": "9782082000185",
+      "couverture": "livres/couvertures-20261030/9782082000185.jpg",
+      "type": "originale",
+      "source": "https://covers.openlibrary.org/b/id/7119791-L.jpg"
+    },
+    {
+      "id_livre": 2236,
+      "titre": "JavaScript",
+      "isbn": "9782841772124",
+      "couverture": "livres/couvertures-20261030/9782841772124.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/124/9782841772124_1_75.jpg"
+    },
+    {
+      "id_livre": 2237,
+      "titre": "L'Ecole Des Femmes",
+      "isbn": "9782081479241",
+      "couverture": "livres/couvertures-20261030/9782081479241.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/241/9782081479241_1_75.jpg"
+    },
+    {
+      "id_livre": 2238,
+      "titre": "La roue du temps, l'invasion des tenebres 1",
+      "isbn": "9782266073998",
+      "couverture": "livres/couvertures-20261030/9782266073998.jpg",
+      "type": "originale",
+      "source": "https://covers.openlibrary.org/b/id/14857524-L.jpg"
+    },
+    {
+      "id_livre": 2239,
+      "titre": "Naruto t.33",
+      "isbn": "9782505002420",
+      "couverture": "livres/couvertures-20261030/9782505002420.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/420/9782505002420_1_75.jpg"
+    },
+    {
+      "id_livre": 2240,
+      "titre": "Les Mechants",
+      "isbn": "9781443154857",
+      "couverture": "livres/couvertures-20261030/9781443154857.jpg",
+      "type": "originale",
+      "source": "https://covers.openlibrary.org/b/id/11269998-L.jpg"
+    },
+    {
+      "id_livre": 2241,
+      "titre": "Le gardien de la pierre",
+      "isbn": "9781443145398",
+      "couverture": "livres/couvertures-20261030/9781443145398.jpg",
+      "type": "originale",
+      "source": "https://covers.openlibrary.org/b/id/11032381-L.jpg"
+    },
+    {
+      "id_livre": 2242,
+      "titre": "Astérix aux Jeux Olympiques",
+      "isbn": "9782012100121",
+      "couverture": "livres/couvertures-20261030/9782012100121.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/121/9782012100121_1_75.jpg"
+    },
+    {
+      "id_livre": 2243,
+      "titre": "La dernière énigme",
+      "isbn": "9782702440926",
+      "couverture": "livres/couvertures-20261030/9782702440926.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/926/9782702440926_1_75.jpg"
+    },
+    {
+      "id_livre": 2244,
+      "titre": "Voyage au bout de la nuit",
+      "isbn": "9782070360284",
+      "couverture": "livres/couvertures-20261030/9782070360284.jpg",
+      "type": "originale",
+      "source": "https://covers.openlibrary.org/b/id/15253442-L.jpg"
+    },
+    {
+      "id_livre": 2245,
+      "titre": "La Sélection",
+      "isbn": "9782221129289",
+      "couverture": "livres/couvertures-20261030/9782221129289.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/289/9782221129289_1_75.jpg"
+    },
+    {
+      "id_livre": 2246,
+      "titre": "Mon Ami Est Triste",
+      "isbn": "9781443173506",
+      "couverture": "livres/couvertures-20261030/9781443173506.jpg",
+      "type": "originale",
+      "source": "https://covers.openlibrary.org/b/id/15107465-L.jpg"
+    },
+    {
+      "id_livre": 2247,
+      "titre": "Dette",
+      "isbn": "9791020900593",
+      "couverture": "livres/couvertures-20261030/9791020900593.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/593/9791020900593_1_75.jpg"
+    },
+    {
+      "id_livre": 2248,
+      "titre": "Les Intellectuels au Moyen-Age",
+      "isbn": "9782020086912",
+      "couverture": "livres/couvertures-20261030/9782020086912.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/912/9782020086912_1_75.jpg"
+    },
+    {
+      "id_livre": 2249,
+      "titre": "L'homme le plus riche de Babylone",
+      "isbn": "9782892252620",
+      "couverture": "livres/couvertures-20261030/9782892252620.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/620/9782892252620_1_75.jpg"
+    },
+    {
+      "id_livre": 2250,
+      "titre": "L'univers expliqué aux gens pressés",
+      "isbn": "9782081481367",
+      "couverture": "livres/couvertures-20261030/9782081481367.jpg",
+      "type": "originale",
+      "source": "https://covers.openlibrary.org/b/id/15229641-L.jpg"
+    },
+    {
+      "id_livre": 2251,
+      "titre": "Le Livre du thé",
+      "isbn": "9782877302715",
+      "couverture": "livres/couvertures-20261030/9782877302715.jpg",
+      "type": "originale",
+      "source": "https://covers.openlibrary.org/b/id/3155458-L.jpg"
+    },
+    {
+      "id_livre": 2252,
+      "titre": "Sql",
+      "isbn": "9782844273765",
+      "couverture": "livres/couvertures-20261030/9782844273765.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/765/9782844273765_1_75.jpg"
+    },
+    {
+      "id_livre": 2253,
+      "titre": "Dom Juan",
+      "isbn": "9782038716627",
+      "couverture": "livres/couvertures-20261030/9782038716627.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/627/9782038716627_1_75.jpg"
+    },
+    {
+      "id_livre": 2254,
+      "titre": "Le Silmarillion",
+      "isbn": "9782267044706",
+      "couverture": "livres/couvertures-20261030/9782267044706.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/706/9782267044706_1_75.jpg"
+    },
+    {
+      "id_livre": 2255,
+      "titre": "Death Note - Tome 2",
+      "isbn": "9782505000426",
+      "couverture": "livres/couvertures-20261030/9782505000426.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/426/9782505000426_1_75.jpg"
+    },
+    {
+      "id_livre": 2256,
+      "titre": "Déchaîné",
+      "isbn": "9781443159234",
+      "couverture": "livres/couvertures-20261030/9781443159234.jpg",
+      "type": "originale",
+      "source": "https://covers.openlibrary.org/b/id/15106939-L.jpg"
+    },
+    {
+      "id_livre": 2257,
+      "titre": "Roller Girl",
+      "isbn": "9791032400876",
+      "couverture": "livres/couvertures-20261030/9791032400876.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/876/9791032400876_1_75.jpg"
+    },
+    {
+      "id_livre": 2258,
+      "titre": "Voyage au centre de la terre",
+      "isbn": "9782013211451",
+      "couverture": "livres/couvertures-20261030/9782013211451.jpg",
+      "type": "originale",
+      "source": "https://covers.openlibrary.org/b/id/14615000-L.jpg"
+    },
+    {
+      "id_livre": 2259,
+      "titre": "Les Quatre",
+      "isbn": "9782702400609",
+      "couverture": "livres/couvertures-20261030/9782702400609.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/609/9782702400609_1_75.jpg"
+    },
+    {
+      "id_livre": 2260,
+      "titre": "L' amant",
+      "isbn": "9782707306951",
+      "couverture": "livres/couvertures-20261030/9782707306951.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/951/9782707306951_1_75.jpg"
+    },
+    {
+      "id_livre": 2261,
+      "titre": "Qui es-tu Alaska?",
+      "isbn": "9782070662555",
+      "couverture": "livres/couvertures-20261030/9782070662555.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/555/9782070662555_1_75.jpg"
+    },
+    {
+      "id_livre": 2262,
+      "titre": "La nuit de Noël",
+      "isbn": "9782013920025",
+      "couverture": "livres/couvertures-20261030/9782013920025.jpg",
+      "type": "originale",
+      "source": "https://covers.openlibrary.org/b/id/10640247-L.jpg"
+    },
+    {
+      "id_livre": 2263,
+      "titre": "De l'Inegalite Parmi les Societes",
+      "isbn": "9782070347506",
+      "couverture": "livres/couvertures-20261030/9782070347506.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/506/9782070347506_1_75.jpg"
+    },
+    {
+      "id_livre": 2264,
+      "titre": "Saint Louis",
+      "isbn": "9782070733699",
+      "couverture": "livres/couvertures-20261030/9782070733699.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/699/9782070733699_1_75.jpg"
+    },
+    {
+      "id_livre": 2265,
+      "titre": "Qui Va Pleurer - Quand Vous Mourrez?",
+      "isbn": "9782892254549",
+      "couverture": "livres/couvertures-20261030/9782892254549.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/549/9782892254549_1_75.jpg"
+    },
+    {
+      "id_livre": 2266,
+      "titre": "Patience dans l'azur",
+      "isbn": "9782020059244",
+      "couverture": "livres/couvertures-20261030/9782020059244.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/244/9782020059244_1_75.jpg"
+    },
+    {
+      "id_livre": 2267,
+      "titre": "Physiologie du goût",
+      "isbn": "9782705657796",
+      "couverture": "livres/couvertures-20261030/9782705657796.jpg",
+      "type": "originale",
+      "source": "https://covers.openlibrary.org/b/id/5813376-L.jpg"
+    },
+    {
+      "id_livre": 2268,
+      "titre": "Python",
+      "isbn": "9782841771608",
+      "couverture": "livres/couvertures-20261030/9782841771608.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/608/9782841771608_1_75.jpg"
+    },
+    {
+      "id_livre": 2269,
+      "titre": "Misanthrope",
+      "isbn": "9782035832009",
+      "couverture": "livres/couvertures-20261030/9782035832009.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/009/9782035832009_1_75.jpg"
+    },
+    {
+      "id_livre": 2270,
+      "titre": "La Première Leçon du Sorcier",
+      "isbn": "9782914370332",
+      "couverture": "livres/couvertures-20261030/9782914370332.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/332/9782914370332_1_75.jpg"
+    },
+    {
+      "id_livre": 2271,
+      "titre": "Fairy Tail, tome 1",
+      "isbn": "9782845999145",
+      "couverture": "livres/couvertures-20261030/9782845999145.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/145/9782845999145_1_75.jpg"
+    },
+    {
+      "id_livre": 2272,
+      "titre": "Blankets",
+      "isbn": "9782203396081",
+      "couverture": "livres/couvertures-20261030/9782203396081.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/081/9782203396081_1_75.jpg"
+    },
+    {
+      "id_livre": 2273,
+      "titre": "Le Magicien d'Oz",
+      "isbn": "9782277216520",
+      "couverture": "livres/couvertures-20261030/9782277216520.jpg",
+      "type": "originale",
+      "source": "https://covers.openlibrary.org/b/id/981246-L.jpg"
+    },
+    {
+      "id_livre": 2274,
+      "titre": "Les Bouts de bois de Dieu",
+      "isbn": "9782266131087",
+      "couverture": "livres/couvertures-20261030/9782266131087.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/087/9782266131087_1_75.jpg"
+    },
+    {
+      "id_livre": 2275,
+      "titre": "Les enquêtes d'Hercule Poirot",
+      "isbn": "9782702400425",
+      "couverture": "livres/couvertures-20261030/9782702400425.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/425/9782702400425_1_75.jpg"
+    },
+    {
+      "id_livre": 2276,
+      "titre": "Au bonheur des ogres",
+      "isbn": "9782070380596",
+      "couverture": "livres/couvertures-20261030/9782070380596.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/596/9782070380596_1_75.jpg"
+    },
+    {
+      "id_livre": 2277,
+      "titre": "Divergente 2",
+      "isbn": "9782092552995",
+      "couverture": "livres/couvertures-20261030/9782092552995.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/995/9782092552995_1_75.jpg"
+    },
+    {
+      "id_livre": 2278,
+      "titre": "Cuisine de nuit",
+      "isbn": "9782211018807",
+      "couverture": "livres/couvertures-20261030/9782211018807.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/807/9782211018807_1_75.jpg"
+    },
+    {
+      "id_livre": 2279,
+      "titre": "21 Leçons pour le XXIème siècle",
+      "isbn": "9782226436030",
+      "couverture": "livres/couvertures-20261030/9782226436030.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/030/9782226436030_1_75.jpg"
+    },
+    {
+      "id_livre": 2280,
+      "titre": "La civilisation de l'occident médiéval",
+      "isbn": "9782700304589",
+      "couverture": "livres/couvertures-20261030/9782700304589.jpg",
+      "type": "originale",
+      "source": "https://covers.openlibrary.org/b/id/11005621-L.jpg"
+    },
+    {
+      "id_livre": 2281,
+      "titre": "Passages",
+      "isbn": "9782714411198",
+      "couverture": "livres/couvertures-20261030/9782714411198.jpg",
+      "type": "originale",
+      "source": "https://covers.openlibrary.org/b/id/11692740-L.jpg"
+    },
+    {
+      "id_livre": 2282,
+      "titre": "Malicorne",
+      "isbn": "9782020126441",
+      "couverture": "livres/couvertures-20261030/9782020126441.jpg",
+      "type": "originale",
+      "source": "https://covers.openlibrary.org/b/id/2133450-L.jpg"
+    },
+    {
+      "id_livre": 2283,
+      "titre": "Grand livre de cuisine d'Alain Ducasse.",
+      "isbn": "9782951647350",
+      "couverture": "livres/couvertures-20261030/9782951647350.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/350/9782951647350_1_75.jpg"
+    },
+    {
+      "id_livre": 2284,
+      "titre": "Exercices en langage C",
+      "isbn": "9782212089844",
+      "couverture": "livres/couvertures-20261030/9782212089844.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/844/9782212089844_1_75.jpg"
+    },
+    {
+      "id_livre": 2285,
+      "titre": "Les Precieuses Ridicules",
+      "isbn": "9782040281656",
+      "couverture": "livres/couvertures-20261030/9782040281656.jpg",
+      "type": "originale",
+      "source": "https://covers.openlibrary.org/b/id/965334-L.jpg"
+    },
+    {
+      "id_livre": 2286,
+      "titre": "Bilbo le Hobbit",
+      "isbn": "9782253177104",
+      "couverture": "livres/couvertures-20261030/9782253177104.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/104/9782253177104_1_75.jpg"
+    },
+    {
+      "id_livre": 2287,
+      "titre": "Hunter X Hunter, tome 1",
+      "isbn": "9782871292661",
+      "couverture": "livres/couvertures-20261030/9782871292661.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/661/9782871292661_1_75.jpg"
+    },
+    {
+      "id_livre": 2288,
+      "titre": "La terre chinoise",
+      "isbn": "9782253005506",
+      "couverture": "livres/couvertures-20261030/9782253005506.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/506/9782253005506_1_75.jpg"
+    },
+    {
+      "id_livre": 2289,
+      "titre": "Journal d'un dégonflé, Tome 10",
+      "isbn": "9791023507997",
+      "couverture": "livres/couvertures-20261030/9791023507997.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/997/9791023507997_1_75.jpg"
+    },
+    {
+      "id_livre": 2290,
+      "titre": "L'île mystérieuse",
+      "isbn": "9782013214629",
+      "couverture": "livres/couvertures-20261030/9782013214629.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/629/9782013214629_1_75.jpg"
+    },
+    {
+      "id_livre": 2291,
+      "titre": "Destination inconnue",
+      "isbn": "9782702400098",
+      "couverture": "livres/couvertures-20261030/9782702400098.jpg",
+      "type": "originale",
+      "source": "https://covers.openlibrary.org/b/id/10747880-L.jpg"
+    },
+    {
+      "id_livre": 2292,
+      "titre": "Soumission",
+      "isbn": "9782290113615",
+      "couverture": "livres/couvertures-20261030/9782290113615.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/615/9782290113615_1_75.jpg"
+    },
+    {
+      "id_livre": 2293,
+      "titre": "Le monde de Charlie",
+      "isbn": "9782848655796",
+      "couverture": "livres/couvertures-20261030/9782848655796.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/796/9782848655796_1_75.jpg"
+    },
+    {
+      "id_livre": 2294,
+      "titre": "Les fées de la fête - tome 1 Margaux, la fée des gateaux",
+      "isbn": "9782266167765",
+      "couverture": "livres/couvertures-20261030/9782266167765.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/765/9782266167765_1_75.jpg"
+    },
+    {
+      "id_livre": 2295,
+      "titre": "Les empereurs du fast-food",
+      "isbn": "9782746703056",
+      "couverture": "livres/couvertures-20261030/9782746703056.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/056/9782746703056_1_75.jpg"
+    },
+    {
+      "id_livre": 2296,
+      "titre": "La naissance du Purgatoire",
+      "isbn": "9782070254101",
+      "couverture": "livres/couvertures-20261030/9782070254101.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/101/9782070254101_1_75.jpg"
+    },
+    {
+      "id_livre": 2297,
+      "titre": "Etre soi-même",
+      "isbn": "9782761900256",
+      "couverture": "livres/couvertures-20261030/9782761900256.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/256/9782761900256_1_75.jpg"
+    },
+    {
+      "id_livre": 2298,
+      "titre": "Je n'aurai pas le temps",
+      "isbn": "9782020974943",
+      "couverture": "livres/couvertures-20261030/9782020974943.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/943/9782020974943_1_75.jpg"
+    },
+    {
+      "id_livre": 2299,
+      "titre": "Rencontres savoureuses",
+      "isbn": "9782259191050",
+      "couverture": "livres/couvertures-20261030/9782259191050.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/050/9782259191050_1_75.jpg"
+    },
+    {
+      "id_livre": 2300,
+      "titre": "Langage C",
+      "isbn": "9782212111231",
+      "couverture": "livres/couvertures-20261030/9782212111231.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/231/9782212111231_1_75.jpg"
+    },
+    {
+      "id_livre": 2301,
+      "titre": "Le Tartuffe",
+      "isbn": "9782010172229",
+      "couverture": "livres/couvertures-20261030/9782010172229.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/229/9782010172229_1_75.jpg"
+    },
+    {
+      "id_livre": 2302,
+      "titre": "Les Petits Dieux",
+      "isbn": "9782841727612",
+      "couverture": "livres/couvertures-20261030/9782841727612.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/612/9782841727612_1_75.jpg"
+    },
+    {
+      "id_livre": 2303,
+      "titre": "Death Note - Tome 3",
+      "isbn": "9782505000792",
+      "couverture": "livres/couvertures-20261030/9782505000792.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/792/9782505000792_1_75.jpg"
+    },
+    {
+      "id_livre": 2304,
+      "titre": "Le tour de Gaule d'Astérix",
+      "isbn": "9782012101371",
+      "couverture": "livres/couvertures-20261030/9782012101371.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/371/9782012101371_1_75.jpg"
+    },
+    {
+      "id_livre": 2305,
+      "titre": "Carnet de Bord de Greg Heffley",
+      "isbn": "9782021011968",
+      "couverture": "livres/couvertures-20261030/9782021011968.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/968/9782021011968_1_75.jpg"
+    },
+    {
+      "id_livre": 2306,
+      "titre": "Frankenstein ou le moderne Prométhée",
+      "isbn": "9782266053372",
+      "couverture": "livres/couvertures-20261030/9782266053372.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/372/9782266053372_1_75.jpg"
+    },
+    {
+      "id_livre": 2307,
+      "titre": "Les sept cadrans",
+      "isbn": "9782702421260",
+      "couverture": "livres/couvertures-20261030/9782702421260.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/260/9782702421260_1_75.jpg"
+    },
+    {
+      "id_livre": 2308,
+      "titre": "Gouverneurs de la rosée",
+      "isbn": "9782923153216",
+      "couverture": "livres/couvertures-20261030/9782923153216.jpg",
+      "type": "originale",
+      "source": "https://covers.openlibrary.org/b/id/13828954-L.jpg"
+    },
+    {
+      "id_livre": 2309,
+      "titre": "Tentation",
+      "isbn": "9782013223409",
+      "couverture": "livres/couvertures-20261030/9782013223409.jpg",
+      "type": "originale",
+      "source": "https://covers.openlibrary.org/b/id/15171428-L.jpg"
+    },
+    {
+      "id_livre": 2310,
+      "titre": "Vivre et revivre",
+      "isbn": "9782221100370",
+      "couverture": "livres/couvertures-20261030/9782221100370.jpg",
+      "type": "originale",
+      "source": "https://covers.openlibrary.org/b/id/10379494-L.jpg"
+    },
+    {
+      "id_livre": 2311,
+      "titre": "L' imaginaire médiéval",
+      "isbn": "9782070703869",
+      "couverture": "livres/couvertures-20261030/9782070703869.jpg",
+      "type": "originale",
+      "source": "https://covers.openlibrary.org/b/id/9870611-L.jpg"
+    },
+    {
+      "id_livre": 2312,
+      "titre": "Cessez d'être gentil soyez vrai! Etre avec les autres en restant soi-meme",
+      "isbn": "9782761915960",
+      "couverture": "livres/couvertures-20261030/9782761915960.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/960/9782761915960_1_75.jpg"
+    },
+    {
+      "id_livre": 2313,
+      "titre": "Oiseaux, merveilleux oiseaux",
+      "isbn": "9782020612494",
+      "couverture": "livres/couvertures-20261030/9782020612494.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/494/9782020612494_1_75.jpg"
+    },
+    {
+      "id_livre": 2314,
+      "titre": "Cuisine bon marché",
+      "isbn": "9782841235452",
+      "couverture": "livres/couvertures-20261030/9782841235452.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/452/9782841235452_1_75.jpg"
+    },
+    {
+      "id_livre": 2315,
+      "titre": "Programmer en langage C++",
+      "isbn": "9782212087741",
+      "couverture": "livres/couvertures-20261030/9782212087741.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/741/9782212087741_1_75.jpg"
+    },
+    {
+      "id_livre": 2316,
+      "titre": "George Dandin",
+      "isbn": "9782038717273",
+      "couverture": "livres/couvertures-20261030/9782038717273.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/273/9782038717273_1_75.jpg"
+    },
+    {
+      "id_livre": 2317,
+      "titre": "Phantastes",
+      "isbn": "9781090256225",
+      "couverture": "livres/couvertures-20261030/9781090256225.jpg",
+      "type": "originale",
+      "source": "https://covers.openlibrary.org/b/id/15098566-L.jpg"
+    },
+    {
+      "id_livre": 2318,
+      "titre": "One Piece, tome 2",
+      "isbn": "9782723434317",
+      "couverture": "livres/couvertures-20261030/9782723434317.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/317/9782723434317_1_75.jpg"
+    },
+    {
+      "id_livre": 2319,
+      "titre": "Rougemuraille",
+      "isbn": "9782740414828",
+      "couverture": "livres/couvertures-20261030/9782740414828.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/828/9782740414828_1_75.jpg"
+    },
+    {
+      "id_livre": 2320,
+      "titre": "La maison aux pignons verts",
+      "isbn": "9782890377448",
+      "couverture": "livres/couvertures-20261030/9782890377448.jpg",
+      "type": "originale",
+      "source": "https://covers.openlibrary.org/b/id/14639031-L.jpg"
+    },
+    {
+      "id_livre": 2321,
+      "titre": "L'Homme invisible",
+      "isbn": "9782013220729",
+      "couverture": "livres/couvertures-20261030/9782013220729.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/729/9782013220729_1_75.jpg"
+    },
+    {
+      "id_livre": 2322,
+      "titre": "L'homme au complet marron",
+      "isbn": "9782253024231",
+      "couverture": "livres/couvertures-20261030/9782253024231.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/231/9782253024231_1_75.jpg"
+    },
+    {
+      "id_livre": 2323,
+      "titre": "Cahiers Albert Camus, tome 1",
+      "isbn": "9782070277896",
+      "couverture": "livres/couvertures-20261030/9782070277896.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/896/9782070277896_1_75.jpg"
+    },
+    {
+      "id_livre": 2324,
+      "titre": "Les royaumes du nord",
+      "isbn": "9782070348190",
+      "couverture": "livres/couvertures-20261030/9782070348190.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/190/9782070348190_1_75.jpg"
+    },
+    {
+      "id_livre": 2325,
+      "titre": "Tao Te King",
+      "isbn": "9782220035529",
+      "couverture": "livres/couvertures-20261030/9782220035529.jpg",
+      "type": "originale",
+      "source": "https://covers.openlibrary.org/b/id/2146521-L.jpg"
+    },
+    {
+      "id_livre": 2326,
+      "titre": "L' Europe est-elle née au moyen âge",
+      "isbn": "9782020563413",
+      "couverture": "livres/couvertures-20261030/9782020563413.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/413/9782020563413_1_75.jpg"
+    },
+    {
+      "id_livre": 2327,
+      "titre": "Autobiographie d'un Yogi",
+      "isbn": "9780876121979",
+      "couverture": "livres/couvertures-20261030/9780876121979.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/979/9780876121979_1_75.jpg"
+    },
+    {
+      "id_livre": 2328,
+      "titre": "L' espace prend la forme de mon regard",
+      "isbn": "9782910796020",
+      "couverture": "livres/couvertures-20261030/9782910796020.jpg",
+      "type": "originale",
+      "source": "https://covers.openlibrary.org/b/id/11323126-L.jpg"
+    },
+    {
+      "id_livre": 2329,
+      "titre": "J'aime Londres",
+      "isbn": "9782841236893",
+      "couverture": "livres/couvertures-20261030/9782841236893.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/893/9782841236893_1_75.jpg"
+    },
+    {
+      "id_livre": 2330,
+      "titre": "Programmer en Java",
+      "isbn": "9782212111194",
+      "couverture": "livres/couvertures-20261030/9782212111194.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/194/9782212111194_1_75.jpg"
+    },
+    {
+      "id_livre": 2331,
+      "titre": "L'alliage de la justice",
+      "isbn": "9782360510504",
+      "couverture": "livres/couvertures-20261030/9782360510504.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/504/9782360510504_1_75.jpg"
+    },
+    {
+      "id_livre": 2332,
+      "titre": "L’art invisible",
+      "isbn": "9782908981414",
+      "couverture": "livres/couvertures-20261030/9782908981414.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/414/9782908981414_1_75.jpg"
+    },
+    {
+      "id_livre": 2333,
+      "titre": "Moi, ce que j'aime, c'est les monstres - Livre premier",
+      "isbn": "9791090724471",
+      "couverture": "livres/couvertures-20261030/9791090724471.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/471/9791090724471_1_75.jpg"
+    },
+    {
+      "id_livre": 2334,
+      "titre": "Les animaux fantastiques : Vie & habitat",
+      "isbn": "9782075085151",
+      "couverture": "livres/couvertures-20261030/9782075085151.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/151/9782075085151_1_75.jpg"
+    },
+    {
+      "id_livre": 2335,
+      "titre": "La machine a explorer le temps",
+      "isbn": "9782070336142",
+      "couverture": "livres/couvertures-20261030/9782070336142.jpg",
+      "type": "originale",
+      "source": "https://covers.openlibrary.org/b/id/15257498-L.jpg"
+    },
+    {
+      "id_livre": 2336,
+      "titre": "Cette nuit-la",
+      "isbn": "9782762532098",
+      "couverture": "livres/couvertures-20261030/9782762532098.jpg",
+      "type": "originale",
+      "source": "https://covers.openlibrary.org/b/id/10738411-L.jpg"
+    },
+    {
+      "id_livre": 2337,
+      "titre": "Murphy",
+      "isbn": "9782707302700",
+      "couverture": "livres/couvertures-20261030/9782707302700.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/700/9782707302700_1_75.jpg"
+    },
+    {
+      "id_livre": 2338,
+      "titre": "La guerre des clans",
+      "isbn": "9782266206426",
+      "couverture": "livres/couvertures-20261030/9782266206426.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/426/9782266206426_1_75.jpg"
+    },
+    {
+      "id_livre": 2339,
+      "titre": "Ainsi parlait Zarathoustra",
+      "isbn": "9782743411374",
+      "couverture": "livres/couvertures-20261030/9782743411374.jpg",
+      "type": "originale",
+      "source": "https://covers.openlibrary.org/b/id/15173757-L.jpg"
+    },
+    {
+      "id_livre": 2340,
+      "titre": "Dames du XIIe siècle",
+      "isbn": "9782070741847",
+      "couverture": "livres/couvertures-20261030/9782070741847.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/847/9782070741847_1_75.jpg"
+    },
+    {
+      "id_livre": 2341,
+      "titre": "Pouvoir illimité",
+      "isbn": "9782221053164",
+      "couverture": "livres/couvertures-20261030/9782221053164.jpg",
+      "type": "originale",
+      "source": "https://covers.openlibrary.org/b/id/11500140-L.jpg"
+    },
+    {
+      "id_livre": 2342,
+      "titre": "Dernières nouvelles du cosmos",
+      "isbn": "9782020205719",
+      "couverture": "livres/couvertures-20261030/9782020205719.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/719/9782020205719_1_75.jpg"
+    },
+    {
+      "id_livre": 2343,
+      "titre": "La Bonne cuisine",
+      "isbn": "9782501037136",
+      "couverture": "livres/couvertures-20261030/9782501037136.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/136/9782501037136_1_75.jpg"
+    },
+    {
+      "id_livre": 2344,
+      "titre": "Exercices en Java",
+      "isbn": "9782212092660",
+      "couverture": "livres/couvertures-20261030/9782212092660.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/660/9782212092660_1_75.jpg"
+    },
+    {
+      "id_livre": 2345,
+      "titre": "Le Trône de fer",
+      "isbn": "9782756402154",
+      "couverture": "livres/couvertures-20261030/9782756402154.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/154/9782756402154_1_75.jpg"
+    },
+    {
+      "id_livre": 2346,
+      "titre": "DEATH NOTE BLACK EDITION - Tome 1",
+      "isbn": "9782505009054",
+      "couverture": "livres/couvertures-20261030/9782505009054.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/054/9782505009054_1_75.jpg"
+    },
+    {
+      "id_livre": 2347,
+      "titre": "Calvin et Hobbes, tome 17",
+      "isbn": "9782258047785",
+      "couverture": "livres/couvertures-20261030/9782258047785.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/785/9782258047785_1_75.jpg"
+    },
+    {
+      "id_livre": 2348,
+      "titre": "Le Doigt magique",
+      "isbn": "9782070517848",
+      "couverture": "livres/couvertures-20261030/9782070517848.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/848/9782070517848_1_75.jpg"
+    },
+    {
+      "id_livre": 2349,
+      "titre": "Gatsby",
+      "isbn": "9782266217255",
+      "couverture": "livres/couvertures-20261030/9782266217255.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/255/9782266217255_1_75.jpg"
+    },
+    {
+      "id_livre": 2350,
+      "titre": "Le Bal de la mort",
+      "isbn": "9782290149003",
+      "couverture": "livres/couvertures-20261030/9782290149003.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/003/9782290149003_1_75.jpg"
+    },
+    {
+      "id_livre": 2351,
+      "titre": "Notre-dame des fleurs",
+      "isbn": "9782070751471",
+      "couverture": "livres/couvertures-20261030/9782070751471.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/471/9782070751471_1_75.jpg"
+    },
+    {
+      "id_livre": 2352,
+      "titre": "L'antéchrist",
+      "isbn": "9782070325573",
+      "couverture": "livres/couvertures-20261030/9782070325573.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/573/9782070325573_1_75.jpg"
+    },
+    {
+      "id_livre": 2353,
+      "titre": "Histoire des femmes en occident",
+      "isbn": "9782259023269",
+      "couverture": "livres/couvertures-20261030/9782259023269.jpg",
+      "type": "originale",
+      "source": "https://covers.openlibrary.org/b/id/8376607-L.jpg"
+    },
+    {
+      "id_livre": 2354,
+      "titre": "Comment se faire des amis et influencer les autres",
+      "isbn": "9782890895751",
+      "couverture": "livres/couvertures-20261030/9782890895751.jpg",
+      "type": "originale",
+      "source": "https://covers.openlibrary.org/b/id/10741823-L.jpg"
+    },
+    {
+      "id_livre": 2355,
+      "titre": "Poussières d'étoiles",
+      "isbn": "9782020224079",
+      "couverture": "livres/couvertures-20261030/9782020224079.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/079/9782020224079_1_75.jpg"
+    },
+    {
+      "id_livre": 2356,
+      "titre": "Rock'n roll cuisine",
+      "isbn": "9782012358287",
+      "couverture": "livres/couvertures-20261030/9782012358287.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/287/9782012358287_1_75.jpg"
+    },
+    {
+      "id_livre": 2357,
+      "titre": "Le Livre du C premier langage",
+      "isbn": "9782212110524",
+      "couverture": "livres/couvertures-20261030/9782212110524.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/524/9782212110524_1_75.jpg"
+    },
+    {
+      "id_livre": 2358,
+      "titre": "Chant 1 de la Belgariade",
+      "isbn": "9782266033756",
+      "couverture": "livres/couvertures-20261030/9782266033756.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/756/9782266033756_1_75.jpg"
+    },
+    {
+      "id_livre": 2359,
+      "titre": "Death Note - Tome 4",
+      "isbn": "9782505001065",
+      "couverture": "livres/couvertures-20261030/9782505001065.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/065/9782505001065_1_75.jpg"
+    },
+    {
+      "id_livre": 2360,
+      "titre": "La Loterie",
+      "isbn": "9782203097506",
+      "couverture": "livres/couvertures-20261030/9782203097506.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/506/9782203097506_1_75.jpg"
+    },
+    {
+      "id_livre": 2361,
+      "titre": "Les Roses du Mexique",
+      "isbn": "9782742742998",
+      "couverture": "livres/couvertures-20261030/9782742742998.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/998/9782742742998_1_75.jpg"
+    },
+    {
+      "id_livre": 2362,
+      "titre": "Dracula",
+      "isbn": "9782211074384",
+      "couverture": "livres/couvertures-20261030/9782211074384.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/384/9782211074384_1_75.jpg"
+    },
+    {
+      "id_livre": 2363,
+      "titre": "Cinq heures vingt-cinq",
+      "isbn": "9782702423035",
+      "couverture": "livres/couvertures-20261030/9782702423035.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/035/9782702423035_1_75.jpg"
+    },
+    {
+      "id_livre": 2364,
+      "titre": "La femme gelée",
+      "isbn": "9782070378180",
+      "couverture": "livres/couvertures-20261030/9782070378180.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/180/9782070378180_1_75.jpg"
+    },
+    {
+      "id_livre": 2365,
+      "titre": "L'art d'aimer",
+      "isbn": "9782220025315",
+      "couverture": "livres/couvertures-20261030/9782220025315.jpg",
+      "type": "originale",
+      "source": "https://covers.openlibrary.org/b/id/10435830-L.jpg"
+    },
+    {
+      "id_livre": 2366,
+      "titre": "Mâle Moyen Age",
+      "isbn": "9782082111799",
+      "couverture": "livres/couvertures-20261030/9782082111799.jpg",
+      "type": "originale",
+      "source": "https://covers.openlibrary.org/b/id/15208674-L.jpg"
+    },
+    {
+      "id_livre": 2367,
+      "titre": "Imparfaits, libres et heureux",
+      "isbn": "9782738116994",
+      "couverture": "livres/couvertures-20261030/9782738116994.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/994/9782738116994_1_75.jpg"
+    },
+    {
+      "id_livre": 2368,
+      "titre": "Chroniques du ciel et de la vie",
+      "isbn": "9782020800303",
+      "couverture": "livres/couvertures-20261030/9782020800303.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/303/9782020800303_1_75.jpg"
+    },
+    {
+      "id_livre": 2369,
+      "titre": "Apprendre le C++",
+      "isbn": "9782212121353",
+      "couverture": "livres/couvertures-20261030/9782212121353.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/353/9782212121353_1_75.jpg"
+    },
+    {
+      "id_livre": 2370,
+      "titre": "Le Dernier Voeu",
+      "isbn": "9782914370493",
+      "couverture": "livres/couvertures-20261030/9782914370493.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/493/9782914370493_1_75.jpg"
+    },
+    {
+      "id_livre": 2371,
+      "titre": "One Piece, tome 4",
+      "isbn": "9782723434812",
+      "couverture": "livres/couvertures-20261030/9782723434812.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/812/9782723434812_1_75.jpg"
+    },
+    {
+      "id_livre": 2372,
+      "titre": "Le Cadeau de César",
+      "isbn": "9782012100213",
+      "couverture": "livres/couvertures-20261030/9782012100213.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/213/9782012100213_1_75.jpg"
+    },
+    {
+      "id_livre": 2373,
+      "titre": "Le Jardin secret",
+      "isbn": "9782070335596",
+      "couverture": "livres/couvertures-20261030/9782070335596.jpg",
+      "type": "originale",
+      "source": "https://covers.openlibrary.org/b/id/15143374-L.jpg"
+    },
+    {
+      "id_livre": 2374,
+      "titre": "La Lettre Ecarlate",
+      "isbn": "9782080703828",
+      "couverture": "livres/couvertures-20261030/9782080703828.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/828/9782080703828_1_75.jpg"
+    },
+    {
+      "id_livre": 2375,
+      "titre": "La Troisième Fille",
+      "isbn": "9782702442401",
+      "couverture": "livres/couvertures-20261030/9782702442401.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/401/9782702442401_1_75.jpg"
+    },
+    {
+      "id_livre": 2376,
+      "titre": "Le lit défait.",
+      "isbn": "9782277129158",
+      "couverture": "livres/couvertures-20261030/9782277129158.jpg",
+      "type": "originale",
+      "source": "https://covers.openlibrary.org/b/id/15002492-L.jpg"
+    },
+    {
+      "id_livre": 2377,
+      "titre": "Siddhartha",
+      "isbn": "9782253008484",
+      "couverture": "livres/couvertures-20261030/9782253008484.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/484/9782253008484_1_75.jpg"
+    },
+    {
+      "id_livre": 2378,
+      "titre": "Histoire de la civilisation française",
+      "isbn": "9782200310349",
+      "couverture": "livres/couvertures-20261030/9782200310349.jpg",
+      "type": "originale",
+      "source": "https://covers.openlibrary.org/b/id/8375121-L.jpg"
+    },
+    {
+      "id_livre": 2379,
+      "titre": "Méditer, jour après jour",
+      "isbn": "9782913366374",
+      "couverture": "livres/couvertures-20261030/9782913366374.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/374/9782913366374_1_75.jpg"
+    },
+    {
+      "id_livre": 2380,
+      "titre": "L'univers expliqué à mes petits-enfants",
+      "isbn": "9782021038309",
+      "couverture": "livres/couvertures-20261030/9782021038309.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/309/9782021038309_1_75.jpg"
+    },
+    {
+      "id_livre": 2381,
+      "titre": "S'initier à la programmation",
+      "isbn": "9782212850802",
+      "couverture": "livres/couvertures-20261030/9782212850802.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/802/9782212850802_1_75.jpg"
+    },
+    {
+      "id_livre": 2382,
+      "titre": "La trilogie de l'Elfe noir",
+      "isbn": "9782265002142",
+      "couverture": "livres/couvertures-20261030/9782265002142.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/142/9782265002142_1_75.jpg"
+    },
+    {
+      "id_livre": 2383,
+      "titre": "One Piece, tome 3",
+      "isbn": "9782723489904",
+      "couverture": "livres/couvertures-20261030/9782723489904.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/904/9782723489904_1_75.jpg"
+    },
+    {
+      "id_livre": 2384,
+      "titre": "Le Fils d'Astérix",
+      "isbn": "9782864970118",
+      "couverture": "livres/couvertures-20261030/9782864970118.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/118/9782864970118_1_75.jpg"
+    },
+    {
+      "id_livre": 2385,
+      "titre": "Harry Potter et la chambre des secrets",
+      "isbn": "9782070643035",
+      "couverture": "livres/couvertures-20261030/9782070643035.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/035/9782070643035_1_75.jpg"
+    },
+    {
+      "id_livre": 2386,
+      "titre": "La Métamorphose",
+      "isbn": "9782080705105",
+      "couverture": "livres/couvertures-20261030/9782080705105.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/105/9782080705105_1_75.jpg"
+    },
+    {
+      "id_livre": 2387,
+      "titre": "Le meurtre de Roger Ackroyd",
+      "isbn": "9782253006961",
+      "couverture": "livres/couvertures-20261030/9782253006961.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/961/9782253006961_1_75.jpg"
+    },
+    {
+      "id_livre": 2388,
+      "titre": "Les belles images",
+      "isbn": "9782070362431",
+      "couverture": "livres/couvertures-20261030/9782070362431.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/431/9782070362431_1_75.jpg"
+    },
+    {
+      "id_livre": 2389,
+      "titre": "Éthique à Nicomaque",
+      "isbn": "9782080700438",
+      "couverture": "livres/couvertures-20261030/9782080700438.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/438/9782080700438_1_75.jpg"
+    },
+    {
+      "id_livre": 2390,
+      "titre": "L' an mil",
+      "isbn": "9782070288717",
+      "couverture": "livres/couvertures-20261030/9782070288717.jpg",
+      "type": "originale",
+      "source": "https://covers.openlibrary.org/b/id/13299605-L.jpg"
+    },
+    {
+      "id_livre": 2391,
+      "titre": "L'estime de soi",
+      "isbn": "9782738108586",
+      "couverture": "livres/couvertures-20261030/9782738108586.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/586/9782738108586_1_75.jpg"
+    },
+    {
+      "id_livre": 2392,
+      "titre": "Y a t-il un grand architecte dans l'Univers?",
+      "isbn": "9782738131966",
+      "couverture": "livres/couvertures-20261030/9782738131966.jpg",
+      "type": "originale",
+      "source": "https://covers.openlibrary.org/b/id/9326690-L.jpg"
+    },
+    {
+      "id_livre": 2393,
+      "titre": "Programmer en Fortran 90. Guide complet",
+      "isbn": "9782212089820",
+      "couverture": "livres/couvertures-20261030/9782212089820.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/820/9782212089820_1_75.jpg"
+    },
+    {
+      "id_livre": 2394,
+      "titre": "Le cor de Valère",
+      "isbn": "9782743601225",
+      "couverture": "livres/couvertures-20261030/9782743601225.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/225/9782743601225_1_75.jpg"
+    },
+    {
+      "id_livre": 2395,
+      "titre": "Ranma 1/2, tome 33",
+      "isbn": "9782723436311",
+      "couverture": "livres/couvertures-20261030/9782723436311.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/311/9782723436311_1_75.jpg"
+    },
+    {
+      "id_livre": 2396,
+      "titre": "Stormbreaker",
+      "isbn": "9782013971089",
+      "couverture": "livres/couvertures-20261030/9782013971089.jpg",
+      "type": "originale",
+      "source": "https://covers.openlibrary.org/b/id/12930212-L.jpg"
+    },
+    {
+      "id_livre": 2397,
+      "titre": "Wonder",
+      "isbn": "9782266232616",
+      "couverture": "livres/couvertures-20261030/9782266232616.jpg",
+      "type": "originale",
+      "source": "https://covers.openlibrary.org/b/id/8135920-L.jpg"
+    },
+    {
+      "id_livre": 2398,
+      "titre": "Ne tirez pas sur l'oiseau moqueur",
+      "isbn": "9782877065504",
+      "couverture": "livres/couvertures-20261030/9782877065504.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/504/9782877065504_1_75.jpg"
+    },
+    {
+      "id_livre": 2399,
+      "titre": "La mort dans les nuages",
+      "isbn": "9782702436547",
+      "couverture": "livres/couvertures-20261030/9782702436547.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/547/9782702436547_1_75.jpg"
+    },
+    {
+      "id_livre": 2400,
+      "titre": "Extension du domaine de la lutte",
+      "isbn": "9782862311241",
+      "couverture": "livres/couvertures-20261030/9782862311241.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/241/9782862311241_1_75.jpg"
+    },
+    {
+      "id_livre": 2401,
+      "titre": "La Structure des révolutions scientifiques",
+      "isbn": "9782080811158",
+      "couverture": "livres/couvertures-20261030/9782080811158.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/158/9782080811158_1_75.jpg"
+    },
+    {
+      "id_livre": 2402,
+      "titre": "Adolescence de la chrétienté occidentale, 980-1140",
+      "isbn": "9782605000319",
+      "couverture": "livres/couvertures-20261030/9782605000319.jpg",
+      "type": "originale",
+      "source": "https://covers.openlibrary.org/b/id/11404313-L.jpg"
+    },
+    {
+      "id_livre": 2403,
+      "titre": "La peur des autres",
+      "isbn": "9782738103055",
+      "couverture": "livres/couvertures-20261030/9782738103055.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/055/9782738103055_1_75.jpg"
+    },
+    {
+      "id_livre": 2404,
+      "titre": "La nature de l'espace et du temps",
+      "isbn": "9782070744657",
+      "couverture": "livres/couvertures-20261030/9782070744657.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/657/9782070744657_1_75.jpg"
+    },
+    {
+      "id_livre": 2405,
+      "titre": "Programmer en Turbo Pascal 7",
+      "isbn": "9782212089868",
+      "couverture": "livres/couvertures-20261030/9782212089868.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/868/9782212089868_1_75.jpg"
+    },
+    {
+      "id_livre": 2406,
+      "titre": "Iron Flame",
+      "isbn": "9782755681505",
+      "couverture": "livres/couvertures-20261030/9782755681505.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/505/9782755681505_1_75.jpg"
+    },
+    {
+      "id_livre": 2407,
+      "titre": "Orange",
+      "isbn": "9782369740315",
+      "couverture": "livres/couvertures-20261030/9782369740315.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/315/9782369740315_1_75.jpg"
+    },
+    {
+      "id_livre": 2408,
+      "titre": "Drame",
+      "isbn": "9781443125222",
+      "couverture": "livres/couvertures-20261030/9781443125222.jpg",
+      "type": "originale",
+      "source": "https://covers.openlibrary.org/b/id/11622356-L.jpg"
+    },
+    {
+      "id_livre": 2409,
+      "titre": "Coraline",
+      "isbn": "9782226453587",
+      "couverture": "livres/couvertures-20261030/9782226453587.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/587/9782226453587_1_75.jpg"
+    },
+    {
+      "id_livre": 2410,
+      "titre": "Emma",
+      "isbn": "9782352871224",
+      "couverture": "livres/couvertures-20261030/9782352871224.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/224/9782352871224_1_75.jpg"
+    },
+    {
+      "id_livre": 2411,
+      "titre": "Rendez-vous avec la mort",
+      "isbn": "9782253039945",
+      "couverture": "livres/couvertures-20261030/9782253039945.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/945/9782253039945_1_75.jpg"
+    },
+    {
+      "id_livre": 2412,
+      "titre": "Une espionne dans la maison de l'amour",
+      "isbn": "9782234055421",
+      "couverture": "livres/couvertures-20261030/9782234055421.jpg",
+      "type": "originale",
+      "source": "https://covers.openlibrary.org/b/id/3102218-L.jpg"
+    },
+    {
+      "id_livre": 2413,
+      "titre": "Les Identités meurtrières",
+      "isbn": "9782253150053",
+      "couverture": "livres/couvertures-20261030/9782253150053.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/053/9782253150053_1_75.jpg"
+    },
+    {
+      "id_livre": 2414,
+      "titre": "Les croisades vues par les Arabes",
+      "isbn": "9782709602068",
+      "couverture": "livres/couvertures-20261030/9782709602068.jpg",
+      "type": "originale",
+      "source": "https://covers.openlibrary.org/b/id/10779096-L.jpg"
+    },
+    {
+      "id_livre": 2415,
+      "titre": "Trois amis en quête de sagesse",
+      "isbn": "9791095438014",
+      "couverture": "livres/couvertures-20261030/9791095438014.jpg",
+      "type": "originale",
+      "source": "https://covers.openlibrary.org/b/id/12661575-L.jpg"
+    },
+    {
+      "id_livre": 2416,
+      "titre": "La brève histoire de ma vie",
+      "isbn": "9782081330542",
+      "couverture": "livres/couvertures-20261030/9782081330542.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/542/9782081330542_1_75.jpg"
+    },
+    {
+      "id_livre": 2417,
+      "titre": "Mortimer",
+      "isbn": "9782841726912",
+      "couverture": "livres/couvertures-20261030/9782841726912.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/912/9782841726912_1_75.jpg"
+    },
+    {
+      "id_livre": 2418,
+      "titre": "Sailor Moon, Tome 2",
+      "isbn": "9782811607142",
+      "couverture": "livres/couvertures-20261030/9782811607142.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/142/9782811607142_1_75.jpg"
+    },
+    {
+      "id_livre": 2419,
+      "titre": "Astérix Gladiateur",
+      "isbn": "9782012101364",
+      "couverture": "livres/couvertures-20261030/9782012101364.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/364/9782012101364_1_75.jpg"
+    },
+    {
+      "id_livre": 2420,
+      "titre": "Nés sous une mauvaise étoile",
+      "isbn": "9782762517729",
+      "couverture": "livres/couvertures-20261030/9782762517729.jpg",
+      "type": "originale",
+      "source": "https://covers.openlibrary.org/b/id/14658202-L.jpg"
+    },
+    {
+      "id_livre": 2421,
+      "titre": "Les quatre filles du docteur March",
+      "isbn": "9782070503551",
+      "couverture": "livres/couvertures-20261030/9782070503551.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/551/9782070503551_1_75.jpg"
+    },
+    {
+      "id_livre": 2422,
+      "titre": "Poirot joue le jeu",
+      "isbn": "9782846343909",
+      "couverture": "livres/couvertures-20261030/9782846343909.jpg",
+      "type": "originale",
+      "source": "https://covers.openlibrary.org/b/id/14571765-L.jpg"
+    },
+    {
+      "id_livre": 2423,
+      "titre": "Par une nuit sans mémoire",
+      "isbn": "9782714436511",
+      "couverture": "livres/couvertures-20261030/9782714436511.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/511/9782714436511_1_75.jpg"
+    },
+    {
+      "id_livre": 2424,
+      "titre": "Le Dérèglement du monde",
+      "isbn": "9782253129974",
+      "couverture": "livres/couvertures-20261030/9782253129974.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/974/9782253129974_1_75.jpg"
+    },
+    {
+      "id_livre": 2425,
+      "titre": "Psychologie de la peur",
+      "isbn": "9782738114259",
+      "couverture": "livres/couvertures-20261030/9782738114259.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/259/9782738114259_1_75.jpg"
+    },
+    {
+      "id_livre": 2426,
+      "titre": "Commencement du temps et fin de la physique ?",
+      "isbn": "9782080813060",
+      "couverture": "livres/couvertures-20261030/9782080813060.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/060/9782080813060_1_75.jpg"
+    },
+    {
+      "id_livre": 2427,
+      "titre": "Neverwhere",
+      "isbn": "9782290303344",
+      "couverture": "livres/couvertures-20261030/9782290303344.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/344/9782290303344_1_75.jpg"
+    },
+    {
+      "id_livre": 2428,
+      "titre": "Chobits, tome 1",
+      "isbn": "9782845991989",
+      "couverture": "livres/couvertures-20261030/9782845991989.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/989/9782845991989_1_75.jpg"
+    },
+    {
+      "id_livre": 2429,
+      "titre": "La Zizanie",
+      "isbn": "9782012100152",
+      "couverture": "livres/couvertures-20261030/9782012100152.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/152/9782012100152_1_75.jpg"
+    },
+    {
+      "id_livre": 2430,
+      "titre": "Stuart Little",
+      "isbn": "9782211056465",
+      "couverture": "livres/couvertures-20261030/9782211056465.jpg",
+      "type": "originale",
+      "source": "https://covers.openlibrary.org/b/id/10518447-L.jpg"
+    },
+    {
+      "id_livre": 2431,
+      "titre": "Les Aventures d'Olivier Twist",
+      "isbn": "9782724231748",
+      "couverture": "livres/couvertures-20261030/9782724231748.jpg",
+      "type": "originale",
+      "source": "https://covers.openlibrary.org/b/id/10444587-L.jpg"
+    },
+    {
+      "id_livre": 2432,
+      "titre": "Souvenirs sur Sherlock Holmes",
+      "isbn": "9782253010159",
+      "couverture": "livres/couvertures-20261030/9782253010159.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/159/9782253010159_1_75.jpg"
+    },
+    {
+      "id_livre": 2433,
+      "titre": "Demain",
+      "isbn": "9782845636224",
+      "couverture": "livres/couvertures-20261030/9782845636224.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/224/9782845636224_1_75.jpg"
+    },
+    {
+      "id_livre": 2434,
+      "titre": "Le guide de psychologie de la vie quotidienne",
+      "isbn": "9782738121523",
+      "couverture": "livres/couvertures-20261030/9782738121523.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/523/9782738121523_1_75.jpg"
+    },
+    {
+      "id_livre": 2435,
+      "titre": "La cité de l'ombre",
+      "isbn": "9782070622825",
+      "couverture": "livres/couvertures-20261030/9782070622825.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/825/9782070622825_1_75.jpg"
+    },
+    {
+      "id_livre": 2436,
+      "titre": "Pokemon, tome 3",
+      "isbn": "9782723437707",
+      "couverture": "livres/couvertures-20261030/9782723437707.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/707/9782723437707_1_75.jpg"
+    },
+    {
+      "id_livre": 2437,
+      "titre": "L'Odyssée d'Astérix",
+      "isbn": "9782864970040",
+      "couverture": "livres/couvertures-20261030/9782864970040.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/040/9782864970040_1_75.jpg"
+    },
+    {
+      "id_livre": 2438,
+      "titre": "Sacrées sorcières",
+      "isbn": "9782070544288",
+      "couverture": "livres/couvertures-20261030/9782070544288.jpg",
+      "type": "originale",
+      "source": "https://covers.openlibrary.org/b/id/2137601-L.jpg"
+    },
+    {
+      "id_livre": 2439,
+      "titre": "Raison et sentiments",
+      "isbn": "9782909240251",
+      "couverture": "livres/couvertures-20261030/9782909240251.jpg",
+      "type": "originale",
+      "source": "https://covers.openlibrary.org/b/id/12648529-L.jpg"
+    },
+    {
+      "id_livre": 2440,
+      "titre": "Le premier qui meurt",
+      "isbn": "9782744152016",
+      "couverture": "livres/couvertures-20261030/9782744152016.jpg",
+      "type": "originale",
+      "source": "https://covers.openlibrary.org/b/id/10402516-L.jpg"
+    },
+    {
+      "id_livre": 2441,
+      "titre": "Harry Potter à l'école des sorciers",
+      "isbn": "9782070643028",
+      "couverture": "livres/couvertures-20261030/9782070643028.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/028/9782070643028_1_75.jpg"
+    },
+    {
+      "id_livre": 2442,
+      "titre": "Vivre heureux",
+      "isbn": "9782738112552",
+      "couverture": "livres/couvertures-20261030/9782738112552.jpg",
+      "type": "originale",
+      "source": "https://covers.openlibrary.org/b/id/985259-L.jpg"
+    },
+    {
+      "id_livre": 2443,
+      "titre": "Les yeux du dragon",
+      "isbn": "9782226071439",
+      "couverture": "livres/couvertures-20261030/9782226071439.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/439/9782226071439_1_75.jpg"
+    },
+    {
+      "id_livre": 2444,
+      "titre": "Demon Slayer vol 5",
+      "isbn": "9782809477542",
+      "couverture": "livres/couvertures-20261030/9782809477542.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/542/9782809477542_1_75.jpg"
+    },
+    {
+      "id_livre": 2445,
+      "titre": "La Serpe d'or",
+      "isbn": "9782205001105",
+      "couverture": "livres/couvertures-20261030/9782205001105.jpg",
+      "type": "originale",
+      "source": "https://covers.openlibrary.org/b/id/973283-L.jpg"
+    },
+    {
+      "id_livre": 2446,
+      "titre": "Le Château de Hurle",
+      "isbn": "9782266138826",
+      "couverture": "livres/couvertures-20261030/9782266138826.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/826/9782266138826_1_75.jpg"
+    },
+    {
+      "id_livre": 2447,
+      "titre": "Moby Dick",
+      "isbn": "9782266010184",
+      "couverture": "livres/couvertures-20261030/9782266010184.jpg",
+      "type": "originale",
+      "source": "https://covers.openlibrary.org/b/id/11023042-L.jpg"
+    },
+    {
+      "id_livre": 2448,
+      "titre": "Son dernier coup d'archet",
+      "isbn": "9782253005742",
+      "couverture": "livres/couvertures-20261030/9782253005742.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/742/9782253005742_1_75.jpg"
+    },
+    {
+      "id_livre": 2449,
+      "titre": "Anne quitte son île",
+      "isbn": "9782890373914",
+      "couverture": "livres/couvertures-20261030/9782890373914.jpg",
+      "type": "originale",
+      "source": "https://covers.openlibrary.org/b/id/14640028-L.jpg"
+    },
+    {
+      "id_livre": 2450,
+      "titre": "La Vie intérieure",
+      "isbn": "9791095438588",
+      "couverture": "livres/couvertures-20261030/9791095438588.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/588/9791095438588_1_75.jpg"
+    },
+    {
+      "id_livre": 2451,
+      "titre": "Le voleur de foudre",
+      "isbn": "9782013228176",
+      "couverture": "livres/couvertures-20261030/9782013228176.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/176/9782013228176_1_75.jpg"
+    },
+    {
+      "id_livre": 2452,
+      "titre": "Ranma 1/2, tome 31",
+      "isbn": "9782723435093",
+      "couverture": "livres/couvertures-20261030/9782723435093.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/093/9782723435093_1_75.jpg"
+    },
+    {
+      "id_livre": 2453,
+      "titre": "Astérix légionnaire",
+      "isbn": "9782012101425",
+      "couverture": "livres/couvertures-20261030/9782012101425.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/425/9782012101425_1_75.jpg"
+    },
+    {
+      "id_livre": 2454,
+      "titre": "Code éternité",
+      "isbn": "9782070574049",
+      "couverture": "livres/couvertures-20261030/9782070574049.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/049/9782070574049_1_75.jpg"
+    },
+    {
+      "id_livre": 2455,
+      "titre": "La cloche de détresse",
+      "isbn": "9782070712182",
+      "couverture": "livres/couvertures-20261030/9782070712182.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/182/9782070712182_1_75.jpg"
+    },
+    {
+      "id_livre": 2456,
+      "titre": "Et tombent les filles",
+      "isbn": "9782266067942",
+      "couverture": "livres/couvertures-20261030/9782266067942.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/942/9782266067942_1_75.jpg"
+    },
+    {
+      "id_livre": 2457,
+      "titre": "Le Monde des hommes",
+      "isbn": "9782743608637",
+      "couverture": "livres/couvertures-20261030/9782743608637.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/637/9782743608637_1_75.jpg"
+    },
+    {
+      "id_livre": 2458,
+      "titre": "Et n'oublie pas d'être heureux",
+      "isbn": "9782738129055",
+      "couverture": "livres/couvertures-20261030/9782738129055.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/055/9782738129055_1_75.jpg"
+    },
+    {
+      "id_livre": 2459,
+      "titre": "Terre d'exil la trilogie de l'elfe noir",
+      "isbn": "9782265074392",
+      "couverture": "livres/couvertures-20261030/9782265074392.jpg",
+      "type": "originale",
+      "source": "https://covers.openlibrary.org/b/id/979333-L.jpg"
+    },
+    {
+      "id_livre": 2460,
+      "titre": "Fullmetal Alchemist, tome 2",
+      "isbn": "9782351420188",
+      "couverture": "livres/couvertures-20261030/9782351420188.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/188/9782351420188_1_75.jpg"
+    },
+    {
+      "id_livre": 2461,
+      "titre": "Le cas étrange du Dr Jekyll et de M. Hyde",
+      "isbn": "9782081206861",
+      "couverture": "livres/couvertures-20261030/9782081206861.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/861/9782081206861_1_75.jpg"
+    },
+    {
+      "id_livre": 2462,
+      "titre": "Franklin chez les scouts",
+      "isbn": "9782013928731",
+      "couverture": "livres/couvertures-20261030/9782013928731.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/731/9782013928731_1_75.jpg"
+    },
+    {
+      "id_livre": 2463,
+      "titre": "Mrs. Dalloway",
+      "isbn": "9782253030584",
+      "couverture": "livres/couvertures-20261030/9782253030584.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/584/9782253030584_1_75.jpg"
+    },
+    {
+      "id_livre": 2464,
+      "titre": "Du fond de l abime",
+      "isbn": "9782841142781",
+      "couverture": "livres/couvertures-20261030/9782841142781.jpg",
+      "type": "originale",
+      "source": "https://covers.openlibrary.org/b/id/14425275-L.jpg"
+    },
+    {
+      "id_livre": 2465,
+      "titre": "La Voleuse de livres",
+      "isbn": "9782266175968",
+      "couverture": "livres/couvertures-20261030/9782266175968.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/968/9782266175968_1_75.jpg"
+    },
+    {
+      "id_livre": 2466,
+      "titre": "La dernière licorne",
+      "isbn": "9782207249598",
+      "couverture": "livres/couvertures-20261030/9782207249598.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/598/9782207249598_1_75.jpg"
+    },
+    {
+      "id_livre": 2467,
+      "titre": "Monster, tome 1",
+      "isbn": "9782871293668",
+      "couverture": "livres/couvertures-20261030/9782871293668.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/668/9782871293668_1_75.jpg"
+    },
+    {
+      "id_livre": 2468,
+      "titre": "Georges et les secrets de l'univers",
+      "isbn": "9782266219181",
+      "couverture": "livres/couvertures-20261030/9782266219181.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/181/9782266219181_1_75.jpg"
+    },
+    {
+      "id_livre": 2469,
+      "titre": "Le Monde Perdu",
+      "isbn": "9782010139239",
+      "couverture": "livres/couvertures-20261030/9782010139239.jpg",
+      "type": "originale",
+      "source": "https://covers.openlibrary.org/b/id/14615015-L.jpg"
+    },
+    {
+      "id_livre": 2470,
+      "titre": "La Pierre de lune",
+      "isbn": "9782702497517",
+      "couverture": "livres/couvertures-20261030/9782702497517.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/517/9782702497517_1_75.jpg"
+    },
+    {
+      "id_livre": 2471,
+      "titre": "Autant en emporte le vent",
+      "isbn": "9782070716524",
+      "couverture": "livres/couvertures-20261030/9782070716524.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/524/9782070716524_1_75.jpg"
+    },
+    {
+      "id_livre": 2472,
+      "titre": "Servir froid",
+      "isbn": "9782352946373",
+      "couverture": "livres/couvertures-20261030/9782352946373.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/373/9782352946373_1_75.jpg"
+    },
+    {
+      "id_livre": 2473,
+      "titre": "One Piece, tome 14",
+      "isbn": "9782723441537",
+      "couverture": "livres/couvertures-20261030/9782723441537.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/537/9782723441537_1_75.jpg"
+    },
+    {
+      "id_livre": 2474,
+      "titre": "Lolita",
+      "isbn": "9782070368990",
+      "couverture": "livres/couvertures-20261030/9782070368990.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/990/9782070368990_1_75.jpg"
+    },
+    {
+      "id_livre": 2475,
+      "titre": "Le Cheval Pale",
+      "isbn": "9782253046134",
+      "couverture": "livres/couvertures-20261030/9782253046134.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/134/9782253046134_1_75.jpg"
+    },
+    {
+      "id_livre": 2476,
+      "titre": "Esclave pendant douze ans",
+      "isbn": "9782749920498",
+      "couverture": "livres/couvertures-20261030/9782749920498.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/498/9782749920498_1_75.jpg"
+    },
+    {
+      "id_livre": 2477,
+      "titre": "Lunes pour Caméléon",
+      "isbn": "9782811201043",
+      "couverture": "livres/couvertures-20261030/9782811201043.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/043/9782811201043_1_75.jpg"
+    },
+    {
+      "id_livre": 2478,
+      "titre": "Hunter X Hunter, tome 6",
+      "isbn": "9782871293217",
+      "couverture": "livres/couvertures-20261030/9782871293217.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/217/9782871293217_1_75.jpg"
+    },
+    {
+      "id_livre": 2479,
+      "titre": "Au cœur des ténèbres",
+      "isbn": "9782080705303",
+      "couverture": "livres/couvertures-20261030/9782080705303.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/303/9782080705303_1_75.jpg"
+    },
+    {
+      "id_livre": 2480,
+      "titre": "Mort sur le Nil",
+      "isbn": "9782013225212",
+      "couverture": "livres/couvertures-20261030/9782013225212.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/212/9782013225212_1_75.jpg"
+    },
+    {
+      "id_livre": 2481,
+      "titre": "Une oeuvre déchirante d'un génie renversant",
+      "isbn": "9782290328248",
+      "couverture": "livres/couvertures-20261030/9782290328248.jpg",
+      "type": "originale",
+      "source": "https://covers.openlibrary.org/b/id/982192-L.jpg"
+    },
+    {
+      "id_livre": 2482,
+      "titre": "De Bons Presages",
+      "isbn": "9782277238928",
+      "couverture": "livres/couvertures-20261030/9782277238928.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/928/9782277238928_1_75.jpg"
+    },
+    {
+      "id_livre": 2483,
+      "titre": "One piece - Édition originale Vol.10 (One Piece, 10) (French Edition)",
+      "isbn": "9782723492553",
+      "couverture": "livres/couvertures-20261030/9782723492553.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/553/9782723492553_1_75.jpg"
+    },
+    {
+      "id_livre": 2484,
+      "titre": "L'Île au trésor",
+      "isbn": "9782070577118",
+      "couverture": "livres/couvertures-20261030/9782070577118.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/118/9782070577118_1_75.jpg"
+    },
+    {
+      "id_livre": 2485,
+      "titre": "Poirot quitte la scène",
+      "isbn": "9782702414163",
+      "couverture": "livres/couvertures-20261030/9782702414163.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/163/9782702414163_1_75.jpg"
+    },
+    {
+      "id_livre": 2486,
+      "titre": "Petits délices et grand amour",
+      "isbn": "9780373620685",
+      "couverture": "livres/couvertures-20261030/9780373620685.jpg",
+      "type": "originale",
+      "source": "https://covers.openlibrary.org/b/id/10321285-L.jpg"
+    },
+    {
+      "id_livre": 2487,
+      "titre": "Un Palais de flammes d'argent",
+      "isbn": "9782732498775",
+      "couverture": "livres/couvertures-20261030/9782732498775.jpg",
+      "type": "originale",
+      "source": "https://covers.openlibrary.org/b/id/14350042-L.jpg"
+    },
+    {
+      "id_livre": 2488,
+      "titre": "Des souris et des hommes",
+      "isbn": "9782701162881",
+      "couverture": "livres/couvertures-20261030/9782701162881.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/881/9782701162881_1_75.jpg"
+    },
+    {
+      "id_livre": 2489,
+      "titre": "Les enquêtes de miss Marple",
+      "isbn": "9782702478844",
+      "couverture": "livres/couvertures-20261030/9782702478844.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/844/9782702478844_1_75.jpg"
+    },
+    {
+      "id_livre": 2490,
+      "titre": "Sur le vif",
+      "isbn": "9782092593981",
+      "couverture": "livres/couvertures-20261030/9782092593981.jpg",
+      "type": "originale",
+      "source": "https://covers.openlibrary.org/b/id/13108664-L.jpg"
+    },
+    {
+      "id_livre": 2491,
+      "titre": "La chute d'Hypérion",
+      "isbn": "9782221069578",
+      "couverture": "livres/couvertures-20261030/9782221069578.jpg",
+      "type": "originale",
+      "source": "https://covers.openlibrary.org/b/id/14614990-L.jpg"
+    },
+    {
+      "id_livre": 2492,
+      "titre": "Le procès",
+      "isbn": "9782070378401",
+      "couverture": "livres/couvertures-20261030/9782070378401.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/401/9782070378401_1_75.jpg"
+    },
+    {
+      "id_livre": 2493,
+      "titre": "La nuit qui ne finit pas",
+      "isbn": "9782702480540",
+      "couverture": "livres/couvertures-20261030/9782702480540.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/540/9782702480540_1_75.jpg"
+    },
+    {
+      "id_livre": 2494,
+      "titre": "La surprise du chef",
+      "isbn": "9782070443123",
+      "couverture": "livres/couvertures-20261030/9782070443123.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/123/9782070443123_1_75.jpg"
+    },
+    {
+      "id_livre": 2495,
+      "titre": "La Mort immortelle",
+      "isbn": "9782330143190",
+      "couverture": "livres/couvertures-20261030/9782330143190.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/190/9782330143190_1_75.jpg"
+    },
+    {
+      "id_livre": 2496,
+      "titre": "Le dernier jour d'un condamné",
+      "isbn": "9782011693082",
+      "couverture": "livres/couvertures-20261030/9782011693082.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/082/9782011693082_1_75.jpg"
+    },
+    {
+      "id_livre": 2497,
+      "titre": "Le Crime De L'Orient-Express",
+      "isbn": "9782702436332",
+      "couverture": "livres/couvertures-20261030/9782702436332.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/332/9782702436332_1_75.jpg"
+    },
+    {
+      "id_livre": 2498,
+      "titre": "Stupeur et tremblements",
+      "isbn": "9782226109507",
+      "couverture": "livres/couvertures-20261030/9782226109507.jpg",
+      "type": "originale",
+      "source": "https://covers.openlibrary.org/b/id/975611-L.jpg"
+    },
+    {
+      "id_livre": 2499,
+      "titre": "Stalker",
+      "isbn": "9782207503140",
+      "couverture": "livres/couvertures-20261030/9782207503140.jpg",
+      "type": "originale",
+      "source": "https://covers.openlibrary.org/b/id/973842-L.jpg"
+    },
+    {
+      "id_livre": 2500,
+      "titre": "Claude Gueux",
+      "isbn": "9782253136538",
+      "couverture": "livres/couvertures-20261030/9782253136538.jpg",
+      "type": "originale",
+      "source": "https://images.epagine.fr/538/9782253136538_1_75.jpg"
+    },
+    {
+      "id_livre": 2501,
+      "titre": "The Shining",
+      "isbn": "9782290308431",
+      "couverture": "livres/couvertures-20261030/9782290308431.jpg",
+      "type": "originale",
+      "source": "https://covers.openlibrary.org/b/id/981913-L.jpg"
+    }
+  ]
+}
