@@ -59,7 +59,7 @@ include 'header.php';
     <div class="entete-mes-annonces">
         <div>
             <h1 class="titre-page-compte mb-1">Mes emprunts</h1>
-            <p class="text-muted mb-0">Empruntez gratuitement jusqu'à <?= EMPRUNTS_EN_COURS_MAX ?> livres du magasin, à retirer et à rendre en boutique.</p>
+            <p class="text-muted mb-0">Empruntez gratuitement jusqu'à <?= regleEmprunt($pdo, 'emprunts_max') ?> livres du magasin, à retirer et à rendre en boutique.</p>
         </div>
         <a href="catalogue.php?offre=emprunt" class="bouton bouton-contour bouton-petit"><i class="bi bi-search" aria-hidden="true"></i> Livres à emprunter</a>
     </div>
@@ -72,11 +72,11 @@ include 'header.php';
         <div class="alert alert-warning rounded-3" role="alert">L'emprunt de livres est momentanément indisponible.</div>
     <?php else: ?>
         <div class="resume-emprunts">
-            <div class="resume-emprunts__jauge" aria-label="<?= $nbActifs ?> emprunt<?= $nbActifs > 1 ? 's' : '' ?> ou réservation<?= $nbActifs > 1 ? 's' : '' ?> sur <?= EMPRUNTS_EN_COURS_MAX ?>">
-                <?php for ($i = 1; $i <= EMPRUNTS_EN_COURS_MAX; $i++): ?>
+            <div class="resume-emprunts__jauge" aria-label="<?= $nbActifs ?> emprunt<?= $nbActifs > 1 ? 's' : '' ?> ou réservation<?= $nbActifs > 1 ? 's' : '' ?> sur <?= regleEmprunt($pdo, 'emprunts_max') ?>">
+                <?php for ($i = 1; $i <= regleEmprunt($pdo, 'emprunts_max'); $i++): ?>
                     <span class="resume-emprunts__case<?= $i <= $nbActifs ? ' pleine' : '' ?>" aria-hidden="true"></span>
                 <?php endfor; ?>
-                <strong><?= $nbActifs ?> / <?= EMPRUNTS_EN_COURS_MAX ?></strong> en cours
+                <strong><?= $nbActifs ?> / <?= regleEmprunt($pdo, 'emprunts_max') ?></strong> en cours
             </div>
             <?php if ($blocage): ?>
                 <p class="resume-emprunts__alerte" role="alert">
@@ -88,7 +88,7 @@ include 'header.php';
                 <p class="resume-emprunts__alerte" role="alert"><i class="bi bi-exclamation-triangle" aria-hidden="true"></i> <?= htmlspecialchars($raison) ?></p>
             <?php else: ?>
                 <p class="resume-emprunts__regles">
-                    <?= DUREE_EMPRUNT_DEFAUT ?> jours en général, renouvelables <?= RENOUVELLEMENTS_DEFAUT ?> fois · <?= pointsRegle($pdo, 'emprunt') ?> points par livre rendu à l'heure
+                    Durée et renouvellements indiqués sur chaque livre · <?= pointsRegle($pdo, 'emprunt') ?> points par livre rendu à l'heure
                 </p>
             <?php endif; ?>
         </div>
@@ -161,7 +161,7 @@ include 'header.php';
                                         <input type="hidden" name="csrf" value="<?= $csrf ?>">
                                         <input type="hidden" name="action" value="renouveler">
                                         <input type="hidden" name="id_emprunt" value="<?= (int) $emprunt['id_emprunt'] ?>">
-                                        <button class="bouton bouton-principal bouton-petit"><i class="bi bi-arrow-repeat" aria-hidden="true"></i> Renouveler (+<?= RENOUVELLEMENT_JOURS ?> jours)</button>
+                                        <button class="bouton bouton-principal bouton-petit"><i class="bi bi-arrow-repeat" aria-hidden="true"></i> Renouveler (+<?= joursRenouvellementEmprunt($emprunt) ?> jours)</button>
                                     </form>
                                 <?php endif; ?>
                                 <a href="emprunt_ticket.php?id=<?= (int) $emprunt['id_emprunt'] ?>" class="bouton bouton-contour bouton-petit"><i class="bi bi-file-earmark-pdf" aria-hidden="true"></i> Ticket d'emprunt</a>
@@ -185,7 +185,7 @@ include 'header.php';
 
         <?php if ($attentes): ?>
             <section class="section-emprunts" aria-labelledby="titre-attentes">
-                <h2 class="section-emprunts__titre" id="titre-attentes"><?= iconeDessin('clochette') ?> Listes d'attente <span class="text-muted small fw-normal"><?= count($attentes) ?>/<?= ATTENTES_EMPRUNT_MAX ?></span></h2>
+                <h2 class="section-emprunts__titre" id="titre-attentes"><?= iconeDessin('clochette') ?> Listes d'attente <span class="text-muted small fw-normal"><?= count($attentes) ?>/<?= regleEmprunt($pdo, 'attentes_max') ?></span></h2>
                 <ul class="liste-attentes">
                     <?php foreach ($attentes as $attente): ?>
                         <li class="carte-compte ligne-attente">

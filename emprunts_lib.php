@@ -2,6 +2,7 @@
 require_once __DIR__ . '/livres_lib.php';
 require_once __DIR__ . '/messagerie_lib.php';
 require_once __DIR__ . '/points_lib.php';
+require_once __DIR__ . '/regles_emprunts_lib.php';
 
 const EMPRUNTS_EN_COURS_MAX = 3;
 const ATTENTES_EMPRUNT_MAX = 3;
@@ -59,11 +60,11 @@ function pastilleStatutEmprunt(array $emprunt): string
     return $html;
 }
 
-function dateExpirationReservation(?DateTimeImmutable $depuis = null): string
+function dateExpirationReservation(?DateTimeImmutable $depuis = null, int $delaiJoursOuvres = RESERVATION_JOURS_OUVRES): string
 {
     $date = $depuis ?? new DateTimeImmutable();
     $joursOuvres = 0;
-    while ($joursOuvres < RESERVATION_JOURS_OUVRES) {
+    while ($joursOuvres < $delaiJoursOuvres) {
         $date = $date->modify('+1 day');
         if ((int) $date->format('N') <= 5) {
             $joursOuvres++;
@@ -159,8 +160,8 @@ function raisonInterdictionEmprunt(PDO $pdo, int $idUser, bool $compterLimite = 
     if ($blocage = blocageActif($pdo, $idUser)) {
         return "Vos emprunts sont bloqués jusqu'au " . date('d/m/Y à H:i', strtotime($blocage['date_fin'])) . " à la suite d'un retour en retard.";
     }
-    if ($compterLimite && nombreEmpruntsActifs($pdo, $idUser) >= EMPRUNTS_EN_COURS_MAX) {
-        return "Vous avez déjà " . EMPRUNTS_EN_COURS_MAX . " emprunts ou réservations en cours : rendez un livre avant d'en réserver un autre.";
+    if ($compterLimite && nombreEmpruntsActifs($pdo, $idUser) >= regleEmprunt($pdo, 'emprunts_max')) {
+        return "Vous avez déjà " . regleEmprunt($pdo, 'emprunts_max') . " emprunts ou réservations en cours : rendez un livre avant d'en réserver un autre.";
     }
     return '';
 }
@@ -283,11 +284,13 @@ function prevenirEmprunteur(array $emprunt, string $sujet, string $texte, string
 function creerReservation(PDO $pdo, array $exemplaire, int $idUser, bool $depuisAttente): int
 {
     $code = genererCodeRetrait($pdo);
-    $expiration = dateExpirationReservation();
-    $pdo->prepare("
-        INSERT INTO emprunt (id_exemplaire, id_user, code_retrait, duree_jours, renouvellements_max, blocage_retard, date_expiration_reservation)
-        VALUES (?, ?, ?, ?, ?, ?, ?)")
-        ->execute([$exemplaire['id_exemplaire'], $idUser, $code, $exemplaire['duree_emprunt_jours'], $exemplaire['renouvellements_max'], $exemplaire['blocage_retard'], $expiration]);
+    $expiration = dateExpirationReservation(null, regleEmprunt($pdo, 'reservation_jours_ouvres'));
+    $parametres = [$exemplaire['id_exemplaire'], $idUser, $code, $exemplaire['duree_emprunt_jours'], $exemplaire['renouvellements_max'], $exemplaire['blocage_retard'], $expiration];
+    $avecRegles = chargerReglesEmprunts($pdo)['disponible'];
+    if ($avecRegles) { $parametres[] = regleEmprunt($pdo, 'renouvellement_jours'); }
+    $pdo->prepare("INSERT INTO emprunt (id_exemplaire, id_user, code_retrait, duree_jours, renouvellements_max, blocage_retard, date_expiration_reservation"
+        . ($avecRegles ? ', renouvellement_jours' : '') . ") VALUES (?, ?, ?, ?, ?, ?, ?" . ($avecRegles ? ', ?' : '') . ")")
+        ->execute($parametres);
     $idEmprunt = (int) $pdo->lastInsertId();
     $pdo->prepare("UPDATE exemplaire SET statut_pret = 'reserve' WHERE id_exemplaire = ?")->execute([$exemplaire['id_exemplaire']]);
     $pdo->prepare("DELETE FROM emprunt_attente WHERE id_livre = ? AND id_user = ?")->execute([$exemplaire['id_livre'], $idUser]);
@@ -476,7 +479,7 @@ function validerRetrait(PDO $pdo, int $idEmprunt, int $idEquipe): array
     insertLog('EMPRUNT', "Emprunt #$idEmprunt remis à @{$emprunt['pseudo']}, retour le $dateRetour");
     prevenirEmprunteur($emprunt, "Bonne lecture : « {$emprunt['titre']} »",
         "Vous avez retiré « {$emprunt['titre']} » au magasin.\n\nÀ rendre au plus tard le " . date('d/m/Y', strtotime($dateRetour)) . ".\n\n"
-        . "Vous pourrez renouveler l'emprunt de " . RENOUVELLEMENT_JOURS . " jours depuis la page Mes emprunts (jusqu'à {$emprunt['renouvellements_max']} fois), si personne n'attend ce livre.\n\n"
+        . "Vous pourrez renouveler l'emprunt de " . joursRenouvellementEmprunt($emprunt) . " jours depuis la page Mes emprunts (jusqu'à {$emprunt['renouvellements_max']} fois), si personne n'attend ce livre.\n\n"
         . "Votre ticket d'emprunt est téléchargeable sur la page Mes emprunts.");
     return ['success', "Livre remis à @{$emprunt['pseudo']} : retour prévu le " . date('d/m/Y', strtotime($dateRetour)) . ".", $idEmprunt];
 }
@@ -518,7 +521,7 @@ function renouvelerEmprunt(PDO $pdo, int $idEmprunt, int $idUser): array
             $pdo->rollBack();
             return ['warning', $raison];
         }
-        $nouvelleDate = (new DateTimeImmutable($emprunt['date_retour_prevue']))->modify('+' . RENOUVELLEMENT_JOURS . ' days')->format('Y-m-d');
+        $nouvelleDate = (new DateTimeImmutable($emprunt['date_retour_prevue']))->modify('+' . joursRenouvellementEmprunt($emprunt) . ' days')->format('Y-m-d');
         $pdo->prepare("UPDATE emprunt SET date_retour_prevue = ?, nb_renouvellements = nb_renouvellements + 1, rappel_avant = 0, rappel_jour = 0 WHERE id_emprunt = ?")
             ->execute([$nouvelleDate, $idEmprunt]);
         if ($idConversation = conversationOuverte($pdo, 'emprunt', $idEmprunt)) {
@@ -535,7 +538,7 @@ function renouvelerEmprunt(PDO $pdo, int $idEmprunt, int $idUser): array
     $restants = (int) $emprunt['renouvellements_max'] - (int) $emprunt['nb_renouvellements'] - 1;
     insertLog('EMPRUNT', "Emprunt #$idEmprunt renouvelé jusqu'au $nouvelleDate");
     prevenirEmprunteur($emprunt, "Emprunt renouvelé : « {$emprunt['titre']} »",
-        "Votre emprunt de « {$emprunt['titre']} » est prolongé de " . RENOUVELLEMENT_JOURS . " jours.\n\nNouvelle date de retour : " . date('d/m/Y', strtotime($nouvelleDate)) . ".\n\n"
+        "Votre emprunt de « {$emprunt['titre']} » est prolongé de " . joursRenouvellementEmprunt($emprunt) . " jours.\n\nNouvelle date de retour : " . date('d/m/Y', strtotime($nouvelleDate)) . ".\n\n"
         . ($restants > 0 ? "Renouvellements encore possibles : $restants." : "C'était le dernier renouvellement possible pour cet emprunt."));
     return ['success', "Emprunt renouvelé : à rendre le " . date('d/m/Y', strtotime($nouvelleDate)) . "."];
 }
@@ -644,8 +647,8 @@ function rejoindreAttente(PDO $pdo, int $idLivre, int $idUser): array
         }
         $stmt = $pdo->prepare("SELECT id_attente FROM emprunt_attente WHERE id_user = ? FOR UPDATE");
         $stmt->execute([$idUser]);
-        if (count($stmt->fetchAll(PDO::FETCH_COLUMN)) >= ATTENTES_EMPRUNT_MAX) {
-            return ['warning', "Vous êtes déjà sur " . ATTENTES_EMPRUNT_MAX . " listes d'attente : quittez-en une pour en rejoindre une autre."];
+        if (count($stmt->fetchAll(PDO::FETCH_COLUMN)) >= regleEmprunt($pdo, 'attentes_max')) {
+            return ['warning', "Vous êtes déjà sur " . regleEmprunt($pdo, 'attentes_max') . " listes d'attente : quittez-en une pour en rejoindre une autre."];
         }
         $stmt = $pdo->prepare("INSERT IGNORE INTO emprunt_attente (id_livre, id_user) VALUES (?, ?)");
         $stmt->execute([$idLivre, $idUser]);
@@ -951,7 +954,7 @@ function telechargerTicketEmprunt(array $emprunt, PDO $pdo): void
             <tr><th>État de l\'exemplaire</th><td>' . $echapper(libelleEtat($emprunt['etat'])) . ' (exemplaire n° ' . (int) $emprunt['id_exemplaire'] . ')</td></tr>
             <tr><th>Emprunteur</th><td>@' . $echapper($emprunt['pseudo']) . '</td></tr>
             <tr><th>Réservé le</th><td>' . $date($emprunt['date_reservation'], 'd/m/Y à H:i') . '</td></tr>
-            <tr><th>Durée</th><td>' . (int) $emprunt['duree_jours'] . ' jours, renouvelable ' . (int) $emprunt['renouvellements_max'] . ' fois (' . RENOUVELLEMENT_JOURS . ' jours de plus à chaque fois)</td></tr>
+            <tr><th>Durée</th><td>' . (int) $emprunt['duree_jours'] . ' jours, renouvelable ' . (int) $emprunt['renouvellements_max'] . ' fois (' . joursRenouvellementEmprunt($emprunt) . ' jours de plus à chaque fois)</td></tr>
             ' . ($estReserve ? '' : '<tr><th>Renouvellements utilisés</th><td>' . (int) $emprunt['nb_renouvellements'] . ' sur ' . (int) $emprunt['renouvellements_max'] . '</td></tr>
             <tr class="retour"><th>À rendre au plus tard le</th><td>' . $date($emprunt['date_retour_prevue']) . '</td></tr>') . '
             ' . ($emprunt['statut'] === 'rendu' ? '<tr><th>Rendu le</th><td>' . $date($emprunt['date_retour'], 'd/m/Y à H:i') . '</td></tr>' : '') . '

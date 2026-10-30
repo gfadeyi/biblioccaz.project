@@ -58,7 +58,7 @@ $exemplaireReference = $etatEmprunt['exemplaires'][0];
             <input type="hidden" name="retour" value="livre">
             <button class="bouton bouton-principal w-100"><i class="bi bi-bookmark-plus" aria-hidden="true"></i> Réserver pour emprunter</button>
         </form>
-        <p class="bloc-emprunt__aide">À retirer en magasin sous <?= RESERVATION_JOURS_OUVRES ?> jours ouvrés.</p>
+        <p class="bloc-emprunt__aide">À retirer en magasin sous <?= regleEmprunt($pdo, 'reservation_jours_ouvres') ?> jours ouvrés.</p>
     <?php else: ?>
         <form action="emprunt_action.php" method="POST">
             <input type="hidden" name="csrf" value="<?= jetonCsrf() ?>">

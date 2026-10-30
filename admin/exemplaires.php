@@ -43,8 +43,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (str_starts_with($action, 'emprunt_')) {
         require_once __DIR__ . '/../emprunts_lib.php';
-        $duree = (int) ($_POST['duree'] ?? DUREE_EMPRUNT_DEFAUT);
-        $renouvellements = (int) ($_POST['renouvellements'] ?? RENOUVELLEMENTS_DEFAUT);
+        $duree = (int) ($_POST['duree'] ?? regleEmprunt($pdo, 'duree_jours'));
+        $renouvellements = (int) ($_POST['renouvellements'] ?? regleEmprunt($pdo, 'renouvellements_max'));
         $blocage = !empty($_POST['blocage_retard']);
         try {
             if ($action === 'emprunt_ajouter') {
@@ -361,11 +361,11 @@ include __DIR__ . '/_haut.php';
                         </div>
                         <div class="col-6 col-md-2">
                             <label class="form-label small fw-bold" for="duree">Durée (jours)</label>
-                            <input type="number" id="duree" name="duree" value="<?= DUREE_EMPRUNT_DEFAUT ?>" min="7" max="90" class="form-control form-control-sm">
+                            <input type="number" id="duree" name="duree" value="<?= regleEmprunt($pdo, 'duree_jours') ?>" min="7" max="90" class="form-control form-control-sm">
                         </div>
                         <div class="col-6 col-md-2">
                             <label class="form-label small fw-bold" for="renouvellements">Renouvellements</label>
-                            <input type="number" id="renouvellements" name="renouvellements" value="<?= RENOUVELLEMENTS_DEFAUT ?>" min="0" max="5" class="form-control form-control-sm">
+                            <input type="number" id="renouvellements" name="renouvellements" value="<?= regleEmprunt($pdo, 'renouvellements_max') ?>" min="0" max="5" class="form-control form-control-sm">
                         </div>
                     </div>
                     <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mt-3">

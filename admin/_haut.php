@@ -34,6 +34,7 @@ $menu = [
         ['newsletter', 'newsletter.php', 'megaphone', 'Newsletter', 'admin', 0],
     ],
     'Système' => [
+        ['regles_emprunts', 'regles_emprunts.php', 'book', 'Règles des emprunts', 'admin', 0],
         ['regles_recompenses', 'regles_recompenses.php', 'sliders', 'Règles de récompenses', 'admin', 0],
         ['logs', 'logs.php', 'journal-text', "Journal d'activité", 'admin', 0],
         ['captcha', 'captcha.php', 'puzzle', 'Images du CAPTCHA', 'admin', 0],
