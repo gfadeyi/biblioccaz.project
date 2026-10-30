@@ -263,7 +263,14 @@ h1, h2, h3, .titre { font-family: var(--police-titre); font-weight: 700; letter-
 .btn-check:checked + .puce-tag .compte-tag { background: rgba(255, 255, 255, .2); color: #fff; }
 .btn-check:focus-visible + .puce-tag { outline: 2px solid var(--texte-vif); outline-offset: 2px; }
 .btn-check:active + .puce-tag { transform: scale(.96); }
-.pied-volet-filtres { position: sticky; bottom: -1rem; margin: 1rem -1rem -1rem; padding: .85rem 1rem; background: var(--surface); border-top: 1px solid var(--trait); }
+.filtre-depliant { border-top: 1px solid var(--trait); padding-top: .75rem; }
+.filtre-depliant summary { display: flex; align-items: center; gap: .5rem; cursor: pointer; font-weight: 700; list-style: none; min-height: 44px; }
+.filtre-depliant summary::-webkit-details-marker { display: none; }
+.filtre-depliant summary::after { content: '+'; margin-left: auto; font-size: 1.2rem; color: var(--texte-vert); }
+.filtre-depliant[open] summary::after { content: '−'; }
+.filtre-depliant summary:focus-visible { outline: 2px solid var(--texte-vif); outline-offset: 3px; border-radius: 4px; }
+.filtre-depliant__compteur { font-size: .75rem; font-weight: 400; color: var(--encre-douce); }
+.pied-volet-filtres { flex-shrink: 0; padding: .85rem 1rem; background: var(--surface); border-top: 1px solid var(--trait); }
 .pied-volet-filtres .en-calcul { opacity: .7; }
 @media (max-width: 991.98px) {
     .volet-filtres { --bs-offcanvas-width: min(360px, 92vw); }

@@ -33,6 +33,11 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     formulaire.addEventListener('change', function (evenement) {
+        const famille = evenement.target.closest('.filtre-depliant');
+        if (famille) {
+            const nombre = famille.querySelectorAll('input[type="checkbox"]:checked').length;
+            famille.querySelector('[data-selection-tags]').textContent = nombre ? nombre + ' sélectionné' + (nombre > 1 ? 's' : '') : 'Tous';
+        }
         if (evenement.target.matches('[data-filtre-immediat]') && window.matchMedia('(min-width: 992px)').matches) {
             formulaire.submit();
             return;

@@ -379,6 +379,20 @@ echo etoilesStyle();
                     <input type="search" id="filtre-recherche" name="q" class="form-control form-control-sm" placeholder="Titre, auteur, ISBN..." value="<?= htmlspecialchars($f['q']) ?>">
                 </div>
 
+                <?php if (!isset($preset['offre'])): ?>
+                    <div class="mb-3">
+                        <label for="filtre-offre" class="form-label">Type d'offre</label>
+                        <select id="filtre-offre" name="offre" class="form-select form-select-sm">
+                            <option value="">Toutes les offres</option>
+                            <?php foreach (ORIGINES_OFFRE as $cle => $libelle): ?>
+                                <option value="<?= $cle ?>" <?= $f['offre'] === $cle ? 'selected' : '' ?>><?= $libelle ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                <?php endif; ?>
+
+                <button type="submit" class="btn btn-bibli w-100 rounded-pill btn-sm fw-bold d-none d-lg-block mb-3">Filtrer</button>
+
                 <?php if (!isset($preset['categorie'])): ?>
                     <div class="mb-3">
                         <label for="filtre-categorie" class="form-label">Catégorie</label>
@@ -413,17 +427,7 @@ echo etoilesStyle();
                     <?php endif; ?>
                 <?php endforeach; ?>
 
-                <?php if (!isset($preset['offre'])): ?>
-                    <div class="mb-3">
-                        <label for="filtre-offre" class="form-label">Type d'offre</label>
-                        <select id="filtre-offre" name="offre" class="form-select form-select-sm">
-                            <option value="">Toutes les offres</option>
-                            <?php foreach (ORIGINES_OFFRE as $cle => $libelle): ?>
-                                <option value="<?= $cle ?>" <?= $f['offre'] === $cle ? 'selected' : '' ?>><?= $libelle ?></option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-                <?php endif; ?>
+
 
                 <?php if (!isset($preset['prix_max'])): ?>
                     <div class="mb-3">
@@ -446,8 +450,11 @@ echo etoilesStyle();
                 </div>
 
                 <?php foreach ($famillesTags as $cleFamille => $tagsFamille): ?>
-                    <fieldset class="mb-3 famille-tags">
-                        <legend class="form-label"><?= htmlspecialchars(FAMILLES_TAGS[$cleFamille]) ?></legend>
+                    <?php $nombreTagsChoisis = count(array_intersect(array_column($tagsFamille, 'slug'), $f['tag'])); ?>
+                    <details class="mb-3 famille-tags filtre-depliant">
+                        <summary><?= htmlspecialchars(FAMILLES_TAGS[$cleFamille]) ?><span class="filtre-depliant__compteur" data-selection-tags><?= $nombreTagsChoisis ? $nombreTagsChoisis . ' sélectionné' . ($nombreTagsChoisis > 1 ? 's' : '') : 'Tous' ?></span></summary>
+                        <fieldset class="mt-2">
+                        <legend class="visually-hidden"><?= htmlspecialchars(FAMILLES_TAGS[$cleFamille]) ?></legend>
                         <div class="puces-tags">
                             <?php foreach ($tagsFamille as $t): ?>
                                 <?php $idCase = 'tag-' . $t['slug']; ?>
@@ -458,15 +465,15 @@ echo etoilesStyle();
                                 </label>
                             <?php endforeach; ?>
                         </div>
-                    </fieldset>
+                        </fieldset>
+                    </details>
                 <?php endforeach; ?>
 
-                <button type="submit" class="btn btn-bibli w-100 rounded-pill btn-sm fw-bold d-none d-lg-block">Filtrer</button>
                 <a href="<?= htmlspecialchars(basename($_SERVER['PHP_SELF'])) ?>" class="btn btn-link w-100 btn-sm text-muted">Réinitialiser</a>
-                <div class="pied-volet-filtres d-lg-none">
-                    <button type="submit" class="btn btn-bibli w-100 rounded-pill fw-bold" data-voir-livres><?= texteVoirLivres($total) ?></button>
-                </div>
             </form>
+            </div>
+            <div class="pied-volet-filtres d-lg-none">
+                <button type="submit" form="formulaireFiltres" class="btn btn-bibli w-100 rounded-pill fw-bold" data-voir-livres><?= texteVoirLivres($total) ?></button>
             </div>
             </div>
         </div>
