@@ -7,9 +7,11 @@ $filtreRole = is_string($_GET['role'] ?? null) && isset(ROLES_LIBELLES[$_GET['ro
 $tris = [
     'recents' => ['Les plus récents', 'date_inscription DESC, id DESC'],
     'anciens' => ['Les plus anciens', 'date_inscription ASC, id ASC'],
+    'statut_asc' => ['Statut croissant', "CASE WHEN statut = 'valide_moderateur' THEN 0 WHEN statut = 'refuse_temporaire' THEN 2 WHEN statut IN ('refuse_definitif', 'banni') THEN 3 ELSE 1 END ASC, pseudo, id"],
+    'statut_desc' => ['Statut décroissant', "CASE WHEN statut = 'valide_moderateur' THEN 0 WHEN statut = 'refuse_temporaire' THEN 2 WHEN statut IN ('refuse_definitif', 'banni') THEN 3 ELSE 1 END DESC, pseudo, id"],
     'roles' => ['Par rôle puis pseudo', "FIELD(role, 'admin', 'gestionnaire', 'moderateur', 'auteur', 'client'), pseudo, id"],
 ];
-$tri = is_string($_GET['tri'] ?? null) && isset($tris[$_GET['tri']]) ? $_GET['tri'] : 'recents';
+$tri = is_string($_GET['tri'] ?? null) && isset($tris[$_GET['tri']]) ? $_GET['tri'] : 'roles';
 $retourMembres = 'utilisateurs.php?' . http_build_query(['q' => $q, 'role' => $filtreRole, 'tri' => $tri]);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -95,6 +97,19 @@ function badgeStatut(string $statut): string
     };
 }
 
+function lienTriMembres(string $libelle, string $croissant, string $decroissant, string $tri, string $q, string $role): string
+{
+    $actif = in_array($tri, [$croissant, $decroissant], true);
+    $suivant = $tri === $croissant ? $decroissant : $croissant;
+    $icone = $actif ? ($tri === $croissant ? 'sort-up' : 'sort-down') : 'arrow-down-up';
+    $indication = $libelle === 'Inscription'
+        ? ($suivant === $croissant ? 'du plus ancien au plus récent' : 'du plus récent au plus ancien')
+        : ($suivant === $croissant ? 'par ordre alphabétique' : 'par ordre alphabétique inverse');
+    return '<a href="utilisateurs.php?' . e(http_build_query(['q' => $q, 'role' => $role, 'tri' => $suivant]))
+        . '" class="th-tri ' . ($actif ? 'actif' : '') . '" aria-label="' . e('Trier par ' . mb_strtolower($libelle) . ' ' . $indication) . '">'
+        . e($libelle) . ' <i class="bi bi-' . $icone . '" aria-hidden="true"></i></a>';
+}
+
 function boutonAction(int $id, string $action, string $libelle, string $classe, string $confirmation = ''): string
 {
     return '<form method="POST" class="d-inline"' . ($confirmation ? ' data-confirmer="' . e($confirmation) . '"' : '') . '>'
@@ -125,11 +140,7 @@ include __DIR__ . '/_haut.php';
                 <option value="<?= $cle ?>" <?= $filtreRole === $cle ? 'selected' : '' ?>><?= $libelle ?></option>
             <?php endforeach; ?>
         </select>
-        <select name="tri" class="form-select" aria-label="Trier les membres" style="max-width: 240px;" onchange="this.form.submit()">
-            <?php foreach ($tris as $cle => [$libelle]): ?>
-                <option value="<?= e($cle) ?>" <?= $tri === $cle ? 'selected' : '' ?>><?= e($libelle) ?></option>
-            <?php endforeach; ?>
-        </select>
+        <input type="hidden" name="tri" value="<?= e($tri) ?>">
         <button class="btn btn-outline-secondary" aria-label="Rechercher"><i class="bi bi-search" aria-hidden="true"></i></button>
         <?php if ($q !== '' || $filtreRole !== ''): ?><a href="utilisateurs.php?<?= e(http_build_query(['tri' => $tri])) ?>" class="btn btn-link">Effacer</a><?php endif; ?>
     </form>
@@ -142,7 +153,12 @@ include __DIR__ . '/_haut.php';
     <div class="table-responsive">
         <table class="table align-middle">
             <thead class="table-light small text-uppercase">
-                <tr><th>Membre</th><th>Rôle</th><th>Statut</th><th>Inscription</th><th class="text-end">Actions</th></tr>
+                <tr>
+                    <th>Membre</th><th>Rôle</th>
+                    <th aria-sort="<?= $tri === 'statut_asc' ? 'ascending' : ($tri === 'statut_desc' ? 'descending' : 'none') ?>"><?= lienTriMembres('Statut', 'statut_asc', 'statut_desc', $tri, $q, $filtreRole) ?></th>
+                    <th aria-sort="<?= $tri === 'anciens' ? 'ascending' : ($tri === 'recents' ? 'descending' : 'none') ?>"><?= lienTriMembres('Inscription', 'anciens', 'recents', $tri, $q, $filtreRole) ?></th>
+                    <th class="text-end">Actions</th>
+                </tr>
             </thead>
             <tbody>
                 <?php if (!$membres): ?>
