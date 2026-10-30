@@ -44,6 +44,9 @@ $empruntSeulement = $sansPrix && !$donSeulement;
     <div class="carte-livre__corps">
         <h3 class="carte-livre__titre"><a href="<?= $lienLivre ?>"><?= htmlspecialchars($l['titre']) ?></a></h3>
         <p class="carte-livre__auteur"><?= htmlspecialchars($l['auteur'] ?? '') ?></p>
+        <?php if (isset($l['nb_classement'])): ?>
+            <p class="carte-livre__raison" data-nombre-classement="<?= (int) $l['nb_classement'] ?>"><?= (int) $l['nb_classement'] ?> <?= ($l['type_classement'] ?? '') === 'emprunts' ? ('emprunt' . ((int) $l['nb_classement'] > 1 ? 's retirés' : ' retiré')) : ('don' . ((int) $l['nb_classement'] > 1 ? 's récupérés' : ' récupéré')) ?></p>
+        <?php endif; ?>
         <?php if (!empty($l['raison'])): ?>
             <p class="carte-livre__raison"><i class="bi bi-stars" aria-hidden="true"></i> <?= htmlspecialchars($l['raison']) ?></p>
         <?php endif; ?>

@@ -30,6 +30,10 @@ $f['tag'] = array_slice(array_values(array_unique(array_filter(
 $page = filter_var($_GET['page'] ?? 1, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1, 'max_range' => 100000]]) ?: 1;
 
 $etatsPossibles = ['neuf' => 'Neuf', 'tres bon' => 'Très bon état', 'bon' => 'Bon état', 'use' => 'État usé'];
+$classementsLivres = [
+    'emprunts' => "(SELECT COUNT(*) FROM emprunt em INNER JOIN exemplaire ep ON ep.id_exemplaire = em.id_exemplaire WHERE ep.id_livre = l.id_livre AND em.statut IN ('en_cours', 'rendu') AND em.date_retrait IS NOT NULL AND em.date_retrait <= NOW())",
+    'dons' => "(SELECT COUNT(*) FROM don dc WHERE dc.id_livre = l.id_livre AND dc.statut = 'recupere' AND dc.date_recuperation IS NOT NULL AND dc.date_recuperation <= NOW())",
+];
 $trisPossibles = [
     'pertinence' => ['Pertinence', 'pertinence DESC, l.id_livre DESC'],
     'recent'    => ['Nouveautés', 'l.id_livre DESC'],
@@ -37,12 +41,20 @@ $trisPossibles = [
     'prix_desc' => ['Prix décroissant', 'prix DESC, l.titre ASC'],
     'titre'     => ['Titre (A → Z)', 'l.titre ASC'],
     'note'      => ['Mieux notés', 'note_moyenne IS NULL, note_moyenne DESC, nb_avis DESC'],
+    'emprunts' => ['Les plus empruntés', $classementsLivres['emprunts'] . ' DESC, l.titre ASC, l.id_livre ASC'],
+    'dons' => ['Les plus donnés', $classementsLivres['dons'] . ' DESC, l.titre ASC, l.id_livre ASC'],
     'ventes'    => ['Meilleures ventes', '(SELECT COALESCE(SUM(cl.quantite), 0) FROM commande_ligne cl WHERE cl.id_livre = l.id_livre) DESC, l.id_livre DESC'],
 ];
 if (!isset($trisPossibles[$f['tri']])) { $f['tri'] = ''; }
 $triActif = $f['tri'] !== '' ? $f['tri'] : ($f['q'] !== '' ? 'pertinence' : 'recent');
 
 $where = ["l.is_valide = 1"];
+$classementActif = isset($classementsLivres[$classement ?? '']) ? $classement : (isset($classementsLivres[$triActif]) ? $triActif : '');
+$selectClassement = '';
+if ($classementActif !== '') {
+    $where[] = $classementsLivres[$classementActif] . ' > 0';
+    $selectClassement = ', ' . $classementsLivres[$classementActif] . ' AS nb_classement';
+}
 $having = [];
 $params = [];
 
@@ -165,12 +177,16 @@ $stmt = $pdo->prepare("
            SUBSTRING_INDEX(GROUP_CONCAT(e.etat ORDER BY e.origine IN ('don', 'emprunt'), e.prix ASC), ',', 1) AS etat,
            SUM(CASE WHEN e.origine = 'magasin' THEN e.quantite END) AS stock,
            GROUP_CONCAT(DISTINCT e.origine ORDER BY e.origine) AS origines,
-           av.moyenne AS note_moyenne, COALESCE(av.nb, 0) AS nb_avis$selectPertinence
+           av.moyenne AS note_moyenne, COALESCE(av.nb, 0) AS nb_avis$selectPertinence$selectClassement
     $sqlBase
     ORDER BY {$trisPossibles[$triActif][1]}
     LIMIT " . LIVRES_PAR_PAGE . " OFFSET $offset");
 $stmt->execute($params + $paramsTri);
 $livres = $stmt->fetchAll();
+if ($classementActif !== '') {
+    foreach ($livres as &$livreClasse) { $livreClasse['type_classement'] = $classementActif; }
+    unset($livreClasse);
+}
 
 $arbre = arbreCategories($pdo);
 $tags = listerTags($pdo);
@@ -238,7 +254,7 @@ if (in_array($f['note_min'], ['3', '4', '4.5'], true)) {
 }
 $categoriesVoisines = [];
 $livresSuggeres = [];
-$categorieSansLivre = !$livres && $categorieCourante && count($filtresActifs) <= 1;
+$categorieSansLivre = $classementActif === '' && !$livres && $categorieCourante && count($filtresActifs) <= 1;
 if (!$livres) {
     require_once 'livres_lib.php';
     $idsUnivers = [];
@@ -499,7 +515,11 @@ echo etoilesStyle();
             <?php if (!$livres): ?>
                 <div class="carte-compte etat-vide-catalogue">
                     <?= iconeDessin($categorieSansLivre ? 'carton' : 'loupe') ?>
-                    <?php if ($categorieSansLivre): ?>
+                    <?php if ($classementActif !== '' && !$filtresActifs): ?>
+                        <h2>Pas encore de livre disponible dans ce classement</h2>
+                        <p><?= $classementActif === 'emprunts' ? 'Les livres apparaissent après le retrait effectif d’un emprunt.' : 'Les livres apparaissent après la récupération effective d’un don.' ?> Seuls les titres encore proposés sur le site sont affichés.</p>
+                        <a href="catalogue.php" class="bouton bouton-principal">Explorer le catalogue</a>
+                    <?php elseif ($categorieSansLivre): ?>
                         <h2>Ce rayon attend ses premiers livres</h2>
                         <p>Aucun livre n'est en vente dans « <?= htmlspecialchars($categorieCourante['nom']) ?> » pour le moment. Revenez bientôt, ou explorez les autres rayons de l'univers <?= htmlspecialchars($universCourant['nom']) ?>.</p>
                         <div class="etat-vide-catalogue__actions">

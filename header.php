@@ -107,6 +107,8 @@ foreach ($universMenu as $universLigne) {
 $bonsPlansMenu = [
     ['nouveauté.php', 'bi-stars', 'Nouveautés'],
     ['meilleures_ventes.php', 'bi-award', 'Meilleures ventes'],
+    ['plus_emprunts.php', 'bi-book', 'Les plus empruntés'],
+    ['plus_dons.php', 'bi-gift', 'Les plus donnés'],
     ['petits_prix.php', 'bi-tag', 'Moins de 10 €'],
     ['dernière_chance.php', 'bi-hourglass-split', 'Dernière chance'],
     ['dons.php', 'bi-gift', 'Livres à donner'],

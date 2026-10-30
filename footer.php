@@ -36,6 +36,8 @@ $messageNewsletter = $messagesNewsletter[$_GET['newsletter'] ?? ''] ?? null;
                 <h3>Acheter</h3>
                 <ul>
                     <li><a href="catalogue.php">Catalogue</a></li>
+                    <li><a href="plus_emprunts.php">Les plus empruntés</a></li>
+                    <li><a href="plus_dons.php">Les plus donnés</a></li>
                     <li><a href="nouveauté.php">Nouveautés</a></li>
                     <li><a href="petits_prix.php">Petits prix</a></li>
                 </ul>
