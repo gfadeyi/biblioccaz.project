@@ -44,6 +44,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         [$photo, $erreurPhoto] = enregistrerCouverture('photo', 'dons/');
         if ($erreurPhoto !== '') {
             $erreurs[] = $erreurPhoto;
+        } elseif ($photo === null) {
+            $erreurs[] = "Ajoutez une photo du livre que vous donnez pour montrer son état.";
         }
     }
 
@@ -123,8 +125,11 @@ include 'header.php';
                 </select>
             </div>
             <div class="col-md-6">
-                <label for="don-photo" class="form-label fw-bold small">Photo (facultative)</label>
-                <input id="don-photo" type="file" name="photo" accept="image/jpeg,image/png,image/webp" class="form-control">
+                <label for="don-photo" class="form-label fw-bold small">Photo du livre *</label>
+                <input id="don-photo" type="file" name="photo" accept="image/jpeg,image/png,image/webp" class="form-control" required aria-describedby="don-photo-aide don-photo-erreur">
+                <div id="don-photo-aide" class="form-text">Photographiez votre exemplaire pour montrer son état. JPG, PNG ou WebP, 2 Mo maximum.</div>
+                <p id="don-photo-erreur" class="small text-danger mt-2" role="status" hidden></p>
+                <img id="don-photo-apercu" alt="Aperçu de la photo de votre livre" class="mt-3 rounded" style="max-width: 100%; max-height: 180px; object-fit: contain;" hidden>
             </div>
             <div class="col-12">
                 <label for="don-description" class="form-label fw-bold small">Description</label>
@@ -168,4 +173,5 @@ document.getElementById('don_titre').addEventListener('input', function () {
 });
 </script>
 
+<script src="javascript/don_photo.js?v=<?= filemtime(__DIR__ . '/javascript/don_photo.js') ?>" defer></script>
 <?php include 'footer.php'; ?>

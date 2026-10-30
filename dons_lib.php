@@ -48,7 +48,22 @@ function urlValidationDon(array $don): string
     return SITE_URL . '/don_valider.php?code=' . $don['code'];
 }
 
-function photoDon(?string $photo): string
+function photoDon(?string $photo, ?string $couverture = null): string
 {
-    return $photo ? 'img/dons/' . rawurlencode($photo) : 'img/default.png';
+    if ($photo && is_file(__DIR__ . '/img/dons/' . $photo)) {
+        return 'img/dons/' . rawurlencode($photo);
+    }
+    if ($couverture && is_file(__DIR__ . '/img/' . $couverture)) {
+        return 'img/' . implode('/', array_map('rawurlencode', explode('/', $couverture)));
+    }
+    return 'img/default.png';
+}
+
+function legendePhotoDon(?string $photo, ?string $couverture = null): string
+{
+    $image = photoDon($photo, $couverture);
+    if (str_starts_with($image, 'img/dons/')) {
+        return 'Photo du livre proposé';
+    }
+    return $image === 'img/default.png' ? 'Photo non fournie' : 'Couverture du catalogue';
 }

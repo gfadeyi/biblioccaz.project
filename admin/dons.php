@@ -47,8 +47,8 @@ $dons = [];
 $tablePresente = true;
 try {
     $stmt = $pdo->prepare("
-        SELECT d.*, donneur.pseudo AS pseudo_donneur, benef.pseudo AS pseudo_beneficiaire
-        FROM don d
+        SELECT d.*, livre_don.couverture AS couverture_don, donneur.pseudo AS pseudo_donneur, benef.pseudo AS pseudo_beneficiaire
+        FROM don d LEFT JOIN livre livre_don ON livre_don.id_livre = d.id_livre
         INNER JOIN user donneur ON donneur.id = d.id_donneur
         LEFT JOIN user benef ON benef.id = d.id_beneficiaire
         WHERE " . implode(' AND ', $where) . "
@@ -100,7 +100,7 @@ $onglets = ['en_cours' => 'En cours', 'disponible' => 'Disponibles', 'reserve' =
                     <tr>
                         <td>
                             <div class="d-flex align-items-center gap-3">
-                                <img src="../<?= photoDon($d['photo']) ?>" alt="" class="couverture-mini">
+                                <img src="../<?= photoDon($d['photo'], $d['couverture_don']) ?>" alt="" class="couverture-mini">
                                 <div>
                                     <div class="fw-bold"><?= e($d['titre']) ?></div>
                                     <div class="small text-muted">#<?= $d['id_don'] ?> · code <span class="font-monospace"><?= e($d['code_court']) ?></span></div>

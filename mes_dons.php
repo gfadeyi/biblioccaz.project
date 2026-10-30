@@ -13,15 +13,15 @@ $stmtPointsDons->execute([$idUser]);
 $pointsDonsGagnes = (int) $stmtPointsDons->fetchColumn();
 
 $stmt = $pdo->prepare("
-    SELECT d.*, b.pseudo AS beneficiaire_pseudo
-    FROM don d LEFT JOIN user b ON b.id = d.id_beneficiaire
+    SELECT d.*, livre_don.couverture AS couverture_don, b.pseudo AS beneficiaire_pseudo
+    FROM don d LEFT JOIN livre livre_don ON livre_don.id_livre = d.id_livre LEFT JOIN user b ON b.id = d.id_beneficiaire
     WHERE d.id_donneur = ? ORDER BY d.date_creation DESC");
 $stmt->execute([$idUser]);
 $donnes = $stmt->fetchAll();
 
 $stmt = $pdo->prepare("
-    SELECT d.*, u.pseudo AS donneur_pseudo
-    FROM don d INNER JOIN user u ON u.id = d.id_donneur
+    SELECT d.*, livre_don.couverture AS couverture_don, u.pseudo AS donneur_pseudo
+    FROM don d LEFT JOIN livre livre_don ON livre_don.id_livre = d.id_livre INNER JOIN user u ON u.id = d.id_donneur
     WHERE d.id_beneficiaire = ? ORDER BY COALESCE(d.date_recuperation, d.date_reservation) DESC");
 $stmt->execute([$idUser]);
 $recus = $stmt->fetchAll();
@@ -32,7 +32,7 @@ include 'header.php';
 
 function ligneDon(array $d, string $infoPersonne): void { ?>
     <a href="don_detail.php?id=<?= $d['id_don'] ?>" class="list-group-item list-group-item-action d-flex align-items-center gap-3 py-3">
-        <img src="<?= htmlspecialchars(photoDon($d['photo'])) ?>" alt="" class="rounded border" style="width: 45px; height: 60px; object-fit: cover;">
+        <img src="<?= htmlspecialchars(photoDon($d['photo'], $d['couverture_don'])) ?>" alt="" class="rounded border" style="width: 45px; height: 60px; object-fit: cover;">
         <div class="flex-grow-1">
             <div class="fw-bold"><?= htmlspecialchars($d['titre']) ?></div>
             <div class="small text-muted"><?= $infoPersonne ?></div>

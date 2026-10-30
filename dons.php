@@ -30,8 +30,8 @@ if ($categorie !== '') {
 }
 
 $stmt = $pdo->prepare("
-    SELECT d.*, c.nom AS categorie_nom, u.pseudo AS donneur_pseudo
-    FROM don d
+    SELECT d.*, livre_don.couverture AS couverture_don, c.nom AS categorie_nom, u.pseudo AS donneur_pseudo
+    FROM don d LEFT JOIN livre livre_don ON livre_don.id_livre = d.id_livre
     INNER JOIN user u ON u.id = d.id_donneur
     LEFT JOIN categorie c ON c.id_categorie = d.id_categorie
     WHERE " . implode(' AND ', $where) . "
@@ -78,9 +78,10 @@ include 'header.php';
                 <div class="col-sm-6 col-lg-3">
                     <a href="don_detail.php?id=<?= $d['id_don'] ?>" class="card h-100 border-0 shadow-sm text-decoration-none text-dark" style="border-radius: 15px; overflow: hidden;">
                         <div class="bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
-                            <img src="<?= htmlspecialchars(photoDon($d['photo'])) ?>" alt="" style="max-height: 180px; max-width: 90%; object-fit: contain;">
+                            <img src="<?= htmlspecialchars(photoDon($d['photo'], $d['couverture_don'])) ?>" alt="<?= htmlspecialchars(legendePhotoDon($d['photo'], $d['couverture_don']) . ' : ' . $d['titre']) ?>" loading="lazy" style="max-height: 180px; max-width: 90%; object-fit: contain;">
                         </div>
                         <div class="card-body">
+                            <div class="small text-muted mb-2"><?= htmlspecialchars(legendePhotoDon($d['photo'], $d['couverture_don'])) ?></div>
                             <span class="badge bg-success-subtle text-success border border-success-subtle mb-2">Gratuit</span>
                             <h6 class="fw-bold mb-1"><?= htmlspecialchars($d['titre']) ?></h6>
                             <?php if ($d['auteur']): ?><div class="small text-muted"><?= htmlspecialchars($d['auteur']) ?></div><?php endif; ?>

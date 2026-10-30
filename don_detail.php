@@ -7,10 +7,10 @@ require_once 'avis_lib.php';
 if (session_status() === PHP_SESSION_NONE) { session_start(); }
 
 $stmt = $pdo->prepare("
-    SELECT d.*, c.nom AS categorie_nom,
+    SELECT d.*, livre_don.couverture AS couverture_don, c.nom AS categorie_nom,
            dn.pseudo AS donneur_pseudo,
            b.pseudo AS beneficiaire_pseudo
-    FROM don d
+    FROM don d LEFT JOIN livre livre_don ON livre_don.id_livre = d.id_livre
     INNER JOIN user dn ON dn.id = d.id_donneur
     LEFT JOIN user b ON b.id = d.id_beneficiaire
     LEFT JOIN categorie c ON c.id_categorie = d.id_categorie
@@ -67,8 +67,9 @@ function boutonActionDon(string $action, int $idDon, string $csrf, string $libel
     <div class="row g-4 mt-1">
         <div class="col-md-4">
             <div class="bg-light rounded-4 d-flex align-items-center justify-content-center p-3" style="height: 340px;">
-                <img src="<?= htmlspecialchars(photoDon($don['photo'])) ?>" alt="" style="max-height: 100%; max-width: 100%; object-fit: contain;">
+                <img src="<?= htmlspecialchars(photoDon($don['photo'], $don['couverture_don'])) ?>" alt="<?= htmlspecialchars(legendePhotoDon($don['photo'], $don['couverture_don']) . ' : ' . $don['titre']) ?>" style="max-height: 100%; max-width: 100%; object-fit: contain;">
             </div>
+            <p class="small text-muted mt-2 mb-0"><?= htmlspecialchars(legendePhotoDon($don['photo'], $don['couverture_don'])) ?></p>
         </div>
 
         <div class="col-md-5">

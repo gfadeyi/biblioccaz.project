@@ -73,10 +73,10 @@ $prochainsEvenements = [];
 $derniersAvis = [];
 try {
     $derniersDons = $pdo->query("
-        SELECT id_don, titre, auteur, etat, photo, lieu_retrait, date_limite
-        FROM don
-        WHERE statut = 'disponible' AND date_limite >= CURDATE()
-        ORDER BY date_creation DESC
+        SELECT d.id_don, d.titre, d.auteur, d.etat, d.photo, d.lieu_retrait, d.date_limite, l.couverture AS couverture_don
+        FROM don d LEFT JOIN livre l ON l.id_livre = d.id_livre
+        WHERE d.statut = 'disponible' AND d.date_limite >= CURDATE()
+        ORDER BY d.date_creation DESC
         LIMIT 3")->fetchAll();
     $prochainsEvenements = $pdo->query("
         SELECT e.*,
@@ -271,7 +271,7 @@ include 'header.php';
                 <h3><?= iconeDessin('carton') ?> Derniers dons</h3>
                 <?php foreach ($derniersDons as $don): ?>
                     <a href="don_detail.php?id=<?= (int) $don['id_don'] ?>" class="ligne-communaute">
-                        <span class="couverture-mini"><img src="<?= htmlspecialchars(photoDon($don['photo'])) ?>" alt="" loading="lazy"></span>
+                        <span class="couverture-mini"><img src="<?= htmlspecialchars(photoDon($don['photo'], $don['couverture_don'])) ?>" alt="" loading="lazy"></span>
                         <span class="ligne-communaute__texte">
                             <strong><?= htmlspecialchars($don['titre']) ?></strong>
                             <?php if (!empty($don['auteur'])): ?><small><?= htmlspecialchars($don['auteur']) ?></small><?php endif; ?>
