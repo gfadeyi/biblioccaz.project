@@ -1,6 +1,7 @@
 <?php
+require_once __DIR__ . '/panier_minute_lib.php';
 
-const ETATS_LIVRE = ['neuf' => 'Neuf', 'tres bon' => 'Très bon état', 'bon' => 'Bon état', 'use' => 'État usé'];
+const ETATS_LIVRE = ['neuf' => 'Neuf', 'tres bon' => 'Très bon état', 'bon' => 'Bon état', 'use' => 'Correct'];
 
 const SEUIL_STOCK_BAS_PUBLIC = 5;
 
@@ -38,7 +39,7 @@ function privilegierVraiesCouvertures(array $livres, int $nombre): array
 
 function conditionOffreMagasin(string $alias = 'e'): string
 {
-    return "$alias.id_proprietaire IS NULL AND $alias.type_offre = 'vente' AND $alias.is_disponible = 1 AND $alias.quantite > 0 AND EXISTS (SELECT 1 FROM livre fiche WHERE fiche.id_livre = $alias.id_livre AND fiche.is_valide = 1)";
+    return "$alias.id_proprietaire IS NULL AND $alias.type_offre = 'vente' AND $alias.is_disponible = 1 AND $alias.quantite > 0 AND EXISTS (SELECT 1 FROM livre fiche WHERE fiche.id_livre = $alias.id_livre AND fiche.is_valide = 1) AND " . sqlStockLibrePanier($alias) . " > 0";
 }
 
 function conditionExemplaireMagasin(string $alias = 'e'): string
@@ -59,7 +60,7 @@ function conditionAnnoncePubliee(string $alias = 'e'): string
 function sqlOffres(array $origines = []): string
 {
     $requetesParOrigine = [
-        'magasin' => "SELECT ex.id_exemplaire AS id_offre, ex.id_livre, ex.etat, ex.prix, ex.quantite, 'magasin' AS origine
+        'magasin' => "SELECT ex.id_exemplaire AS id_offre, ex.id_livre, ex.etat, ex.prix, " . sqlStockLibrePanier('ex') . " AS quantite, 'magasin' AS origine
                       FROM exemplaire ex WHERE " . conditionOffreMagasin('ex'),
         'particulier' => "SELECT an.id_exemplaire AS id_offre, an.id_livre, an.etat, an.prix, 1 AS quantite, 'particulier' AS origine
                           FROM exemplaire an WHERE " . conditionAnnoncePubliee('an'),
@@ -74,11 +75,12 @@ function sqlOffres(array $origines = []): string
 
 function sqlCartesLivres(string $conditions = ''): string
 {
+    $stockLibre = sqlStockLibrePanier('e');
     return "
         SELECT l.id_livre, l.titre, l.auteur, l.couverture,
                MIN(e.prix) AS prix,
                SUBSTRING_INDEX(GROUP_CONCAT(e.etat ORDER BY e.prix ASC), ',', 1) AS etat,
-               SUM(e.quantite) AS stock,
+               SUM($stockLibre) AS stock,
                COUNT(e.id_exemplaire) AS nb_offres,
                av.moyenne AS note_moyenne, COALESCE(av.nb, 0) AS nb_avis,
                COALESCE(fv.nb, 0) AS nb_favoris

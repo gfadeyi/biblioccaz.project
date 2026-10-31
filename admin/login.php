@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/_init.php';
+require_once __DIR__ . '/../connexion_equipe_lib.php';
 
 if (estEquipe()) {
     rediriger('index.php');
@@ -12,29 +13,23 @@ if (($_GET['connexion'] ?? '') === 'indisponible') { $erreur = 'Connexion tempor
 $identifiant = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $identifiant = trim($_POST['identifiant'] ?? '');
-    $mdp = $_POST['mdp'] ?? '';
-
-    $captcha = $_SESSION['captcha'] ?? null;
-    unset($_SESSION['captcha']);
-
-    $stmt = $pdo->prepare("SELECT * FROM user WHERE pseudo = ? OR email = ?");
-    $stmt->execute([$identifiant, $identifiant]);
-    $user = $stmt->fetch();
-
-    if (!$captcha || empty($captcha['valide']) || time() - $captcha['valide_le'] > 300) {
-        $erreur = "Veuillez compléter le puzzle de sécurité.";
-    } elseif (!$user || !password_verify($mdp, $user['mot_de_passe'])) {
-        $erreur = "Identifiants incorrects.";
-        insertLog('SECURITE', "Échec de connexion au back-office pour « $identifiant »");
-    } elseif (!in_array($user['role'], ROLES_EQUIPE, true)) {
-        $erreur = "Ce compte n'a pas accès au back-office.";
-        insertLog('SECURITE', "Tentative d'accès au back-office par un compte non autorisé (user #{$user['id']})");
-    } elseif ((int) $user['email_verifie'] === 0) {
-        $erreur = "Confirmez d'abord votre adresse email.";
-    } elseif (in_array($user['statut'], ['refuse_temporaire', 'refuse_definitif', 'banni'], true)) {
-        $erreur = "Ce compte est suspendu.";
+    $identifiant = is_string($_POST['identifiant'] ?? null) ? trim($_POST['identifiant']) : '';
+    $mdp = is_string($_POST['mdp'] ?? null) ? $_POST['mdp'] : '';
+    $user = null;
+    if (!is_string($_POST['csrf'] ?? null) || !verifierCsrf()) {
+        $erreur = 'Session expirée, actualisez la page.';
     } else {
+        try {
+            $user = authentifierEquipeLimitee($pdo, $identifiant, $mdp, (string) ($_SERVER['REMOTE_ADDR'] ?? ''));
+        } catch (DomainException $erreurConnexion) {
+            $erreur = $erreurConnexion->getMessage();
+            insertLog('SECURITE', 'Échec ou limitation de connexion au back-office');
+        } catch (Throwable $erreurConnexion) {
+            error_log('Connexion équipe : ' . $erreurConnexion->getMessage());
+            $erreur = 'Connexion temporairement indisponible. Réessayez plus tard.';
+        }
+    }
+    if ($user) {
         if ($user['role'] === 'moderateur' && $user['statut'] === 'valide_moderateur') {
             $pdo->prepare("UPDATE user SET statut = 'actif' WHERE id = ?")->execute([$user['id']]);
         }
@@ -69,7 +64,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <title>Connexion · Back-office BIBLIOccaz</title>
     <link rel="stylesheet" href="<?= urlStatique('ressources/bootstrap-5.3.0/bootstrap.min.css', '../') ?>">
     <link rel="stylesheet" href="<?= urlStatique('ressources/bootstrap-icons-1.11.0/bootstrap-icons.min.css', '../') ?>">
-    <link rel="stylesheet" href="admin.css">
+    <link rel="stylesheet" href="<?= urlStatique('admin/admin.css', '../') ?>">
 </head>
 <body class="admin">
 <div class="connexion-admin">
@@ -94,6 +89,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?php endif; ?>
 
         <form method="POST" action="login.php">
+            <?= champCsrf() ?>
             <div class="mb-3">
                 <label for="identifiant" class="form-label small fw-bold">Email ou pseudo</label>
                 <input type="text" id="identifiant" name="identifiant" class="form-control" value="<?= e($identifiant) ?>" required autocomplete="username" autofocus>
@@ -101,13 +97,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="mb-3">
                 <label for="mdp" class="form-label small fw-bold">Mot de passe</label>
                 <input type="password" id="mdp" name="mdp" class="form-control" required autocomplete="current-password">
-            </div>
-
-            <div class="mb-3">
-                <button type="button" class="btn btn-outline-secondary w-100" data-bs-toggle="modal" data-bs-target="#captchaModal" id="captchaTriggerBtn">
-                    <i class="bi bi-puzzle"></i> Vérification de sécurité
-                </button>
-                <input type="hidden" name="captcha_token" id="captchaToken">
             </div>
 
             <button type="submit" class="btn btn-vert w-100 py-2 fw-bold">Se connecter</button>
@@ -120,24 +109,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
 </div>
 
-<div class="modal fade" id="captchaModal" tabindex="-1" aria-labelledby="captchaTitre" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 class="modal-title h5" id="captchaTitre">Reconstituez l'image</h2>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
-            </div>
-            <div class="modal-body text-center py-4">
-                <p class="text-muted small mb-3">Cliquez sur deux cases pour échanger leurs places.</p>
-                <div id="captchaGrid"></div>
-                <p id="captchaMessage" class="mt-3 small fw-bold mb-0" style="min-height: 20px;"></p>
-            </div>
-        </div>
-    </div>
-</div>
-
 <script src="<?= urlStatique('ressources/bootstrap-5.3.0/bootstrap.bundle.min.js', '../') ?>"></script>
-<script src="../javascript/captcha_puzzle.js?v=<?= filemtime(__DIR__ . '/../javascript/captcha_puzzle.js') ?>"></script>
-<script>initCaptchaPuzzle('', { image: 'puzzle_image.php', piece: 'puzzle_piece.php', verifier: 'puzzle_verifier.php' });</script>
 </body>
 </html>

@@ -127,6 +127,9 @@ $classeRaccourci = fn(array $pages) => in_array($pageActuelle, $pages, true) ? '
     <link rel="stylesheet" href="<?= urlStatique('ressources/bootstrap-icons-1.11.0/bootstrap-icons.min.css') ?>">
     <link rel="stylesheet" href="style.css?v=<?= filemtime(__DIR__ . '/style.css') ?>">
     <meta name="csrf" content="<?= jetonCsrf() ?>">
+    <meta name="panier-expiration" content="<?= (int) ($_SESSION['panier_expiration'] ?? 0) ?>">
+    <meta name="heure-serveur" content="<?= time() ?>">
+    <link rel="stylesheet" href="<?= urlStatique('boutique.css') ?>">
     <script src="javascript/recherche.js?v=<?= filemtime(__DIR__ . '/javascript/recherche.js') ?>" defer></script>
     <script src="javascript/raccourcis.js?v=<?= filemtime(__DIR__ . '/javascript/raccourcis.js') ?>" defer></script>
     <script src="javascript/menu_univers.js?v=<?= filemtime(__DIR__ . '/javascript/menu_univers.js') ?>" defer></script>
@@ -232,9 +235,10 @@ $classeRaccourci = fn(array $pages) => in_array($pageActuelle, $pages, true) ? '
                 <a href="panier.php" class="icone-entete" aria-label="Mon panier">
                     <?= iconeDessin('cabas', $livreAjoute ? 'secousse' : '') ?><span>Panier</span>
                     <?php if ($totalArticles > 0): ?>
-                        <span class="pastille<?= $livreAjoute ? ' rebond' : '' ?>"><?= $totalArticles ?></span>
+                        <span data-panier-compteur class="pastille<?= $livreAjoute ? ' rebond' : '' ?>"><?= $totalArticles ?></span>
                     <?php endif; ?>
                 </a>
+                <span class="entete-panier-minute" data-panier-minute data-expiration="<?= (int) ($_SESSION['panier_expiration'] ?? 0) ?>" data-maintenant="<?= time() ?>"></span>
                 <ul class="dropdown-menu dropdown-menu-end p-3 shadow border-0 cart-dropdown-adjust">
                     <?php if (empty($_SESSION['panier'])): ?>
                         <li>

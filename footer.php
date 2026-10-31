@@ -112,5 +112,7 @@ $messageNewsletter = $messagesNewsletter[$_GET['newsletter'] ?? ''] ?? null;
     <script src="javascript/<?= $scriptPage ?>?v=<?= filemtime(__DIR__ . '/javascript/' . $scriptPage) ?>"></script>
 <?php endforeach; ?>
 
+<?php include __DIR__ . '/partie_apercu_livre.php'; ?>
+<script src="<?= urlStatique('javascript/boutique.js') ?>" defer></script>
 </body>
 </html>

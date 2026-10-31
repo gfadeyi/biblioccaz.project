@@ -1,0 +1,127 @@
+.carte-livre__outils { position:absolute; right:12px; bottom:12px; display:flex; gap:7px; z-index:3; }
+.bouton-apercu,.bouton-panier-rapide,.apercu-livre__fermer { display:inline-flex; align-items:center; justify-content:center; width:40px; height:40px; border:1px solid #dce5d6; border-radius:50%; background:#fff; color:#274e13; box-shadow:0 3px 12px #17230f12; transition:transform .18s ease-out,opacity .18s ease-out; }
+.bouton-apercu:hover,.bouton-panier-rapide:hover { transform:translateY(-3px); }
+.bouton-panier-rapide { background:#274e13; color:#fff; border-color:#274e13; }
+.bouton-panier-rapide:disabled { opacity:.5; }
+.carte-livre__note { display:flex; align-items:center; gap:4px; min-height:22px; }
+.apercu-livre { position:fixed; inset:0 0 0 auto; margin:0; border:0; width:min(480px,100%); height:100dvh; max-height:100dvh; max-width:100%; padding:0; background:#fbfcf9; color:#182b11; box-shadow:-12px 0 50px #17230f20; transform:translateX(100%); opacity:.5; transition:transform .24s ease-out,opacity .24s ease-out; }
+.apercu-livre.est-ouvert { transform:translateX(0); opacity:1; }
+.apercu-livre::backdrop { background:#10200e66; }
+.apercu-livre__entete { display:flex; justify-content:space-between; align-items:center; padding:18px 24px; border-bottom:1px solid #dce5d6; position:sticky; top:0; background:#fbfcf9; z-index:2; }
+.apercu-livre__libelle { font-size:.85rem; letter-spacing:.06em; text-transform:uppercase; color:#57694e; }
+.apercu-livre__contenu { padding:24px 28px 36px; }
+.apercu-livre__couverture { display:block; max-width:75%; height:250px; margin:0 auto 26px; object-fit:contain; filter:drop-shadow(0 7px 7px #17230f22); }
+.apercu-livre__auteur { color:#68755f; margin:0 0 5px; }
+.apercu-livre__contenu h2 { font-family:Georgia,serif; font-size:1.8rem; line-height:1.15; margin-bottom:12px; overflow-wrap:anywhere; }
+.apercu-livre__note { color:#47663a; }
+.apercu-livre__prix { display:block; font-size:2rem; margin:18px 0; }
+.apercu-livre__lien { display:block; text-align:center; color:#274e13; margin-top:18px; }
+.conditions-livre { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin:14px 0 22px; }
+.condition-livre { border:1px solid #cbd9c2; border-radius:12px; padding:14px 10px; background:#fff; color:#274e13; display:flex; flex-direction:column; gap:5px; text-align:center; transition:transform .18s ease-out; }
+.condition-livre[aria-pressed=true] { background:#edf4e7; border:2px solid #3f7d25; padding:13px 9px; }
+.condition-livre:disabled { opacity:.5; color:#697362; background:#f0f2ed; cursor:not-allowed; }
+.condition-livre:disabled strong { text-decoration:line-through; }
+.condition-livre span { font-size:.86rem; }
+.notification-boutique { position:fixed; bottom:24px; left:50%; transform:translateX(-50%); background:#183410; color:#fff; border-radius:14px; padding:15px 22px; max-width:min(90vw,650px); box-shadow:0 5px 28px #17230f30; z-index:1100; font-size:.95rem; }
+.couverture-envol { position:fixed; z-index:1200; pointer-events:none; object-fit:contain; }
+.entete-panier-minute { position:absolute; right:-7px; bottom:-11px; font-size:.66rem; padding:1px 5px; color:#fff; background:#476b30; border-radius:8px; white-space:nowrap; font-variant-numeric:tabular-nums; }
+.entete-panier-minute[hidden] { display:none; }
+.panier-delai { color:#47603d; border:1px solid #d9e7d0; padding:12px 16px; border-radius:12px; background:#edf4e8; font-size:.9rem; }
+.panier-delai strong { font-variant-numeric:tabular-nums; }
+.ligne-panier__etat { max-width:260px; margin:10px 0; }
+.fiche-livre { max-width:1320px; padding:32px 24px; margin:0 auto 28px; }
+.fiche-livre__chemin { font-size:.82rem; color:#65735d; margin:0 0 28px; display:flex; gap:9px; flex-wrap:wrap; }
+.fiche-livre__chemin a { color:inherit; }
+.fiche-livre__grille { display:grid; grid-template-columns:minmax(0,.95fr) minmax(0,1.05fr); gap:54px; align-items:start; }
+.fiche-livre__visuel { background:linear-gradient(145deg,#edf3e6,#f8faf5); border-radius:24px; padding:32px 24px; position:relative; text-align:center; }
+.fiche-livre__couverture { width:auto; max-width:85%; height:430px; object-fit:contain; filter:drop-shadow(0 10px 13px #24391b24); }
+.fiche-livre__badges { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:22px; justify-content:center; }
+.fiche-livre__audience { font-size:.86rem; color:#576b49; margin:23px 0 0; }
+.fiche-livre__auteur { margin:0 0 10px; color:#5b7050; font-size:.95rem; }
+.fiche-livre__auteur a { color:inherit; text-decoration:underline; text-underline-offset:3px; }
+.fiche-livre h1 { font-family:Georgia,serif; font-size:clamp(2rem,3.2vw,3.1rem); line-height:1.08; letter-spacing:-.035em; margin:0 0 18px; overflow-wrap:anywhere; }
+.fiche-livre__avis { display:inline-flex; gap:7px; align-items:center; flex-wrap:wrap; font-size:.9rem; color:#547440; margin-bottom:24px; }
+.fiche-livre__prix { display:flex; gap:14px; align-items:center; flex-wrap:wrap; padding:12px 0 20px; }
+.fiche-livre__prix strong { font-size:2.6rem; line-height:1; color:#274e13; }
+.fiche-livre__prix s { color:#7b8575; font-size:1.1rem; }
+.fiche-livre__economie { background:#e4efd9; color:#315d1e; border-radius:20px; padding:4px 9px; font-size:.85rem; font-weight:700; }
+.fiche-livre .conditions-livre { grid-template-columns:repeat(4,minmax(0,1fr)); }
+.fiche-livre .condition-livre { position:relative; min-height:84px; cursor:pointer; }
+.fiche-livre .condition-livre:has(input:checked) { border:2px solid #3f7d25; padding:13px 9px; background:#edf4e7; }
+.fiche-livre .condition-livre:has(input:disabled) { cursor:not-allowed; opacity:.5; background:#f0f2ed; }
+.fiche-livre .condition-livre:has(input:disabled) strong { text-decoration:line-through; }
+.fiche-livre .condition-livre:has(input:focus-visible) { outline:3px solid #6c964e; outline-offset:3px; }
+.fiche-livre__boutons { display:flex; gap:10px; align-items:stretch; margin:12px 0 18px; }
+.fiche-livre__boutons .bouton-action { flex:1; min-height:51px; }
+.fiche-livre__boutons .bouton-favori { width:51px; min-height:51px; padding:0; display:grid; place-items:center; }
+.fiche-livre__editions { color:#365f26; font-size:.87rem; }
+.fiche-informations { display:flex; flex-wrap:wrap; gap:7px; margin-top:18px; }
+.fiche-informations details { flex:1; min-width:130px; background:#fff; border:1px solid #e0e8d9; border-radius:10px; padding:12px; font-size:.8rem; }
+.fiche-informations summary { color:#345c25; font-weight:600; cursor:pointer; }
+.fiche-informations p { margin:10px 0 0; line-height:1.6; }
+.fiche-livre__onglets { margin-top:28px; background:#fff; border:1px solid #dce5d6; border-radius:18px; padding:22px; }
+.fiche-livre__onglets .nav-link { color:#365d28; padding:8px 12px; }
+.fiche-livre__onglets .nav-link.active { color:#fff; background:#274e13; border-radius:8px; }
+.fiche-livre__resume { white-space:pre-line; color:#586650; line-height:1.8; margin:16px 0; }
+.fiche-livre__resume--court { display:-webkit-box; -webkit-line-clamp:7; -webkit-box-orient:vertical; overflow:hidden; }
+.fiche-livre__tags { display:flex; gap:7px; flex-wrap:wrap; margin:18px 0 0; }
+.fiche-livre__tags a { border:1px solid #d0dfc6; border-radius:20px; padding:4px 9px; color:#3e6530; font-size:.77rem; text-decoration:none; }
+.fiche-livre__communaute { background:#fff; border:1px solid #dce5d6; border-radius:18px; padding:22px; margin-top:24px; }
+.serie-complete { max-width:1272px; margin:30px auto 48px; padding:28px; border-radius:22px; background:#eaf1e2; display:grid; grid-template-columns:260px minmax(0,1fr); gap:30px; }
+.serie-complete h2 { font-family:Georgia,serif; font-size:1.8rem; }
+.serie-complete__total { font-size:1.7rem; font-weight:700; color:#274e13; margin:18px 0; }
+.serie-complete__navigation { display:flex; justify-content:flex-end; gap:8px; margin-bottom:12px; }
+.serie-complete__navigation button { border:1px solid #c7d7b8; background:#fff; border-radius:50%; width:38px; height:38px; color:#274e13; }
+.serie-complete__tomes { display:flex; gap:18px; overflow-x:auto; scroll-snap-type:x mandatory; padding:12px 0 18px; }
+.serie-tome { flex:0 0 140px; scroll-snap-align:start; text-decoration:none; color:#274e13; }
+.serie-tome img { display:block; width:112px; height:160px; object-fit:contain; margin:0 auto 12px; filter:drop-shadow(0 4px 5px #273c1b1a); }
+.serie-tome strong { font-size:.82rem; display:block; line-height:1.4; }
+.serie-tome span { font-size:.78rem; color:#65775a; }
+@supports (animation-timeline:view()) {
+    @media (prefers-reduced-motion:no-preference) {
+        .carte-livre { animation:carte-lecture linear both; animation-timeline:view(); animation-range:entry 0% entry 20%; }
+        @keyframes carte-lecture { from { opacity:.5; } to { opacity:1; } }
+    }
+}
+@media (max-width:991px) {
+    .fiche-livre__grille { gap:28px; }
+    .fiche-livre__couverture { height:340px; }
+    .fiche-livre .conditions-livre { grid-template-columns:repeat(2,minmax(0,1fr)); }
+    .serie-complete { margin:24px; grid-template-columns:220px minmax(0,1fr); gap:22px; }
+}
+@media (max-width:767px) {
+    .fiche-livre { padding:22px 18px; }
+    .fiche-livre__grille { grid-template-columns:1fr; gap:26px; }
+    .fiche-livre__couverture { height:310px; }
+    .fiche-livre__visuel { padding:24px 18px; }
+    .fiche-livre__onglets { padding:18px 15px; }
+    .fiche-livre__prix strong { font-size:2.25rem; }
+    .serie-complete { grid-template-columns:1fr; margin:18px; padding:22px; }
+    .serie-complete__navigation { margin-bottom:0; }
+    .apercu-livre { width:100%; }
+    .apercu-livre__contenu { padding:20px; }
+    .apercu-livre__couverture { height:220px; }
+    .notification-boutique { bottom:15px; width:calc(100% - 30px); }
+}
+@media (prefers-reduced-motion:reduce) {
+    .apercu-livre,.condition-livre,.bouton-apercu,.bouton-panier-rapide,.carte-livre { animation:none !important; transition:none !important; }
+    .serie-complete__tomes { scroll-behavior:auto; }
+}
+
+.resume-moins { display:none; }
+.resume-depliable:has(details[open]) .resume-extrait { display:none; }
+.resume-depliable details[open] .resume-plus { display:none; }
+.resume-depliable details[open] .resume-moins { display:inline; }
+.resume-depliable summary { color:#365f26; font-size:.87rem; }
+.fiche-details div { display:grid; grid-template-columns:minmax(100px,1fr) 1.5fr; gap:12px; border-bottom:1px solid #e4ebdf; padding:9px 0; font-size:.86rem; }
+.fiche-details dd { margin:0; overflow-wrap:anywhere; }
+.fiche-livre__onglets .tab-pane { min-height:100px; }
+
+.fiche-livre__grille { gap:28px 54px; }
+.fiche-livre__visuel { grid-column:1; grid-row:1; }
+.fiche-livre__achat { grid-column:2; grid-row:1; }
+.fiche-livre__onglets { grid-column:1; grid-row:2; margin-top:0; }
+.fiche-livre__communaute { grid-column:2; grid-row:2; margin-top:0; }
+@media (max-width:767px) {
+    .fiche-livre__visuel,.fiche-livre__achat,.fiche-livre__onglets,.fiche-livre__communaute { grid-column:auto; grid-row:auto; }
+}

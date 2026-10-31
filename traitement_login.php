@@ -63,7 +63,9 @@ try {
             $_SESSION['welcome_modo'] = "Bienvenue dans l'équipe de modération ! Votre compte a été validé par l'administrateur. Votre mission sera désormais de modérer nos livres et d'en modifier les descriptifs.";
         }
 
-        header("Location: index.php");
+        $retour = ($_SESSION['retour_apres_connexion'] ?? '') === 'achat.php' ? 'achat.php' : 'index.php';
+        unset($_SESSION['retour_apres_connexion']);
+        header('Location: ' . $retour);
         exit();
     } else {
         header("Location: login.php?error=1");

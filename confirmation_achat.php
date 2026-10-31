@@ -5,7 +5,7 @@ if (session_status() === PHP_SESSION_NONE) { session_start(); }
 require_once 'panier_calcul.php';
 
 if (!isset($_SESSION['user_id']) || empty($_SESSION['panier']) || $_SERVER['REQUEST_METHOD'] !== 'POST') {
-    header("Location: index.php");
+    header("Location: panier.php");
     exit();
 }
 
@@ -63,6 +63,7 @@ $niveauAvant = niveauMembre($pdo, $idUser);
 
 try {
     $pdo->beginTransaction();
+    verrouillerPanierPourPaiement($pdo);
 
     $stmtEx = $pdo->prepare("
         SELECT e.id_exemplaire, e.id_livre, e.prix, e.etat, e.quantite, l.titre
@@ -157,7 +158,9 @@ try {
     }
     $nouveauxBadges = verifierBadges($pdo, $idUser);
 
+    terminerReservationPaiement($pdo);
     $pdo->commit();
+    viderPanierApresPaiement();
     insertLog('ACHAT', "Commande #$idCommande validee ({$totaux['total']} EUR, +{$totaux['points']} points, -" . ($option['points'] ?? 0) . " points).");
 
 } catch (Exception $e) {
@@ -165,7 +168,7 @@ try {
         $pdo->rollBack();
     }
     insertLog('ERREUR', "Echec de la validation de commande : " . $e->getMessage());
-    $message = $e instanceof RuntimeException ? $e->getMessage() : "Une erreur est survenue lors de la validation de la commande.";
+    $message = ($e instanceof DomainException || ($e instanceof RuntimeException && !$e instanceof PDOException)) ? $e->getMessage() : "Une erreur est survenue lors de la validation de la commande.";
     header("Location: panier.php?error=" . urlencode($message));
     exit();
 }

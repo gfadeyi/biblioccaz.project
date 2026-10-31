@@ -1,23 +1,26 @@
 <?php
 require_once 'config.php';
 require_once 'livres_lib.php';
-include 'header.php';
+require_once 'series_lib.php';
 
-$id = $_GET['id'] ?? null;
-$offre_index = $_GET['offre'] ?? 0;
+$id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT) ?: 0;
+$offre_index = max(0, filter_input(INPUT_GET, 'offre', FILTER_VALIDATE_INT) ?: 0);
 
 $stmt = $pdo->prepare("SELECT * FROM livre WHERE id_livre = ? AND is_valide = 1");
 $stmt->execute([$id]);
 $livre = $stmt->fetch();
 
 if (!$livre) {
+    include 'header.php';
     echo "<div class='container mt-5'>Livre introuvable.</div>";
     include 'footer.php'; exit;
 }
 
 $stmtEx = $pdo->prepare("SELECT id_exemplaire, etat, prix, quantite FROM exemplaire e WHERE e.id_livre = ? AND " . conditionOffreMagasin() . " ORDER BY prix ASC");
 $stmtEx->execute([$id]);
-$offres = $stmtEx->fetchAll();
+$offres = array_values(array_filter(offresMagasinDuLivre($pdo, (int) $id), fn($offre) => $offre['libre'] > 0));
+foreach ($offres as &$offreLibre) { $offreLibre['quantite'] = $offreLibre['libre']; }
+unset($offreLibre);
 
 $offre_selectionnee = $offres[$offre_index] ?? null;
 
@@ -59,7 +62,7 @@ function formaterEtat($etat) {
     if ($e == 'tres bon' || $e == 'très bon') return 'Très bon';
     if ($e == 'bon') return 'Bon';
     if ($e == 'neuf') return 'Neuf';
-    if ($e == 'use' || $e == 'usé') return 'Usé';
+    if ($e == 'use' || $e == 'usé') return 'Correct';
     return ucfirst($e);
 }
 
@@ -110,219 +113,44 @@ foreach ($etatEmprunt['exemplaires'] as $exemplaireEmprunt) {
 const RANG_ETATS = ['neuf' => 0, 'tres bon' => 1, 'bon' => 2, 'use' => 3];
 const TRIS_OFFRES = ['prix' => 'Prix', 'etat' => 'État', 'type' => 'Type'];
 const RANG_ORIGINES = ['magasin' => 0, 'particulier' => 1, 'don' => 2, 'emprunt' => 3];
-$triOffres = isset(TRIS_OFFRES[$_GET['tri_offres'] ?? '']) ? $_GET['tri_offres'] : 'prix';
+$triOffres = is_string($_GET['tri_offres'] ?? null) && isset(TRIS_OFFRES[$_GET['tri_offres']]) ? $_GET['tri_offres'] : 'prix';
 usort($toutesOffres, fn($a, $b) => match ($triOffres) {
     'etat' => [RANG_ETATS[$a['etat']] ?? 9, $a['prix']] <=> [RANG_ETATS[$b['etat']] ?? 9, $b['prix']],
     'type' => [RANG_ORIGINES[$a['origine']], $a['prix']] <=> [RANG_ORIGINES[$b['origine']], $b['prix']],
     default => [$a['prix'], RANG_ETATS[$a['etat']] ?? 9] <=> [$b['prix'], RANG_ETATS[$b['etat']] ?? 9],
 });
-$peutAcheterEnMagasin = ($_SESSION['role'] ?? '') === 'client';
+$peutAcheterEnMagasin = !isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') === 'client';
 ?>
 
-<style>
-    .btn-custom-green { background-color: #274e13; color: white; font-weight: bold; border-radius: 50px; padding: 12px; border: none; }
-    .btn-custom-green:hover { background-color: #1a330d; color: white; }
-    .btn-admin-green { background-color: #274e13; color: white; border-radius: 50px; font-size: 0.85rem; padding: 10px; }
-    .btn-state-active { background-color: #274e13 !important; color: white !important; border-radius: 50px; padding: 8px 20px; transition: 0.3s; }
-    .btn-state-inactive { border: 1px solid #274e13; color: #274e13; border-radius: 50px; padding: 8px 20px; transition: 0.3s; }
-    .btn-state-inactive:hover { background-color: #e8f5e9; }
-    .bouton-favori { width: 44px; height: 44px; flex-shrink: 0; }
-</style>
-
-<div class="container mt-5 mb-5">
-    <div class="row g-4 g-lg-5">
-        <div class="col-md-4 text-center">
-            <img src="<?= htmlspecialchars(urlImage($livre['couverture'])) ?>" alt="Couverture de <?= htmlspecialchars($livre['titre']) ?>" class="img-fluid rounded shadow-sm" style="max-height: 450px;">
-        </div>
-
-        <div class="col-md-8 col-lg-5">
-            <?php if ($flashCompte): ?>
-                <div class="alert alert-<?= htmlspecialchars($flashCompte[0]) ?> rounded-3 py-2 small"><?= htmlspecialchars($flashCompte[1]) ?></div>
-            <?php endif; ?>
-            <div class="d-flex align-items-start gap-3">
-                <h1 class="fw-bold flex-grow-1"><?= htmlspecialchars($livre['titre']) ?></h1>
-                <?php if ($idUserConnecte): ?>
-                    <?= $enFavori
-                        ? formulaireCompte('favori_retirer', (int) $livre['id_livre'], '<i class="bi bi-heart-fill"></i>', 'btn btn-outline-danger rounded-circle bouton-favori', "Retirer de mes favoris")
-                        : formulaireCompte('favori_ajouter', (int) $livre['id_livre'], '<i class="bi bi-heart"></i>', 'btn btn-outline-secondary rounded-circle bouton-favori', "Ajouter à mes favoris") ?>
-                <?php else: ?>
-                    <a href="login.php" class="btn btn-outline-secondary rounded-circle bouton-favori" title="Connectez-vous pour ajouter ce livre à vos favoris"><i class="bi bi-heart"></i></a>
-                <?php endif; ?>
-            </div>
-            <?php $slugAuteur = slugFichePublique($pdo, isset($livre['id_user_auteur']) ? (int) $livre['id_user_auteur'] : null); ?>
-            <p class="text-muted h5 mb-2">Par <?php if ($slugAuteur): ?><a href="auteur.php?a=<?= rawurlencode($slugAuteur) ?>" class="lien-auteur-livre"><?= htmlspecialchars($livre['auteur']) ?></a><?php else: ?><?= htmlspecialchars($livre['auteur']) ?><?php endif; ?></p>
-            <?php
-            require_once 'avis_lib.php';
-            $noteEntete = noteDuLivre($pdo, (int) $livre['id_livre']);
-            ?>
-            <a href="#avis" class="d-inline-flex align-items-center gap-2 text-decoration-none text-muted small mb-2">
-                <?= etoilesStyle() ?>
-                <?php if ($noteEntete['nb']): ?>
-                    <?= etoiles($noteEntete['moyenne']) ?>
-                    <span><?= number_format($noteEntete['moyenne'], 1, ',', '') ?> · <?= $noteEntete['nb'] ?> avis</span>
-                <?php else: ?>
-                    <span><i class="bi bi-chat-square-text"></i> Donner le premier avis</span>
-                <?php endif; ?>
-            </a>
-            <?php
-            require_once 'categories_lib.php';
-            $catLivre = null;
-            $tagsLivre = [];
-            try {
-                if (!empty($livre['id_categorie'])) {
-                    $stmtCat = $pdo->prepare("SELECT nom, slug FROM categorie WHERE id_categorie = ?");
-                    $stmtCat->execute([$livre['id_categorie']]);
-                    $catLivre = $stmtCat->fetch();
-                }
-                $tagsLivre = tagsDuLivre($pdo, (int) $livre['id_livre']);
-            } catch (PDOException $e) {
-            }
-            ?>
-            <div class="d-flex flex-wrap gap-2 mb-4">
-                <?php if ($catLivre): ?>
-                    <a href="catalogue.php?categorie=<?= urlencode($catLivre['slug']) ?>" class="badge rounded-pill text-decoration-none" style="background:#274e13;"><?= htmlspecialchars($catLivre['nom']) ?></a>
-                <?php endif; ?>
-                <?php foreach ($tagsLivre as $tl): ?>
-                    <a href="catalogue.php?tag=<?= urlencode($tl['slug']) ?>" class="badge rounded-pill bg-light text-success border border-success text-decoration-none">#<?= htmlspecialchars($tl['nom']) ?></a>
-                <?php endforeach; ?>
-            </div>
-            
-            <div class="mb-4">
-                <h6 class="fw-bold mb-3">État des exemplaires</h6>
-                <div class="d-flex flex-wrap gap-2 pb-2">
-                    <?php foreach ($offres as $index => $offre): 
-                        $is_active = ($index == $offre_index);
-                        $etat_label = formaterEtat($offre['etat']);
-                    ?>
-                        <a href="detail_livre.php?id=<?= $id ?>&offre=<?= $index ?>" 
-                           class="<?= $is_active ? 'btn-state-active' : 'btn-state-inactive' ?> text-decoration-none d-flex flex-column align-items-center" 
-                           style="min-width: 90px;">
-                            <span class="fw-bold text-nowrap"><?= $etat_label ?></span>
-                            <span class="small" style="font-size: 0.75rem;"><?= formaterPrix($offre['prix']) ?></span>
-                        </a>
-                    <?php endforeach; ?>
-                </div>
-            </div>
-
-            <?php if (trim((string) $livre['description']) !== ''): ?>
-            <div class="mt-4">
-                <h5 class="fw-bold border-bottom pb-2">Descriptif</h5>
-                <p class="text-secondary" style="text-align: justify;"><?= nl2br(htmlspecialchars($livre['description'])) ?></p>
-            </div>
-            <?php endif; ?>
-
-            <?php
-            $caracteristiquesLivre = array_filter([
-                'Éditeur' => $livre['editeur'] ?? '',
-                'Collection' => $livre['collection'] ?? '',
-                'Année' => $livre['annee_parution'] ?? '',
-                'ISBN' => $livre['isbn'] ?? '',
-                'Niveau scolaire' => $livre['niveau_scolaire'] ?? '',
-                'Matière' => $livre['matiere'] ?? '',
-                'Nombre de pages' => $livre['nb_pages'] ?? '',
-                'Format' => trim(($livre['reliure'] ?? '') . (!empty($livre['reliure']) && !empty($livre['dimensions']) ? ' · ' : '') . ($livre['dimensions'] ?? '')),
-                'Poids' => !empty($livre['poids']) ? $livre['poids'] . ' g' : '',
-                'Langue' => $livre['langue'] ?? '',
-            ], fn($valeur) => trim((string) $valeur) !== '');
-            ?>
-            <?php if ($caracteristiquesLivre): ?>
-            <div class="mt-4">
-                <h5 class="fw-bold border-bottom pb-2">Caractéristiques</h5>
-                <table class="table table-sm mt-3">
-                    <?php foreach ($caracteristiquesLivre as $libelleCaracteristique => $valeurCaracteristique): ?>
-                            <tr><th><?= $libelleCaracteristique ?></th><td><?= htmlspecialchars((string) $valeurCaracteristique) ?></td></tr>
-                    <?php endforeach; ?>
-                </table>
-            </div>
-            <?php endif; ?>
-        </div>
-
-        <div class="col-12 col-lg-3">
-            <div class="card p-4 shadow-sm border-0 bg-white" style="border-radius: 15px;">
-                <?php if ($offre_selectionnee): ?>
-                    <h2 class="fw-bold text-success"><?= formaterPrix($offre_selectionnee['prix']) ?></h2>
-                    <?php if (stockEstBas((int) $offre_selectionnee['quantite'])): ?>
-                        <p class="mb-3"><?= badgeStockBas() ?></p>
-                    <?php endif; ?>
-                    
-                    <?php 
-                    $estConnecte = isset($_SESSION['user_id']);
-                    $estClient = ($estConnecte && isset($_SESSION['role']) && $_SESSION['role'] === 'client');
-                    ?>
-
-                    <?php if ($estClient && $offre_selectionnee['quantite'] > 0): ?>
-                        <form action="action_ajouter_panier.php" method="POST">
-                            <input type="hidden" name="csrf" value="<?= jetonCsrf() ?>">
-                            <input type="hidden" name="id_livre" value="<?= $id ?>">
-                            <input type="hidden" name="id_exemplaire" value="<?= $offre_selectionnee['id_exemplaire'] ?>">
-                            <input type="hidden" name="titre" value="<?= htmlspecialchars($livre['titre']) ?>">
-                            <input type="hidden" name="etat" value="<?= htmlspecialchars($offre_selectionnee['etat']) ?>">
-                            <input type="hidden" name="prix" value="<?= $offre_selectionnee['prix'] ?>">
-                            <input type="hidden" name="image" value="<?= htmlspecialchars($livre['couverture'] ?: 'default.png') ?>">
-                            <button type="submit" name="action" value="ajouter" class="btn btn-custom-green w-100 mb-2">Ajouter au panier</button>
-                            <button type="submit" name="action" value="acheter" class="btn btn-outline-dark w-100 rounded-pill">Acheter</button>
-                        </form>
-                    <?php elseif (!$estConnecte): ?>
-                        <a href="login.php" class="btn btn-custom-green w-100 rounded-pill py-2">Connexion pour acheter</a>
-                    <?php elseif ($offre_selectionnee['quantite'] <= 0): ?>
-                        <button class="btn btn-secondary w-100 rounded-pill" disabled>Cet état est épuisé</button>
-                    <?php else: ?>
-                        <button class="btn btn-outline-secondary w-100 rounded-pill" disabled>Achat réservé aux comptes lecteurs</button>
-                    <?php endif; ?>
-                <?php endif; ?>
-
-                <?php if ($stockTotal <= 0): ?>
-                    <?php if (!$offre_selectionnee): ?>
-                        <h2 class="h5 fw-bold text-secondary">Épuisé</h2>
-                    <?php endif; ?>
-                    <p class="small text-muted mb-2">Ce livre n'est plus en stock pour le moment.</p>
-                    <?php if (!$idUserConnecte): ?>
-                        <a href="login.php" class="btn btn-outline-success w-100 rounded-pill"><i class="bi bi-bell"></i> Se connecter pour être averti</a>
-                    <?php elseif ($alerteActive): ?>
-                        <div class="small text-success mb-2"><i class="bi bi-bell-fill"></i> Vous serez prévenu par mail dès son retour.</div>
-                        <?= formulaireCompte('alerte_retirer', (int) $livre['id_livre'], 'Annuler l\'alerte', 'btn btn-link btn-sm text-muted p-0') ?>
-                    <?php else: ?>
-                        <?= formulaireCompte('alerte_ajouter', (int) $livre['id_livre'], '<i class="bi bi-bell"></i> M\'avertir quand il revient', 'btn btn-outline-success w-100 rounded-pill') ?>
-                    <?php endif; ?>
-                <?php endif; ?>
-
-                <?php if ($etatEmprunt['total'] > 0): ?>
-                    <hr class="my-3">
-                    <?php include 'partie_emprunt_livre.php'; ?>
-                <?php endif; ?>
-
-                <?php
-                $nbDonsLivre = 0;
-                try {
-                    $stmtDons = $pdo->prepare("SELECT COUNT(*) FROM don WHERE id_livre = ? AND statut = 'disponible' AND date_limite >= CURDATE()");
-                    $stmtDons->execute([$id]);
-                    $nbDonsLivre = (int) $stmtDons->fetchColumn();
-                } catch (PDOException $e) {
-                }
-                ?>
-                <hr class="my-3">
-                <?php if ($nbDonsLivre > 0): ?>
-                    <a href="dons.php?q=<?= urlencode($livre['titre']) ?>" class="d-block small fw-bold text-success text-decoration-none mb-2">
-                        <i class="bi bi-gift"></i> <?= $nbDonsLivre ?> exemplaire<?= $nbDonsLivre > 1 ? 's' : '' ?> à récupérer gratuitement
-                    </a>
-                <?php endif; ?>
-                <p class="small text-muted mb-0">
-                    <i class="bi bi-heart" aria-hidden="true"></i> Vous avez ce livre ?
-                    <a href="annonce_creer.php?livre=<?= $id ?>" class="text-muted">Vendez-le</a> ou
-                    <a href="don_creer.php?livre=<?= $id ?>" class="text-muted">donnez-le</a>
-                </p>
-
-                <?php if (in_array($_SESSION['role'] ?? '', ['admin', 'gestionnaire'], true)): ?>
-                    <hr class="my-3">
-                    <div class="d-grid gap-2">
-                        <a href="admin/livre.php?id=<?= $id ?>" class="btn btn-admin-green">Modifier la fiche</a>
-                        <a href="admin/exemplaires.php?id=<?= $id ?>" class="btn btn-outline-success rounded-pill">Gérer le stock</a>
-                    </div>
-                <?php endif; ?>
-            </div>
-        </div>
-    </div>
-</div>
+<?php
+require_once 'categories_lib.php';
+$noteEntete = noteDuLivre($pdo, (int) $id);
+$tagsLivre = tagsDuLivre($pdo, (int) $id);
+$publicsLivre = array_values(array_filter($tagsLivre, fn($tag) => ($tag['famille'] ?? $tag['type'] ?? '') === 'public'));
+$catLivre = null;
+if (!empty($livre['id_categorie'])) {
+    $requeteCategorie = $pdo->prepare('SELECT nom, slug FROM categorie WHERE id_categorie = ?');
+    $requeteCategorie->execute([(int) $livre['id_categorie']]);
+    $catLivre = $requeteCategorie->fetch() ?: null;
+}
+$slugAuteur = slugFichePublique($pdo, isset($livre['id_user_auteur']) ? (int) $livre['id_user_auteur'] : null);
+$serieLivre = serieDuLivre($pdo, (int) $id);
+$selectionSerie = $serieLivre ? selectionSerieDisponible($pdo, (int) $serieLivre['id_serie']) : null;
+$etatsMagasin = etatsMagasinDuLivre($pdo, (int) $id);
+$selectionMagasin = $offre_selectionnee ?: ($offres[0] ?? null);
+$prixNeufLivre = prixNeufReference($pdo, $livre);
+$requeteEditions = $pdo->prepare('SELECT COUNT(*) FROM livre WHERE titre = ? AND auteur = ? AND id_livre <> ? AND is_valide = 1');
+$requeteEditions->execute([$livre['titre'], (string) $livre['auteur'], (int) $id]);
+$nombreEditions = (int) $requeteEditions->fetchColumn();
+$caracteristiquesLivre = array_filter([
+    'Éditeur' => $livre['editeur'] ?? '', 'Collection' => $livre['collection'] ?? '', 'Année' => $livre['annee_parution'] ?? '',
+    'ISBN' => $livre['isbn'] ?? '', 'Niveau scolaire' => $livre['niveau_scolaire'] ?? '', 'Matière' => $livre['matiere'] ?? '',
+    'Nombre de pages' => $livre['nb_pages'] ?? '', 'Format' => trim(($livre['reliure'] ?? '') . ' ' . ($livre['dimensions'] ?? '')), 'Poids' => !empty($livre['poids']) ? $livre['poids'] . ' g' : '', 'Langue' => $livre['langue'] ?? '',
+], fn($valeur) => trim((string) $valeur) !== '');
+$titreDocument = $livre['titre'];
+include 'header.php';
+include 'partie_fiche_livre.php';
+?>
 
 <?php if ($toutesOffres): ?>
     <section class="container mb-5 offres-section" id="offres" aria-labelledby="titre-offres">

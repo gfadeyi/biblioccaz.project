@@ -38,6 +38,10 @@ $empruntSeulement = $sansPrix && !$donSeulement;
         <?php else: ?>
             <a href="login.php" class="bouton-coeur" title="Connectez-vous pour ajouter ce livre à vos favoris" aria-label="Se connecter pour ajouter ce livre à vos favoris"><i class="bi bi-heart"></i></a>
         <?php endif; ?>
+        <div class="carte-livre__outils">
+            <button type="button" class="bouton-apercu" data-apercu="<?= (int) $l['id_livre'] ?>" aria-label="Aperçu de <?= htmlspecialchars($l['titre']) ?>" title="Aperçu"><i class="bi bi-eye" aria-hidden="true"></i></button>
+            <button type="button" class="bouton-panier-rapide" data-ajout-rapide="<?= (int) $l['id_livre'] ?>" aria-label="Ajouter <?= htmlspecialchars($l['titre']) ?> au panier" title="Ajouter au panier"><i class="bi bi-bag-plus" aria-hidden="true"></i></button>
+        </div>
         <img src="<?= htmlspecialchars(urlImage($couverture)) ?>" alt="Couverture de <?= htmlspecialchars($l['titre']) ?>" loading="lazy">
     </div>
 
@@ -50,20 +54,18 @@ $empruntSeulement = $sansPrix && !$donSeulement;
         <?php if (!empty($l['raison'])): ?>
             <p class="carte-livre__raison"><i class="bi bi-stars" aria-hidden="true"></i> <?= htmlspecialchars($l['raison']) ?></p>
         <?php endif; ?>
-        <?php if (isset($l['nb_avis'])): ?>
-            <div class="carte-livre__note">
-                <?php if ($l['nb_avis'] > 0): ?>
-                    <?= etoiles((float) $l['note_moyenne']) ?> (<?= (int) $l['nb_avis'] ?>)
-                <?php endif; ?>
-            </div>
-        <?php endif; ?>
+        <div class="carte-livre__note">
+            <?php if ((int) ($l['nb_avis'] ?? 0) > 0): ?>
+                <span><?= number_format((float) $l['note_moyenne'], 1, ',', '') ?></span> <?= etoiles((float) $l['note_moyenne']) ?> <span>(<?= (int) $l['nb_avis'] ?>)</span>
+            <?php else: ?><span class="small text-muted">Pas encore d’avis</span><?php endif; ?>
+        </div>
         <div class="carte-livre__pied">
             <?php if ($nbOffres > 1): ?>
                 <p class="carte-livre__offres"><?= $nbOffres ?> offres dès <?= formaterPrix((float) $l['prix']) ?></p>
             <?php endif; ?>
             <div class="carte-livre__bas">
                 <span class="badge-bibli badge-etat"><?= htmlspecialchars(libelleEtat($l['etat'])) ?></span>
-                <?php if ($empruntSeulement): ?>
+                <?php if (!empty($l['epuise'])): ?><span class="small text-muted">Actuellement épuisé</span><?php elseif ($empruntSeulement): ?>
                     <span class="prix"><i class="bi bi-book" aria-hidden="true"></i> À emprunter</span>
                 <?php elseif ($donSeulement): ?>
                     <span class="prix"><i class="bi bi-gift" aria-hidden="true"></i> Don</span>

@@ -1,32 +1,10 @@
 <?php
-require_once __DIR__ . '/panier_calcul.php';
-require_once __DIR__ . '/livres_lib.php';
-$jauge = progressionPanier($sousTotal);
-if ($sousTotal <= 0) {
-    $iconeJauge = 'tag';
-    $messageJauge = 'Votre panier est vide : la livraison est offerte dès <strong>' . PALIERS_PANIER[0]['montant'] . ' €</strong>. Faites le plein de <a href="petits_prix.php">bons plans à moins de 10 €</a>&nbsp;!';
-} elseif ($jauge['prochain']) {
-    $iconeJauge = $jauge['prochain']['icone'];
-    $messageJauge = 'Plus que <strong>' . formaterPrix($jauge['reste']) . '</strong> pour ' . $jauge['prochain']['objectif'] . '&nbsp;!';
-} else {
-    $iconeJauge = 'emoji-smile';
-    $messageJauge = '<strong>Bravo&nbsp;!</strong> Livraison offerte et -10 % sur tout votre panier.';
-}
+$montantJauge = max(0, min(50, (float) $sousTotal));
+$resteJauge = max(0, 50 - (float) $sousTotal);
 ?>
-<p class="message-encouragement"><i class="bi bi-<?= $iconeJauge ?>"></i> <span><?= $messageJauge ?></span></p>
-<div class="jauge" role="progressbar" aria-label="Montant du panier vers les avantages"
-     aria-valuemin="0" aria-valuemax="<?= $jauge['montant_max'] ?>" aria-valuenow="<?= $sousTotal ?>"
-     style="--progression: <?= round($jauge['progression'], 3) ?>;">
+<p class="message-encouragement"><i class="bi bi-tag" aria-hidden="true"></i><span><?= $resteJauge > 0 ? 'Encore <strong>' . formaterPrix($resteJauge) . '</strong> pour profiter de −10 % dès 50 € de livres.' : '<strong>−10 % sur vos livres !</strong> Le seuil de 50 € est atteint.' ?></span></p>
+<div class="jauge" role="progressbar" aria-label="Montant de livres vers la remise de dix pour cent" aria-valuemin="0" aria-valuemax="50" aria-valuenow="<?= $montantJauge ?>" style="--progression:<?= $montantJauge / 50 ?>;">
     <div class="jauge__remplissage"></div>
-    <?php foreach (PALIERS_PANIER as $palier): ?>
-        <span class="jauge__repere <?= $sousTotal >= $palier['montant'] ? 'atteint' : '' ?>"
-              style="--position: <?= $palier['montant'] / $jauge['montant_max'] ?>;"><i class="bi bi-check-lg"></i></span>
-    <?php endforeach; ?>
+    <span class="jauge__repere <?= $resteJauge <= 0 ? 'atteint' : '' ?>" style="--position:1;"><i class="bi bi-check-lg" aria-hidden="true"></i></span>
 </div>
-<ol class="jauge__paliers">
-    <?php foreach (PALIERS_PANIER as $palier): ?>
-        <li class="<?= $sousTotal >= $palier['montant'] ? 'atteint' : '' ?>" style="--position: <?= $palier['montant'] / $jauge['montant_max'] ?>;">
-            <strong><span class="libelle-long"><?= $palier['court'] ?></span><span class="libelle-court"><?= $palier['mini'] ?></span></strong><span>dès <?= $palier['montant'] ?> €</span>
-        </li>
-    <?php endforeach; ?>
-</ol>
+<p class="small text-end text-muted mt-2 mb-0">−10 % dès 50 €</p>

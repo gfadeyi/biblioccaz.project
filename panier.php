@@ -25,17 +25,17 @@ if ($idUserPanier && $panier) {
 $pointsPanier = $totaux['points'] + ($niveauPanier ? bonusNiveau($totaux['points'], $niveauPanier) : 0);
 $sousTotal = $totaux['sous_total'];
 
-require_once 'recommandations_lib.php';
-$suggestions = suggestionsPanier($pdo, $panier, $idUserPanier, (float) progressionPanier($sousTotal)['reste']);
+require_once 'series_lib.php';
 $jetonPanier = jetonCsrf();
-
 $titreDocument = 'Mon panier';
-$scriptsPage = ['panier_suggestions.js'];
+$scriptsPage = [];
 include 'header.php';
 ?>
 
 <p class="visually-hidden" id="annonce-panier" role="status" aria-live="polite"></p>
 <div class="container-xxl page-panier" id="page-panier">
+    <?php if (!empty($_SESSION['panier_message'])): ?><div class="alert alert-info" role="status"><?= htmlspecialchars($_SESSION['panier_message']) ?></div><?php unset($_SESSION['panier_message']); endif; ?>
+    <?php if ($panier): ?><p class="panier-delai"><i class="bi bi-clock" aria-hidden="true"></i> Vos livres sont réservés encore <strong data-panier-minute data-expiration="<?= (int) ($_SESSION['panier_expiration'] ?? 0) ?>" data-maintenant="<?= time() ?>"></strong>. Chaque nouvel ajout relance les 15 minutes.</p><?php endif; ?>
     <div class="entete-section">
         <div>
             <h1 class="h2 mb-0">Mon panier</h1>
@@ -77,10 +77,21 @@ include 'header.php';
                             </a>
                             <div class="ligne-panier__infos">
                                 <h2><a href="detail_livre.php?id=<?= (int) $item['id_livre'] ?>"><?= htmlspecialchars($item['titre']) ?></a></h2>
-                                <span class="badge-bibli badge-etat"><?= htmlspecialchars(libelleEtat($item['etat'])) ?></span>
+                                <form method="POST" action="panier_action.php" data-panier-formulaire class="ligne-panier__etat">
+                                    <input type="hidden" name="csrf" value="<?= jetonCsrf() ?>">
+                                    <input type="hidden" name="action" value="changer">
+                                    <input type="hidden" name="id_exemplaire" value="<?= (int) $item['id_exemplaire'] ?>">
+                                    <label class="visually-hidden" for="etat-panier-<?= (int) $item['id_exemplaire'] ?>">État de <?= htmlspecialchars($item['titre']) ?></label>
+                                    <select id="etat-panier-<?= (int) $item['id_exemplaire'] ?>" name="nouvel_exemplaire" class="form-select form-select-sm" data-panier-etat>
+                                        <?php foreach (offresMagasinDuLivre($pdo, (int) $item['id_livre']) as $optionEtat): ?>
+                                            <option value="<?= (int) $optionEtat['id_exemplaire'] ?>" <?= (int) $optionEtat['id_exemplaire'] === (int) $item['id_exemplaire'] ? 'selected' : '' ?> <?= $optionEtat['libre'] < (int) $item['quantite'] ? 'disabled' : '' ?>><?= htmlspecialchars(libelleEtat($optionEtat['etat'])) ?> · <?= formaterPrix($optionEtat['prix']) ?><?= $optionEtat['libre'] < (int) $item['quantite'] ? ' · Déjà vendu' : '' ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                    <noscript><button class="btn btn-sm btn-outline-success mt-1">Changer l’état</button></noscript>
+                                </form>
                                 <p><?= formaterPrix((float) $item['prix']) ?> l'unité</p>
                             </div>
-                            <form method="POST" action="action_modifier_panier.php" class="ligne-panier__actions">
+                            <form method="POST" action="action_modifier_panier.php" data-panier-formulaire class="ligne-panier__actions">
                                 <input type="hidden" name="csrf" value="<?= jetonCsrf() ?>">
                                 <input type="hidden" name="key" value="<?= htmlspecialchars($cle) ?>">
                                 <div class="selecteur-quantite">
@@ -134,48 +145,6 @@ include 'header.php';
         </div>
     <?php endif; ?>
 
-    <?php if ($suggestions): ?>
-        <section class="section-accueil" aria-labelledby="titre-suggestions-panier">
-            <div class="entete-section">
-                <div>
-                    <h2 id="titre-suggestions-panier" tabindex="-1"><?= $panier ? 'Pour compléter votre pile' : 'Quelques idées pour commencer' ?></h2>
-                    <p><?= $panier ? 'Dans le même esprit que vos choix. Survolez ou touchez un livre pour l’ajouter sans quitter la page.' : 'Choisis pour vous. Survolez ou touchez un livre pour l’ajouter au panier.' ?></p>
-                </div>
-                <a href="catalogue.php" class="lien-voir-tout">Tout le catalogue <i class="bi bi-chevron-right"></i></a>
-            </div>
-            <div class="carrousel">
-                <?php foreach ($suggestions as $l): ?>
-                    <div class="suggestion-panier">
-                        <?php include 'partie_carte_livre.php'; ?>
-                        <button type="button" class="bouton-exemplaires" aria-expanded="false" aria-controls="exemplaires-<?= (int) $l['id_livre'] ?>">
-                            <i class="bi bi-bag-plus" aria-hidden="true"></i> Choisir un exemplaire
-                        </button>
-                        <div class="panneau-exemplaires" id="exemplaires-<?= (int) $l['id_livre'] ?>" role="group" aria-label="Exemplaires disponibles de « <?= htmlspecialchars($l['titre']) ?> »">
-                            <p class="panneau-exemplaires__titre"><?= htmlspecialchars($l['titre']) ?></p>
-                            <ul>
-                                <?php foreach ($l['exemplaires'] as $exemplaire): ?>
-                                    <li>
-                                        <span class="panneau-exemplaires__etat"><?= htmlspecialchars(libelleEtat($exemplaire['etat'])) ?>
-                                            <?php if (stockEstBas((int) $exemplaire['quantite'])): ?><?= badgeStockBas('badge-mini') ?><?php endif; ?>
-                                        </span>
-                                        <strong><?= formaterPrix((float) $exemplaire['prix']) ?></strong>
-                                        <form method="POST" action="action_ajouter_panier.php" class="formulaire-ajout-suggestion">
-                                            <input type="hidden" name="csrf" value="<?= $jetonPanier ?>">
-                                            <input type="hidden" name="id_exemplaire" value="<?= (int) $exemplaire['id_exemplaire'] ?>">
-                                            <input type="hidden" name="action" value="acheter">
-                                            <button type="submit" class="bouton-ajout-suggestion" data-titre="<?= htmlspecialchars($l['titre']) ?>">
-                                                Ajouter au panier<span class="visually-hidden"> : <?= htmlspecialchars($l['titre']) ?>, <?= htmlspecialchars(libelleEtat($exemplaire['etat'])) ?>, <?= formaterPrix((float) $exemplaire['prix']) ?></span>
-                                            </button>
-                                        </form>
-                                    </li>
-                                <?php endforeach; ?>
-                            </ul>
-                        </div>
-                    </div>
-                <?php endforeach; ?>
-            </div>
-        </section>
-    <?php endif; ?>
 </div>
 
 <?php include 'footer.php'; ?>

@@ -111,6 +111,10 @@ $racineSite = str_replace('\\', '/', __DIR__);
 $currentPage = strpos($cheminScript, $racineSite . '/') === 0
     ? substr($cheminScript, strlen($racineSite) + 1)
     : basename($_SERVER['PHP_SELF']);
+if (!$enLigneDeCommande && !str_starts_with($currentPage, 'admin/')) {
+    require_once __DIR__ . '/panier_minute_lib.php';
+    synchroniserPanierMinute($pdo);
+}
 $ignoredPages = ['admin/logs_donnees.php', 'recherche.php',
                  'get_captcha_image.php', 'captcha_piece.php', 'captcha_verifier.php',
                  'admin/puzzle_image.php', 'admin/puzzle_piece.php', 'admin/puzzle_verifier.php'];
