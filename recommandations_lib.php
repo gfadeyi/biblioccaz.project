@@ -11,8 +11,12 @@ const POIDS_RECOMMANDATION = [
     'favori' => 2,
     'consultation' => 1,
     'livre_courant' => 4,
+    'panier' => 4,
     'part_univers' => 0.5,
     'part_tags' => 0.5,
+    'part_auteur' => 2,
+    'part_serie' => 2.5,
+    'bonus_complement' => 8,
     'part_profil_fiche' => 0.5,
     'affinite' => 60,
     'popularite' => 25,
@@ -36,7 +40,11 @@ const RAISONS_RECOMMANDATION = [
     'meme_univers' => 'Du même univers « %s »',
     'meme_theme' => 'Même thème « %s »',
     'meme_tag' => 'En commun : « %s »',
+    'meme_auteur' => 'Du même auteur : %s',
+    'meme_serie' => 'Dans la même série « %s »',
+    'panier' => 'Va bien avec « %s », dans votre panier',
 ];
+const AUTEURS_SANS_AFFINITE = ['collectif', 'anonyme', 'divers', 'inconnu'];
 const RECOMMANDATIONS_NOMBRE = 12;
 const RECOMMANDATIONS_DUREE_CACHE = 600;
 const HISTORIQUE_TAILLE_MAX = 20;
@@ -44,9 +52,44 @@ const HISTORIQUE_DUREE_JOURS = 90;
 const PREFERENCES_MAX = 40;
 const ROLES_SUGGESTIONS = ['client', 'auteur'];
 
-function clesLivre(?int $idCategorie, ?int $idUnivers, array $idsTags, float $partUnivers, float $partTags): array
+function texteNormalise(string $texte): string
+{
+    return trim(preg_replace('/\s+/u', ' ', mb_strtolower(str_replace(['.', '’'], [' ', "'"], $texte))));
+}
+
+function auteursDuLivre(?string $auteur): array
+{
+    $auteurs = [];
+    foreach (preg_split('/\s*(?:,|;|&|\bet\b)\s*/u', (string) $auteur) as $nom) {
+        $nom = trim($nom);
+        if ($nom !== '' && !in_array(texteNormalise($nom), AUTEURS_SANS_AFFINITE, true)) {
+            $auteurs[texteNormalise($nom)] = $nom;
+        }
+    }
+    return $auteurs;
+}
+
+function serieDuTitre(?string $titre): ?string
+{
+    if (preg_match('/^(.+?)\s*[-–—:,]?\s*\b(?:tomes?|volumes?|vol\s*\.?|livre|t\s*\.)\s*\d+/iu', (string) $titre, $trouve)) {
+        $serie = trim($trouve[1], " \t-–—:,");
+        return mb_strlen($serie) >= 3 ? $serie : null;
+    }
+    return null;
+}
+
+function clesLivre(?int $idCategorie, ?int $idUnivers, array $idsTags, float $partUnivers, float $partTags, ?string $auteur = null, ?string $titre = null, float $partAuteur = 0.0, float $partSerie = 0.0): array
 {
     $cles = [];
+    if ($partAuteur > 0) {
+        foreach (array_keys(auteursDuLivre($auteur)) as $nom) {
+            $cles['a:' . $nom] = $partAuteur;
+        }
+    }
+    $serie = $partSerie > 0 ? serieDuTitre($titre) : null;
+    if ($serie !== null) {
+        $cles['s:' . texteNormalise($serie)] = $partSerie;
+    }
     if ($idCategorie) {
         $cles['c' . $idCategorie] = 1.0;
     }
@@ -72,15 +115,29 @@ function profilAffinites(array $signaux): array
     return $profil;
 }
 
-function fusionnerProfils(array $profil, array $ajout, float $facteur): array
+function fusionnerProfils(array $profil, array $ajout, float $facteur, array $raisonsIgnorees = []): array
 {
     foreach ($ajout as $cle => $affinite) {
         $profil[$cle]['total'] = ($profil[$cle]['total'] ?? 0) + $affinite['total'] * $facteur;
+        $profil[$cle]['raisons'] ??= [];
         foreach ($affinite['raisons'] as $raison => $valeur) {
-            $profil[$cle]['raisons'][$raison] = ($profil[$cle]['raisons'][$raison] ?? 0) + $valeur * $facteur;
+            if (!isset($raisonsIgnorees[$raison])) {
+                $profil[$cle]['raisons'][$raison] = ($profil[$cle]['raisons'][$raison] ?? 0) + $valeur * $facteur;
+            }
         }
     }
     return $profil;
+}
+
+function raisonsDesLivres(array $titres): array
+{
+    $raisons = [];
+    foreach ($titres as $titre) {
+        foreach (['achat', 'emprunt', 'note_haute', 'note_basse', 'favori', 'consultation'] as $type) {
+            $raisons[sprintf(RAISONS_RECOMMANDATION[$type], $titre)] = true;
+        }
+    }
+    return $raisons;
 }
 
 function profilEstVide(array $profil): bool
@@ -125,7 +182,7 @@ function classerRecommandations(array $candidats, array $profil, int $nombre, ar
         $popularites[$index] = log(1 + (int) $candidat['ventes'] + (int) $candidat['nb_favoris']);
         $brut = 0.0;
         $parRaison = [];
-        foreach (clesLivre($candidat['id_categorie'], $candidat['id_univers'], $candidat['tags'], 1.0, 1.0) as $cle => $part) {
+        foreach (clesLivre($candidat['id_categorie'], $candidat['id_univers'], $candidat['tags'], 1.0, 1.0, $candidat['auteur'] ?? null, $candidat['titre'] ?? null, 1.0, 1.0) as $cle => $part) {
             if (!isset($profil[$cle])) {
                 continue;
             }
@@ -263,10 +320,10 @@ function signauxLecteur(PDO $pdo, int $idUser, array $poids = POIDS_RECOMMANDATI
     $idsLivres = array_values(array_unique(array_column($evenements, 1)));
     $livres = [];
     foreach (lignesRecommandation($pdo, "
-        SELECT l.id_livre, l.titre, l.id_categorie, GROUP_CONCAT(lt.id_tag) AS tags
+        SELECT l.id_livre, l.titre, l.auteur, l.id_categorie, GROUP_CONCAT(lt.id_tag) AS tags
         FROM livre l LEFT JOIN livre_tag lt ON lt.id_livre = l.id_livre
         WHERE l.id_livre IN (" . marqueursRequete($idsLivres) . ")
-        GROUP BY l.id_livre, l.titre, l.id_categorie", $idsLivres) as $livre) {
+        GROUP BY l.id_livre, l.titre, l.auteur, l.id_categorie", $idsLivres) as $livre) {
         $livres[(int) $livre['id_livre']] = $livre;
     }
     foreach ($evenements as [$type, $idLivre]) {
@@ -279,7 +336,8 @@ function signauxLecteur(PDO $pdo, int $idUser, array $poids = POIDS_RECOMMANDATI
             'poids' => $poids[$type],
             'cles' => clesLivre($idCategorie, $idCategorie ? ($categories[$idCategorie]['id_parent'] ?? null) : null,
                                 $livre['tags'] !== null ? array_map('intval', explode(',', $livre['tags'])) : [],
-                                (float) $poids['part_univers'], (float) $poids['part_tags']),
+                                (float) $poids['part_univers'], (float) $poids['part_tags'],
+                                $livre['auteur'], $livre['titre'], (float) $poids['part_auteur'], (float) $poids['part_serie']),
             'raison' => sprintf(RAISONS_RECOMMANDATION[$type], $livre['titre']),
         ];
     }
@@ -298,6 +356,7 @@ function livresExclus(PDO $pdo, int $idUser): array
         "SELECT id_livre FROM livre WHERE id_user_auteur = ?",
         "SELECT id_livre FROM exemplaire WHERE id_proprietaire = ?",
         "SELECT id_livre FROM don WHERE id_donneur = ? AND id_livre IS NOT NULL",
+        "SELECT id_livre FROM favori WHERE id_user = ?",
     ];
     $exclus = [];
     foreach ($requetes as $sql) {
@@ -400,10 +459,26 @@ function livresSimilaires(PDO $pdo, array $livre, int $idUser, int $nombre = 6, 
         $signaux[] = ['poids' => $poids['livre_courant'], 'cles' => ['t' . (int) $tag['id_tag'] => (float) $poids['part_tags']],
                       'raison' => sprintf(RAISONS_RECOMMANDATION[($tag['famille'] ?? 'theme') === 'theme' ? 'meme_theme' : 'meme_tag'], $tag['nom'])];
     }
+    $auteurs = auteursDuLivre($livre['auteur'] ?? null);
+    foreach ($auteurs as $cle => $nom) {
+        $signaux[] = ['poids' => $poids['livre_courant'], 'cles' => ['a:' . $cle => (float) $poids['part_auteur']], 'raison' => sprintf(RAISONS_RECOMMANDATION['meme_auteur'], $nom)];
+    }
+    $serie = serieDuTitre($livre['titre'] ?? null);
+    if ($serie !== null) {
+        $signaux[] = ['poids' => $poids['livre_courant'], 'cles' => ['s:' . texteNormalise($serie) => (float) $poids['part_serie']], 'raison' => sprintf(RAISONS_RECOMMANDATION['meme_serie'], $serie)];
+    }
     $profil = profilAffinites($signaux);
 
     $conditions = [];
     $parametres = [$idLivre];
+    foreach ($auteurs as $nom) {
+        $conditions[] = "l.auteur LIKE ?";
+        $parametres[] = '%' . addcslashes($nom, '%_\\') . '%';
+    }
+    if ($serie !== null) {
+        $conditions[] = "l.titre LIKE ?";
+        $parametres[] = addcslashes($serie, '%_\\') . '%';
+    }
     $racine = $idUnivers ?? $idCategorie;
     if ($racine) {
         $conditions[] = "l.id_categorie = ? OR c.id_parent = ?";
@@ -421,10 +496,82 @@ function livresSimilaires(PDO $pdo, array $livre, int $idUser, int $nombre = 6, 
         $profilLecteur = donneesRecommandation($pdo, $idUser)['profil'];
         $affiniteMax = max([0, ...array_column($profilLecteur, 'total')]);
         if ($affiniteMax > 0) {
-            $profil = fusionnerProfils($profil, $profilLecteur, $poids['livre_courant'] * $poids['part_profil_fiche'] / $affiniteMax);
+            $profil = fusionnerProfils($profil, $profilLecteur, $poids['livre_courant'] * $poids['part_profil_fiche'] / $affiniteMax, raisonsDesLivres([(string) ($livre['titre'] ?? '')]));
         }
     }
     return classerRecommandations($candidats, $profil, $nombre, $poids);
+}
+
+function suggestionsPanier(PDO $pdo, array $panier, int $idUser, float $reste, int $nombre = 8, array $poids = POIDS_RECOMMANDATION): array
+{
+    $idsPanier = [];
+    $quantitesPanier = [];
+    foreach ($panier as $item) {
+        $idsPanier[(int) $item['id_livre']] = true;
+        $quantitesPanier[(int) $item['id_exemplaire']] = ($quantitesPanier[(int) $item['id_exemplaire']] ?? 0) + (int) $item['quantite'];
+    }
+    $idsPanier = array_keys($idsPanier);
+    $categories = categoriesRecommandation($pdo);
+    $signaux = [];
+    if ($idsPanier) {
+        foreach (lignesRecommandation($pdo, "
+            SELECT l.id_livre, l.titre, l.auteur, l.id_categorie, GROUP_CONCAT(lt.id_tag) AS tags
+            FROM livre l LEFT JOIN livre_tag lt ON lt.id_livre = l.id_livre
+            WHERE l.id_livre IN (" . marqueursRequete($idsPanier) . ")
+            GROUP BY l.id_livre, l.titre, l.auteur, l.id_categorie", $idsPanier) as $livre) {
+            $idCategorie = $livre['id_categorie'] !== null ? (int) $livre['id_categorie'] : null;
+            $signaux[] = [
+                'poids' => $poids['panier'],
+                'cles' => clesLivre($idCategorie, $idCategorie ? ($categories[$idCategorie]['id_parent'] ?? null) : null,
+                                    $livre['tags'] !== null ? array_map('intval', explode(',', $livre['tags'])) : [],
+                                    (float) $poids['part_univers'], (float) $poids['part_tags'],
+                                    $livre['auteur'], $livre['titre'], (float) $poids['part_auteur'], (float) $poids['part_serie']),
+                'raison' => sprintf(RAISONS_RECOMMANDATION['panier'], $livre['titre']),
+            ];
+        }
+    }
+    $profil = profilAffinites($signaux);
+    if ($idUser) {
+        $profilLecteur = donneesRecommandation($pdo, $idUser)['profil'];
+        $affiniteMax = max([0, ...array_column($profilLecteur, 'total')]);
+        if ($affiniteMax > 0) {
+            $profil = fusionnerProfils($profil, $profilLecteur, $poids['panier'] * ($signaux ? $poids['part_profil_fiche'] : 1) / $affiniteMax, raisonsDesLivres(array_column($panier, 'titre')));
+        }
+    }
+
+    $condition = "AND EXISTS (SELECT 1 FROM exemplaire em WHERE em.id_livre = l.id_livre AND " . conditionOffreMagasin('em') . ")";
+    if ($idsPanier) {
+        $condition .= " AND l.id_livre NOT IN (" . marqueursRequete($idsPanier) . ")";
+    }
+    $candidats = candidatsRecommandation($pdo, $condition, $idsPanier);
+    if ($idUser) {
+        $candidats = array_diff_key($candidats, livresExclus($pdo, $idUser));
+    }
+    if (!$candidats) {
+        return [];
+    }
+    $exemplaires = [];
+    $idsCandidats = array_keys($candidats);
+    foreach (lignesRecommandation($pdo, "
+        SELECT e.id_exemplaire, e.id_livre, e.etat, e.prix, e.quantite FROM exemplaire e
+        WHERE e.id_livre IN (" . marqueursRequete($idsCandidats) . ") AND " . conditionOffreMagasin() . "
+        ORDER BY e.prix, e.id_exemplaire", $idsCandidats) as $exemplaire) {
+        $restant = (int) $exemplaire['quantite'] - ($quantitesPanier[(int) $exemplaire['id_exemplaire']] ?? 0);
+        if ($restant > 0) {
+            $exemplaires[(int) $exemplaire['id_livre']][] = $exemplaire + ['restant' => $restant];
+        }
+    }
+    $classes = classerRecommandations(array_intersect_key($candidats, $exemplaires), $profil, count($exemplaires), $poids);
+    foreach ($classes as &$livre) {
+        $livre['exemplaires'] = $exemplaires[$livre['id_livre']];
+        $livre['prix'] = (float) $livre['exemplaires'][0]['prix'];
+        if ($reste > 0 && $livre['prix'] <= $reste + 3) {
+            $livre['score'] += $poids['bonus_complement'];
+        }
+    }
+    unset($livre);
+    usort($classes, fn($a, $b) => [$b['score'], $b['id_livre']] <=> [$a['score'], $a['id_livre']]);
+    return diversifierRecommandations($classes, $nombre, (int) $poids['max_par_categorie']);
 }
 
 function categoriesPertinence(PDO $pdo, int $idUser, int $nombre = 5): array
@@ -455,8 +602,12 @@ function enregistrerConsultation(PDO $pdo, int $idUser, int $idLivre): void
         if (!historiqueActif($pdo, $idUser)) {
             return;
         }
-        $pdo->prepare("INSERT INTO consultation_livre (id_user, id_livre, date_consultation) VALUES (?, ?, NOW())
-                       ON DUPLICATE KEY UPDATE date_consultation = NOW()")->execute([$idUser, $idLivre]);
+        $ajout = $pdo->prepare("INSERT INTO consultation_livre (id_user, id_livre, date_consultation) VALUES (?, ?, NOW())
+                       ON DUPLICATE KEY UPDATE date_consultation = NOW()");
+        $ajout->execute([$idUser, $idLivre]);
+        if ($ajout->rowCount() === 1) {
+            oublierRecommandations();
+        }
         $pdo->prepare("DELETE FROM consultation_livre WHERE id_user = ? AND date_consultation < NOW() - INTERVAL " . HISTORIQUE_DUREE_JOURS . " DAY")->execute([$idUser]);
         $stmt = $pdo->prepare("SELECT id_livre FROM consultation_livre WHERE id_user = ?
                                ORDER BY date_consultation DESC, id_livre DESC LIMIT 1000 OFFSET " . HISTORIQUE_TAILLE_MAX);

@@ -10,6 +10,7 @@ if (!isset($_SESSION['user_id']) || empty($_SESSION['panier']) || $_SERVER['REQU
 }
 
 require_once 'compte_lib.php';
+require_once 'recommandations_lib.php';
 require_once 'points_lib.php';
 require_once 'avis_lib.php';
 require_once 'notifications_lib.php';
@@ -208,6 +209,7 @@ $lignesMail[] = "Vos points et badges : " . SITE_URL . "/points_badges.php";
 notifierParMail((string) $stmtEmail->fetchColumn(), "Confirmation de votre commande n° $idCommande", implode("\n", $lignesMail));
 
 unset($_SESSION['panier']);
+oublierRecommandations();
 include 'header.php';
 ?>
 

@@ -2029,3 +2029,29 @@ h1, h2, h3, .titre { font-family: var(--police-titre); font-weight: 700; letter-
     .tableau-legal td { border: 0; padding: .2rem 0; }
     .tableau-legal td::before { content: attr(data-libelle); display: block; font-size: .8rem; font-weight: 600; color: var(--texte-vert-fonce); }
 }
+
+.suggestion-panier { position: relative; display: flex; flex-direction: column; gap: .5rem; height: 100%; }
+.suggestion-panier .carte-livre { flex: 1; }
+.bouton-exemplaires { display: inline-flex; align-items: center; justify-content: center; gap: .4rem; width: 100%; min-height: 44px; padding: .45rem .8rem; border: 1px solid var(--vert-300); border-radius: var(--rayon-pilule); background: var(--surface); color: var(--texte-vert-fonce); font-weight: 700; font-size: .88rem; cursor: pointer; transition: background var(--duree-rapide) var(--courbe), border-color var(--duree-rapide) var(--courbe); }
+.bouton-exemplaires:hover, .bouton-exemplaires[aria-expanded="true"] { background: var(--vert-50); border-color: var(--vert-500); }
+.bouton-exemplaires:focus-visible, .bouton-ajout-suggestion:focus-visible { outline: 3px solid var(--vert-500); outline-offset: 2px; }
+.panneau-exemplaires { position: absolute; inset: 0 0 auto 0; z-index: 3; max-height: calc(100% - 52px); overflow-y: auto; padding: .85rem; background: var(--surface); border: 1px solid var(--vert-300); border-radius: var(--rayon); box-shadow: var(--ombre-survol); opacity: 0; visibility: hidden; transform: translateY(6px); transition: opacity var(--duree-rapide) var(--courbe), transform var(--duree-rapide) var(--courbe), visibility 0s linear var(--duree-rapide); }
+.suggestion-panier.ouvert .panneau-exemplaires, .panneau-exemplaires:focus-within { opacity: 1; visibility: visible; transform: none; transition-delay: 0s; }
+@media (hover: hover) {
+    .suggestion-panier:hover .panneau-exemplaires { opacity: 1; visibility: visible; transform: none; transition-delay: 0s; }
+}
+.panneau-exemplaires__titre { margin: 0 0 .5rem; font-weight: 700; font-size: .9rem; color: var(--titre); overflow-wrap: anywhere; }
+.panneau-exemplaires ul { list-style: none; margin: 0; padding: 0; display: grid; gap: .5rem; }
+.panneau-exemplaires li { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: .3rem .5rem; padding: .5rem 0; border-top: 1px solid var(--trait); }
+.panneau-exemplaires li:first-child { border-top: 0; padding-top: 0; }
+.panneau-exemplaires__etat { display: inline-flex; flex-wrap: wrap; align-items: center; gap: .3rem; font-size: .85rem; color: var(--encre); }
+.panneau-exemplaires li strong { color: var(--texte-vert-fonce); font-size: .95rem; }
+.panneau-exemplaires form { grid-column: 1 / -1; margin: 0; }
+.bouton-ajout-suggestion { width: 100%; min-height: 40px; padding: .4rem .7rem; border: 0; border-radius: var(--rayon-pilule); background: var(--vert-fonce); color: #fff; font-weight: 700; font-size: .85rem; cursor: pointer; transition: background var(--duree-rapide) var(--courbe); }
+.bouton-ajout-suggestion:hover { background: var(--vert-nuit); }
+.bouton-ajout-suggestion[disabled] { opacity: .65; cursor: progress; }
+.panneau-exemplaires__erreur { display: block; margin-top: .3rem; font-size: .8rem; font-weight: 700; color: #a3262a; }
+.badge-mini { font-size: .68rem; padding: .1rem .45rem; }
+@media (prefers-reduced-motion: reduce) {
+    .panneau-exemplaires { transition: none; transform: none; }
+}

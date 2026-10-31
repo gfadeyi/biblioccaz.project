@@ -2,9 +2,21 @@
 
 const ETATS_LIVRE = ['neuf' => 'Neuf', 'tres bon' => 'Très bon état', 'bon' => 'Bon état', 'use' => 'État usé'];
 
+const SEUIL_STOCK_BAS_PUBLIC = 5;
+
 function libelleEtat(string $etat): string
 {
     return ETATS_LIVRE[$etat] ?? ucfirst($etat);
+}
+
+function stockEstBas(?int $stock): bool
+{
+    return $stock !== null && $stock > 0 && $stock < SEUIL_STOCK_BAS_PUBLIC;
+}
+
+function badgeStockBas(string $classes = ''): string
+{
+    return '<span class="badge-bibli badge-dernier' . ($classes !== '' ? ' ' . $classes : '') . '">Stock bas</span>';
 }
 
 function aUneVraieCouverture(?string $fichier): bool

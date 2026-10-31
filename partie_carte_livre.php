@@ -25,8 +25,8 @@ $empruntSeulement = $sansPrix && !$donSeulement;
             <?php if (in_array('don', $originesLivre, true) && !$sansPrix): ?>
                 <span class="badge-bibli badge-don"><i class="bi bi-gift" aria-hidden="true"></i> Aussi en don</span>
             <?php endif; ?>
-            <?php if ($stockLivre === 1): ?>
-                <span class="badge-bibli badge-dernier">Dernier exemplaire</span>
+            <?php if (stockEstBas($stockLivre)): ?>
+                <?= badgeStockBas() ?>
             <?php endif; ?>
         </div>
         <?php if (isset($_SESSION['user_id'])): ?>

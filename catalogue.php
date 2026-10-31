@@ -107,7 +107,7 @@ if (in_array($f['note_min'], ['3', '4', '4.5'], true)) {
     $params['note_min'] = (float) $f['note_min'];
 }
 if (!empty($f['stock_bas'])) {
-    $having[] = "SUM(CASE WHEN e.origine = 'magasin' THEN e.quantite END) <= 2";
+    $having[] = "SUM(CASE WHEN e.origine = 'magasin' THEN e.quantite END) BETWEEN 1 AND " . (SEUIL_STOCK_BAS_PUBLIC - 1);
 }
 
 $paramsTri = [];

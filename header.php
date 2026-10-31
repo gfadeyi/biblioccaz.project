@@ -228,7 +228,7 @@ $classeRaccourci = fn(array $pages) => in_array($pageActuelle, $pages, true) ? '
                 </ul>
             </div>
 
-            <div class="dropdown dropdown-hover position-relative">
+            <div class="dropdown dropdown-hover position-relative" id="entete-panier">
                 <a href="panier.php" class="icone-entete" aria-label="Mon panier">
                     <?= iconeDessin('cabas', $livreAjoute ? 'secousse' : '') ?><span>Panier</span>
                     <?php if ($totalArticles > 0): ?>

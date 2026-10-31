@@ -66,7 +66,7 @@ function formaterEtat($etat) {
 $toutesOffres = [];
 foreach ($offres as $index => $offre) {
     $toutesOffres[] = ['origine' => 'magasin', 'etat' => $offre['etat'], 'prix' => (float) $offre['prix'], 'index' => $index,
-                       'detail' => $offre['quantite'] . ' en stock', 'id_exemplaire' => (int) $offre['id_exemplaire']];
+                       'detail' => stockEstBas((int) $offre['quantite']) ? 'Stock bas' : 'En stock', 'id_exemplaire' => (int) $offre['id_exemplaire']];
 }
 try {
     $stmtAnnoncesLivre = $pdo->prepare("
@@ -241,7 +241,9 @@ $peutAcheterEnMagasin = ($_SESSION['role'] ?? '') === 'client';
             <div class="card p-4 shadow-sm border-0 bg-white" style="border-radius: 15px;">
                 <?php if ($offre_selectionnee): ?>
                     <h2 class="fw-bold text-success"><?= formaterPrix($offre_selectionnee['prix']) ?></h2>
-                    <p class="text-muted small">Stock : <?= $offre_selectionnee['quantite'] ?></p>
+                    <?php if (stockEstBas((int) $offre_selectionnee['quantite'])): ?>
+                        <p class="mb-3"><?= badgeStockBas() ?></p>
+                    <?php endif; ?>
                     
                     <?php 
                     $estConnecte = isset($_SESSION['user_id']);

@@ -2,6 +2,7 @@
 require_once 'config.php';
 require_once 'compte_lib.php';
 require_once 'avis_lib.php';
+require_once 'recommandations_lib.php';
 
 if (($_POST['action'] ?? '') === 'favori_basculer') {
     header('Content-Type: application/json; charset=utf-8');
@@ -31,6 +32,7 @@ if (($_POST['action'] ?? '') === 'favori_basculer') {
         $pdo->prepare("INSERT IGNORE INTO favori (id_user, id_livre) VALUES (?, ?)")->execute([$idUser, $idLivre]);
         $favori = true;
     }
+    oublierRecommandations();
     echo json_encode(['favori' => $favori, 'nb' => nbFavoris($pdo, $idUser)]);
     exit();
 }
@@ -70,10 +72,12 @@ if ($titre === false) {
 switch ($action) {
     case 'favori_ajouter':
         $pdo->prepare("INSERT IGNORE INTO favori (id_user, id_livre) VALUES (?, ?)")->execute([$idUser, $idLivre]);
+        oublierRecommandations();
         finir($retour, 'success', "« $titre » est dans vos favoris.");
 
     case 'favori_retirer':
         $pdo->prepare("DELETE FROM favori WHERE id_user = ? AND id_livre = ?")->execute([$idUser, $idLivre]);
+        oublierRecommandations();
         finir($retour, 'success', "« $titre » a été retiré de vos favoris.");
 
     case 'alerte_ajouter':

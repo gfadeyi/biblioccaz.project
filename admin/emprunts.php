@@ -88,6 +88,7 @@ try {
 $titrePage = 'Emprunts';
 $pageActive = 'emprunts';
 $sousTitrePage = "Réservations à préparer, retraits au comptoir, emprunts en cours (retards en tête), retours et blocages.";
+$scriptsPage = '<script src="../javascript/scanner_qr.js?v=' . filemtime(__DIR__ . '/../javascript/scanner_qr.js') . '"></script>';
 include __DIR__ . '/_haut.php';
 
 function carteEmpruntAdmin(array $em, PDO $pdo, bool $resultatCode = false): void
@@ -186,10 +187,17 @@ function carteEmpruntAdmin(array $em, PDO $pdo, bool $resultatCode = false): voi
             <form method="GET" class="carte p-3 h-100">
                 <label class="fw-bold small d-block mb-2" for="code"><i class="bi bi-qr-code-scan" aria-hidden="true"></i> Retrait ou retour au comptoir</label>
                 <div class="d-flex gap-2">
-                    <input type="text" id="code" name="code" value="<?= e($codeCherche) ?>" class="form-control text-uppercase" maxlength="80" autocomplete="off" placeholder="Code à 6 caractères" style="letter-spacing: .15em;" required>
+                    <input type="text" id="code" name="code" value="<?= e($codeCherche) ?>" class="form-control text-uppercase" maxlength="80" autocomplete="off" placeholder="Code à 6 caractères" style="letter-spacing: .15em;" required<?= $codeCherche === '' ? ' autofocus' : '' ?> aria-describedby="aide-code">
                     <button class="btn btn-success"><i class="bi bi-search" aria-hidden="true"></i><span class="visually-hidden">Chercher</span></button>
                 </div>
-                <p class="small text-muted mb-0 mt-2">Ou scannez le QR code du lecteur avec un téléphone connecté au back-office.</p>
+                <div data-scanner-qr hidden class="mt-2">
+                    <button type="button" class="btn btn-outline-success btn-sm" data-scanner-ouvrir aria-expanded="false"><i class="bi bi-camera" aria-hidden="true"></i> <span>Scanner le QR code</span></button>
+                    <div data-scanner-cadre hidden class="mt-2">
+                        <video playsinline muted class="w-100 rounded border" style="max-height: 260px; object-fit: cover;" aria-label="Aperçu de la caméra"></video>
+                    </div>
+                    <p class="small mb-0 mt-1" data-scanner-etat role="status" aria-live="polite"></p>
+                </div>
+                <p class="small text-muted mb-0 mt-2" id="aide-code">Le lecteur présente son code ou son QR code (page « Mes emprunts » ou ticket). Une douchette USB fonctionne aussi : elle saisit le lien du QR code, qui est reconnu. Le même code sert au retrait puis au retour.</p>
             </form>
         </div>
         <div class="col-lg-7">

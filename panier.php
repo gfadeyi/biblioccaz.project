@@ -25,26 +25,17 @@ if ($idUserPanier && $panier) {
 $pointsPanier = $totaux['points'] + ($niveauPanier ? bonusNiveau($totaux['points'], $niveauPanier) : 0);
 $sousTotal = $totaux['sous_total'];
 
-$idsDansPanier = array_values(array_unique(array_map(fn($item) => (int) $item['id_livre'], $panier)));
-$categoriesPanier = [];
-if ($idsDansPanier) {
-    $stmt = $pdo->prepare("SELECT DISTINCT id_categorie FROM livre WHERE id_categorie IS NOT NULL AND id_livre IN (" . implode(',', array_fill(0, count($idsDansPanier), '?')) . ")");
-    $stmt->execute($idsDansPanier);
-    $categoriesPanier = array_map('intval', $stmt->fetchAll(PDO::FETCH_COLUMN));
-}
+require_once 'recommandations_lib.php';
+$suggestions = suggestionsPanier($pdo, $panier, $idUserPanier, (float) progressionPanier($sousTotal)['reste']);
+$jetonPanier = jetonCsrf();
 
-$conditionSuggestions = $idsDansPanier ? 'AND l.id_livre NOT IN (' . implode(',', array_fill(0, count($idsDansPanier), '?')) . ')' : '';
-$ordreSuggestions = $categoriesPanier
-    ? 'ORDER BY (l.id_categorie IN (' . implode(',', array_fill(0, count($categoriesPanier), '?')) . ')) DESC, nb_favoris DESC, l.id_livre DESC'
-    : 'ORDER BY nb_favoris DESC, l.id_livre DESC';
-$stmt = $pdo->prepare(sqlCartesLivres($conditionSuggestions) . " $ordreSuggestions LIMIT 8");
-$stmt->execute(array_merge($idsDansPanier, $categoriesPanier));
-$suggestions = $stmt->fetchAll();
-
+$titreDocument = 'Mon panier';
+$scriptsPage = ['panier_suggestions.js'];
 include 'header.php';
 ?>
 
-<div class="container-xxl page-panier">
+<p class="visually-hidden" id="annonce-panier" role="status" aria-live="polite"></p>
+<div class="container-xxl page-panier" id="page-panier">
     <div class="entete-section">
         <div>
             <h1 class="h2 mb-0">Mon panier</h1>
@@ -144,16 +135,44 @@ include 'header.php';
     <?php endif; ?>
 
     <?php if ($suggestions): ?>
-        <section class="section-accueil">
+        <section class="section-accueil" aria-labelledby="titre-suggestions-panier">
             <div class="entete-section">
                 <div>
-                    <h2><?= $panier ? 'Pour compléter votre pile' : 'Quelques idées pour commencer' ?></h2>
-                    <p><?= $panier ? 'Dans le même esprit que vos choix.' : 'Les livres préférés de nos lecteurs.' ?></p>
+                    <h2 id="titre-suggestions-panier" tabindex="-1"><?= $panier ? 'Pour compléter votre pile' : 'Quelques idées pour commencer' ?></h2>
+                    <p><?= $panier ? 'Dans le même esprit que vos choix. Survolez ou touchez un livre pour l’ajouter sans quitter la page.' : 'Choisis pour vous. Survolez ou touchez un livre pour l’ajouter au panier.' ?></p>
                 </div>
                 <a href="catalogue.php" class="lien-voir-tout">Tout le catalogue <i class="bi bi-chevron-right"></i></a>
             </div>
             <div class="carrousel">
-                <?php foreach ($suggestions as $l): include 'partie_carte_livre.php'; endforeach; ?>
+                <?php foreach ($suggestions as $l): ?>
+                    <div class="suggestion-panier">
+                        <?php include 'partie_carte_livre.php'; ?>
+                        <button type="button" class="bouton-exemplaires" aria-expanded="false" aria-controls="exemplaires-<?= (int) $l['id_livre'] ?>">
+                            <i class="bi bi-bag-plus" aria-hidden="true"></i> Choisir un exemplaire
+                        </button>
+                        <div class="panneau-exemplaires" id="exemplaires-<?= (int) $l['id_livre'] ?>" role="group" aria-label="Exemplaires disponibles de « <?= htmlspecialchars($l['titre']) ?> »">
+                            <p class="panneau-exemplaires__titre"><?= htmlspecialchars($l['titre']) ?></p>
+                            <ul>
+                                <?php foreach ($l['exemplaires'] as $exemplaire): ?>
+                                    <li>
+                                        <span class="panneau-exemplaires__etat"><?= htmlspecialchars(libelleEtat($exemplaire['etat'])) ?>
+                                            <?php if (stockEstBas((int) $exemplaire['quantite'])): ?><?= badgeStockBas('badge-mini') ?><?php endif; ?>
+                                        </span>
+                                        <strong><?= formaterPrix((float) $exemplaire['prix']) ?></strong>
+                                        <form method="POST" action="action_ajouter_panier.php" class="formulaire-ajout-suggestion">
+                                            <input type="hidden" name="csrf" value="<?= $jetonPanier ?>">
+                                            <input type="hidden" name="id_exemplaire" value="<?= (int) $exemplaire['id_exemplaire'] ?>">
+                                            <input type="hidden" name="action" value="acheter">
+                                            <button type="submit" class="bouton-ajout-suggestion" data-titre="<?= htmlspecialchars($l['titre']) ?>">
+                                                Ajouter au panier<span class="visually-hidden"> : <?= htmlspecialchars($l['titre']) ?>, <?= htmlspecialchars(libelleEtat($exemplaire['etat'])) ?>, <?= formaterPrix((float) $exemplaire['prix']) ?></span>
+                                            </button>
+                                        </form>
+                                    </li>
+                                <?php endforeach; ?>
+                            </ul>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
             </div>
         </section>
     <?php endif; ?>

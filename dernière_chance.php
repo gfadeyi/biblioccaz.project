@@ -1,5 +1,5 @@
 <?php
 $preset = ['stock_bas' => 1, 'offre' => 'magasin'];
 $titrePage = 'Dernière chance';
-$sousTitre = 'Plus que 1 ou 2 exemplaires disponibles';
+$sousTitre = 'Stock bas : les derniers exemplaires disponibles';
 require 'catalogue.php';
