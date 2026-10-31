@@ -1215,3 +1215,11 @@ CREATE TABLE IF NOT EXISTS connexion_admin_limite (
     bloque_jusqua DATETIME NULL,
     INDEX idx_connexion_admin_fenetre (debut_fenetre)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+SET NAMES utf8mb4;
+
+ALTER TABLE livre ADD COLUMN IF NOT EXISTS date_parution DATE NULL;
+ALTER TABLE livre_serie ADD COLUMN IF NOT EXISTS numero_tome_fin DECIMAL(7,2) NULL;
+ALTER TABLE livre_serie MODIFY COLUMN numero_tome DECIMAL(7,2) NULL;
+ALTER TABLE serie ADD COLUMN IF NOT EXISTS nature VARCHAR(20) NOT NULL DEFAULT 'cycle';
+ALTER TABLE livre_serie ADD COLUMN IF NOT EXISTS cle_oeuvre VARCHAR(64) NULL;

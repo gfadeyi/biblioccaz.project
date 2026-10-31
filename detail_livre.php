@@ -139,12 +139,10 @@ $selectionSerie = $serieLivre ? selectionSerieDisponible($pdo, (int) $serieLivre
 $etatsMagasin = etatsMagasinDuLivre($pdo, (int) $id);
 $selectionMagasin = $offre_selectionnee ?: ($offres[0] ?? null);
 $prixNeufLivre = prixNeufReference($pdo, $livre);
-$requeteEditions = $pdo->prepare('SELECT COUNT(*) FROM livre WHERE titre = ? AND auteur = ? AND id_livre <> ? AND is_valide = 1');
-$requeteEditions->execute([$livre['titre'], (string) $livre['auteur'], (int) $id]);
-$nombreEditions = (int) $requeteEditions->fetchColumn();
+$nombreEditions = count(autresEditionsDuLivre($pdo, $livre));
 $caracteristiquesLivre = array_filter([
     'Éditeur' => $livre['editeur'] ?? '', 'Collection' => $livre['collection'] ?? '', 'Année' => $livre['annee_parution'] ?? '',
-    'ISBN' => $livre['isbn'] ?? '', 'Niveau scolaire' => $livre['niveau_scolaire'] ?? '', 'Matière' => $livre['matiere'] ?? '',
+    'Parution' => !empty($livre['date_parution']) ? date('d/m/Y', strtotime($livre['date_parution'])) : '', 'ISBN' => $livre['isbn'] ?? '', 'Niveau scolaire' => $livre['niveau_scolaire'] ?? '', 'Matière' => $livre['matiere'] ?? '',
     'Nombre de pages' => $livre['nb_pages'] ?? '', 'Format' => trim(($livre['reliure'] ?? '') . ' ' . ($livre['dimensions'] ?? '')), 'Poids' => !empty($livre['poids']) ? $livre['poids'] . ' g' : '', 'Langue' => $livre['langue'] ?? '',
 ], fn($valeur) => trim((string) $valeur) !== '');
 $titreDocument = $livre['titre'];

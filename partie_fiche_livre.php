@@ -8,7 +8,7 @@
                 <div class="fiche-livre__badges">
                     <?php if (stockEstBas($stockTotal)): ?><?= badgeStockBas() ?><?php endif; ?>
                     <?php if (!empty($livre['date_ajout']) && strtotime($livre['date_ajout']) >= strtotime('-30 days')): ?><span class="badge-bibli badge-nouveau">Nouveauté</span><?php endif; ?>
-                    <?php if ($serieLivre): ?><a href="serie.php?id=<?= (int) $serieLivre['id_serie'] ?>" class="badge-bibli badge-etat">Série · tome <?= htmlspecialchars(numeroTomeLisible($serieLivre['numero_tome'])) ?></a><?php endif; ?>
+                    <?php if ($serieLivre): ?><a href="serie.php?id=<?= (int) $serieLivre['id_serie'] ?>" class="badge-bibli badge-etat">Série<?= $serieLivre['numero_tome'] !== null ? ' · tome ' . htmlspecialchars(numeroVolumeSerie($serieLivre)) : '' ?></a><?php endif; ?>
                 </div>
                 <img class="fiche-livre__couverture" src="<?= htmlspecialchars(urlImage($livre['couverture'])) ?>" alt="Couverture de <?= htmlspecialchars($livre['titre']) ?>" fetchpriority="high">
                 <?php if ($publicsLivre): ?><p class="fiche-livre__audience"><?= htmlspecialchars(implode(' · ', array_column($publicsLivre, 'nom'))) ?></p><?php endif; ?>
@@ -16,7 +16,7 @@
 
             <section class="fiche-livre__achat" data-achat-livre data-prix-neuf="<?= $prixNeufLivre ?? 0 ?>">
                 <?php if ($flashCompte): ?><div class="alert alert-<?= htmlspecialchars($flashCompte[0]) ?>"><?= htmlspecialchars($flashCompte[1]) ?></div><?php endif; ?>
-                <p class="fiche-livre__auteur"><a href="livres_auteur.php?auteur=<?= rawurlencode($livre['auteur']) ?>"><?= htmlspecialchars($livre['auteur']) ?></a><?php if ($serieLivre): ?> · <a href="serie.php?id=<?= (int) $serieLivre['id_serie'] ?>"><?= htmlspecialchars($serieLivre['nom']) ?> #<?= htmlspecialchars(numeroTomeLisible($serieLivre['numero_tome'])) ?></a><?php endif; ?></p>
+                <p class="fiche-livre__auteur"><a href="livres_auteur.php?auteur=<?= rawurlencode($livre['auteur']) ?>"><?= htmlspecialchars($livre['auteur']) ?></a><?php if ($serieLivre): ?> · <a href="serie.php?id=<?= (int) $serieLivre['id_serie'] ?>"><?= htmlspecialchars($serieLivre['nom']) ?><?= $serieLivre['numero_tome'] !== null ? ' #' . htmlspecialchars(numeroVolumeSerie($serieLivre)) : '' ?></a><?php endif; ?></p>
                 <h1><?= htmlspecialchars($livre['titre']) ?></h1>
                 <a href="#avis" class="fiche-livre__avis"><?php if ($noteEntete['nb']): ?><?= etoiles($noteEntete['moyenne']) ?> <span><?= number_format($noteEntete['moyenne'], 1, ',', '') ?> · <?= (int) $noteEntete['nb'] ?> avis</span><?php else: ?><i class="bi bi-star" aria-hidden="true"></i> Donner le premier avis<?php endif; ?></a>
                 <div class="fiche-livre__prix">
@@ -100,22 +100,22 @@
 <section class="serie-complete" aria-labelledby="titre-serie-complete">
     <div>
         <p class="small text-muted mb-2"><?= htmlspecialchars($serieLivre['auteur']) ?></p>
-        <h2 id="titre-serie-complete">Acheter la série complète</h2>
+        <h2 id="titre-serie-complete"><?= ($serieLivre['nature'] ?? 'cycle') === 'regroupement' ? 'Les livres de cette collection' : 'Acheter la série complète' ?></h2>
         <p class="mb-1"><?= htmlspecialchars($serieLivre['nom']) ?></p>
-        <p class="small text-muted"><?= count($selectionSerie['tomes']) ?> tome(s) au catalogue · <?= count($selectionSerie['offres']) ?> disponible(s)</p>
+        <p class="small text-muted"><?= count($selectionSerie['tomes']) ?> volume(s) au catalogue · <?= count($selectionSerie['offres']) ?> disponible(s)</p>
         <a href="serie.php?id=<?= (int) $serieLivre['id_serie'] ?>">Voir toute la série</a>
         <div class="serie-complete__total"><?= formaterPrix($selectionSerie['total']) ?></div>
-        <?php if ($selectionSerie['total_neuf'] !== null && $selectionSerie['total_neuf'] > $selectionSerie['total']): ?><p class="small">Économisez <?= formaterPrix($selectionSerie['total_neuf'] - $selectionSerie['total']) ?> par rapport au neuf sur les tomes disponibles.</p><?php endif; ?>
+        <?php if ($selectionSerie['total_neuf'] !== null && $selectionSerie['total_neuf'] > $selectionSerie['total']): ?><p class="small">Économisez <?= formaterPrix($selectionSerie['total_neuf'] - $selectionSerie['total']) ?> par rapport au neuf sur les volumes disponibles.</p><?php endif; ?>
         <form method="POST" action="panier_action.php" data-panier-formulaire>
             <input type="hidden" name="csrf" value="<?= jetonCsrf() ?>"><input type="hidden" name="action" value="serie"><input type="hidden" name="id_serie" value="<?= (int) $serieLivre['id_serie'] ?>">
-            <button class="bouton bouton-action w-100" <?= !$selectionSerie['offres'] ? 'disabled' : '' ?>>Ajouter les <?= count($selectionSerie['offres']) ?> tomes disponibles</button>
+            <button class="bouton bouton-action w-100" <?= !$selectionSerie['offres'] ? 'disabled' : '' ?>>Ajouter les <?= count($selectionSerie['offres']) ?> volumes disponibles</button>
         </form>
-        <p class="small text-muted mt-2 mb-0">Seuls les tomes en stock sont ajoutés, au meilleur prix disponible pour chacun.</p>
+        <p class="small text-muted mt-2 mb-0">Seuls les volumes en stock sont ajoutés, au meilleur prix disponible pour chacun.</p>
     </div>
     <div style="min-width:0;">
         <div class="serie-complete__navigation"><button type="button" data-carrousel-cible="tomes-serie" data-direction="-1" aria-label="Tomes précédents"><i class="bi bi-chevron-left" aria-hidden="true"></i></button><button type="button" data-carrousel-cible="tomes-serie" data-direction="1" aria-label="Tomes suivants"><i class="bi bi-chevron-right" aria-hidden="true"></i></button></div>
         <div class="serie-complete__tomes" id="tomes-serie">
-            <?php foreach ($selectionSerie['tomes'] as $tome): ?><a class="serie-tome" href="detail_livre.php?id=<?= (int) $tome['id_livre'] ?>"><img src="<?= htmlspecialchars(urlImage($tome['couverture'])) ?>" alt="Couverture de <?= htmlspecialchars($tome['titre']) ?>" loading="lazy"><span>Tome <?= htmlspecialchars(numeroTomeLisible($tome['numero_tome'])) ?></span><strong><?= htmlspecialchars($tome['titre']) ?></strong></a><?php endforeach; ?>
+            <?php foreach ($selectionSerie['tomes'] as $tome): ?><a class="serie-tome" href="detail_livre.php?id=<?= (int) $tome['id_livre'] ?>"><img src="<?= htmlspecialchars(urlImage($tome['couverture'])) ?>" alt="Couverture de <?= htmlspecialchars($tome['titre']) ?>" loading="lazy"><?php if ($tome['numero_tome'] !== null): ?><span>Tome <?= htmlspecialchars(numeroVolumeSerie($tome)) ?></span><?php endif; ?><strong><?= htmlspecialchars($tome['titre']) ?></strong></a><?php endforeach; ?>
         </div>
     </div>
 </section>

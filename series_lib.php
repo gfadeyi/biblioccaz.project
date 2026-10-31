@@ -3,21 +3,60 @@ require_once __DIR__ . '/livres_lib.php';
 
 function serieDuLivre(PDO $pdo, int $idLivre): ?array
 {
-    $requete = $pdo->prepare('SELECT s.*, ls.numero_tome FROM livre_serie ls INNER JOIN serie s ON s.id_serie = ls.id_serie WHERE ls.id_livre = ?');
+    $requete = $pdo->prepare('SELECT s.*, ls.numero_tome, ls.numero_tome_fin, ls.cle_oeuvre FROM livre_serie ls INNER JOIN serie s ON s.id_serie = ls.id_serie WHERE ls.id_livre = ?');
     $requete->execute([$idLivre]);
     return $requete->fetch(PDO::FETCH_ASSOC) ?: null;
 }
 
 function tomesDeSerie(PDO $pdo, int $idSerie): array
 {
-    $requete = $pdo->prepare("SELECT l.*, ls.numero_tome, av.moyenne AS note_moyenne, COALESCE(av.nb, 0) AS nb_avis FROM livre_serie ls INNER JOIN livre l ON l.id_livre = ls.id_livre LEFT JOIN (SELECT id_livre, AVG(note) AS moyenne, COUNT(*) AS nb FROM avis WHERE statut = 'visible' GROUP BY id_livre) av ON av.id_livre = l.id_livre WHERE ls.id_serie = ? AND l.is_valide = 1 ORDER BY ls.numero_tome, l.id_livre");
+    $requete = $pdo->prepare("SELECT l.*, ls.numero_tome, ls.numero_tome_fin, ls.cle_oeuvre, av.moyenne AS note_moyenne, COALESCE(av.nb, 0) AS nb_avis FROM livre_serie ls INNER JOIN livre l ON l.id_livre = ls.id_livre LEFT JOIN (SELECT id_livre, AVG(note) AS moyenne, COUNT(*) AS nb FROM avis WHERE statut = 'visible' GROUP BY id_livre) av ON av.id_livre = l.id_livre WHERE ls.id_serie = ? AND l.is_valide = 1 ORDER BY ls.numero_tome IS NULL, ls.numero_tome, l.titre, l.id_livre");
     $requete->execute([$idSerie]);
-    return $requete->fetchAll(PDO::FETCH_ASSOC);
+    $editions = $requete->fetchAll(PDO::FETCH_ASSOC);
+    $prixDisponibles = [];
+    foreach (offresMagasinDesLivres($pdo, array_column($editions, 'id_livre')) as $offre) {
+        if ($offre['libre'] > 0 && !isset($prixDisponibles[(int) $offre['id_livre']])) { $prixDisponibles[(int) $offre['id_livre']] = (float) $offre['prix']; }
+    }
+    $tomes = [];
+    foreach ($editions as $edition) {
+        $numero = $edition['numero_tome'] !== null ? $edition['numero_tome'] . ':' . ($edition['numero_tome_fin'] ?? $edition['numero_tome']) : ($edition['cle_oeuvre'] ?: 'livre-' . $edition['id_livre']);
+        $precedente = $tomes[$numero] ?? null;
+        $prix = $prixDisponibles[(int) $edition['id_livre']] ?? null;
+        $rang = [$prix === null ? 1 : 0, $prix ?? PHP_FLOAT_MAX, (int) $edition['id_livre']];
+        $ancienPrix = $precedente ? ($prixDisponibles[(int) $precedente['id_livre']] ?? null) : null;
+        $ancienRang = [$ancienPrix === null ? 1 : 0, $ancienPrix ?? PHP_FLOAT_MAX, (int) ($precedente['id_livre'] ?? PHP_INT_MAX)];
+        if ($precedente === null || $rang < $ancienRang) { $tomes[$numero] = $edition; }
+    }
+    return array_values($tomes);
+}
+
+function numeroVolumeSerie(array $livre): string
+{
+    if (($livre['numero_tome'] ?? null) === null) { return ''; }
+    $numero = numeroTomeLisible($livre['numero_tome']);
+    if (!empty($livre['numero_tome_fin']) && (float) $livre['numero_tome_fin'] > (float) $livre['numero_tome']) { $numero .= '–' . numeroTomeLisible($livre['numero_tome_fin']); }
+    return $numero;
 }
 
 function offresMagasinDuLivre(PDO $pdo, int $idLivre): array
 {
     return offresMagasinDesLivres($pdo, [$idLivre]);
+}
+
+function autresEditionsDuLivre(PDO $pdo, array $livre): array
+{
+    $serie = serieDuLivre($pdo, (int) $livre['id_livre']);
+    if ($serie && !empty($serie['cle_oeuvre'])) {
+        $requete = $pdo->prepare('SELECT l.* FROM livre l INNER JOIN livre_serie ls ON ls.id_livre = l.id_livre WHERE ls.id_serie = ? AND ls.cle_oeuvre = ? AND l.id_livre <> ? AND l.is_valide = 1 ORDER BY l.annee_parution DESC, l.id_livre');
+        $requete->execute([(int) $serie['id_serie'], $serie['cle_oeuvre'], (int) $livre['id_livre']]);
+    } elseif ($serie && $serie['numero_tome'] !== null) {
+        $requete = $pdo->prepare('SELECT l.* FROM livre l INNER JOIN livre_serie ls ON ls.id_livre = l.id_livre WHERE ls.id_serie = ? AND ls.numero_tome = ? AND COALESCE(ls.numero_tome_fin, ls.numero_tome) = ? AND l.id_livre <> ? AND l.is_valide = 1 ORDER BY l.annee_parution DESC, l.id_livre');
+        $requete->execute([(int) $serie['id_serie'], $serie['numero_tome'], $serie['numero_tome_fin'] ?? $serie['numero_tome'], (int) $livre['id_livre']]);
+    } else {
+        $requete = $pdo->prepare('SELECT * FROM livre WHERE titre = ? AND auteur = ? AND id_livre <> ? AND is_valide = 1 ORDER BY annee_parution DESC, id_livre');
+        $requete->execute([$livre['titre'], (string) $livre['auteur'], (int) $livre['id_livre']]);
+    }
+    return $requete->fetchAll(PDO::FETCH_ASSOC);
 }
 
 function offresMagasinDesLivres(PDO $pdo, array $identifiants): array

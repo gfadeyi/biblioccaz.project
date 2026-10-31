@@ -269,3 +269,14 @@ Connexion équipe sans captcha, avec CSRF et limitation persistante : cinq éche
 Migration rejouable `sql/maj_panier_minute_series.sql` : `panier_reservation`, `connexion_admin_limite`, `serie`, `livre_serie`, colonne nullable `livre.prix_neuf`. Installer la migration avant le code. L’installation complète inclut la même structure. Le remplissage des séries et les nouvelles références constituent un lot distinct ; aucun tome fictif n’est livré.
 
 Recette sur PHP 8.4 / MariaDB 11.8 isolés : panier, expiration visible, reprise par cookie, concurrence sur le dernier exemplaire, changement d’état, refus CSRF, commande unique et expiration pendant la commande ; connexion équipe limitée ; interface visiteur/client aux largeurs 375, 768 et 1440 px. Les essais ne représentent ni un paiement bancaire réel ni un audit d’accessibilité exhaustif.
+
+
+### Séries françaises, collections et éditions — 31 octobre 2026
+
+Le lot de contenu préparé rassemble 2 258 références, 136 séries ou collections et leurs couvertures. Sur l’état de production sauvegardé, il ajoute 2 204 fiches, 8 742 offres et 17 558 exemplaires de présentation ; les fiches déjà présentes et leurs stocks sont conservés. Les prix d’occasion et quantités sont des données de démonstration. Un prix neuf inconnu reste absent et ne donne pas lieu à une offre neuve inventée.
+
+Les volumes doubles affichent leur plage de tomes. Les éditions sont choisies par œuvre et disponibilité : une seule édition par tome ou œuvre dans la sélection groupée. Les anciennes éditions et les intégrales restent distinctes lorsque le découpage diffère. Les autres éditions d’un même livre sont retrouvées même avec des titres différents ; deux tomes partageant un titre ne sont pas confondus. Les collections policières n’ont pas de numéro de tome artificiel.
+
+Migration rejouable `sql/maj_dates_volumes_series.sql`, également intégrée à l’installation complète : date de parution nullable, fin de plage, numéro de tome nullable, nature de collection et clé d’œuvre. Le contenu et ses images sont un import additif séparé, sans création de compte ni remplacement des données existantes.
+
+Recette PHP 8.4 / MariaDB 11.8 isolés, compatibilité syntaxique PHP 8.2, restauration privée sans HTTP, installation neuve et double import ; anciennes lignes des 54 tables préservées. Contrôles des éditions, volumes doubles, disponibilité, non-réapprovisionnement et interface visiteur/client à 375, 768 et 1440 px. Les références papier françaises non identifiées et les sources détaillées sont consignées dans la livraison et le suivi privé.
