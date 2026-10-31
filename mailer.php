@@ -4,11 +4,23 @@ require_once __DIR__ . '/vendor/autoload.php';
 require_once __DIR__ . '/secrets.php';
 
 use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\SMTP;
+
+function reponsesErreurSmtp(?string $ligne = null): array
+{
+    static $reponses = [];
+    if ($ligne !== null && preg_match('/^SERVER -> CLIENT: ([45]\d\d\b.*)$/s', trim($ligne), $correspondance)) {
+        $reponses = array_slice([...$reponses, $correspondance[1]], -3);
+    }
+    return $reponses;
+}
 
 function creerMailer(): PHPMailer
 {
     $mail = new PHPMailer(true);
     $mail->isSMTP();
+    $mail->SMTPDebug = SMTP::DEBUG_SERVER;
+    $mail->Debugoutput = fn(string $ligne) => reponsesErreurSmtp($ligne);
     $mail->Host     = SMTP_HOST;
     $mail->Port     = SMTP_PORT;
     $mail->CharSet  = 'UTF-8';
@@ -32,6 +44,21 @@ function creerMailer(): PHPMailer
 
     $mail->setFrom(MAIL_FROM, MAIL_FROM_NAME);
     return $mail;
+}
+
+function diagnosticEchecMail(?PHPMailer $mail, Throwable $erreur): string
+{
+    $raison = $mail !== null && $mail->ErrorInfo !== '' ? $mail->ErrorInfo : $erreur->getMessage();
+    $reponsesServeur = reponsesErreurSmtp();
+    if ($reponsesServeur) {
+        $raison .= ' Réponse du serveur : ' . implode(' | ', $reponsesServeur);
+    }
+    if (SMTP_PASS !== '') {
+        $raison = str_replace(SMTP_PASS, '***', $raison);
+    }
+    $raison = preg_replace('/[^\s<>:;,"\'()\[\]]+@([A-Za-z0-9.-]+)/', '***@$1', $raison);
+    $raison = mb_substr(trim(preg_replace('/\s+/', ' ', $raison)), 0, 500);
+    return sprintf('%s (hôte %s, port %d, chiffrement %s, authentification %s)', $raison !== '' ? $raison : 'raison inconnue', SMTP_HOST, SMTP_PORT, SMTP_SECURE !== '' ? SMTP_SECURE : 'aucun', SMTP_USER !== '' ? 'oui' : 'non');
 }
 
 function texteMailEnHtml(string $texte): string

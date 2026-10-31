@@ -23,6 +23,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif (strlen($email) > 150 || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $erreur = "Veuillez entrer une adresse email valide.";
     } else {
+        $mail = null;
+        $user = null;
         try {
             $user = autoriserDemandeRecuperation() ? preparerRecuperation($pdo, $email) : null;
             if ($user) {
@@ -36,8 +38,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $mail->send();
                 insertLog('SECURITE', "Demande de réinitialisation de mot de passe (user #{$user['id']})");
             }
-        } catch (Exception | PDOException $e) {
-            insertLog('ERREUR', 'Echec de la demande de récupération de mot de passe');
+        } catch (Exception $e) {
+            insertLog('ERREUR', "Echec de l'envoi du mail de récupération de mot de passe (user #" . ($user['id'] ?? '?') . ') : ' . diagnosticEchecMail($mail, $e));
+        } catch (PDOException $e) {
+            insertLog('ERREUR', 'Echec de la demande de récupération de mot de passe (base de données) : ' . mb_substr(preg_replace('/\s+/', ' ', $e->getMessage()), 0, 300));
         }
 
         $succes = MESSAGE_ENVOI;
