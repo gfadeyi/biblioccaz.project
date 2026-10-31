@@ -225,7 +225,8 @@ function etatEmpruntLivre(PDO $pdo, int $idLivre): array
             SELECT e.id_exemplaire, e.etat, e.statut_pret, e.duree_emprunt_jours, e.renouvellements_max, e.blocage_retard,
                    (SELECT MIN(em.date_retour_prevue) FROM emprunt em WHERE em.id_exemplaire = e.id_exemplaire AND em.statut = 'en_cours' AND em.blocage_retard IN (0, 1)) AS retour_prevu
             FROM exemplaire e
-            WHERE e.id_livre = ? AND " . conditionExemplaireEmprunt() . " AND e.is_disponible = 1
+            INNER JOIN livre l ON l.id_livre = e.id_livre
+            WHERE l.is_valide = 1 AND e.id_livre = ? AND " . conditionExemplaireEmprunt() . " AND e.is_disponible = 1
             ORDER BY FIELD(e.statut_pret, 'disponible', 'reserve', 'emprunte'), e.id_exemplaire");
         $stmt->execute([$idLivre]);
         $etat['exemplaires'] = $stmt->fetchAll();
@@ -319,7 +320,7 @@ function reserverEmprunt(PDO $pdo, int $idLivre, int $idUser): array
         }
         $stmt = $pdo->prepare("
             SELECT e.*, l.titre FROM exemplaire e INNER JOIN livre l ON l.id_livre = e.id_livre
-            WHERE e.id_livre = ? AND " . conditionExemplaireEmprunt() . " AND e.is_disponible = 1 AND e.statut_pret = 'disponible'
+            WHERE l.is_valide = 1 AND e.id_livre = ? AND " . conditionExemplaireEmprunt() . " AND e.is_disponible = 1 AND e.statut_pret = 'disponible'
             ORDER BY e.id_exemplaire LIMIT 1 FOR UPDATE");
         $stmt->execute([$idLivre]);
         $exemplaire = $stmt->fetch();
@@ -689,14 +690,14 @@ function quitterAttente(PDO $pdo, int $idLivre, int $idUser): array
     }
 }
 
-function envoyerRappelEmprunt(PDO $pdo, int $idEmprunt): void
+function envoyerRappelEmprunt(PDO $pdo, int $idEmprunt): ?bool
 {
     $pdo->beginTransaction();
     try {
         $emprunt = empruntParId($pdo, $idEmprunt, true);
         if (!$emprunt || $emprunt['statut'] !== 'en_cours') {
             $pdo->rollBack();
-            return;
+            return null;
         }
         $dateRetour = $emprunt['date_retour_prevue'];
         $titre = $emprunt['titre'];
@@ -704,7 +705,7 @@ function envoyerRappelEmprunt(PDO $pdo, int $idEmprunt): void
         if (empruntEnRetard($emprunt)) {
             if ($emprunt['date_derniere_relance'] && strtotime($emprunt['date_derniere_relance']) > strtotime('-' . RELANCE_INTERVALLE_JOURS . ' days')) {
                 $pdo->rollBack();
-                return;
+                return null;
             }
             $jours = joursDeRetard($emprunt);
             $sujet = "Retard : « $titre » est à rapporter";
@@ -721,19 +722,21 @@ function envoyerRappelEmprunt(PDO $pdo, int $idEmprunt): void
             $miseAJour = "rappel_avant = 1";
         } else {
             $pdo->rollBack();
-            return;
+            return null;
         }
         if (!prevenirEmprunteur($emprunt, $sujet, $texte)) {
             $pdo->rollBack();
-            return;
+            return false;
         }
         $pdo->prepare("UPDATE emprunt SET $miseAJour WHERE id_emprunt = ?")->execute([$idEmprunt]);
         $pdo->commit();
+        return true;
     } catch (Throwable $e) {
         if ($pdo->inTransaction()) {
             $pdo->rollBack();
         }
         insertLog('ERREUR', "Rappel de l'emprunt #$idEmprunt impossible : " . $e->getMessage());
+        return false;
     }
 }
 
@@ -743,8 +746,9 @@ function textePenaliteEmprunt(array $emprunt): string
         . ((int) $emprunt['blocage_retard'] ? " Après le retour, vos emprunts sont bloqués autant de jours que de jours de retard (" . BLOCAGE_MAX_JOURS . " au maximum)." : " Aucun blocage supplémentaire n'est appliqué après le retour pour cet emprunt.");
 }
 
-function verifierEmprunts(PDO $pdo): void
+function verifierEmprunts(PDO $pdo): array
 {
+    $bilan = ['rappels' => 0, 'erreurs' => 0];
     try {
         $stmt = $pdo->query("SELECT id_emprunt FROM emprunt WHERE statut = 'reserve' AND date_expiration_reservation < NOW()");
         foreach ($stmt->fetchAll(PDO::FETCH_COLUMN) as $idEmprunt) {
@@ -755,11 +759,14 @@ function verifierEmprunts(PDO $pdo): void
             OR (date_retour_prevue = CURDATE() AND rappel_jour = 0)
             OR (date_retour_prevue < CURDATE() AND (date_derniere_relance IS NULL OR date_derniere_relance <= NOW() - INTERVAL " . RELANCE_INTERVALLE_JOURS . " DAY)))");
         foreach ($stmt->fetchAll(PDO::FETCH_COLUMN) as $idEmprunt) {
-            envoyerRappelEmprunt($pdo, (int) $idEmprunt);
+            $envoi = envoyerRappelEmprunt($pdo, (int) $idEmprunt);
+            if ($envoi === true) { $bilan['rappels']++; } elseif ($envoi === false) { $bilan['erreurs']++; }
         }
     } catch (PDOException $e) {
+        $bilan['erreurs']++;
         insertLog('ERREUR', "Vérification des emprunts impossible : " . $e->getMessage());
     }
+    return $bilan;
 }
 
 function expirerReservation(PDO $pdo, int $idEmprunt): void

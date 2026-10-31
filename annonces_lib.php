@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/archivage_catalogue_lib.php';
 require_once __DIR__ . '/livres_lib.php';
 require_once __DIR__ . '/notifications_lib.php';
 require_once __DIR__ . '/upload_lib.php';
@@ -173,6 +174,7 @@ function modererAnnonce(PDO $pdo, int $idAnnonce, string $decision, int $idModer
         $pdo->rollBack();
         return ['warning', "Cette annonce a déjà été traitée."];
     }
+    if ($decision === 'valider' && livreEstArchive($pdo, (int) $actuelle['id_livre'])) { $pdo->rollBack(); return ['warning', 'Réactivez la fiche archivée avant de publier cette annonce.']; }
     $pdo->prepare("UPDATE exemplaire SET statut_annonce = ?, motif_moderation = ?, id_moderateur = ?, date_moderation = NOW() WHERE id_exemplaire = ?")
         ->execute([$nouveauStatut, $decision === 'valider' ? null : $motif, $idModerateur, $idAnnonce]);
     $ficheValidee = false;

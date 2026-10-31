@@ -3,20 +3,17 @@ require_once __DIR__ . '/_init.php';
 require_once __DIR__ . '/../categories_lib.php';
 require_once __DIR__ . '/../livres_lib.php';
 require_once __DIR__ . '/../recherche_lib.php';
+require_once __DIR__ . '/../archivage_catalogue_lib.php';
 exigerDroit('catalogue');
+$archivageDisponible = archivageCatalogueDisponible($pdo);
+$filtreArchive = ($_GET['archives'] ?? '') === '1';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     exigerPost('inventaire.php');
-    if (($_POST['action'] ?? '') === 'supprimer' && aLeDroit('admin')) {
-        $id = (int) ($_POST['id_livre'] ?? 0);
-        $stmt = $pdo->prepare("SELECT titre FROM livre WHERE id_livre = ?");
-        $stmt->execute([$id]);
-        $titre = $stmt->fetchColumn();
-        if ($titre !== false) {
-            $pdo->prepare("DELETE FROM livre WHERE id_livre = ?")->execute([$id]);
-            insertLog('CATALOGUE', "Suppression du livre #$id : $titre");
-            rediriger('inventaire.php', 'success', "« $titre » a été supprimé du catalogue.");
-        }
+    $action = is_string($_POST['action'] ?? null) ? $_POST['action'] : '';
+    if (in_array($action, ['supprimer', 'archiver', 'reactiver'], true)) {
+        [$type, $message] = changerArchivageLivre($pdo, (int) ($_POST['id_livre'] ?? 0), (int) $_SESSION['user_id'], $action !== 'reactiver');
+        rediriger('inventaire.php?archives=' . ($action === 'reactiver' ? '1' : '0'), $type, $message);
     }
     rediriger('inventaire.php');
 }
@@ -37,7 +34,7 @@ $tri = texteRecherche($_GET['tri'] ?? '');
 $tri = array_key_exists($tri, TRIS_INVENTAIRE) ? $tri : 'recent';
 $sens = ($_GET['sens'] ?? ($tri === 'recent' ? 'desc' : 'asc')) === 'desc' ? 'DESC' : 'ASC';
 
-$where = [];
+$where = $archivageDisponible ? [($filtreArchive ? '' : 'NOT ') . 'EXISTS (SELECT 1 FROM livre_archive ar WHERE ar.id_livre = l.id_livre AND ar.actif = 1)'] : [];
 $params = [];
 if ($q !== '') {
     $isbn = isbnRecherche($q);
@@ -125,6 +122,12 @@ include __DIR__ . '/_haut.php';
             <option value="bas" <?= $filtreStock === 'bas' ? 'selected' : '' ?>>Stock bas (1 à <?= SEUIL_STOCK_BAS ?>)</option>
             <option value="rupture" <?= $filtreStock === 'rupture' ? 'selected' : '' ?>>En rupture</option>
         </select>
+        <?php if ($archivageDisponible): ?>
+            <select name="archives" class="form-select" aria-label="Fiches actives ou archivées" onchange="this.form.submit()">
+                <option value="0" <?= !$filtreArchive ? 'selected' : '' ?>>Fiches actives</option>
+                <option value="1" <?= $filtreArchive ? 'selected' : '' ?>>Fiches archivées</option>
+            </select>
+        <?php endif; ?>
         <input type="hidden" name="tri" value="<?= e($tri) ?>">
         <input type="hidden" name="sens" value="<?= strtolower($sens) ?>">
         <button class="btn btn-outline-secondary">Rechercher</button>
@@ -169,7 +172,7 @@ include __DIR__ . '/_haut.php';
                                         <div class="titre-livre"><?= e($l['titre']) ?></div>
                                         <div class="auteur-livre"><?= e($l['auteur']) ?></div>
                                         <div class="small text-muted">#<?= $l['id_livre'] ?><?= $l['isbn'] ? ' · ISBN ' . e($l['isbn']) : '' ?>
-                                            <?php if (!$l['is_valide']): ?><span class="etiquette etiquette-neutre ms-1">À valider</span><?php endif; ?>
+                                            <?php if ($filtreArchive): ?><span class="etiquette etiquette-neutre ms-1">Archivée</span><?php elseif (!$l['is_valide']): ?><span class="etiquette etiquette-neutre ms-1">À valider</span><?php endif; ?>
                                         </div>
                                     </div>
                                 </div>
@@ -204,13 +207,15 @@ include __DIR__ . '/_haut.php';
                                 <div class="actions-ligne">
                                     <a href="exemplaires.php?id=<?= $l['id_livre'] ?>" class="btn btn-vert bouton-action-texte" title="Ajouter ou retirer des exemplaires"><i class="bi bi-box-seam" aria-hidden="true"></i> Stock</a>
                                     <a href="livre.php?id=<?= $l['id_livre'] ?>" class="btn btn-outline-secondary bouton-action" title="Modifier la fiche"><i class="bi bi-pencil" aria-hidden="true"></i></a>
-                                    <a href="../detail_livre.php?id=<?= $l['id_livre'] ?>" target="_blank" rel="noopener" class="btn btn-outline-secondary bouton-action" title="Voir sur le site"><i class="bi bi-eye" aria-hidden="true"></i></a>
-                                    <?php if (aLeDroit('admin')): ?>
-                                        <form method="POST" data-confirmer="Supprimer définitivement « <?= e($l['titre']) ?> » et tout son stock ? Cette action est irréversible." data-bouton-confirmer="Supprimer">
+                                    <?php if ($l['is_valide']): ?>
+                                        <a href="../detail_livre.php?id=<?= $l['id_livre'] ?>" target="_blank" rel="noopener" class="btn btn-outline-secondary bouton-action" title="Voir sur le site"><i class="bi bi-eye" aria-hidden="true"></i></a>
+                                    <?php endif; ?>
+                                    <?php if ($archivageDisponible): ?>
+                                        <form method="POST" data-confirmer="<?= $filtreArchive ? 'Réactiver cette fiche ?' : 'Archiver cette fiche en conservant ses exemplaires et son historique ?' ?>">
                                             <?= champCsrf() ?>
-                                            <input type="hidden" name="action" value="supprimer">
+                                            <input type="hidden" name="action" value="<?= $filtreArchive ? 'reactiver' : 'archiver' ?>">
                                             <input type="hidden" name="id_livre" value="<?= $l['id_livre'] ?>">
-                                            <button class="btn btn-outline-danger bouton-action" title="Supprimer le livre"><i class="bi bi-trash" aria-hidden="true"></i></button>
+                                            <button class="btn btn-outline-danger bouton-action" title="<?= $filtreArchive ? 'Réactiver le livre' : 'Archiver le livre' ?>"><i class="bi bi-<?= $filtreArchive ? 'arrow-counterclockwise' : 'archive' ?>" aria-hidden="true"></i></button>
                                         </form>
                                     <?php endif; ?>
                                 </div>

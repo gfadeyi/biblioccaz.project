@@ -11,6 +11,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!$suiviDisponible) {
         rediriger($retour, 'warning', 'Le suivi des interventions doit être installé avant toute modification.');
     }
+    if (($_POST['action'] ?? '') === 'modifier_contenu') {
+        [$type, $message] = modifierContenuDonEquipe($pdo, $idDon, (int) $_SESSION['user_id'], $_POST);
+        rediriger($retour, $type, $message);
+    }
     $beneficiaireAttendu = filter_var($_POST['beneficiaire_attendu'] ?? '', FILTER_VALIDATE_INT);
     [$type, $message] = modererDon($pdo, $idDon, (int) $_SESSION['user_id'],
         is_string($_POST['action'] ?? null) ? $_POST['action'] : '',
@@ -73,7 +77,7 @@ include __DIR__ . '/_haut.php';
             <?php else: ?>
                 <?php foreach ($historique as $intervention): ?>
                     <article class="border-top pt-3 mt-3" style="overflow-wrap:anywhere;">
-                        <h3 class="h6"><?= $intervention['action'] === 'annuler' ? 'Don annulé' : 'Réservation libérée' ?></h3>
+                        <h3 class="h6"><?= e(['annuler' => 'Don annulé', 'liberer' => 'Réservation libérée', 'valider' => 'Don validé et publié', 'refuser' => 'Don à corriger', 'modifier' => 'Contenu modifié, nouvelle validation requise'][$intervention['action']] ?? $intervention['action']) ?></h3>
                         <p class="small text-muted mb-2"><?= e(date('d/m/Y à H:i', strtotime($intervention['date_creation']))) ?> · <?= $intervention['moderateur_pseudo'] ? '@' . e($intervention['moderateur_pseudo']) : 'Ancien membre de l’équipe' ?></p>
                         <p class="mb-1"><?= nl2br(e($intervention['motif'])) ?></p>
                         <?php if ($intervention['beneficiaire_pseudo']): ?><p class="small mb-0">Bénéficiaire concerné : @<?= e($intervention['beneficiaire_pseudo']) ?></p><?php endif; ?>
@@ -97,7 +101,7 @@ include __DIR__ . '/_haut.php';
             <h2 class="h5">Intervenir sur ce don</h2>
             <?php if (!$suiviDisponible): ?>
                 <div class="alert alert-warning mb-0">Installez <code>sql/maj_moderation_dons.sql</code> pour activer les interventions avec historique.</div>
-            <?php elseif (!in_array($don['statut'], ['disponible', 'reserve'], true)): ?>
+            <?php elseif (!in_array($don['statut'], ['disponible', 'reserve', 'en_validation', 'refuse'], true)): ?>
                 <p class="mb-0 text-muted">Ce don est terminé. Son historique et ses points sont conservés.</p>
             <?php else: ?>
                 <p class="small text-muted">Le motif sera conservé dans l’historique et envoyé au donneur et au bénéficiaire éventuel. Les échanges en cours seront fermés.</p>
@@ -111,6 +115,10 @@ include __DIR__ . '/_haut.php';
                     <select id="action" name="action" class="form-select mb-3" required>
                         <option value="">Choisir une action</option>
                         <?php if ($don['statut'] === 'reserve'): ?><option value="liberer">Libérer la réservation</option><?php endif; ?>
+                        <?php if ($don['statut'] === 'en_validation'): ?>
+                            <option value="valider">Valider et publier le don</option>
+                            <option value="refuser">Demander une correction</option>
+                        <?php endif; ?>
                         <option value="annuler">Annuler le don</option>
                     </select>
                     <label for="motif" class="form-label">Motif communiqué aux membres</label>
@@ -122,4 +130,22 @@ include __DIR__ . '/_haut.php';
         </section>
     </div>
 </div>
+
+<?php if (in_array($don['statut'], ['en_validation', 'refuse', 'disponible'], true) && $suiviDisponible): ?>
+<section class="carte p-4 mt-4">
+    <h2 class="h5">Corriger le contenu</h2>
+    <p class="text-muted small">Une correction remet le don en validation et le masque jusqu’à son acceptation. Un don réservé ou terminé ne peut pas être modifié.</p>
+    <form method="POST">
+        <?= champCsrf() ?>
+        <input type="hidden" name="action" value="modifier_contenu">
+        <?php foreach (['titre' => 'Titre', 'auteur' => 'Auteur', 'lieu_retrait' => 'Lieu de retrait', 'description' => 'Description', 'conditions_retrait' => 'Conditions de retrait'] as $champ => $libelle): ?>
+            <label class="form-label mt-3" for="modifier-<?= e($champ) ?>"><?= e($libelle) ?></label>
+            <textarea class="form-control" id="modifier-<?= e($champ) ?>" name="<?= e($champ) ?>" rows="<?= $champ === 'description' ? 3 : 1 ?>" maxlength="<?= $champ === 'description' ? 1000 : 255 ?>" <?= in_array($champ, ['titre', 'lieu_retrait'], true) ? 'required' : '' ?>><?= e($don[$champ]) ?></textarea>
+        <?php endforeach; ?>
+        <label class="form-label mt-3" for="modifier-motif">Motif communiqué au donneur</label>
+        <textarea class="form-control" id="modifier-motif" name="motif" minlength="10" maxlength="500" required></textarea>
+        <button class="btn btn-outline-success mt-3">Enregistrer et remettre en validation</button>
+    </form>
+</section>
+<?php endif; ?>
 <?php include __DIR__ . '/_bas.php'; ?>

@@ -67,7 +67,7 @@ try {
         SELECT e.id_exemplaire, e.id_livre, e.prix, e.etat, e.quantite, l.titre
         FROM exemplaire e
         INNER JOIN livre l ON l.id_livre = e.id_livre
-        WHERE e.id_exemplaire = ? AND e.is_disponible = 1 AND " . conditionExemplaireMagasin() . "
+        WHERE e.id_exemplaire = ? AND l.is_valide = 1 AND e.is_disponible = 1 AND " . conditionExemplaireMagasin() . "
         FOR UPDATE");
 
     $lignes = [];

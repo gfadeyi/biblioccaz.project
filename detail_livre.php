@@ -6,7 +6,7 @@ include 'header.php';
 $id = $_GET['id'] ?? null;
 $offre_index = $_GET['offre'] ?? 0;
 
-$stmt = $pdo->prepare("SELECT * FROM livre WHERE id_livre = ?");
+$stmt = $pdo->prepare("SELECT * FROM livre WHERE id_livre = ? AND is_valide = 1");
 $stmt->execute([$id]);
 $livre = $stmt->fetch();
 

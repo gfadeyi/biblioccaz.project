@@ -1,8 +1,9 @@
 <?php
+require_once __DIR__ . '/parametres_techniques_lib.php';
 
 function valeurLegale(string $cle): string
 {
-    $infos = defined('INFOS_LEGALES') && is_array(INFOS_LEGALES) ? INFOS_LEGALES : [];
+    $infos = parametresTechniques();
     return is_string($infos[$cle] ?? null) ? trim($infos[$cle]) : '';
 }
 

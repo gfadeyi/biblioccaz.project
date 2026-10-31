@@ -2,6 +2,7 @@
 
 require_once __DIR__ . '/vendor/autoload.php';
 require_once __DIR__ . '/secrets.php';
+require_once __DIR__ . '/parametres_techniques_lib.php';
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
@@ -43,6 +44,7 @@ function creerMailer(): PHPMailer
     }
 
     $mail->setFrom(MAIL_FROM, MAIL_FROM_NAME);
+    appliquerParametresCourriel($mail);
     return $mail;
 }
 

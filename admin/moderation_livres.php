@@ -1,6 +1,8 @@
 <?php
 require_once __DIR__ . '/_init.php';
+require_once __DIR__ . '/../archivage_catalogue_lib.php';
 exigerDroit('moderation');
+$exclureArchives = archivageCatalogueDisponible($pdo) ? ' AND NOT EXISTS (SELECT 1 FROM livre_archive ar WHERE ar.id_livre = l.id_livre AND ar.actif = 1)' : '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     exigerPost('moderation_livres.php');
@@ -14,18 +16,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if ($action === 'valider') {
-        $pdo->prepare("UPDATE livre l SET l.is_valide = 1 WHERE l.id_livre = ? AND l.is_valide = 0 AND NOT EXISTS (SELECT 1 FROM exemplaire e WHERE e.id_livre = l.id_livre AND e.id_proprietaire IS NOT NULL)")->execute([$id]);
+        $pdo->prepare("UPDATE livre l SET l.is_valide = 1 WHERE l.id_livre = ? AND l.is_valide = 0 $exclureArchives AND NOT EXISTS (SELECT 1 FROM exemplaire e WHERE e.id_livre = l.id_livre AND e.id_proprietaire IS NOT NULL)")->execute([$id]);
         insertLog('MODERATION', "Validation du livre #$id");
         rediriger('moderation_livres.php', 'success', 'Fiche validée : elle est maintenant visible dans le catalogue.');
     }
 
     if ($action === 'refuser') {
         if (!aLeDroit('admin')) {
-            rediriger('moderation_livres.php', 'warning', "Seul un administrateur peut refuser (supprimer) une fiche.");
+            rediriger('moderation_livres.php', 'warning', "Seul un administrateur peut refuser (archiver) une fiche.");
         }
-        $pdo->prepare("DELETE FROM livre WHERE id_livre = ? AND is_valide = 0 AND NOT EXISTS (SELECT 1 FROM exemplaire e WHERE e.id_livre = livre.id_livre AND e.id_proprietaire IS NOT NULL)")->execute([$id]);
-        insertLog('MODERATION', "Refus et suppression du livre #$id");
-        rediriger('moderation_livres.php', 'success', 'Fiche refusée et supprimée.');
+        [$type, $message] = changerArchivageLivre($pdo, $id, (int) $_SESSION['user_id'], true);
+        rediriger('moderation_livres.php', $type, $message);
     }
 
     rediriger('moderation_livres.php');
@@ -34,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $livres = $pdo->query("
     SELECT l.*, u.pseudo AS pseudo_auteur
     FROM livre l LEFT JOIN user u ON u.id = l.id_user_auteur
-    WHERE l.is_valide = 0 AND NOT EXISTS (SELECT 1 FROM exemplaire e WHERE e.id_livre = l.id_livre AND e.id_proprietaire IS NOT NULL) ORDER BY l.id_livre DESC")->fetchAll();
+    WHERE l.is_valide = 0 $exclureArchives AND NOT EXISTS (SELECT 1 FROM exemplaire e WHERE e.id_livre = l.id_livre AND e.id_proprietaire IS NOT NULL) ORDER BY l.id_livre DESC")->fetchAll();
 
 $titrePage = 'Fiches à valider';
 $pageActive = 'moderation_livres';
@@ -83,7 +84,7 @@ include __DIR__ . '/_haut.php';
                                 <a href="livre.php?id=<?= $l['id_livre'] ?>" class="btn btn-sm btn-outline-secondary"><i class="bi bi-pencil"></i> Modifier la fiche</a>
                             <?php endif; ?>
                             <?php if (aLeDroit('admin')): ?>
-                                <form method="POST" data-confirmer="Refuser et supprimer définitivement cette fiche ?">
+                                <form method="POST" data-confirmer="Refuser et archiver cette fiche en conservant son historique ?">
                                     <?= champCsrf() ?>
                                     <input type="hidden" name="id_livre" value="<?= $l['id_livre'] ?>">
                                     <input type="hidden" name="action" value="refuser">

@@ -26,7 +26,7 @@ function privilegierVraiesCouvertures(array $livres, int $nombre): array
 
 function conditionOffreMagasin(string $alias = 'e'): string
 {
-    return "$alias.id_proprietaire IS NULL AND $alias.type_offre = 'vente' AND $alias.is_disponible = 1 AND $alias.quantite > 0";
+    return "$alias.id_proprietaire IS NULL AND $alias.type_offre = 'vente' AND $alias.is_disponible = 1 AND $alias.quantite > 0 AND EXISTS (SELECT 1 FROM livre fiche WHERE fiche.id_livre = $alias.id_livre AND fiche.is_valide = 1)";
 }
 
 function conditionExemplaireMagasin(string $alias = 'e'): string
@@ -41,7 +41,7 @@ function conditionAnnoncePubliee(string $alias = 'e'): string
 {
     return "$alias.id_proprietaire IS NOT NULL AND $alias.type_offre = 'vente' AND $alias.statut_annonce = 'publiee' AND $alias.quantite > 0
             AND EXISTS (SELECT 1 FROM user vendeur WHERE vendeur.id = $alias.id_proprietaire
-                        AND vendeur.statut NOT IN ('" . implode("', '", STATUTS_COMPTE_SUSPENDU) . "'))";
+                        AND EXISTS (SELECT 1 FROM livre fiche WHERE fiche.id_livre = $alias.id_livre AND fiche.is_valide = 1) AND vendeur.statut NOT IN ('" . implode("', '", STATUTS_COMPTE_SUSPENDU) . "'))";
 }
 
 function sqlOffres(array $origines = []): string

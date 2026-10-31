@@ -92,7 +92,7 @@ switch ($_POST['action'] ?? '') {
         if ((int) $don['id_donneur'] !== $idUser) {
             terminer($retour, 'danger', "Action non autorisée.");
         }
-        $maj = $pdo->prepare("UPDATE don SET statut = 'annule' WHERE id_don = ? AND statut IN ('disponible', 'reserve')");
+        $maj = $pdo->prepare("UPDATE don SET statut = 'annule' WHERE id_don = ? AND statut IN ('disponible', 'reserve', 'en_validation', 'refuse')");
         $maj->execute([$idDon]);
         fermerConversationsObjet($pdo, 'don', $idDon, "Le don a été annulé : la conversation est terminée.");
         insertLog('DON', "Don #$idDon annulé");

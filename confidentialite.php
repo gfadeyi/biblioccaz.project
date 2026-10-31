@@ -4,6 +4,11 @@ require_once 'infos_legales_lib.php';
 
 $titreDocument = 'Politique de confidentialité';
 include 'header.php';
+$textePersonnalise = texteLegalPersonnalise('texte_confidentialite');
+if ($textePersonnalise !== '') {
+    echo '<div class="container my-4 page-legale"><h1 class="titre-page-compte">Politique de confidentialité</h1><section class="carte-compte" style="overflow-wrap:anywhere;">' . nl2br(htmlspecialchars($textePersonnalise, ENT_QUOTES, 'UTF-8')) . '</section></div>';
+    include 'footer.php'; exit();
+}
 ?>
 
 <div class="container mt-4 mb-5 page-legale">

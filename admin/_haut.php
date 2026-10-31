@@ -25,7 +25,7 @@ $menu = [
         ['moderation_avis', 'moderation_avis.php', 'chat-square-text', 'Avis signalés', 'moderation', $compteurs['avis']],
         ['messages', 'messages.php', 'chat-dots', 'Messages', 'moderation', $compteurs['messages'] ?? 0],
         ['membres_points', 'membres_points.php', 'award', 'Niveaux & badges', 'equipe', 0],
-        ['dons', 'dons.php', 'gift', 'Dons', 'equipe', 0],
+        ['dons', 'dons.php', 'gift', 'Dons', 'moderation', $compteurs['dons'] ?? 0],
         ['evenements', 'evenements.php', 'calendar-event', 'Événements', 'evenements', $compteurs['evenements_proposes'] ?? 0],
         ['utilisateurs', 'utilisateurs.php', 'people', 'Membres', 'admin', 0],
         ['candidatures', 'candidatures.php', 'person-plus', 'Candidatures', 'admin', $compteurs['candidatures']],
@@ -34,6 +34,9 @@ $menu = [
         ['newsletter', 'newsletter.php', 'megaphone', 'Newsletter', 'admin', 0],
     ],
     'Système' => [
+        ['droits_equipe', 'droits_equipe.php', 'shield-lock', 'Droits de l’équipe', 'admin', 0],
+        ['parametres_site', 'parametres_site.php', 'gear', 'Paramètres du site', 'admin', 0],
+        ['relances_emprunts', 'relances_emprunts.php', 'bell', 'Suivi des relances', 'catalogue', 0],
         ['regles_emprunts', 'regles_emprunts.php', 'book', 'Règles des emprunts', 'admin', 0],
         ['regles_recompenses', 'regles_recompenses.php', 'sliders', 'Règles de récompenses', 'admin', 0],
         ['logs', 'logs.php', 'journal-text', "Journal d'activité", 'admin', 0],

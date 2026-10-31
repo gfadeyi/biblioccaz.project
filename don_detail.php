@@ -18,9 +18,19 @@ $stmt = $pdo->prepare("
 $stmt->execute([(int) ($_GET['id'] ?? 0)]);
 $don = $stmt->fetch();
 
+$dernierMotifRefus = '';
+if ($don && $don['statut'] === 'refuse') {
+    try {
+        $requete = $pdo->prepare("SELECT motif FROM don_moderation WHERE id_don = ? AND action = 'refuser' ORDER BY id_moderation DESC LIMIT 1");
+        $requete->execute([(int) $don['id_don']]);
+        $dernierMotifRefus = (string) $requete->fetchColumn();
+    } catch (PDOException $e) {
+    }
+}
+
 include 'header.php';
 
-if (!$don) {
+if (!$don || (in_array($don['statut'], ['en_validation', 'refuse'], true) && (int) ($_SESSION['user_id'] ?? 0) !== (int) $don['id_donneur'] && ($_SESSION['role'] ?? '') !== 'admin')) {
     echo "<div class='container my-5'><div class='alert alert-warning'>Ce don n'existe pas.</div><a href='dons.php'>Voir les dons disponibles</a></div>";
     include 'footer.php';
     exit();
@@ -102,6 +112,13 @@ function boutonActionDon(string $action, int $idDon, string $csrf, string $libel
             <div class="card border-0 shadow-sm p-4" style="border-radius: 15px;">
 
                 <?php if ($estDonneur): ?>
+                    <?php if (in_array($statut, ['en_validation', 'refuse', 'disponible', 'expire'], true)): ?>
+                        <a href="don_creer.php?id=<?= (int) $don['id_don'] ?>" class="btn btn-outline-success mb-3">Modifier le don</a>
+                    <?php endif; ?>
+                    <?php if (in_array($statut, ['en_validation', 'refuse'], true)): ?>
+                        <p class="small text-muted">Ce don attend la validation de l’équipe. Il n’est pas encore visible ni réservable par les autres membres.</p>
+                        <?php if ($dernierMotifRefus !== ''): ?><div class="alert alert-warning"><?= nl2br(htmlspecialchars($dernierMotifRefus)) ?></div><?php endif; ?>
+                    <?php endif; ?>
                     <h6 class="fw-bold text-center">QR code du don</h6>
                     <div id="qr-don" class="text-center my-2" data-url="<?= htmlspecialchars(urlValidationDon($don)) ?>"></div>
                     <div class="text-center small text-muted">Code de secours</div>
@@ -119,7 +136,7 @@ function boutonActionDon(string $action, int $idDon, string $csrf, string $libel
                         </div>
                         <?= boutonActionDon('liberer', (int) $don['id_don'], $csrf, 'Libérer la réservation', 'btn-outline-warning btn-sm mb-2', 'La personne ne viendra pas ? Le don redeviendra disponible pour les autres.') ?>
                     <?php endif; ?>
-                    <?php if (in_array($statut, ['disponible', 'reserve', 'expire'], true)): ?>
+                    <?php if (in_array($statut, ['disponible', 'reserve', 'expire', 'en_validation', 'refuse'], true)): ?>
                         <?= boutonActionDon('annuler', (int) $don['id_don'], $csrf, 'Annuler le don', 'btn-outline-danger btn-sm', 'Annuler définitivement ce don ?') ?>
                     <?php endif; ?>
 
@@ -146,7 +163,7 @@ function boutonActionDon(string $action, int $idDon, string $csrf, string $libel
                     <p class="text-muted mb-0 text-center">Ce don n'est plus disponible.</p>
                 <?php endif; ?>
 
-                <?php if ($estAdmin && !$estDonneur && in_array($statut, ['disponible', 'reserve', 'expire'], true)): ?>
+                <?php if ($estAdmin && !$estDonneur && in_array($statut, ['disponible', 'reserve', 'expire', 'en_validation', 'refuse'], true)): ?>
                     <hr>
                     <a href="admin/don.php?id=<?= (int) $don['id_don'] ?>" class="btn btn-outline-danger btn-sm">Gérer ce don dans le back-office</a>
                 <?php endif; ?>
@@ -172,7 +189,7 @@ function boutonActionDon(string $action, int $idDon, string $csrf, string $libel
         qr.make();
         zone.innerHTML = qr.createSvgTag({ cellSize: 5, margin: 2, scalable: true });
         const svg = zone.querySelector('svg');
-        svg.style.width = '180px'; svg.style.height = '180px';
+        svg.style.width = '100%'; svg.style.maxWidth = '180px'; svg.style.height = 'auto';
     })();
     </script>
     <style>

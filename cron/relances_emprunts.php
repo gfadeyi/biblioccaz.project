@@ -15,11 +15,20 @@ if ((int) $verrou !== 1) {
 
 $etatRappels = fn(): array => $pdo->query("SELECT id_emprunt, CONCAT(statut, '|', rappel_avant, '|', rappel_jour, '|', nb_relances) FROM emprunt WHERE statut IN ('reserve', 'en_cours', 'expire')")->fetchAll(PDO::FETCH_KEY_PAIR);
 
+$idExecution = null;
+try {
+    $pdo->prepare("INSERT INTO relance_execution (statut) VALUES ('en_cours')")->execute();
+    $idExecution = (int) $pdo->lastInsertId();
+} catch (PDOException $erreur) {
+    insertLog('ERREUR', 'Suivi des relances indisponible : installez la migration du suivi.');
+}
+$erreurs = 0;
 try {
     $avant = $etatRappels();
     $enRetard = (int) $pdo->query("SELECT COUNT(*) FROM emprunt WHERE statut = 'en_cours' AND date_retour_prevue < CURDATE()")->fetchColumn();
 
-    verifierEmprunts($pdo);
+    $bilan = verifierEmprunts($pdo);
+    $erreurs = $bilan['erreurs'];
 
     $apres = $etatRappels();
     $rappels = 0;
@@ -34,12 +43,22 @@ try {
     $resume = "Relances des emprunts : $rappels rappel(s) ou relance(s) envoyé(s), $expirations réservation(s) expirée(s), $enRetard emprunt(s) en retard.";
     insertLog('CRON', $resume);
     echo date('Y-m-d H:i:s') . ' ' . $resume . PHP_EOL;
-    $codeSortie = 0;
+    $codeSortie = $erreurs > 0 ? 1 : 0;
 } catch (Throwable $e) {
     insertLog('ERREUR', 'Tâche planifiée des relances impossible : ' . $e->getMessage());
     fwrite(STDERR, date('Y-m-d H:i:s') . ' Erreur pendant les relances, voir le journal.' . PHP_EOL);
+    $erreurs++;
     $codeSortie = 1;
 } finally {
+    if ($idExecution !== null) {
+        try {
+            $pdo->prepare('UPDATE relance_execution SET date_fin = NOW(), statut = ?, rappels = ?, expirations = ?, erreurs = ? WHERE id_execution = ?')
+                ->execute([$erreurs > 0 ? 'erreur' : 'terminee', $rappels ?? 0, $expirations ?? 0, $erreurs, $idExecution]);
+        } catch (Throwable $erreur) {
+            insertLog('ERREUR', 'Le bilan des relances n’a pas pu être enregistré.');
+            $codeSortie = 1;
+        }
+    }
     $pdo->query("SELECT RELEASE_LOCK('biblioccaz_relances_emprunts')");
 }
 

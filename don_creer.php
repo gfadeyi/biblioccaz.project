@@ -11,12 +11,23 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 
+$idDon = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT) ?: 0;
+$donAModifier = null;
+if ($idDon) {
+    $requete = $pdo->prepare('SELECT * FROM don WHERE id_don = ? AND id_donneur = ?');
+    $requete->execute([$idDon, (int) $_SESSION['user_id']]);
+    $donAModifier = $requete->fetch();
+    if (!$donAModifier || !in_array(statutDon($donAModifier), ['en_validation', 'refuse', 'disponible', 'expire'], true)) {
+        $_SESSION['flash_don'] = ['warning', 'Ce don ne peut pas être modifié.'];
+        header('Location: mes_dons.php'); exit();
+    }
+}
 $erreurs = [];
 $v = array_merge([
     'id_livre' => '', 'titre' => '', 'auteur' => '', 'id_categorie' => '', 'etat' => 'bon',
     'description' => '', 'lieu_retrait' => '', 'conditions_retrait' => '',
     'date_limite' => date('Y-m-d', strtotime('+14 days')),
-], array_map('trim', array_filter($_POST, 'is_string')));
+], array_map(fn($valeur) => $valeur === null ? '' : (string) $valeur, $donAModifier ?: []), array_map('trim', array_filter($_POST, 'is_string')));
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST' && !empty($_GET['livre'])) {
     $stmt = $pdo->prepare("SELECT id_livre, titre, auteur, id_categorie FROM livre WHERE id_livre = ? AND is_valide = 1");
@@ -35,7 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $dateLimite = DateTime::createFromFormat('Y-m-d', $v['date_limite']);
     $min = new DateTime('today');
     $max = (new DateTime('today'))->modify('+' . DON_DUREE_MAX_JOURS . ' days');
-    if (!$dateLimite || $dateLimite < $min || $dateLimite > $max) {
+    if (!$dateLimite || $dateLimite->format('Y-m-d') !== $v['date_limite'] || $dateLimite < $min || $dateLimite > $max) {
         $erreurs[] = "La date limite doit être entre aujourd'hui et dans " . DON_DUREE_MAX_JOURS . " jours.";
     }
 
@@ -44,34 +55,50 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         [$photo, $erreurPhoto] = enregistrerCouverture('photo', 'dons/');
         if ($erreurPhoto !== '') {
             $erreurs[] = $erreurPhoto;
-        } elseif ($photo === null) {
+        } elseif ($photo === null && empty($donAModifier['photo'])) {
             $erreurs[] = "Ajoutez une photo du livre que vous donnez pour montrer son état.";
         }
     }
 
     $idLivre = null;
     if ($v['id_livre'] !== '') {
-        $stmt = $pdo->prepare("SELECT id_livre FROM livre WHERE id_livre = ?");
+        $stmt = $pdo->prepare("SELECT id_livre FROM livre WHERE id_livre = ? AND is_valide = 1");
         $stmt->execute([(int) $v['id_livre']]);
         $idLivre = $stmt->fetchColumn() ?: null;
     }
 
     if (!$erreurs) {
-        $stmt = $pdo->prepare("
-            INSERT INTO don (id_donneur, id_livre, id_categorie, titre, auteur, etat, description, photo,
-                             lieu_retrait, conditions_retrait, date_limite, code, code_court)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-        $stmt->execute([
-            $_SESSION['user_id'], $idLivre, $v['id_categorie'] !== '' ? (int) $v['id_categorie'] : null,
-            $v['titre'], $v['auteur'] ?: null, $v['etat'], $v['description'] ?: null, $photo,
-            $v['lieu_retrait'], $v['conditions_retrait'] ?: null, $v['date_limite'],
-            bin2hex(random_bytes(16)), genererCodeCourt($pdo),
-        ]);
-        $idDon = (int) $pdo->lastInsertId();
-        insertLog('DON', "Nouveau don #$idDon : " . $v['titre']);
-        $_SESSION['flash_don'] = ['success', "Votre don est publié ! Gardez ce QR code : la personne qui viendra chercher le livre devra le scanner."];
-        header("Location: don_detail.php?id=$idDon");
-        exit();
+        try {
+            $pdo->beginTransaction();
+            $requete = $pdo->prepare('SELECT statut, email_verifie FROM `user` WHERE id = ? FOR UPDATE');
+            $requete->execute([(int) $_SESSION['user_id']]);
+            $donneur = $requete->fetch();
+            if (!$donneur || !(int) $donneur['email_verifie'] || !in_array($donneur['statut'], ['actif', 'valide_moderateur'], true)) { throw new DomainException('Votre compte doit être actif et votre email confirmé.'); }
+            $donnees = [$idLivre, $v['id_categorie'] !== '' ? (int) $v['id_categorie'] : null, $v['titre'], $v['auteur'] ?: null, $v['etat'], $v['description'] ?: null, $photo ?: ($donAModifier['photo'] ?? null), $v['lieu_retrait'], $v['conditions_retrait'] ?: null, $v['date_limite']];
+            if ($idDon) {
+                $requete = $pdo->prepare('SELECT statut FROM don WHERE id_don = ? AND id_donneur = ? FOR UPDATE');
+                $requete->execute([$idDon, (int) $_SESSION['user_id']]);
+                if (!in_array($requete->fetchColumn(), ['en_validation', 'refuse', 'disponible'], true)) { throw new DomainException('La réservation ou le statut de ce don a changé. Rechargez la page.'); }
+                $pdo->prepare("UPDATE don SET id_livre = ?, id_categorie = ?, titre = ?, auteur = ?, etat = ?, description = ?, photo = ?, lieu_retrait = ?, conditions_retrait = ?, date_limite = ?, statut = 'en_validation' WHERE id_don = ?")
+                    ->execute([...$donnees, $idDon]);
+            } else {
+                $pdo->prepare("INSERT INTO don (id_livre, id_categorie, titre, auteur, etat, description, photo, lieu_retrait, conditions_retrait, date_limite, id_donneur, code, code_court, statut) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'en_validation')")
+                    ->execute([...$donnees, (int) $_SESSION['user_id'], bin2hex(random_bytes(16)), genererCodeCourt($pdo)]);
+                $idDon = (int) $pdo->lastInsertId();
+            }
+            $pdo->commit();
+            $anciennePhoto = basename((string) ($donAModifier['photo'] ?? ''));
+            if ($photo && $anciennePhoto !== '' && $anciennePhoto !== $photo && is_file(__DIR__ . '/img/dons/' . $anciennePhoto)) {
+                unlink(__DIR__ . '/img/dons/' . $anciennePhoto);
+            }
+            insertLog('DON', 'Don #' . $idDon . ' soumis à validation');
+            $_SESSION['flash_don'] = ['success', 'Votre don a été envoyé à l’équipe pour validation. Il sera réservable après acceptation.'];
+            header('Location: don_detail.php?id=' . $idDon); exit();
+        } catch (Throwable $erreur) {
+            if ($pdo->inTransaction()) { $pdo->rollBack(); }
+            if ($photo && is_file(__DIR__ . '/img/dons/' . $photo)) { unlink(__DIR__ . '/img/dons/' . $photo); }
+            $erreurs[] = $erreur instanceof DomainException ? $erreur->getMessage() : 'Le don n’a pas pu être enregistré. Merci de réessayer.';
+        }
     }
 }
 
@@ -83,7 +110,7 @@ include 'header.php';
 
 <div class="container my-5" style="max-width: 760px;">
     <a href="vendre.php" class="text-decoration-none small text-muted"><i class="bi bi-arrow-left"></i> Donner ou revendre</a>
-    <h2 class="fw-bold mt-2 mb-4">Proposer un livre en don</h2>
+    <h2 class="fw-bold mt-2 mb-4"><?= $donAModifier ? 'Modifier mon don' : 'Proposer un livre en don' ?></h2>
 
     <?php if ($erreurs): ?>
         <div class="alert alert-danger rounded-3"><ul class="mb-0 ps-3"><?php foreach ($erreurs as $e): ?><li><?= htmlspecialchars($e) ?></li><?php endforeach; ?></ul></div>
@@ -91,6 +118,7 @@ include 'header.php';
 
     <form method="POST" enctype="multipart/form-data" class="card border-0 shadow-sm p-4" style="border-radius: 20px;">
         <input type="hidden" name="csrf" value="<?= jetonCsrf() ?>">
+        <p class="text-muted">Chaque nouveau don ou modification est vérifié par l’équipe avant publication. Pour une modification, la photo actuelle est conservée si vous n’en choisissez pas une nouvelle.</p>
         <h5 class="fw-bold mb-3">Le livre</h5>
         <div class="row g-3">
             <div class="col-12">
@@ -126,7 +154,7 @@ include 'header.php';
             </div>
             <div class="col-md-6">
                 <label for="don-photo" class="form-label fw-bold small">Photo du livre *</label>
-                <input id="don-photo" type="file" name="photo" accept="image/jpeg,image/png,image/webp" class="form-control" required aria-describedby="don-photo-aide don-photo-erreur">
+                <input id="don-photo" type="file" name="photo" accept="image/jpeg,image/png,image/webp" class="form-control" <?= empty($donAModifier['photo']) ? 'required' : '' ?> aria-describedby="don-photo-aide don-photo-erreur">
                 <div id="don-photo-aide" class="form-text">Photographiez votre exemplaire pour montrer son état. JPG, PNG ou WebP, 2 Mo maximum.</div>
                 <p id="don-photo-erreur" class="small text-danger mt-2" role="status" hidden></p>
                 <img id="don-photo-apercu" alt="Aperçu de la photo de votre livre" class="mt-3 rounded" style="max-width: 100%; max-height: 180px; object-fit: contain;" hidden>
@@ -156,7 +184,7 @@ include 'header.php';
             </div>
         </div>
 
-        <button class="btn btn-success rounded-pill fw-bold py-2 mt-4">Publier mon don et générer le QR code</button>
+        <button class="btn btn-success rounded-pill fw-bold py-2 mt-4">Envoyer mon don pour validation</button>
     </form>
 </div>
 

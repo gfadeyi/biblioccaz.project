@@ -2,7 +2,7 @@
 require_once __DIR__ . '/_init.php';
 require_once __DIR__ . '/../dons_lib.php';
 require_once __DIR__ . '/../messagerie_lib.php';
-exigerDroit('equipe');
+exigerDroit('moderation');
 
 $filtre = is_string($_GET['statut'] ?? null) ? $_GET['statut'] : 'en_cours';
 $q = is_string($_GET['q'] ?? null) ? mb_substr(trim($_GET['q']), 0, 100) : '';
@@ -17,6 +17,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 $conditions = [
+    'en_validation' => "d.statut = 'en_validation'",
+    'refuse' => "d.statut = 'refuse'",
     'en_cours'   => "d.statut IN ('disponible', 'reserve') AND d.date_limite >= CURDATE()",
     'disponible' => "d.statut = 'disponible' AND d.date_limite >= CURDATE()",
     'reserve'    => "d.statut = 'reserve'",
@@ -61,7 +63,7 @@ $titrePage = 'Dons';
 $pageActive = 'dons';
 include __DIR__ . '/_haut.php';
 
-$onglets = ['en_cours' => 'En cours', 'disponible' => 'Disponibles', 'reserve' => 'Réservés', 'recupere' => 'Récupérés',
+$onglets = ['en_validation' => 'À valider', 'refuse' => 'À corriger', 'en_cours' => 'En cours', 'disponible' => 'Disponibles', 'reserve' => 'Réservés', 'recupere' => 'Récupérés',
             'expire' => 'Expirés', 'annule' => 'Annulés', 'tous' => 'Tous'];
 ?>
 

@@ -7,6 +7,8 @@ const DON_MAX_RESERVATIONS = 3;
 const DON_DUREE_MAX_JOURS = 60;
 const DON_ETATS = ['neuf' => 'Neuf', 'tres bon' => 'Très bon état', 'bon' => 'Bon état', 'use' => 'État usé'];
 const DON_STATUTS = [
+    'en_validation' => ['En attente de validation', 'warning'],
+    'refuse' => ['À corriger', 'danger'],
     'disponible' => ['Disponible', 'success'],
     'reserve'    => ['Réservé', 'warning'],
     'recupere'   => ['Récupéré', 'secondary'],
