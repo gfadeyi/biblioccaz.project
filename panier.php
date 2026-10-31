@@ -2,6 +2,7 @@
 require_once 'config.php';
 if (session_status() === PHP_SESSION_NONE) { session_start(); }
 
+require_once 'avis_lib.php';
 require_once 'panier_calcul.php';
 require_once 'livres_lib.php';
 
@@ -10,7 +11,6 @@ $idUserPanier = (int) ($_SESSION['user_id'] ?? 0);
 $niveauPanier = null;
 $meilleurBon = null;
 if ($idUserPanier) {
-    require_once 'avis_lib.php';
     require_once 'points_lib.php';
     $niveauPanier = niveauMembre($pdo, $idUserPanier);
 }
