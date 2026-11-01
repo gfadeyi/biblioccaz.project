@@ -5,6 +5,16 @@ const ETATS_LIVRE = ['neuf' => 'Neuf', 'tres bon' => 'Très bon état', 'bon' =>
 
 const SEUIL_STOCK_BAS_PUBLIC = 5;
 
+const TOMES_PAR_SERIE_DECOUVERTE = 2;
+
+function graineDecouverte(): int
+{
+    if (!is_int($_SESSION['graine_decouverte'] ?? null)) {
+        $_SESSION['graine_decouverte'] = random_int(1, 2147483647);
+    }
+    return $_SESSION['graine_decouverte'];
+}
+
 function libelleEtat(string $etat): string
 {
     return ETATS_LIVRE[$etat] ?? ucfirst($etat);

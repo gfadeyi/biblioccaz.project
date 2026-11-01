@@ -35,6 +35,7 @@ $classementsLivres = [
     'dons' => "(SELECT COUNT(*) FROM don dc WHERE dc.id_livre = l.id_livre AND dc.statut = 'recupere' AND dc.date_recuperation IS NOT NULL AND dc.date_recuperation <= NOW())",
 ];
 $trisPossibles = [
+    'decouverte' => ['Découverte', 'cle_decouverte, id_livre'],
     'pertinence' => ['Pertinence', 'pertinence DESC, l.id_livre DESC'],
     'recent'    => ['Nouveautés', 'l.id_livre DESC'],
     'prix_asc'  => ['Prix croissant', 'prix ASC, l.titre ASC'],
@@ -46,7 +47,8 @@ $trisPossibles = [
     'ventes'    => ['Meilleures ventes', '(SELECT COALESCE(SUM(cl.quantite), 0) FROM commande_ligne cl WHERE cl.id_livre = l.id_livre) DESC, l.id_livre DESC'],
 ];
 if (!isset($trisPossibles[$f['tri']])) { $f['tri'] = ''; }
-$triActif = $f['tri'] !== '' ? $f['tri'] : ($f['q'] !== '' ? 'pertinence' : 'recent');
+$triActif = $f['tri'] !== '' ? $f['tri'] : ($f['q'] !== '' ? 'pertinence' : 'decouverte');
+$decouverte = $triActif === 'decouverte';
 
 $where = ["l.is_valide = 1"];
 $classementActif = isset($classementsLivres[$classement ?? '']) ? $classement : (isset($classementsLivres[$triActif]) ? $triActif : '');
@@ -146,19 +148,33 @@ if ($triActif === 'pertinence') {
     $selectPertinence = ",\n           (" . implode(' + ', $termesPertinence) . ") AS pertinence";
 }
 
+$selectDecouverte = '';
+if ($decouverte) {
+    $selectDecouverte = ",\n           ls.id_serie AS serie_decouverte, ls.numero_tome AS tome_decouverte,
+           CRC32(CONCAT(:graine_ordre, '-', l.id_livre)) AS cle_decouverte";
+    $paramsTri['graine_ordre'] = graineDecouverte();
+}
+$rangSerieDecouverte = fn(string $cleOrdre) => "ROW_NUMBER() OVER (PARTITION BY serie_decouverte, CASE WHEN serie_decouverte IS NULL THEN id_livre END
+                       ORDER BY tome_decouverte IS NULL, tome_decouverte, $cleOrdre id_livre) AS rang_serie";
+
 $sqlBase = "
     FROM livre l
     INNER JOIN " . sqlOffres($originesOffre) . " e ON e.id_livre = l.id_livre
     LEFT JOIN categorie c ON c.id_categorie = l.id_categorie
     LEFT JOIN (SELECT id_livre, AVG(note) AS moyenne, COUNT(*) AS nb
                FROM avis WHERE statut = 'visible' GROUP BY id_livre) av ON av.id_livre = l.id_livre
+    " . ($decouverte ? "LEFT JOIN livre_serie ls ON ls.id_livre = l.id_livre" : "") . "
     WHERE " . implode(' AND ', $where) . "
-    GROUP BY l.id_livre, l.titre, l.auteur, l.couverture, c.nom, c.slug, av.moyenne, av.nb
+    GROUP BY l.id_livre, l.titre, l.auteur, l.couverture, c.nom, c.slug, av.moyenne, av.nb" . ($decouverte ? ", ls.id_serie, ls.numero_tome" : "") . "
     " . ($having ? "HAVING " . implode(' AND ', $having) : "");
 
-$stmt = $pdo->prepare("SELECT COUNT(*) FROM (SELECT l.id_livre $sqlBase) AS resultats");
+$stmt = $pdo->prepare($decouverte
+    ? "SELECT COUNT(*), COALESCE(SUM(rang_serie <= " . TOMES_PAR_SERIE_DECOUVERTE . "), 0)
+       FROM (SELECT " . $rangSerieDecouverte('') . "
+             FROM (SELECT l.id_livre, ls.id_serie AS serie_decouverte, ls.numero_tome AS tome_decouverte $sqlBase) AS livres_filtres) AS resultats"
+    : "SELECT COUNT(*), COUNT(*) FROM (SELECT l.id_livre $sqlBase) AS resultats");
 $stmt->execute($params);
-$total = (int) $stmt->fetchColumn();
+[$total, $totalPagine] = array_map('intval', $stmt->fetch(PDO::FETCH_NUM));
 
 if (isset($_GET['compter'])) {
     header('Content-Type: application/json');
@@ -166,19 +182,24 @@ if (isset($_GET['compter'])) {
     exit;
 }
 
-$nbPages = max(1, (int) ceil($total / LIVRES_PAR_PAGE));
+$nbPages = max(1, (int) ceil($totalPagine / LIVRES_PAR_PAGE));
 $page = min($page, $nbPages);
 $offset = ($page - 1) * LIVRES_PAR_PAGE;
 
-$stmt = $pdo->prepare("
+$sqlLivres = "
     SELECT l.id_livre, l.titre, l.auteur, l.couverture,
            c.nom AS categorie_nom, c.slug AS categorie_slug,
            $prixLivre AS prix,
            SUBSTRING_INDEX(GROUP_CONCAT(e.etat ORDER BY e.origine IN ('don', 'emprunt'), e.prix ASC), ',', 1) AS etat,
            SUM(CASE WHEN e.origine = 'magasin' THEN e.quantite END) AS stock,
            GROUP_CONCAT(DISTINCT e.origine ORDER BY e.origine) AS origines,
-           av.moyenne AS note_moyenne, COALESCE(av.nb, 0) AS nb_avis$selectPertinence$selectClassement
-    $sqlBase
+           av.moyenne AS note_moyenne, COALESCE(av.nb, 0) AS nb_avis$selectPertinence$selectClassement$selectDecouverte
+    $sqlBase";
+if ($decouverte) {
+    $sqlLivres = "SELECT * FROM (SELECT livres_filtres.*, " . $rangSerieDecouverte('cle_decouverte,') . " FROM ($sqlLivres) AS livres_filtres) AS livres_decouverte
+                  WHERE rang_serie <= " . TOMES_PAR_SERIE_DECOUVERTE;
+}
+$stmt = $pdo->prepare("$sqlLivres
     ORDER BY {$trisPossibles[$triActif][1]}
     LIMIT " . LIVRES_PAR_PAGE . " OFFSET $offset");
 $stmt->execute($params + $paramsTri);
@@ -348,6 +369,7 @@ echo etoilesStyle();
                 <?= $sousTitre ? htmlspecialchars($sousTitre) . ' · ' : '' ?>
                 <?= $total ?> livre<?= $total > 1 ? 's' : '' ?> disponible<?= $total > 1 ? 's' : '' ?>
                 <?= $f['q'] !== '' ? ' pour « ' . htmlspecialchars($f['q']) . ' »' : '' ?>
+                <?= $totalPagine < $total ? ' · ' . TOMES_PAR_SERIE_DECOUVERTE . ' tomes au plus par série dans cette vue' : '' ?>
             </p>
         </div>
         <form method="GET" class="d-flex align-items-center gap-2">
