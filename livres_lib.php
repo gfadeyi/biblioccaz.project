@@ -47,6 +47,30 @@ function privilegierVraiesCouvertures(array $livres, int $nombre): array
     return array_slice([...array_values($avecCouverture), ...array_values($sansCouverture)], 0, $nombre);
 }
 
+function livresBandeauAccueil(PDO $pdo, int $nombre = 3, int $parmiLesDerniers = 50): array
+{
+    $recents = $pdo->query("
+        SELECT cartes.*, (SELECT MIN(ls.id_serie) FROM livre_serie ls WHERE ls.id_livre = cartes.id_livre) AS id_serie
+        FROM (" . sqlCartesLivres() . " ORDER BY l.id_livre DESC LIMIT " . ($parmiLesDerniers * 4) . ") AS cartes
+        ORDER BY cartes.id_livre DESC")->fetchAll();
+    $candidats = array_slice(array_values(array_filter($recents, fn($livre) => aUneVraieCouverture($livre['couverture']))), 0, $parmiLesDerniers);
+    $graine = graineDecouverte();
+    usort($candidats, fn($a, $b) => crc32($graine . '-' . $a['id_livre']) <=> crc32($graine . '-' . $b['id_livre']));
+    $choisis = [];
+    $seriesPrises = [];
+    foreach ($candidats as $livre) {
+        if ($livre['id_serie'] !== null && isset($seriesPrises[$livre['id_serie']])) {
+            continue;
+        }
+        $seriesPrises[$livre['id_serie'] ?? 'livre-' . $livre['id_livre']] = true;
+        $choisis[] = $livre;
+        if (count($choisis) === $nombre) {
+            break;
+        }
+    }
+    return $choisis;
+}
+
 function conditionOffreMagasin(string $alias = 'e'): string
 {
     return "$alias.id_proprietaire IS NULL AND $alias.type_offre = 'vente' AND $alias.is_disponible = 1 AND $alias.quantite > 0 AND EXISTS (SELECT 1 FROM livre fiche WHERE fiche.id_livre = $alias.id_livre AND fiche.is_valide = 1) AND " . sqlStockLibrePanier($alias) . " > 0";

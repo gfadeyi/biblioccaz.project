@@ -37,7 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    document.querySelectorAll('.carrousel').forEach((carrousel) => {
+    document.querySelectorAll('.carrousel, .grille-univers').forEach((carrousel) => {
         const cadre = document.createElement('div');
         cadre.className = 'carrousel-cadre';
         carrousel.before(cadre);
@@ -57,8 +57,8 @@ document.addEventListener('DOMContentLoaded', () => {
             return fleche;
         };
 
-        const flecheGauche = creerFleche('gauche', 'Livres précédents');
-        const flecheDroite = creerFleche('droite', 'Livres suivants');
+        const flecheGauche = creerFleche('gauche', carrousel.dataset.libellePrecedent || 'Livres précédents');
+        const flecheDroite = creerFleche('droite', carrousel.dataset.libelleSuivant || 'Livres suivants');
         const mettreAJour = () => {
             flecheGauche.hidden = carrousel.scrollLeft < 8;
             flecheDroite.hidden = carrousel.scrollLeft + carrousel.clientWidth >= carrousel.scrollWidth - 8;

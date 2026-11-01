@@ -330,14 +330,51 @@ h1, h2, h3, .titre { font-family: var(--police-titre); font-weight: 700; letter-
                     font-size: .85rem; line-height: 1.15; transform: rotate(-8deg); box-shadow: var(--ombre); }
 
 .grille-univers { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; }
-.tuile-univers { --teinte: var(--texte-vert); --fond-teinte: var(--vert-50); display: flex; flex-direction: column; gap: .5rem; padding: 1.2rem 1rem;
-                 border-radius: var(--rayon-grand); background: var(--fond-teinte); color: var(--encre); text-decoration: none; border: 1px solid transparent;
-                 transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition); }
-.tuile-univers:hover { transform: translateY(-4px); box-shadow: var(--ombre-survol); border-color: var(--teinte); color: var(--encre); }
-.tuile-univers .icone { width: 52px; height: 52px; border-radius: 50%; background: var(--surface); color: var(--teinte); display: grid; place-items: center;
-                        font-size: 1.5rem; transition: transform var(--transition); }
-.tuile-univers:hover .icone { transform: rotate(-8deg) scale(1.08); }
-.tuile-univers strong { font-family: var(--police-titre); font-size: 1.08rem; line-height: 1.2; }
+.tuile-univers { --teinte: var(--texte-vert); --fond-teinte: var(--vert-50); display: flex; flex-direction: column; gap: .35rem; padding: .9rem 1rem 1.1rem;
+                 border-radius: var(--rayon-grand); background: var(--surface); color: var(--encre); text-decoration: none; border: 1px solid var(--trait);
+                 transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition), background-color var(--duree-normale) var(--courbe); }
+.tuile-univers:hover, .tuile-univers:focus-visible { transform: translateY(-4px); box-shadow: var(--ombre-survol); border-color: var(--teinte); background: var(--fond-teinte); color: var(--encre); }
+.tuile-univers__dessin { display: block; margin: 0 -.25rem .2rem; color: var(--encre-douce); transition: color var(--duree-normale) var(--courbe); }
+.illustration-univers { display: block; width: 100%; height: auto; aspect-ratio: 160 / 110; overflow: visible; transition: transform var(--duree-normale) var(--courbe-rebond); }
+.illustration-univers path, .illustration-univers circle, .illustration-univers ellipse { fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.illustration-univers .trait-fin { stroke-width: 1.1; opacity: .75; }
+.illustration-univers .ombre { fill: currentColor; fill-opacity: .1; stroke: none; }
+.illustration-univers .plein { fill: currentColor; stroke: none; }
+.illustration-univers .halo { fill: currentColor; fill-opacity: 0; stroke: none; transition: fill-opacity var(--duree-normale) var(--courbe); }
+.illustration-univers .rayons { opacity: 0; transition: opacity var(--duree-normale) var(--courbe); }
+.illustration-univers .texte-illustration { fill: currentColor; font-family: var(--police-titre); font-size: 13px; font-weight: 700; }
+.illustration-univers .texte-bulle { font-size: 9px; letter-spacing: .02em; }
+.illustration-univers .texte-petit { font-size: 9px; }
+.illustration-univers .anime { transform-box: fill-box; transform-origin: center; }
+.illustration-univers .anime-queue, .illustration-univers .anime-pinceau, .illustration-univers .anime-couvercle, .illustration-univers .anime-bulle { transform-origin: 0 100%; }
+.illustration-univers .anime-queue { transform-origin: 0 0; }
+.tuile-univers:hover .illustration-univers, .tuile-univers:focus-visible .illustration-univers { transform: scale(1.04); }
+.tuile-univers:hover .tuile-univers__dessin, .tuile-univers:focus-visible .tuile-univers__dessin { color: color-mix(in srgb, var(--teinte) 35%, var(--encre-douce)); }
+.tuile-univers:hover .anime-chute, .tuile-univers:focus-visible .anime-chute { animation: univers-chute 1.1s var(--courbe) infinite; }
+.tuile-univers:hover .anime-bulle, .tuile-univers:focus-visible .anime-bulle { animation: univers-bulle .9s var(--courbe-rebond) both; }
+.tuile-univers:hover .anime-queue, .tuile-univers:focus-visible .anime-queue { animation: univers-queue 1.2s ease-in-out infinite alternate; }
+.tuile-univers:hover .anime-zzz, .tuile-univers:focus-visible .anime-zzz,
+.tuile-univers:hover .anime-vapeur, .tuile-univers:focus-visible .anime-vapeur { animation: univers-monte 1.6s ease-in-out infinite; }
+.tuile-univers:hover .anime-soleil, .tuile-univers:focus-visible .anime-soleil { animation: univers-tourne 4s linear infinite; }
+.tuile-univers:hover .anime-pinceau, .tuile-univers:focus-visible .anime-pinceau { animation: univers-pinceau .5s ease-in-out infinite alternate; }
+.tuile-univers:hover .anime-toque, .tuile-univers:focus-visible .anime-toque { animation: univers-lancer 1.2s var(--courbe) infinite; }
+.tuile-univers:hover .anime-couvercle, .tuile-univers:focus-visible .anime-couvercle { animation: univers-couvercle .45s ease-in-out infinite alternate; }
+.tuile-univers:hover .anime-carotte, .tuile-univers:focus-visible .anime-carotte { animation: univers-carotte .9s ease-in-out infinite alternate; }
+.tuile-univers:hover .halo, .tuile-univers:focus-visible .halo { fill-opacity: .14; }
+.tuile-univers:hover .rayons, .tuile-univers:focus-visible .rayons { opacity: 1; }
+@keyframes univers-chute { 0% { transform: translateY(-4px); opacity: 1; } 70% { transform: translateY(12px); opacity: 1; } 100% { transform: translateY(14px); opacity: 0; } }
+@keyframes univers-bulle { 0% { transform: scale(.6) rotate(-6deg); } 60% { transform: scale(1.12) rotate(3deg); } 100% { transform: scale(1) rotate(0); } }
+@keyframes univers-queue { from { transform: rotate(-8deg); } to { transform: rotate(14deg); } }
+@keyframes univers-monte { 0% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(-6px); opacity: .2; } }
+@keyframes univers-tourne { to { transform: rotate(360deg); } }
+@keyframes univers-pinceau { from { transform: rotate(-6deg); } to { transform: rotate(8deg); } }
+@keyframes univers-lancer { 0%, 100% { transform: translateY(0) rotate(0); } 45% { transform: translateY(-9px) rotate(-10deg); } }
+@keyframes univers-couvercle { from { transform: translateY(0) rotate(0); } to { transform: translateY(-3px) rotate(-4deg); } }
+@keyframes univers-carotte { from { transform: translate(0, 0); } to { transform: translate(-2px, -4px); } }
+.tuile-univers strong { display: block; font-family: var(--police-titre); font-size: 1.08rem; line-height: 1.2; }
+.fleche-univers { display: inline-block; margin-left: .2rem; color: var(--teinte); font-size: .95rem; opacity: 0; transform: translateX(-6px); transition: opacity var(--transition), transform var(--duree-normale) var(--courbe-rebond); }
+.tuile-univers:hover .fleche-univers, .tuile-univers:focus-visible .fleche-univers { opacity: 1; transform: translateX(0); }
+@media (hover: none) { .fleche-univers { opacity: .8; transform: none; } }
 .tuile-univers small { color: var(--encre-douce); line-height: 1.3; }
 .univers-bons-plans { --teinte: var(--vert-500); --fond-teinte: #dcefd2; }
 .univers-bd { --teinte: #6d3aa8; --fond-teinte: #f3ecfa; }
@@ -346,8 +383,8 @@ h1, h2, h3, .titre { font-family: var(--police-titre); font-weight: 700; letter-
 .univers-scolaire { --teinte: #1d5ca3; --fond-teinte: #e9f1fb; }
 .univers-savoirs { --teinte: #23696a; --fond-teinte: #e4f2f1; }
 .univers-pratique { --teinte: #5a7350; --fond-teinte: #e7ebe4; }
-:root[data-theme="sombre"] .tuile-univers { background: color-mix(in srgb, var(--teinte) 16%, var(--surface)); }
-:root[data-theme="sombre"] .tuile-univers .icone { color: color-mix(in srgb, var(--teinte) 50%, #fff); }
+:root[data-theme="sombre"] .tuile-univers:hover, :root[data-theme="sombre"] .tuile-univers:focus-visible { background: color-mix(in srgb, var(--teinte) 18%, var(--surface)); }
+:root[data-theme="sombre"] .tuile-univers:hover .tuile-univers__dessin, :root[data-theme="sombre"] .tuile-univers:focus-visible .tuile-univers__dessin { color: color-mix(in srgb, var(--teinte) 45%, #fff); }
 
 .carrousel { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(200px, 220px); gap: 1.1rem; overflow-x: auto; scroll-snap-type: x mandatory;
              scroll-padding: 0 4px; padding: 6px 4px 18px; scrollbar-width: thin; scrollbar-color: var(--vert-500) transparent; }
@@ -634,8 +671,6 @@ h1, h2, h3, .titre { font-family: var(--police-titre); font-weight: 700; letter-
     to { transform: translateX(120%); }
 }
 
-.tuile-univers:focus-visible { transform: translateY(-4px); box-shadow: var(--ombre-survol); border-color: var(--teinte); }
-.tuile-univers .icone { transition: transform var(--duree-normale) var(--courbe-rebond); }
 .tuile-univers:active { transform: translateY(-1px) scale(.98); }
 
 .pied a { background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat; padding-bottom: 1px; transition: background-size var(--transition), color var(--transition); }
@@ -802,7 +837,6 @@ h1, h2, h3, .titre { font-family: var(--police-titre); font-weight: 700; letter-
                       scrollbar-width: none; padding: 4px 2px 10px; }
     .grille-univers::-webkit-scrollbar { display: none; }
     .tuile-univers { scroll-snap-align: start; padding: 1rem .9rem; }
-    .tuile-univers .icone { width: 44px; height: 44px; font-size: 1.3rem; }
     .atout { gap: .6rem; padding: 1rem 0; font-size: .92rem; }
     .atout :is(i, .icone-dessin) { flex-basis: 40px; width: 40px; height: 40px; font-size: 1.15rem; }
     .atout .icone-dessin { padding: 7px; }

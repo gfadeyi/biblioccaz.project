@@ -7,6 +7,7 @@ require_once 'icones_lib.php';
 require_once 'panier_calcul.php';
 require_once 'compte_lib.php';
 require_once 'categories_lib.php';
+require_once 'illustrations_univers_lib.php';
 
 $selectionCartes = sqlCartesLivres();
 
@@ -37,13 +38,13 @@ if (isset($_SESSION['user_id']) && in_array($_SESSION['role'] ?? '', ROLES_SUGGE
     $suggestionsAccueil = recommandationsPour($pdo, (int) $_SESSION['user_id']);
 }
 
-$couverturesBandeau = array_slice(array_values(array_filter($nouveautes, fn($livre) => aUneVraieCouverture($livre['couverture']))), 0, 3);
+$couverturesBandeau = livresBandeauAccueil($pdo);
 
-$univers = [['classe' => 'univers-bons-plans', 'icone' => 'etiquette', 'nom' => 'Bons plans', 'detail' => 'Moins de 10 €, dernière chance, nouveautés', 'lien' => 'petits_prix.php']];
+$univers = [['classe' => 'univers-bons-plans', 'illustration' => 'bons-plans', 'nom' => 'Bons plans', 'detail' => 'Moins de 10 €, dernière chance, nouveautés', 'lien' => 'petits_prix.php']];
 foreach (arbreCategories($pdo) as $universCategorie) {
     $univers[] = [
         'classe' => 'univers-' . ($universCategorie['couleur'] ?: 'litterature'),
-        'icone' => $universCategorie['icone'] ?: 'livre-ouvert',
+        'illustration' => $universCategorie['couleur'] ?: 'litterature',
         'nom' => $universCategorie['nom'],
         'detail' => $universCategorie['description'] ?? '',
         'lien' => lienCategorie($universCategorie['slug']),
@@ -135,11 +136,11 @@ include 'header.php';
             <p>Comme dans une librairie : chaque rayon a sa couleur.</p>
         </div>
     </div>
-    <div class="grille-univers">
+    <div class="grille-univers" data-libelle-precedent="Univers précédents" data-libelle-suivant="Univers suivants">
         <?php foreach ($univers as $u): ?>
-            <a href="<?= htmlspecialchars($u['lien']) ?>" class="tuile-univers <?= $u['classe'] ?>">
-                <span class="icone"><?= iconeDessin($u['icone']) ?></span>
-                <strong><?= htmlspecialchars($u['nom']) ?></strong>
+            <a href="<?= htmlspecialchars($u['lien']) ?>" class="tuile-univers <?= htmlspecialchars($u['classe']) ?>">
+                <span class="tuile-univers__dessin"><?= illustrationUnivers($u['illustration']) ?></span>
+                <strong><?= htmlspecialchars($u['nom']) ?> <i class="bi bi-arrow-right fleche-univers" aria-hidden="true"></i></strong>
                 <small><?= htmlspecialchars($u['detail']) ?></small>
             </a>
         <?php endforeach; ?>
