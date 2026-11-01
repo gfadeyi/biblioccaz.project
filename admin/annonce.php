@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/_init.php';
 require_once __DIR__ . '/../annonces_lib.php';
+require_once __DIR__ . '/../messagerie_equipe_lib.php';
 exigerDroit('moderation');
 
 $idAnnonce = (int) ($_GET['id'] ?? 0);
@@ -79,6 +80,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 $titrePage = "Modifier l'annonce";
+$actionsPage = [actionDemandeAvisEquipe('annonce', $idAnnonce)];
 $pageActive = 'annonces';
 $sousTitrePage = $annonce['titre'] . ' · annonce de @' . $annonce['vendeur_pseudo'];
 include __DIR__ . '/_haut.php';

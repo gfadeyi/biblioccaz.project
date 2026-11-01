@@ -3,26 +3,15 @@ require_once __DIR__ . '/_init.php';
 require_once __DIR__ . '/../categories_lib.php';
 require_once __DIR__ . '/../livres_lib.php';
 exigerDroit('equipe');
+require_once __DIR__ . '/_tableau_lib.php';
 
-function compter(PDO $pdo, string $sql): float
-{
-    try {
-        return (float) $pdo->query($sql)->fetchColumn();
-    } catch (PDOException $e) {
-        return 0;
-    }
+if (($_SESSION['role'] ?? '') === 'gestionnaire') {
+    require __DIR__ . '/_tableau_gestionnaire.php';
+    exit();
 }
-
-function tendance(float $actuel, float $precedent): array
-{
-    if ($precedent <= 0) {
-        return $actuel > 0 ? ['hausse', 'arrow-up-right', 'Nouveau'] : ['stable', 'dash', 'Stable'];
-    }
-    $variation = (int) round(($actuel - $precedent) / $precedent * 100);
-    if ($variation === 0) {
-        return ['stable', 'dash', 'Stable'];
-    }
-    return $variation > 0 ? ['hausse', 'arrow-up-right', '+' . $variation . ' %'] : ['baisse', 'arrow-down-right', $variation . ' %'];
+if (($_SESSION['role'] ?? '') === 'moderateur') {
+    require __DIR__ . '/_tableau_moderateur.php';
+    exit();
 }
 
 $commandesValides = "FROM commande WHERE statut <> 'annulee'";
@@ -118,22 +107,6 @@ try {
 }
 $iconesActivite = ['commande' => 'bag-check', 'membre' => 'person-plus', 'avis' => 'chat-square-text', 'don' => 'gift', 'evenement' => 'calendar-check'];
 
-function depuis(string $date): string
-{
-    $secondes = time() - strtotime($date);
-    if ($secondes < 3600) {
-        return 'il y a ' . max(1, intdiv($secondes, 60)) . ' min';
-    }
-    if ($secondes < 86400) {
-        return 'il y a ' . intdiv($secondes, 3600) . ' h';
-    }
-    if ($secondes < 7 * 86400) {
-        $jours = intdiv($secondes, 86400);
-        return 'il y a ' . $jours . ' jour' . ($jours > 1 ? 's' : '');
-    }
-    return 'le ' . date('d/m/Y', strtotime($date));
-}
-
 $cartes = [];
 if ($finances) {
     $cartes[] = ['currency-euro', "Chiffre d'affaires du jour", formaterPrix($indicateurs['ca_jour']), tendance($indicateurs['ca_jour'], $indicateurs['ca_hier']), "par rapport à hier", null, false];
@@ -180,6 +153,8 @@ if (aLeDroit('admin')) {
 if (aLeDroit('candidatures_auteur')) {
     $aTraiter[] = ['feather', 'Candidatures auteur', 'Fiches auteur à étudier', $compteurs['candidatures_auteur'] ?? 0, 'candidatures_auteur.php'];
 }
+require_once __DIR__ . '/../messagerie_equipe_lib.php';
+$aTraiter[] = ['chat-left-text', 'Messages de l’équipe non lus', 'Messagerie interne de l’équipe', nombreNonLusEquipe($pdo, (int) $_SESSION['user_id']), 'messagerie_equipe.php'];
 $totalATraiter = array_sum(array_column($aTraiter, 3));
 
 $titrePage = 'Tableau de bord';

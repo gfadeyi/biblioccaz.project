@@ -3,10 +3,13 @@ if (!function_exists('estEquipe')) { http_response_code(404); exit(); }
 $titrePage = $titrePage ?? 'Back-office';
 $pageActive = $pageActive ?? '';
 $compteurs = estEquipe() ? compteursEquipe($pdo) : ['livres' => 0, 'avis' => 0, 'candidatures' => 0];
+require_once __DIR__ . '/../messagerie_equipe_lib.php';
+$nonLusEquipe = estEquipe() ? nombreNonLusEquipe($pdo, (int) $_SESSION['user_id']) : 0;
 
 $menu = [
     'Pilotage' => [
         ['index', 'index.php', 'speedometer2', 'Tableau de bord', 'equipe', 0],
+        ['messagerie_equipe', 'messagerie_equipe.php', 'chat-left-text', 'Messagerie de l’équipe', 'equipe', $nonLusEquipe],
     ],
     'Catalogue' => [
         ['moderation_livres', 'moderation_livres.php', 'shield-check', 'Fiches à valider', 'moderation', $compteurs['livres']],

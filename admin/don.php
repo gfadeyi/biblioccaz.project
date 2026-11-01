@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/_init.php';
 require_once __DIR__ . '/../moderation_dons_lib.php';
+require_once __DIR__ . '/../messagerie_equipe_lib.php';
 exigerDroit('moderation');
 
 $idDon = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT) ?: 0;
@@ -39,6 +40,7 @@ $requete = $pdo->prepare("SELECT id_conversation, statut, date_creation FROM con
 $requete->execute([$idDon]);
 $conversations = $requete->fetchAll();
 $titrePage = 'Suivi du don #' . $idDon;
+$actionsPage = [actionDemandeAvisEquipe('don', $idDon)];
 $pageActive = 'dons';
 include __DIR__ . '/_haut.php';
 ?>

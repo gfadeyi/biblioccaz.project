@@ -3,6 +3,7 @@ require_once __DIR__ . '/_init.php';
 require_once __DIR__ . '/../messagerie_lib.php';
 require_once __DIR__ . '/../compte_lib.php';
 require_once __DIR__ . '/../livres_lib.php';
+require_once __DIR__ . '/../messagerie_equipe_lib.php';
 exigerDroit('moderation');
 
 $idConversation = (int) ($_GET['id'] ?? 0);
@@ -107,6 +108,7 @@ foreach ($stmt->fetchAll() as $compte) {
 insertLog('MODERATION', "Lecture de la conversation #$idConversation par l'équipe");
 
 $titrePage = 'Conversation';
+$actionsPage = [actionDemandeAvisEquipe('conversation', $idConversation)];
 $pageActive = 'messages';
 $sousTitrePage = (TYPES_CONVERSATION[$conversation['type_objet']][0] ?? '') . ' · ' . $conversation['objet']['titre'];
 include __DIR__ . '/_haut.php';

@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/_init.php';
 require_once __DIR__ . '/../evenements_lib.php';
+require_once __DIR__ . '/../messagerie_equipe_lib.php';
 exigerDroit('evenements');
 
 $id = (int) ($_GET['id'] ?? 0);
@@ -114,6 +115,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? 'enregistrer')
 $formatChamp = fn(?string $d) => $d ? date('Y-m-d\TH:i', strtotime($d)) : '';
 $v = fn(string $c) => e((string) ($valeurs[$c] ?? ''));
 
+$actionsPage = $estProposition ? [actionDemandeAvisEquipe('evenement', $id)] : [];
 $titrePage = $estProposition ? 'Proposition d\'événement' : ($evt ? 'Modifier l\'événement' : 'Nouvel événement');
 $scriptsPage = '<script src="../javascript/choix_livres.js?v=' . filemtime(__DIR__ . '/../javascript/choix_livres.js') . '"></script>';
 $pageActive = 'evenements';

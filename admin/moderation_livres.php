@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/_init.php';
 require_once __DIR__ . '/../archivage_catalogue_lib.php';
+require_once __DIR__ . '/../messagerie_equipe_lib.php';
 exigerDroit('moderation');
 $exclureArchives = archivageCatalogueDisponible($pdo) ? ' AND NOT EXISTS (SELECT 1 FROM livre_archive ar WHERE ar.id_livre = l.id_livre AND ar.actif = 1)' : '';
 
@@ -80,6 +81,7 @@ include __DIR__ . '/_haut.php';
                                 <input type="hidden" name="action" value="valider">
                                 <button class="btn btn-sm btn-success fw-bold"><i class="bi bi-check-lg"></i> Valider</button>
                             </form>
+                            <a href="messagerie_equipe.php?demande=livre&amp;id=<?= (int) $l['id_livre'] ?>" class="btn btn-sm btn-outline-secondary"><i class="bi bi-people" aria-hidden="true"></i> Demander l’avis de l’équipe</a>
                             <?php if (aLeDroit('catalogue')): ?>
                                 <a href="livre.php?id=<?= $l['id_livre'] ?>" class="btn btn-sm btn-outline-secondary"><i class="bi bi-pencil"></i> Modifier la fiche</a>
                             <?php endif; ?>
