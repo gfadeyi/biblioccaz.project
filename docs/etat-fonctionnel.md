@@ -294,3 +294,9 @@ Recette sur PHP 8.4 / MariaDB 11.8 isolés et PHP 8.2 / MariaDB 10.4 (migrations
 ### Données de démonstration de la communauté — 1er novembre 2026
 
 `sql/donnees_demo_communaute.sql` : 60 lecteurs de démonstration non connectables, 254 avis rédigés pour chaque livre (répartition naturelle des notes, trois spoilers signalés), 38 dons répartis dans une quinzaine de villes (photos issues des couvertures des fiches), 24 événements à venir de novembre 2026 à mai 2027 et 306 inscriptions, dont des événements complets avec liste d'attente. Le prix éventuel d'un événement figure dans sa description : la table `evenement` n'a pas de colonne de prix. Import testé deux fois sur une copie de la production (aucun doublon) puis sur la copie isolée du site.
+
+### Nouvelles séries et Bibles — 1er novembre 2026
+
+Le lot de contenu ajoute 2 978 fiches : 2 970 tomes répartis dans 175 séries (nouvelles séries et tomes manquants des séries existantes) et 8 éditions françaises de la Bible dans la nouvelle catégorie « Spiritualité & religions » (sous Art & Culture, migration `sql/maj_categorie_spiritualite.sql`, reprise dans l'installation complète). Il crée 11 712 offres et 23 600 exemplaires de présentation ; les fiches, stocks et ISBN déjà présents sont conservés. Les références proviennent des notices de la BnF (ISBN, éditeur, date, pages, prix neuf lorsqu'il est connu) ; une édition principale par tome, les éditions perfect, deluxe ou originale formant des séries distinctes. Les titres sans édition papier française identifiable et les volumes sans couverture fiable sont écartés et consignés dans la livraison.
+
+Recette : import double sans doublon sur une copie de la production (MariaDB 11.8) et sur MariaDB 10.4 local, couvertures contrôlées visuellement, 69 contrôles navigateur à 375, 768 et 1440 px en visiteur et connecté, sans échec.

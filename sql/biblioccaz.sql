@@ -526,6 +526,10 @@ JOIN (
 ) renommage ON c.slug IN (renommage.ancien, renommage.nouveau)
 SET c.slug = renommage.nouveau, c.nom = renommage.nom, c.ordre = renommage.ordre;
 
+INSERT IGNORE INTO categorie (nom, slug, ordre, id_parent)
+  SELECT 'Spiritualité & religions', 'spiritualite-religions', 6, u.id_categorie
+  FROM categorie u WHERE u.slug = 'art-culture';
+
 UPDATE don d JOIN categorie c ON c.slug = 'comics'
   SET d.id_categorie = c.id_categorie
   WHERE d.titre LIKE 'Absolute Batman%';
