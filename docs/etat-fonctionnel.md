@@ -290,3 +290,7 @@ Liste d'attente des emprunts : un profil actif au moment de l'inscription sur la
 Connexion avec Google pour les lecteurs (OpenID Connect, state, nonce, PKCE S256, contrôle de l'émetteur, de l'audience, de l'expiration et de l'email vérifié). Première connexion : compte lecteur créé ; adresse déjà connue : liaison après confirmation du mot de passe (5 essais). Comptes de l'équipe refusés. Bouton masqué tant que les identifiants Google sont vides. Migration `sql/maj_connexion_google.sql`.
 
 Recette sur PHP 8.4 / MariaDB 11.8 isolés et PHP 8.2 / MariaDB 10.4 (migrations rejouées deux fois) : 66 contrôles métier et 175 contrôles navigateur à 375, 768 et 1440 px, en visiteur et connecté, sans échec. Le parcours réel avec Google n'est testable qu'après création des identifiants.
+
+### Données de démonstration de la communauté — 1er novembre 2026
+
+`sql/donnees_demo_communaute.sql` : 60 lecteurs de démonstration non connectables, 254 avis rédigés pour chaque livre (répartition naturelle des notes, trois spoilers signalés), 38 dons répartis dans une quinzaine de villes (photos issues des couvertures des fiches), 24 événements à venir de novembre 2026 à mai 2027 et 306 inscriptions, dont des événements complets avec liste d'attente. Le prix éventuel d'un événement figure dans sa description : la table `evenement` n'a pas de colonne de prix. Import testé deux fois sur une copie de la production (aucun doublon) puis sur la copie isolée du site.

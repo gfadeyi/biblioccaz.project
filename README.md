@@ -144,6 +144,11 @@ Un second jeu étoffe le catalogue : environ 100 livres dans tous les univers et
 ```
 Les couvertures d'éditeurs ne sont pas versionnées : les livres concernés affichent la couverture par défaut.
 
+Un jeu « communauté » anime le site : 60 lecteurs de démonstration (sans connexion possible), 254 avis propres à chaque livre (notes de 1 à 5, trois spoilers signalés en modération), 38 dons dans une quinzaine de villes et 24 événements à venir (clubs, ateliers, trocs, quiz, dédicaces, conférences, surtout à Paris et en Île-de-France) avec leurs inscriptions. Les livres sont retrouvés par ISBN et le script est rejouable sans doublon :
+```bash
+/c/xampp/mysql/bin/mysql.exe -u root --default-character-set=utf8mb4 biblioccaz < sql/donnees_demo_communaute.sql
+```
+
 Un troisième jeu ajoute **300 références françaises**, avec quatre états de vente et quatre exemplaires à l'emprunt par titre. Les prix et les stocks sont des exemples de démonstration : 1 200 offres de vente représentent 4 800 exemplaires, auxquels s'ajoutent 1 200 exemplaires à emprunter. Les notices et les couvertures sont issues d'[Open Library](https://openlibrary.org), avec des compléments du [catalogue de la BnF](https://catalogue.bnf.fr). Les sources par ISBN sont conservées dans `docs/catalogue-300.json`. Les images restent hors du dépôt Git et sont hébergées localement lors du déploiement. La mise à jour `sql/maj_couvertures_completes.sql` remplace les anciennes références distantes et les couvertures de démonstration des ouvrages réels par les fichiers récupérés à partir des ISBN. Les trois ouvrages fictifs conservent leurs couvertures de démonstration. Le détail des sources est dans `docs/couvertures-catalogue.json`. À importer après les jeux précédents :
 
 ```bash
