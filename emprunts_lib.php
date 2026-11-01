@@ -2,6 +2,7 @@
 require_once __DIR__ . '/livres_lib.php';
 require_once __DIR__ . '/messagerie_lib.php';
 require_once __DIR__ . '/points_lib.php';
+require_once __DIR__ . '/profil_actif_lib.php';
 require_once __DIR__ . '/regles_emprunts_lib.php';
 
 const EMPRUNTS_EN_COURS_MAX = 3;
@@ -247,12 +248,35 @@ function etatEmpruntLivre(PDO $pdo, int $idLivre): array
     return $etat;
 }
 
+function prioriteAttenteDisponible(PDO $pdo): bool
+{
+    static $disponible = null;
+    if ($disponible === null) {
+        $disponible = (bool) $pdo->query("SHOW COLUMNS FROM emprunt_attente LIKE 'prioritaire'")->fetch();
+    }
+    return $disponible;
+}
+
+function attentePasseAvant(PDO $pdo, string $autre, string $courante): string
+{
+    $ordreArrivee = "($autre.date_demande < $courante.date_demande OR ($autre.date_demande = $courante.date_demande AND $autre.id_attente <= $courante.id_attente))";
+    if (!prioriteAttenteDisponible($pdo)) {
+        return $ordreArrivee;
+    }
+    return "($autre.prioritaire > $courante.prioritaire OR ($autre.prioritaire = $courante.prioritaire AND $ordreArrivee))";
+}
+
+function ordreAttenteEmprunt(PDO $pdo): string
+{
+    return (prioriteAttenteDisponible($pdo) ? 'prioritaire DESC, ' : '') . 'date_demande, id_attente';
+}
+
 function positionAttenteEmprunt(PDO $pdo, int $idLivre, int $idUser): int
 {
     $stmt = $pdo->prepare("
         SELECT COUNT(*) FROM emprunt_attente a
         INNER JOIN emprunt_attente courant ON courant.id_livre = a.id_livre AND courant.id_user = ?
-        WHERE a.id_livre = ? AND (a.date_demande < courant.date_demande OR (a.date_demande = courant.date_demande AND a.id_attente <= courant.id_attente))");
+        WHERE a.id_livre = ? AND " . attentePasseAvant($pdo, 'a', 'courant'));
     $stmt->execute([$idUser, $idLivre]);
     return (int) $stmt->fetchColumn();
 }
@@ -261,7 +285,7 @@ function attentesMembre(PDO $pdo, int $idUser): array
 {
     $stmt = $pdo->prepare("
         SELECT a.*, l.titre, l.auteur, l.couverture,
-               (SELECT COUNT(*) FROM emprunt_attente a2 WHERE a2.id_livre = a.id_livre AND (a2.date_demande < a.date_demande OR (a2.date_demande = a.date_demande AND a2.id_attente <= a.id_attente))) AS position,
+               (SELECT COUNT(*) FROM emprunt_attente a2 WHERE a2.id_livre = a.id_livre AND " . attentePasseAvant($pdo, 'a2', 'a') . ") AS position,
                (SELECT MIN(em.date_retour_prevue) FROM emprunt em INNER JOIN exemplaire e ON e.id_exemplaire = em.id_exemplaire
                 WHERE e.id_livre = a.id_livre AND em.statut = 'en_cours') AS prochain_retour
         FROM emprunt_attente a INNER JOIN livre l ON l.id_livre = a.id_livre
@@ -368,7 +392,7 @@ function attribuerExemplaireLibere(PDO $pdo, int $idExemplaire): ?int
     if (!$exemplaire || $exemplaire['id_proprietaire'] !== null || $exemplaire['type_offre'] !== 'emprunt' || !(int) $exemplaire['is_disponible'] || $exemplaire['statut_pret'] !== 'disponible') {
         return null;
     }
-    $stmt = $pdo->prepare("SELECT id_user FROM emprunt_attente WHERE id_livre = ? ORDER BY date_demande, id_attente FOR UPDATE");
+    $stmt = $pdo->prepare("SELECT id_user FROM emprunt_attente WHERE id_livre = ? ORDER BY " . ordreAttenteEmprunt($pdo) . " FOR UPDATE");
     $stmt->execute([$exemplaire['id_livre']]);
     foreach ($stmt->fetchAll(PDO::FETCH_COLUMN) as $idCandidat) {
         $idCandidat = (int) $idCandidat;
@@ -651,12 +675,17 @@ function rejoindreAttente(PDO $pdo, int $idLivre, int $idUser): array
         if (count($stmt->fetchAll(PDO::FETCH_COLUMN)) >= regleEmprunt($pdo, 'attentes_max')) {
             return ['warning', "Vous êtes déjà sur " . regleEmprunt($pdo, 'attentes_max') . " listes d'attente : quittez-en une pour en rejoindre une autre."];
         }
-        $stmt = $pdo->prepare("INSERT IGNORE INTO emprunt_attente (id_livre, id_user) VALUES (?, ?)");
-        $stmt->execute([$idLivre, $idUser]);
+        $prioritaire = prioriteAttenteDisponible($pdo) && participationMembre($pdo, $idUser)['actif'];
+        $stmt = prioriteAttenteDisponible($pdo)
+            ? $pdo->prepare("INSERT IGNORE INTO emprunt_attente (id_livre, id_user, prioritaire) VALUES (?, ?, ?)")
+            : $pdo->prepare("INSERT IGNORE INTO emprunt_attente (id_livre, id_user) VALUES (?, ?)");
+        $stmt->execute(prioriteAttenteDisponible($pdo) ? [$idLivre, $idUser, $prioritaire ? 1 : 0] : [$idLivre, $idUser]);
         if (!$stmt->rowCount()) {
             return ['info', "Vous êtes déjà sur la liste d'attente de ce livre."];
         }
-        return ['success', "Vous êtes sur la liste d'attente (position " . positionAttenteEmprunt($pdo, $idLivre, $idUser) . ") : un exemplaire vous sera réservé dès qu'il sera rendu, et vous serez prévenu par mail."];
+        return ['success', "Vous êtes sur la liste d'attente (position " . positionAttenteEmprunt($pdo, $idLivre, $idUser) . ")"
+            . ($prioritaire ? ", en priorité grâce à votre profil actif" : '')
+            . " : un exemplaire vous sera réservé dès qu'il sera rendu, et vous serez prévenu par mail."];
     } catch (Throwable $e) {
         if ($pdo->inTransaction()) {
             $pdo->rollBack();

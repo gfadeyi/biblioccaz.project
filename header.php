@@ -21,6 +21,7 @@ require_once __DIR__ . '/avis_lib.php';
 require_once __DIR__ . '/icones_lib.php';
 require_once __DIR__ . '/categories_lib.php';
 require_once __DIR__ . '/messagerie_lib.php';
+require_once __DIR__ . '/demonstration_lib.php';
 $photoMembre = $connected ? photoProfilDe($pdo, (int) $_SESSION['user_id']) : null;
 $idsFavoris = $connected ? idsFavoris($pdo, (int) $_SESSION['user_id']) : [];
 $nb_favoris = count($idsFavoris);
@@ -135,8 +136,18 @@ $classeRaccourci = fn(array $pages) => in_array($pageActuelle, $pages, true) ? '
     <script src="javascript/menu_univers.js?v=<?= filemtime(__DIR__ . '/javascript/menu_univers.js') ?>" defer></script>
     <script src="javascript/menu_compte.js?v=<?= filemtime(__DIR__ . '/javascript/menu_compte.js') ?>" defer></script>
     <script src="<?= urlStatique('javascript/couvertures.js') ?>" data-defaut="img/default.png"></script>
+    <script src="<?= urlStatique('javascript/bandeau_demo.js') ?>" defer></script>
 </head>
 <body>
+<?php if (bandeauDemonstrationVisible()): ?>
+    <div class="bandeau-demo" role="note" data-bandeau-demo="<?= COOKIE_BANDEAU_DEMONSTRATION ?>">
+        <div class="container-xxl bandeau-demo__contenu">
+            <i class="bi bi-info-circle" aria-hidden="true"></i>
+            <p><?= htmlspecialchars(MENTION_DEMONSTRATION) ?></p>
+            <button type="button" class="bandeau-demo__fermer" data-fermer-bandeau-demo aria-label="Fermer le bandeau de démonstration"><i class="bi bi-x-lg" aria-hidden="true"></i></button>
+        </div>
+    </div>
+<?php endif; ?>
 
 <header class="entete">
     <div class="container-xxl ligne-entete d-flex align-items-center gap-3 pt-2">

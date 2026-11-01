@@ -19,6 +19,12 @@ if (isset($_GET['error'])) {
     elseif ($_GET['error'] == 'refuse_temporaire') { $error = "Votre candidature n'a pas été retenue pour l'instant."; }
     elseif ($_GET['error'] == 'refuse_definitif') { $error = "Votre demande a été rejetée définitivement."; }
     elseif ($_GET['error'] == 'technique') { $error = 'Connexion temporairement indisponible. Merci de réessayer.'; }
+    elseif ($_GET['error'] == 'google_annule') { $error = "La connexion avec Google a été annulée."; }
+    elseif ($_GET['error'] == 'google_expire') { $error = "La demande de connexion avec Google a expiré. Merci de recommencer."; }
+    elseif ($_GET['error'] == 'google_email') { $error = "Votre adresse Google doit être vérifiée par Google pour vous connecter."; }
+    elseif ($_GET['error'] == 'google_equipe') { $error = "Les comptes de l'équipe se connectent avec leur mot de passe."; }
+    elseif ($_GET['error'] == 'google_autre_compte') { $error = "Ce compte BIBLIOccaz est déjà lié à un autre compte Google."; }
+    elseif ($_GET['error'] == 'google_essais') { $error = "Trop d'essais : la liaison avec Google est annulée. Connectez-vous avec votre mot de passe ou réinitialisez-le."; }
 }
 
 if (isset($_GET['verif'])) { $success = "Compte validé ! Vous pouvez vous connecter."; }
@@ -62,6 +68,7 @@ if (isset($_GET['inscription'])) { $success = "Compte créé ! Un mail de valida
 
             <button type="submit" class="bouton bouton-principal">Se connecter</button>
         </form>
+        <?php include 'partie_bouton_google.php'; ?>
         <p class="carte-formulaire__pied">Pas encore de compte ? <a href="inscription.php">Créer un compte</a></p>
     </div>
 </div>

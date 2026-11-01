@@ -76,7 +76,7 @@ $messageNewsletter = $messagesNewsletter[$_GET['newsletter'] ?? ''] ?? null;
                 <a href="confidentialite.php">Confidentialité</a>
             </nav>
             <div class="d-flex align-items-center gap-2">
-                <span>Paiement sécurisé</span>
+                <span>Paiement (démo) : simulé, rien n’est débité</span>
                 <div class="moyens-paiement">
                     <img src="img/cb.jpg" alt="Carte bancaire" width="31" height="22" loading="lazy">
                     <img src="img/visa.jpg" alt="Visa" width="22" height="22" loading="lazy">

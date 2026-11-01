@@ -1,5 +1,6 @@
 <?php
 require_once 'config.php';
+require_once 'demonstration_lib.php';
 if (session_status() === PHP_SESSION_NONE) { session_start(); }
 
 if (!isset($_SESSION['user_id'])) {
@@ -125,7 +126,8 @@ include 'header.php';
                             <?php endforeach; ?>
                         </div>
                     </fieldset>
-                    <button type="submit" class="btn btn-bibli w-100 mt-4 py-3 rounded-pill fw-bold" id="bouton-payer">Payer <?= formaterPrix($totalFinal) ?></button>
+                    <div class="mention-demo mt-4" role="note"><i class="bi bi-info-circle" aria-hidden="true"></i><p><?= htmlspecialchars(MENTION_COMMANDE_DEMONSTRATION) ?></p></div>
+                    <button type="submit" class="btn btn-bibli w-100 mt-3 py-3 rounded-pill fw-bold" id="bouton-payer">Payer <?= formaterPrix($totalFinal) ?></button>
                 </form>
             </div>
         </div>

@@ -14,7 +14,6 @@ $coupsDeCoeur = $pdo->query($selectionCartes . "
     HAVING nb_favoris > 0 OR note_moyenne >= 4
     ORDER BY nb_favoris * 2 + COALESCE(note_moyenne, 0) * nb_avis DESC, l.id_livre DESC
     LIMIT 24")->fetchAll();
-$idsCoupsDeCoeur = array_column($coupsDeCoeur, 'id_livre');
 $selectionLecteurs = $coupsDeCoeur;
 $titreSelectionLecteurs = 'Coups de cœur des lecteurs';
 $sousTitreSelectionLecteurs = 'Les plus ajoutés en favoris et les mieux notés.';
@@ -26,10 +25,6 @@ if (count($coupsDeCoeur) < 4) {
     $titreSelectionLecteurs = 'Les plus demandés';
     $sousTitreSelectionLecteurs = 'Les livres que nos lecteurs s\'arrachent en ce moment.';
 }
-foreach ($selectionLecteurs as &$livreSelection) {
-    $livreSelection['coup_de_coeur'] = in_array($livreSelection['id_livre'], $idsCoupsDeCoeur, true);
-}
-unset($livreSelection);
 $selectionLecteurs = privilegierVraiesCouvertures($selectionLecteurs, 12);
 
 $nouveautes = privilegierVraiesCouvertures($pdo->query($selectionCartes . " ORDER BY l.id_livre DESC LIMIT 24")->fetchAll(), 12);

@@ -16,6 +16,7 @@ require_once 'avis_lib.php';
 require_once 'notifications_lib.php';
 require_once 'icones_lib.php';
 require_once 'livres_lib.php';
+require_once 'demonstration_lib.php';
 
 if (!verifierCsrf()) {
     header("Location: achat.php?erreur=" . urlencode("Session expirée, merci de valider à nouveau votre commande."));
@@ -181,7 +182,7 @@ $changementNiveau = $niveauApres['index'] > $niveauAvant['index'];
 
 $stmtEmail = $pdo->prepare("SELECT email FROM user WHERE id = ?");
 $stmtEmail->execute([$idUser]);
-$lignesMail = ["Bonjour $prenom,", "", "Merci pour votre commande n° $idCommande !", ""];
+$lignesMail = ["Bonjour $prenom,", "", "Merci pour votre commande n° $idCommande !", "", MENTION_COMMANDE_DEMONSTRATION, ""];
 foreach ($lignes as $l) {
     $lignesMail[] = "- {$l['titre']} (" . libelleEtat($l['etat']) . ") x {$l['quantite']} : " . formaterPrix($l['prix'] * $l['quantite']);
 }
@@ -225,6 +226,7 @@ include 'header.php';
                     <h1 class="h2 fw-bold mt-3 mb-2">Merci pour votre commande !</h1>
                     <p class="text-secondary mb-0">Votre commande <strong>n° <?= $idCommande ?></strong> est enregistrée. Un récapitulatif vient de vous être envoyé par mail.</p>
                 </div>
+                <div class="mention-demo mb-4" role="note"><i class="bi bi-info-circle" aria-hidden="true"></i><p><?= htmlspecialchars(MENTION_COMMANDE_DEMONSTRATION) ?></p></div>
 
                 <div class="ligne-recap"><span>Sous-total</span><span><?= formaterPrix($totaux['sous_total']) ?></span></div>
                 <?php if ($totaux['remise'] > 0): ?>

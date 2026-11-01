@@ -220,7 +220,7 @@ include 'header.php';
             <?php else: ?>
                 <p class="text-muted mb-2">Une connexion et au moins <?= $participation['actions_min'] ?> action<?= $participation['actions_min'] > 1 ? 's' : '' ?> validée<?= $participation['actions_min'] > 1 ? 's' : '' ?> sur les <?= $participation['periode_jours'] ?> derniers jours.</p>
                 <p class="mb-2"><?= $participation['connexion_recente'] ? 'Connexion récente confirmée' : 'Connexion récente attendue' ?> · <?= $participation['actions'] ?> action<?= $participation['actions'] > 1 ? 's' : '' ?> validée<?= $participation['actions'] > 1 ? 's' : '' ?>.</p>
-                <details><summary>Quelles actions comptent ?</summary><p class="small text-muted mt-2 mb-0">Un achat non annulé, un don récupéré par un autre lecteur, un emprunt rendu, un avis validé et visible, ou une présence confirmée à un événement. Ce badge reflète uniquement votre participation récente.</p></details>
+                <details><summary>Quelles actions comptent ?</summary><p class="small text-muted mt-2 mb-0">Un achat non annulé, un don récupéré par un autre lecteur, un emprunt rendu, un avis validé et visible, ou une présence confirmée à un événement. Un profil actif passe en priorité sur les listes d'attente des emprunts.</p></details>
             <?php endif; ?>
         </section>
     <?php endif; ?>

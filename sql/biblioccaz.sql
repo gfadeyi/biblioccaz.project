@@ -939,8 +939,10 @@ CREATE TABLE IF NOT EXISTS emprunt_attente (
   id_livre     INT      NOT NULL,
   id_user      INT      NOT NULL,
   date_demande DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  prioritaire  TINYINT(1) NOT NULL DEFAULT 0,
   UNIQUE KEY uq_attente_livre_user (id_livre, id_user),
   INDEX idx_attente_livre (id_livre, date_demande),
+  INDEX idx_attente_priorite (id_livre, prioritaire, date_demande),
   CONSTRAINT fk_attente_livre FOREIGN KEY (id_livre) REFERENCES livre(id_livre) ON DELETE CASCADE,
   CONSTRAINT fk_attente_user  FOREIGN KEY (id_user)  REFERENCES `user`(id)      ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -986,6 +988,8 @@ INSERT IGNORE INTO regle_recompense (id_regle, version, configuration) VALUES (1
 
 ALTER TABLE `user` ADD COLUMN IF NOT EXISTS telephone VARCHAR(20) NULL;
 ALTER TABLE `user` ADD COLUMN IF NOT EXISTS historique_actif TINYINT(1) NOT NULL DEFAULT 1;
+ALTER TABLE `user` ADD COLUMN IF NOT EXISTS google_sub VARCHAR(64) NULL;
+ALTER TABLE `user` ADD UNIQUE INDEX IF NOT EXISTS uq_user_google_sub (google_sub);
 
 CREATE TABLE IF NOT EXISTS preference_categorie (
     id_user INT NOT NULL,

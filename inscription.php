@@ -113,6 +113,7 @@ include 'header.php';
                 </div>
             </div>
         </form>
+        <?php include 'partie_bouton_google.php'; ?>
         <p class="carte-formulaire__pied">Déjà un compte ? <a href="login.php">Se connecter</a></p>
     </div>
 </div>

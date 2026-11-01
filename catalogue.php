@@ -428,8 +428,6 @@ echo etoilesStyle();
                     </div>
                 <?php endif; ?>
 
-                <button type="submit" class="btn btn-bibli w-100 rounded-pill btn-sm fw-bold d-none d-lg-block mb-3">Filtrer</button>
-
                 <?php if (!isset($preset['categorie'])): ?>
                     <div class="mb-3">
                         <label for="filtre-categorie" class="form-label">Catégorie</label>
@@ -505,6 +503,8 @@ echo etoilesStyle();
                         </fieldset>
                     </details>
                 <?php endforeach; ?>
+
+                <button type="submit" class="btn btn-bibli w-100 rounded-pill btn-sm fw-bold d-none d-lg-block mb-3">Filtrer</button>
 
                 <a href="<?= htmlspecialchars(basename($_SERVER['PHP_SELF'])) ?>" class="btn btn-link w-100 btn-sm text-muted">Réinitialiser</a>
             </form>

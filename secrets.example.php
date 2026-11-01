@@ -22,6 +22,9 @@ define('MAIL_FROM_NAME', 'BIBLIOccaz');
 
 define('JETON_INSTALLATION', '');
 
+define('GOOGLE_CLIENT_ID', '');
+define('GOOGLE_CLIENT_SECRET', '');
+
 define('INFOS_LEGALES', [
     'editeur_nom'         => '',
     'editeur_statut'      => '',

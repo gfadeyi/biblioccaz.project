@@ -49,7 +49,7 @@
                 <?php if ($nombreEditions > 0): ?><a class="fiche-livre__editions" href="editions_livre.php?id=<?= (int) $id ?>">Découvrir <?= $nombreEditions ?> autre<?= $nombreEditions > 1 ? 's' : '' ?> édition<?= $nombreEditions > 1 ? 's' : '' ?> <i class="bi bi-arrow-right" aria-hidden="true"></i></a><?php endif; ?>
                 <div class="fiche-informations">
                     <details><summary>Livraison</summary><p>1,99 € de livraison sous 20 € de livres. Offerte à partir de 20 €, avant utilisation d’un bon.</p></details>
-                    <details><summary>Paiement sécurisé</summary><p>Les commandes sont simulées : aucun paiement réel ni donnée bancaire n’est demandé sur cette version.</p></details>
+                    <details><summary>Paiement (démo)</summary><p>Paiement simulé : aucune carte n’est demandée et aucun montant n’est débité.</p></details>
                     <details><summary>Nos engagements</summary><p>Des états et des prix annoncés avant l’ajout, des échanges suivis et une nouvelle vie pour les livres.</p></details>
                 </div>
             </section>
