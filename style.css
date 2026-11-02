@@ -1006,6 +1006,16 @@ h1, h2, h3, .titre { font-family: var(--police-titre); font-weight: 700; letter-
 .choix-bon:has(input:checked) { border-color: var(--vert); background: var(--vert-50); box-shadow: inset 0 0 0 1px var(--vert); }
 .choix-bon:has(input:focus-visible) { outline: 2px solid var(--texte-vif); outline-offset: 2px; }
 .choix-bon:active { transform: scale(.98); }
+.choix-role-equipe { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: .6rem; }
+.choix-role-equipe__option { position: relative; display: flex; flex-direction: column; gap: .3rem; padding: .85rem 1rem; border-radius: var(--rayon); border: 1px solid var(--trait); background: var(--surface); cursor: pointer; transition: border-color .2s, background-color .2s, box-shadow .2s; }
+.choix-role-equipe__option input { position: absolute; opacity: 0; pointer-events: none; }
+.choix-role-equipe__option:hover { border-color: var(--texte-vif); }
+.choix-role-equipe__option:has(input:checked) { border-color: var(--vert); background: var(--vert-50); box-shadow: inset 0 0 0 1px var(--vert); }
+.choix-role-equipe__option:has(input:focus-visible) { outline: 2px solid var(--texte-vif); outline-offset: 2px; }
+.choix-role-equipe__titre { display: flex; align-items: center; gap: .45rem; font-weight: 700; color: var(--titre); }
+.choix-role-equipe__titre svg { width: 1.4rem; height: 1.4rem; flex: none; color: var(--texte-vert); }
+.choix-role-equipe__detail { font-size: .85rem; color: var(--encre-douce); line-height: 1.45; }
+fieldset legend.form-label { float: none; width: auto; }
 .choix-bon__montant { font-weight: 700; color: var(--titre); }
 .choix-bon__detail { font-size: .8rem; color: var(--encre-douce); }
 .choix-bon__raison { font-size: .75rem; color: var(--encre-douce); font-style: italic; }

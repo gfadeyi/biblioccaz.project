@@ -4,6 +4,7 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 require_once __DIR__ . '/../config.php';
 require_once __DIR__ . '/../avis_lib.php';
+require_once __DIR__ . '/../candidatures_equipe_lib.php';
 require_once __DIR__ . '/../upload_lib.php';
 require_once __DIR__ . '/../droits_equipe_lib.php';
 require_once __DIR__ . '/../archivage_catalogue_lib.php';
@@ -111,7 +112,7 @@ function compteursEquipe(PDO $pdo): array
         $exclureArchives = archivageCatalogueDisponible($pdo) ? ' AND NOT EXISTS (SELECT 1 FROM livre_archive ar WHERE ar.id_livre = l.id_livre AND ar.actif = 1)' : '';
         $c['livres'] = (int) $pdo->query("SELECT COUNT(*) FROM livre l WHERE l.is_valide = 0 $exclureArchives AND NOT EXISTS (SELECT 1 FROM exemplaire e WHERE e.id_livre = l.id_livre AND e.id_proprietaire IS NOT NULL)")->fetchColumn();
         $c['avis'] = (int) $pdo->query("SELECT COUNT(DISTINCT id_avis) FROM avis_signalement WHERE traite = 0")->fetchColumn();
-        $c['candidatures'] = (int) $pdo->query("SELECT COUNT(*) FROM user WHERE statut = 'en_attente_moderateur'")->fetchColumn();
+        $c['candidatures'] = nombreCandidaturesEquipeEnAttente($pdo);
         $c['avis_a_valider'] = (int) $pdo->query("SELECT COUNT(*) FROM avis WHERE statut = 'visible' AND date_validation IS NULL")->fetchColumn();
         $c['evenements_proposes'] = (int) $pdo->query("SELECT COUNT(*) FROM evenement WHERE statut = 'en_attente'")->fetchColumn();
     } catch (PDOException $e) {

@@ -85,7 +85,7 @@ try {
 }
 $membres = $stmt->fetchAll();
 
-$nbCandidatures = (int) $pdo->query("SELECT COUNT(*) FROM user WHERE statut = 'en_attente_moderateur'")->fetchColumn();
+$nbCandidatures = nombreCandidaturesEquipeEnAttente($pdo);
 
 function badgeStatut(string $statut): string
 {
@@ -126,7 +126,7 @@ include __DIR__ . '/_haut.php';
 
 <?php if ($nbCandidatures): ?>
     <div class="alert alert-info d-flex flex-wrap align-items-center justify-content-between gap-2">
-        <span><i class="bi bi-person-plus me-1" aria-hidden="true"></i> <?= $nbCandidatures ?> candidature<?= $nbCandidatures > 1 ? 's' : '' ?> à la modération en attente.</span>
+        <span><i class="bi bi-person-plus me-1" aria-hidden="true"></i> <?= $nbCandidatures ?> candidature<?= $nbCandidatures > 1 ? 's' : '' ?> à l’équipe en attente.</span>
         <a href="candidatures.php" class="btn btn-sm btn-success">Voir les candidatures</a>
     </div>
 <?php endif; ?>

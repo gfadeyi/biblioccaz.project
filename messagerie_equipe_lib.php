@@ -303,3 +303,46 @@ function afficherMessageEquipe(string $contenu): string
     $pages = implode('|', array_map(fn($page) => preg_quote($page, '~'), PAGES_LIENS_EQUIPE));
     return preg_replace('~(?<![\w/.])((?:' . $pages . ')(?:\?[a-z_]+=\d+)?)(?![\w/])~', '<a href="$1">$1</a>', $html);
 }
+
+function accueillirNouveauMembreEquipe(PDO $pdo, int $idNouveau, int $idAuteur, string $pseudo, string $libelleRole): bool
+{
+    if (!messagerieEquipeDisponible($pdo) || $idNouveau === $idAuteur) {
+        return false;
+    }
+    $pdo->beginTransaction();
+    try {
+        $cle = 'privee-' . min($idNouveau, $idAuteur) . '-' . max($idNouveau, $idAuteur);
+        $pdo->prepare("INSERT IGNORE INTO equipe_conversation (type, cle_unique, id_createur) VALUES ('privee', ?, ?)")->execute([$cle, $idAuteur]);
+        $stmt = $pdo->prepare('SELECT id_conversation FROM equipe_conversation WHERE cle_unique = ?');
+        $stmt->execute([$cle]);
+        $idPrivee = (int) $stmt->fetchColumn();
+        $idFil = idFilEquipe($pdo);
+        $pdo->prepare('INSERT IGNORE INTO equipe_participant (id_conversation, id_user, id_dernier_lu)
+                       SELECT ?, u.id, (SELECT COALESCE(MAX(m.id_message), 0) FROM equipe_message m WHERE m.id_conversation = ?)
+                       FROM user u WHERE u.id = ? OR (' . conditionMembreEquipeActif() . ')')
+            ->execute([$idFil, $idFil, $idNouveau]);
+        $ajout = $pdo->prepare('INSERT IGNORE INTO equipe_participant (id_conversation, id_user) VALUES (?, ?)');
+        $ajout->execute([$idPrivee, $idAuteur]);
+        $ajout->execute([$idPrivee, $idNouveau]);
+        $messages = [
+            $idPrivee => "Bienvenue dans l'équipe BIBLIOccaz, @$pseudo ! Votre compte a maintenant le rôle de $libelleRole.\n\nVotre tableau de bord rassemble ce qui vous attend, et le fil « Équipe » sert à échanger avec tout le monde. Une question pour démarrer ? Répondez-moi directement ici.\n\n(Message automatique)",
+            $idFil => "Bienvenue à @$pseudo, qui rejoint l'équipe comme $libelleRole !\n\n(Message automatique)",
+        ];
+        $envoi = $pdo->prepare('INSERT INTO equipe_message (id_conversation, id_auteur, contenu) VALUES (?, ?, ?)');
+        $date = $pdo->prepare('UPDATE equipe_conversation SET date_dernier_message = NOW() WHERE id_conversation = ?');
+        $lu = $pdo->prepare('UPDATE equipe_participant SET id_dernier_lu = GREATEST(id_dernier_lu, ?) WHERE id_conversation = ? AND id_user = ?');
+        foreach ($messages as $idConversation => $contenu) {
+            $envoi->execute([$idConversation, $idAuteur, $contenu]);
+            $idMessage = (int) $pdo->lastInsertId();
+            $date->execute([$idConversation]);
+            $lu->execute([$idMessage, $idConversation, $idAuteur]);
+        }
+        $pdo->commit();
+        return true;
+    } catch (PDOException $e) {
+        if ($pdo->inTransaction()) {
+            $pdo->rollBack();
+        }
+        return false;
+    }
+}

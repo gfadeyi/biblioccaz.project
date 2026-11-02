@@ -56,7 +56,7 @@ try {
 
 if (!$enLigneDeCommande) {
     $fermetureGlobaleSessions = basename($_SERVER['SCRIPT_FILENAME'] ?? '') === 'en_ligne.php' && ($_SERVER['REQUEST_METHOD'] ?? '') === 'POST' && ($_POST['action'] ?? '') === 'clients_auteurs';
-    $actualiserSession = !$fermetureGlobaleSessions && !in_array(basename($_SERVER['SCRIPT_FILENAME'] ?? ''), ['logs_donnees.php', 'message_nouveaux.php'], true);
+    $actualiserSession = !$fermetureGlobaleSessions && !in_array(basename($_SERVER['SCRIPT_FILENAME'] ?? ''), ['logs_donnees.php', 'message_nouveaux.php', 'messagerie_equipe_nouveaux.php'], true);
     controlerSessionUtilisateur($pdo, $actualiserSession);
 
     if (isset($_SESSION['user_id'])) {

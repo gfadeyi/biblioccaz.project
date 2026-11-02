@@ -1270,3 +1270,27 @@ CREATE TABLE IF NOT EXISTS equipe_message (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 INSERT IGNORE INTO equipe_conversation (type, titre, cle_unique) VALUES ('equipe', 'Équipe', 'equipe');
+
+CREATE TABLE IF NOT EXISTS candidature_equipe (
+  id_candidature   INT           NOT NULL AUTO_INCREMENT,
+  role_vise        VARCHAR(20)   NOT NULL,
+  nom              VARCHAR(100)  NOT NULL,
+  prenom           VARCHAR(100)  NOT NULL,
+  pseudo_souhaite  VARCHAR(50)   NOT NULL,
+  email            VARCHAR(150)  NOT NULL,
+  motivations      TEXT          NOT NULL,
+  id_user          INT           NULL,
+  statut           VARCHAR(20)   NOT NULL DEFAULT 'en_attente',
+  empreinte_ip     CHAR(64)      NULL,
+  date_candidature DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  date_decision    DATETIME      NULL,
+  id_decideur      INT           NULL,
+  pseudo_attribue  VARCHAR(50)   NULL,
+  message_decision VARCHAR(1000) NULL,
+  PRIMARY KEY (id_candidature),
+  KEY idx_candidature_equipe_statut (statut, date_candidature),
+  KEY idx_candidature_equipe_email (email),
+  KEY idx_candidature_equipe_ip (empreinte_ip, date_candidature),
+  CONSTRAINT fk_candidature_equipe_user     FOREIGN KEY (id_user)     REFERENCES `user`(id) ON DELETE SET NULL,
+  CONSTRAINT fk_candidature_equipe_decideur FOREIGN KEY (id_decideur) REFERENCES `user`(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

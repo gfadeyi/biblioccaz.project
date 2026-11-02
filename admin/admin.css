@@ -527,6 +527,8 @@ a.stat:hover, a.stat:focus-visible { translate: 0 -3px; box-shadow: var(--ombre-
 .conversation-equipe.non-lu strong { font-weight: 800; }
 .retour-conversations { display: inline-flex; align-items: center; gap: .3rem; margin: .9rem 1rem 0; font-weight: 600; text-decoration: none; color: var(--vert-500); }
 .fil-equipe { display: flex; flex-direction: column; gap: .75rem; max-height: 62vh; overflow-y: auto; }
+.nouveaux-messages-equipe { display: flex; justify-content: center; margin: -.5rem 0 0; padding: 0 1rem .5rem; }
+.nouveaux-messages-equipe[hidden] { display: none; }
 .message-equipe { max-width: 85%; padding: .65rem .9rem; border: 1px solid var(--trait); border-radius: var(--rayon); background: var(--surface); scroll-margin-top: 5rem; }
 .message-equipe--moi { align-self: flex-end; background: var(--vert-50); border-color: var(--vert-200); }
 .message-equipe header { display: flex; flex-wrap: wrap; align-items: baseline; gap: .2rem .5rem; font-size: .85rem; margin-bottom: .25rem; }

@@ -148,7 +148,7 @@ if (aLeDroit('evenements')) {
     $aTraiter[] = ['calendar-plus', 'Événements proposés par les auteurs', 'En attente de validation', (int) $indicateurs['evt_proposes'], 'evenements.php?onglet=proposes'];
 }
 if (aLeDroit('admin')) {
-    $aTraiter[] = ['person-badge', 'Candidatures modérateur', 'Membres à valider', $compteurs['candidatures'], 'candidatures.php'];
+    $aTraiter[] = ['person-badge', 'Candidatures à l’équipe', 'Modérateurs et gestionnaires', $compteurs['candidatures'], 'candidatures.php'];
 }
 if (aLeDroit('candidatures_auteur')) {
     $aTraiter[] = ['feather', 'Candidatures auteur', 'Fiches auteur à étudier', $compteurs['candidatures_auteur'] ?? 0, 'candidatures_auteur.php'];

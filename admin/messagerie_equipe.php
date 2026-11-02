@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/_init.php';
 require_once __DIR__ . '/../messagerie_equipe_lib.php';
+require_once __DIR__ . '/_messagerie_equipe_vues.php';
 exigerDroit('equipe');
 
 $moi = (int) $_SESSION['user_id'];
@@ -91,13 +92,14 @@ $titrePage = 'Messagerie de l’équipe';
 $sousTitrePage = 'Réservée aux administrateurs, gestionnaires et modérateurs. Les membres du site n’y ont pas accès.';
 $pageActive = 'messagerie_equipe';
 $actionsPage = $disponible ? [['messagerie_equipe.php?nouveau=1', 'pencil-square', 'Nouveau message', 'btn-vert']] : [];
+$scriptsPage = $disponible ? '<script src="../javascript/messagerie_equipe.js?v=' . filemtime(__DIR__ . '/../javascript/messagerie_equipe.js') . '"></script>' : '';
 include __DIR__ . '/_haut.php';
 ?>
 
 <?php if (!$disponible): ?>
     <div class="alert alert-warning">Installez <code>sql/maj_messagerie_equipe.sql</code> pour activer la messagerie de l’équipe.</div>
 <?php else: ?>
-<div class="messagerie-equipe<?= $panneauOuvert ? ' panneau-ouvert' : '' ?>">
+<div class="messagerie-equipe<?= $panneauOuvert ? ' panneau-ouvert' : '' ?>" data-actualisation="messagerie_equipe_nouveaux.php" data-conversation="<?= $conversation ? (int) $conversation['id_conversation'] : 0 ?>" data-dernier="<?= $messages ? (int) end($messages)['id_message'] : 0 ?>">
     <aside class="carte messagerie-equipe__liste" aria-label="Conversations">
         <form method="GET" class="carte-corps border-bottom" role="search">
             <label for="recherche-equipe" class="visually-hidden">Rechercher dans les messages</label>
@@ -116,22 +118,8 @@ include __DIR__ . '/_haut.php';
                 </form>
             <?php endif; ?>
         </div>
-        <ul class="liste-conversations-equipe">
-            <?php foreach ($conversations as $c): ?>
-                <?php $actif = $conversation && (int) $conversation['id_conversation'] === (int) $c['id_conversation']; ?>
-                <li>
-                    <a href="messagerie_equipe.php?c=<?= (int) $c['id_conversation'] ?>#dernier" class="conversation-equipe<?= $actif ? ' actif' : '' ?><?= $c['nb_non_lus'] > 0 ? ' non-lu' : '' ?>"<?= $actif ? ' aria-current="true"' : '' ?>>
-                        <span class="conversation-equipe__icone" aria-hidden="true"><i class="bi bi-<?= $c['type'] === 'equipe' ? 'people-fill' : ($c['type'] === 'groupe' ? 'people' : 'person') ?>"></i></span>
-                        <span class="conversation-equipe__texte">
-                            <strong><?= e($c['nom']) ?></strong>
-                            <small><?= $c['dernier_contenu'] !== null ? e(mb_strimwidth((string) $c['dernier_contenu'], 0, 70, '…')) : 'Aucun message' ?></small>
-                        </span>
-                        <?php if ($c['nb_non_lus'] > 0): ?>
-                            <span class="badge rounded-pill text-bg-success"><?= (int) $c['nb_non_lus'] ?><span class="visually-hidden"> non lu<?= $c['nb_non_lus'] > 1 ? 's' : '' ?></span></span>
-                        <?php endif; ?>
-                    </a>
-                </li>
-            <?php endforeach; ?>
+        <ul class="liste-conversations-equipe" data-liste-conversations>
+            <?= vueListeConversationsEquipe($conversations, $conversation ? (int) $conversation['id_conversation'] : null) ?>
         </ul>
     </aside>
 
@@ -192,21 +180,15 @@ include __DIR__ . '/_haut.php';
                 <h2><?= e($conversation['nom']) ?></h2>
                 <span class="text-muted small"><?= $conversation['type'] === 'equipe' ? 'Toute l’équipe' : e(implode(', ', array_map(fn($p) => '@' . $p['pseudo'] . ($p['actif'] ? '' : ' (ancien membre)'), $participants))) ?></span>
             </div>
-            <div class="carte-corps fil-equipe">
+            <div class="carte-corps fil-equipe" data-fil-messages tabindex="0" aria-label="Messages de la conversation">
                 <?php if (!$messages): ?>
-                    <p class="text-muted mb-0">Aucun message pour l’instant.</p>
+                    <p class="text-muted mb-0" data-fil-vide>Aucun message pour l’instant.</p>
                 <?php endif; ?>
                 <?php foreach ($messages as $index => $message): ?>
-                    <article class="message-equipe<?= (int) $message['id_auteur'] === $moi ? ' message-equipe--moi' : '' ?>" id="<?= $index === count($messages) - 1 ? 'dernier' : 'message-' . (int) $message['id_message'] ?>">
-                        <header>
-                            <strong>@<?= e($message['pseudo'] ?? 'ancien membre') ?></strong>
-                            <?php if (!empty($message['role'])): ?><span class="role-message"><?= e(ROLES_LIBELLES[$message['role']] ?? '') ?></span><?php endif; ?>
-                            <time datetime="<?= e(date('c', strtotime($message['date_envoi']))) ?>"><?= date('d/m/Y H:i', strtotime($message['date_envoi'])) ?></time>
-                        </header>
-                        <div class="message-equipe__texte"><?= afficherMessageEquipe($message['contenu']) ?></div>
-                    </article>
+                    <?= vueMessageEquipe($message, $moi, $index === count($messages) - 1) ?>
                 <?php endforeach; ?>
             </div>
+            <p class="nouveaux-messages-equipe" data-nouveaux-messages hidden><button type="button" class="btn btn-vert btn-sm"><i class="bi bi-arrow-down" aria-hidden="true"></i> <span>Nouveaux messages</span></button></p>
             <?php if ($ecriture): ?>
                 <form method="POST" class="carte-corps border-top">
                     <?= champCsrf() ?>

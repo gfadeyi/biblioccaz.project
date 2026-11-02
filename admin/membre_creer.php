@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/_init.php';
 require_once __DIR__ . '/../recuperation_mdp_lib.php';
+require_once __DIR__ . '/../messagerie_equipe_lib.php';
 exigerDroit('admin');
 
 $erreur = '';
@@ -46,22 +47,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($erreur === '') {
         $idUser = (int) $pdo->lastInsertId();
-        $jeton = preparerInvitation($pdo, $idUser);
         $libelleRole = mb_strtolower(ROLES_LIBELLES[$saisie['role']]);
         insertLog('ADMIN', "Compte @{$saisie['pseudo']} créé depuis le back-office (rôle : {$saisie['role']})");
 
-        $mailEnvoye = false;
-        require_once __DIR__ . '/../mailer.php';
-        try {
-            $mail = creerMailer();
-            $mail->addAddress($saisie['email'], $saisie['prenom'] . ' ' . $saisie['nom']);
-            habillerMail($mail, 'Votre compte BIBLIOccaz est prêt',
-                "Bonjour {$saisie['prenom']},\n\nL'équipe BIBLIOccaz vient de vous créer un compte (rôle : $libelleRole), avec le pseudo {$saisie['pseudo']}.\n\nPour l'activer, choisissez votre mot de passe avec le bouton ci-dessous. Ce lien est valable " . INVITATION_DUREE_HEURES . " heures. Passé ce délai, utilisez « Mot de passe oublié » sur la page de connexion.",
-                SITE_URL . '/modifier_mdp.php?token=' . $jeton, 'Choisir mon mot de passe');
-            $mail->send();
-            $mailEnvoye = true;
-        } catch (Throwable $e) {
-            insertLog('ERREUR', "Mail d'invitation non envoyé à @{$saisie['pseudo']} : " . $e->getMessage());
+        $mailEnvoye = envoyerInvitationCompte($pdo, ['id' => $idUser] + $saisie, 'Votre compte BIBLIOccaz est prêt',
+            "L'équipe BIBLIOccaz vient de vous créer un compte (rôle : $libelleRole), avec le pseudo {$saisie['pseudo']}.");
+        if (in_array($saisie['role'], ROLES_MESSAGERIE_EQUIPE, true)) {
+            accueillirNouveauMembreEquipe($pdo, $idUser, (int) $_SESSION['user_id'], $saisie['pseudo'], $libelleRole);
         }
 
         rediriger('utilisateurs.php?q=' . rawurlencode($saisie['pseudo']), $mailEnvoye ? 'success' : 'warning', $mailEnvoye

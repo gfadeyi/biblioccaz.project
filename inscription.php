@@ -103,7 +103,7 @@ include 'header.php';
                 <div class="col-12">
                     <div class="carte-formulaire__encart">
                         <p>Vous souhaitez aider à faire grandir la communauté ?</p>
-                        <a href="postuler_moderateur.php" class="bouton bouton-contour bouton-petit"><i class="bi bi-shield-plus" aria-hidden="true"></i> Rejoindre l'équipe de modération</a>
+                        <a href="rejoindre_equipe.php" class="bouton bouton-contour bouton-petit"><?= iconeDessin('bulle') ?> Rejoindre l'équipe</a>
                     </div>
                 </div>
 

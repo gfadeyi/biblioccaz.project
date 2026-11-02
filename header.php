@@ -43,7 +43,8 @@ if ($connected && in_array($userRole, ['admin', 'gestionnaire', 'moderateur'], t
         $nb_notif_livres = (int) $pdo->query("SELECT COUNT(*) FROM livre l WHERE l.is_valide = 0 AND NOT EXISTS (SELECT 1 FROM exemplaire e WHERE e.id_livre = l.id_livre AND e.id_proprietaire IS NOT NULL)")->fetchColumn();
         $nb_notif_avis = (int) $pdo->query("SELECT COUNT(DISTINCT id_avis) FROM avis_signalement WHERE traite = 0")->fetchColumn();
         if ($userRole === 'admin') {
-            $nb_notif_modo = (int) $pdo->query("SELECT COUNT(*) FROM user WHERE statut = 'en_attente_moderateur'")->fetchColumn();
+            require_once __DIR__ . '/candidatures_equipe_lib.php';
+            $nb_notif_modo = nombreCandidaturesEquipeEnAttente($pdo);
         }
     } catch (PDOException $e) {
     }

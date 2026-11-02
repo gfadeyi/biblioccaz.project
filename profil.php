@@ -111,6 +111,8 @@ $evenementsAVenir = lignesProfil($pdo, "
 require_once 'recommandations_lib.php';
 require_once 'auteurs_lib.php';
 $candidatureAuteur = $estClient && candidaturesAuteurDisponibles($pdo) ? etatCandidatureAuteur($pdo, $user) : null;
+require_once 'candidatures_equipe_lib.php';
+$candidatureEquipe = in_array($role, ROLES_CANDIDATS_EQUIPE, true) && candidaturesEquipeDisponibles($pdo) ? etatCandidatureEquipe($pdo, $user) : null;
 $ficheAuteur = $estAuteur ? ficheAuteurDe($pdo, $idUser) : null;
 $suggestionsProfil = in_array($role, ROLES_SUGGESTIONS, true) ? recommandationsPour($pdo, $idUser, 4) : [];
 $dons = lignesProfil($pdo, "SELECT statut, date_limite FROM don WHERE id_donneur = ?", [$idUser]);
@@ -286,6 +288,20 @@ include 'header.php';
                 <?php else: ?>
                     <p class="texte-profil">Vous écrivez ? Présentez-vous et présentez vos livres : après validation, vous aurez votre page d'auteur et pourrez proposer vos rencontres.</p>
                     <a href="candidature_auteur.php" class="bouton bouton-contour bouton-petit"><?= $candidatureAuteur['candidature'] ? 'Déposer une nouvelle candidature' : 'Proposer ma candidature' ?></a>
+                <?php endif; ?>
+            </section>
+        <?php endif; ?>
+
+        <?php if ($candidatureEquipe && in_array($candidatureEquipe['etat'], ['ouverte', 'en_attente', 'refusee_recente'], true)): ?>
+            <section class="carte-compte" aria-labelledby="titre-rejoindre-equipe">
+                <h2 class="carte-compte__titre" id="titre-rejoindre-equipe"><?= iconeDessin('bulle') ?> Rejoindre l'équipe</h2>
+                <?php if ($candidatureEquipe['etat'] === 'en_attente'): ?>
+                    <p class="texte-profil mb-0"><span class="etiquette-profil">En cours d'étude</span> Votre candidature au rôle de <?= htmlspecialchars(mb_strtolower(ROLES_CANDIDATURE_EQUIPE[$candidatureEquipe['candidature']['role_vise']] ?? '')) ?> du <?= date('d/m/Y', strtotime($candidatureEquipe['candidature']['date_candidature'])) ?> est entre les mains de l'équipe. Vous recevrez sa réponse par mail.</p>
+                <?php elseif ($candidatureEquipe['etat'] === 'refusee_recente'): ?>
+                    <p class="texte-profil mb-0">Votre dernière candidature n'a pas été retenue. Nouvelle demande possible à partir du <strong><?= date('d/m/Y', strtotime($candidatureEquipe['date_possible'])) ?></strong>.</p>
+                <?php else: ?>
+                    <p class="texte-profil">Envie de donner un coup de main ? Devenez modérateur ou gestionnaire de BIBLIOccaz.</p>
+                    <a href="rejoindre_equipe.php" class="bouton bouton-contour bouton-petit">Proposer ma candidature</a>
                 <?php endif; ?>
             </section>
         <?php endif; ?>

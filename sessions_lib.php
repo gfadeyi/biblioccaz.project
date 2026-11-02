@@ -111,7 +111,7 @@ function refuserSession(PDO $pdo, string $motif, string $raison = 'inconnue'): v
     session_id('');
     session_start();
     $_SESSION['motif_deconnexion'] = $raison;
-    if (basename($_SERVER['SCRIPT_FILENAME'] ?? '') === 'message_nouveaux.php') {
+    if (in_array(basename($_SERVER['SCRIPT_FILENAME'] ?? ''), ['message_nouveaux.php', 'messagerie_equipe_nouveaux.php'], true)) {
         http_response_code(401);
         header('Content-Type: application/json; charset=utf-8');
         header('Cache-Control: no-store');
