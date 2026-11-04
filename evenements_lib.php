@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/points_lib.php';
 require_once __DIR__ . '/notifications_lib.php';
+require_once __DIR__ . '/decisions_equipe_lib.php';
 
 const EVT_TYPES = [
     'dedicace'  => ['Dédicace', 'pen'],
@@ -384,6 +385,7 @@ function validerEvenementPropose(PDO $pdo, int $idEvt, int $idValidateur): array
         }
         $pdo->prepare("UPDATE evenement SET statut = 'publie', date_validation = NOW(), id_validateur = ?, motif_refus = NULL WHERE id_evenement = ?")
             ->execute([$idValidateur, $idEvt]);
+        enregistrerDecisionEquipe($pdo, $idValidateur, 'evenement', $idEvt, 'valider', $evt['titre'], '', 'en_attente', 'publie');
         $pdo->commit();
     } catch (Throwable $e) {
         $pdo->rollBack();
@@ -411,13 +413,21 @@ function refuserEvenementPropose(PDO $pdo, int $idEvt, int $idValidateur, string
     if (mb_strlen($motif) > EVT_MOTIF_MAX) {
         return ['danger', "Le motif est trop long (" . EVT_MOTIF_MAX . " caractères maximum)."];
     }
-    $stmt = $pdo->prepare("UPDATE evenement SET statut = 'refuse', motif_refus = ?, date_validation = NOW(), id_validateur = ? WHERE id_evenement = ? AND statut = 'en_attente'");
-    $stmt->execute([$motif, $idValidateur, $idEvt]);
-    if ($stmt->rowCount() === 0) {
-        return ['warning', "Cette proposition a déjà été traitée."];
+    $pdo->beginTransaction();
+    try {
+        $evt = chargerEvenement($pdo, $idEvt, true);
+        if (!$evt || $evt['statut'] !== 'en_attente') {
+            $pdo->rollBack();
+            return ['warning', "Cette proposition a déjà été traitée."];
+        }
+        $pdo->prepare("UPDATE evenement SET statut = 'refuse', motif_refus = ?, date_validation = NOW(), id_validateur = ? WHERE id_evenement = ?")
+            ->execute([$motif, $idValidateur, $idEvt]);
+        enregistrerDecisionEquipe($pdo, $idValidateur, 'evenement', $idEvt, 'refuser', $evt['titre'], $motif, 'en_attente', 'refuse');
+        $pdo->commit();
+    } catch (Throwable $erreur) {
+        if ($pdo->inTransaction()) { $pdo->rollBack(); }
+        throw $erreur;
     }
-
-    $evt = chargerEvenement($pdo, $idEvt);
     insertLog('EVENEMENT', "Refus de l'événement proposé #$idEvt : {$evt['titre']}");
     $proposeur = proposeurEvenement($pdo, $evt);
     if ($proposeur) {

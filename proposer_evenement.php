@@ -123,6 +123,7 @@ include 'header.php';
         <span aria-current="page"><?= $evt ? 'Modifier ma proposition' : 'Proposer un événement' ?></span>
     </nav>
     <h1 class="titre-page-compte"><?= $evt ? 'Modifier ma proposition' : 'Proposer un événement' ?></h1>
+    <p class="text-muted">Les événements sont gratuits pour tous les participants. Merci de ne pas indiquer de tarif dans votre proposition.</p>
 
     <?php if ($flash): ?>
         <div class="alert alert-<?= htmlspecialchars($flash[0]) ?> rounded-3"><?= htmlspecialchars($flash[1]) ?></div>

@@ -7,18 +7,12 @@ require_once __DIR__ . '/../avis_lib.php';
 require_once __DIR__ . '/../candidatures_equipe_lib.php';
 require_once __DIR__ . '/../upload_lib.php';
 require_once __DIR__ . '/../droits_equipe_lib.php';
+require_once __DIR__ . '/../decisions_equipe_lib.php';
 require_once __DIR__ . '/../archivage_catalogue_lib.php';
 
 const ROLES_EQUIPE = ['admin', 'gestionnaire', 'moderateur'];
 
-const DROITS = [
-    'equipe'     => ['admin', 'gestionnaire', 'moderateur'],
-    'moderation' => ['admin', 'gestionnaire', 'moderateur'],
-    'catalogue'  => ['admin', 'gestionnaire'],
-    'evenements' => ['admin', 'gestionnaire'],
-    'admin'      => ['admin'],
-    'candidatures_auteur' => ['admin'],
-];
+const DROITS = DROITS_EQUIPE_DEFAUT;
 
 const ROLES_LIBELLES = [
     'admin'        => 'Administrateur',

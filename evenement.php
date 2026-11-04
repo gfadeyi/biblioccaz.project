@@ -84,6 +84,7 @@ include 'header.php';
             <?php endif; ?>
 
             <ul class="evt-infos">
+                <li><span class="evt-infos__icone"><i class="bi bi-gift" aria-hidden="true"></i></span><span><strong>Tarif</strong>Gratuit, sur inscription.</span></li>
                 <li><span class="evt-infos__icone"><i class="bi bi-calendar3" aria-hidden="true"></i></span><span><strong>Quand</strong><?= ucfirst(horaireEvenement($evt)) ?></span></li>
                 <li><span class="evt-infos__icone"><i class="bi bi-geo-alt" aria-hidden="true"></i></span><span><strong>Où</strong><?= htmlspecialchars($evt['lieu']) ?></span></li>
                 <?php if ($evt['auteurs']): ?>

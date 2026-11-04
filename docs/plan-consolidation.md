@@ -19,6 +19,8 @@ Après configuration, vérifier : bouton visible sur connexion et inscription cl
 
 ### QR codes avec un téléphone
 
+Le propriétaire confirme le 4 novembre 2026 que le scan des dons fonctionne sur son téléphone. Cette confirmation ne vaut pas validation physique des emprunts, qui reste à réaliser ; le modèle du téléphone et le navigateur n'ont pas été consignés.
+
 Utiliser des opérations fictives identifiées comme telles, avec les rôles appropriés. Un test sur le site publié modifie effectivement ses données de démonstration ; consigner les opérations réalisées.
 
 1. Emprunt : réserver avec un compte lecteur, afficher son QR depuis « Mes emprunts », puis ouvrir le comptoir avec un gestionnaire sur le téléphone. Scanner un QR affiché sur un autre écran, vérifier la bonne réservation et confirmer le retrait. Contrôler le ticket et la date de retour, puis enregistrer le retour.
@@ -27,18 +29,20 @@ Utiliser des opérations fictives identifiées comme telles, avec les rôles app
 4. Vérifier le refus d'accès à la caméra puis le repli sur le code court. La caméra du navigateur demande un contexte sécurisé, notamment HTTPS sur le site publié.
 5. Consigner téléphone, navigateur, date, résultat et références des opérations. Ne pas qualifier le scan physique de réussi avant ces essais.
 
-## Livraison 2 : tarifs des événements
+## Livraison 2 : événements gratuits et historique des décisions
 
-- Prix en euros nullable : vide signifie « Tarif à préciser », zéro signifie « Gratuit », positif signifie « Payant ».
-- Saisie côté équipe et propositions d'auteurs ; validation serveur et conservation après erreur.
-- Affichage cohérent dans les listes, fiches et billets ; filtre combinable avec type, lieu, date et recherche.
-- Reprendre uniquement les tarifs existants dont le texte est sans ambiguïté ; conserver les conditions particulières dans la description.
-- Migration additive et rejouable, compatibilité avec l'ancien schéma pendant le déploiement, recette des prix invalides et des droits.
-- Les tarifs restent indicatifs dans ce site de démonstration ; ce chantier n'ajoute pas d'encaissement bancaire.
+Le propriétaire maintient tous les événements gratuits et annule le chantier de prix structuré et de filtre gratuit/payant.
+
+- Gratuité annoncée sur le calendrier, les fiches et les formulaires de création/proposition ; suppression ciblée des neuf mentions de tarifs de démonstration. Aucun changement d'inscription, de date ou de capacité.
+- Historique en lecture seule des nouvelles décisions sur les fiches livres, archives du catalogue, annonces, dons, avis, propositions d'événements et candidatures à l'équipe.
+- Auteur, pseudo au moment de la décision, date, identifiant et libellé de l'objet, action, états avant/après et motif lorsqu'il est fourni. Les anciens auteurs inconnus ne sont pas inventés.
+- Recherche, filtres et pagination ; seuls les domaines permis par les droits actuels sont lisibles. Les candidatures à l'équipe restent réservées à l'administrateur.
+- Décision et trace enregistrées ensemble, avec retour arrière de l'opération si le journal échoue. Pendant une mise à jour sans la table, les anciennes actions restent utilisables et la page indique que l'historique n'est pas encore activé.
+- Les historiques métier existants sont conservés. Cette première version ne centralise pas les décisions sur les messages, litiges de ventes, candidatures auteur, ni tous les changements de comptes ou de paramètres.
 
 ## Livraison 3 : administration et qualité
 
-- Historique des décisions sensibles : acteur, date, objet, décision et motif ; commencer par la validation des fiches livres, dont l'auteur n'est pas enregistré actuellement.
+- Étendre progressivement l'historique aux autres décisions sensibles, avec une recette par domaine.
 - Écran de santé réservé à l'administrateur : dernières relances, erreurs de mail et état des sauvegardes, sans affichage de secrets ni de contenu privé des journaux.
 - Accessibilité : parcours clavier, focus, noms accessibles, erreurs de formulaire et contrastes ; audit complet dans un chantier distinct, avec preuves et limites explicites.
 

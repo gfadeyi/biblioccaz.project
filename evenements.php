@@ -58,7 +58,7 @@ include 'header.php';
     <div class="d-flex flex-wrap justify-content-between align-items-end gap-2 mb-4">
         <div>
             <h1 class="fw-bold mb-1" style="color:#274e13;"><i class="bi bi-calendar-event"></i> Événements</h1>
-            <p class="text-muted mb-0">Dédicaces, rencontres et ateliers autour du livre d'occasion.</p>
+            <p class="text-muted mb-0">Dédicaces, rencontres et ateliers autour du livre d'occasion. Tous nos événements sont gratuits, sur inscription.</p>
         </div>
         <?php if (isset($_SESSION['user_id'])): ?>
             <a href="mes_evenements.php" class="btn btn-outline-success rounded-pill fw-bold"><i class="bi bi-ticket-perforated"></i> Mes inscriptions</a>
@@ -129,7 +129,7 @@ include 'header.php';
                             <div class="small"><?= EVT_MOIS_COURTS[(int) date('n', $t) - 1] ?></div>
                         </div>
                         <div class="flex-grow-1 min-w-0">
-                            <div class="d-flex flex-wrap gap-2 mb-1"><?= badgeTypeEvenement($e['type']) ?> <?= badgeEvenement($e) ?></div>
+                            <div class="d-flex flex-wrap gap-2 mb-1"><?= badgeTypeEvenement($e['type']) ?> <?= badgeEvenement($e) ?> <span class="pastille-evt type">Gratuit</span></div>
                             <h3 class="h6 fw-bold mb-1"><?= htmlspecialchars($e['titre']) ?></h3>
                             <div class="small text-muted">
                                 <i class="bi bi-clock"></i> <?= date('G\hi', $t) ?> – <?= date('G\hi', strtotime($e['date_fin'])) ?>

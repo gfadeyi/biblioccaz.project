@@ -3,6 +3,7 @@ require_once __DIR__ . '/archivage_catalogue_lib.php';
 require_once __DIR__ . '/livres_lib.php';
 require_once __DIR__ . '/notifications_lib.php';
 require_once __DIR__ . '/upload_lib.php';
+require_once __DIR__ . '/decisions_equipe_lib.php';
 
 const ANNONCE_PRIX_MIN = 0.5;
 const ANNONCE_PRIX_MAX = 150;
@@ -167,23 +168,36 @@ function modererAnnonce(PDO $pdo, int $idAnnonce, string $decision, int $idModer
     }
 
     $pdo->beginTransaction();
-    $stmt = $pdo->prepare("SELECT statut_annonce, id_livre FROM exemplaire WHERE id_exemplaire = ? AND id_proprietaire IS NOT NULL FOR UPDATE");
-    $stmt->execute([$idAnnonce]);
-    $actuelle = $stmt->fetch();
-    if (!$actuelle || !in_array($actuelle['statut_annonce'], $statutsDepart, true)) {
-        $pdo->rollBack();
-        return ['warning', "Cette annonce a déjà été traitée."];
+    try {
+        $stmt = $pdo->prepare("SELECT statut_annonce, id_livre FROM exemplaire WHERE id_exemplaire = ? AND id_proprietaire IS NOT NULL FOR UPDATE");
+        $stmt->execute([$idAnnonce]);
+        $actuelle = $stmt->fetch();
+        if (!$actuelle || !in_array($actuelle['statut_annonce'], $statutsDepart, true)) {
+            $pdo->rollBack();
+            return ['warning', "Cette annonce a déjà été traitée."];
+        }
+        if ($decision === 'valider' && livreEstArchive($pdo, (int) $actuelle['id_livre'])) { $pdo->rollBack(); return ['warning', 'Réactivez la fiche archivée avant de publier cette annonce.']; }
+        $pdo->prepare("UPDATE exemplaire SET statut_annonce = ?, motif_moderation = ?, id_moderateur = ?, date_moderation = NOW() WHERE id_exemplaire = ?")
+            ->execute([$nouveauStatut, $decision === 'valider' ? null : $motif, $idModerateur, $idAnnonce]);
+        $ficheValidee = false;
+        if ($decision === 'valider') {
+            $ficheValidee = $pdo->prepare("UPDATE livre SET is_valide = 1 WHERE id_livre = ? AND is_valide = 0");
+            $ficheValidee->execute([$actuelle['id_livre']]);
+            $ficheValidee = $ficheValidee->rowCount() > 0;
+        }
+        $titreLivre = $pdo->prepare('SELECT titre FROM livre WHERE id_livre = ?');
+        $titreLivre->execute([(int) $actuelle['id_livre']]);
+        $libelleLivre = (string) ($titreLivre->fetchColumn() ?: 'Annonce #' . $idAnnonce);
+        enregistrerDecisionEquipe($pdo, $idModerateur, 'annonce', $idAnnonce, $decision, $libelleLivre, $motif, $actuelle['statut_annonce'], $nouveauStatut);
+        if ($ficheValidee) {
+            enregistrerDecisionEquipe($pdo, $idModerateur, 'livre', (int) $actuelle['id_livre'], 'valider', $libelleLivre, 'Validation avec son annonce #' . $idAnnonce . '.', 'en_validation', 'publiee');
+        }
+        $pdo->commit();
+    } catch (Throwable $erreur) {
+        if ($pdo->inTransaction()) { $pdo->rollBack(); }
+        if (!$erreur instanceof DomainException) { error_log('Décision sur une annonce : ' . $erreur->getMessage()); }
+        return [$erreur instanceof DomainException ? 'warning' : 'danger', $erreur instanceof DomainException ? $erreur->getMessage() : 'Aucune modification : la décision n’a pas pu être enregistrée.'];
     }
-    if ($decision === 'valider' && livreEstArchive($pdo, (int) $actuelle['id_livre'])) { $pdo->rollBack(); return ['warning', 'Réactivez la fiche archivée avant de publier cette annonce.']; }
-    $pdo->prepare("UPDATE exemplaire SET statut_annonce = ?, motif_moderation = ?, id_moderateur = ?, date_moderation = NOW() WHERE id_exemplaire = ?")
-        ->execute([$nouveauStatut, $decision === 'valider' ? null : $motif, $idModerateur, $idAnnonce]);
-    $ficheValidee = false;
-    if ($decision === 'valider') {
-        $ficheValidee = $pdo->prepare("UPDATE livre SET is_valide = 1 WHERE id_livre = ? AND is_valide = 0");
-        $ficheValidee->execute([$actuelle['id_livre']]);
-        $ficheValidee = $ficheValidee->rowCount() > 0;
-    }
-    $pdo->commit();
 
     $annonce = annonceParId($pdo, $idAnnonce);
     $lien = SITE_URL . '/' . ($decision === 'valider' ? 'annonce.php?id=' . $idAnnonce : 'mes_annonces.php');

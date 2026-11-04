@@ -1323,3 +1323,39 @@ SET titre = CONCAT('Orange (roman) - Tome ', CASE isbn WHEN '9782369742272' THEN
 WHERE isbn IN ('9782369742272', '9782369742470', '9782369742708');
 
 COMMIT;
+
+SET NAMES utf8mb4;
+
+CREATE TABLE IF NOT EXISTS equipe_decision (
+    id_decision BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    id_acteur INT NULL,
+    pseudo_acteur VARCHAR(50) NOT NULL,
+    type_objet VARCHAR(24) NOT NULL,
+    id_objet INT NOT NULL,
+    libelle_objet VARCHAR(255) NOT NULL,
+    action VARCHAR(24) NOT NULL,
+    motif TEXT NULL,
+    ancien_statut VARCHAR(40) NULL,
+    nouveau_statut VARCHAR(40) NULL,
+    date_decision DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_decision_date (date_decision, id_decision),
+    INDEX idx_decision_objet (type_objet, id_objet, date_decision),
+    INDEX idx_decision_acteur (id_acteur, date_decision),
+    CONSTRAINT fk_decision_acteur FOREIGN KEY (id_acteur) REFERENCES `user`(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+SET NAMES utf8mb4;
+
+START TRANSACTION;
+
+UPDATE evenement SET description = REPLACE(description, 'Participation de 5 € réglée sur place.', 'Participation gratuite.') WHERE description LIKE '%Participation de 5 € réglée sur place.%';
+UPDATE evenement SET description = REPLACE(description, 'Participation de 3 € par personne.', 'Participation gratuite pour tous.') WHERE description LIKE '%Participation de 3 € par personne.%';
+UPDATE evenement SET description = REPLACE(description, 'Entrée 4 €, gratuite pour les étudiants.', 'Entrée gratuite pour tous.') WHERE description LIKE '%Entrée 4 €, gratuite pour les étudiants.%';
+UPDATE evenement SET description = REPLACE(description, 'Participation de 8 €.', 'Participation gratuite.') WHERE description LIKE '%Participation de 8 €.%';
+UPDATE evenement SET description = REPLACE(description, 'Participation de 6 €.', 'Participation gratuite.') WHERE description LIKE '%Participation de 6 €.%';
+UPDATE evenement SET description = REPLACE(description, 'Entrée 10 €, tarif réduit 6 €.', 'Entrée gratuite pour tous.') WHERE description LIKE '%Entrée 10 €, tarif réduit 6 €.%';
+UPDATE evenement SET description = REPLACE(description, 'Participation de 5 €, carnet fourni.', 'Gratuit, carnet fourni.') WHERE description LIKE '%Participation de 5 €, carnet fourni.%';
+UPDATE evenement SET description = REPLACE(description, 'Entrée 5 €.', 'Entrée gratuite.') WHERE description LIKE '%Entrée 5 €.%';
+UPDATE evenement SET description = REPLACE(description, 'Participation de 3 €.', 'Participation gratuite.') WHERE description LIKE '%Participation de 3 €.%';
+
+COMMIT;

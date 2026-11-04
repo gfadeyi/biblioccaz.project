@@ -1,24 +1,14 @@
 <?php
 require_once __DIR__ . '/_init.php';
 require_once __DIR__ . '/../points_lib.php';
+require_once __DIR__ . '/../decisions_equipe_lib.php';
 exigerDroit('moderation');
 
-function validerAvis(PDO $pdo, array $avis): void
+function validerAvis(PDO $pdo, array $avis): bool
 {
-    $pdo->beginTransaction();
-    try {
-        $stmt = $pdo->prepare("UPDATE avis SET date_validation = NOW(), id_validateur = ? WHERE id_avis = ? AND date_validation IS NULL");
-        $stmt->execute([$_SESSION['user_id'], $avis['id_avis']]);
-        if ($stmt->rowCount() > 0) {
-            validerPointsAvis($pdo, (int) $avis['id_user'], (int) $avis['id_livre']);
-            verifierBadges($pdo, (int) $avis['id_user']);
-        }
-        $pdo->commit();
-    } catch (Throwable $e) {
-        $pdo->rollBack();
-        throw $e;
-    }
-    insertLog('MODERATION', "Avis #{$avis['id_avis']} validé");
+    [$type, $message] = traiterAvisEquipe($pdo, (int) $avis['id_avis'], (int) $_SESSION['user_id'], 'valider');
+    if ($type === 'danger') { rediriger('avis_a_valider.php', $type, $message); }
+    return $type === 'success';
 }
 
 $requeteAvis = "
@@ -35,10 +25,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($action === 'tout_valider') {
         $tous = $pdo->query($requeteAvis)->fetchAll();
+        $valides = 0;
         foreach ($tous as $avis) {
-            validerAvis($pdo, $avis);
+            $valides += validerAvis($pdo, $avis) ? 1 : 0;
         }
-        rediriger('avis_a_valider.php', 'success', count($tous) . " avis validé(s).");
+        rediriger('avis_a_valider.php', 'success', $valides . " avis validé(s).");
     }
 
     $stmt = $pdo->prepare($requeteAvis . " AND a.id_avis = ?");
@@ -48,14 +39,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         rediriger('avis_a_valider.php', 'warning', "Cet avis a déjà été traité.");
     }
     if ($action === 'valider') {
-        validerAvis($pdo, $avis);
-        rediriger('avis_a_valider.php', 'success', "Avis de @{$avis['pseudo']} validé" . ($avis['statut_points'] === 'en_attente' ? ' : ' . (int) $avis['montant_points'] . ' points crédités.' : '.'));
+        [$type, $message] = traiterAvisEquipe($pdo, (int) $avis['id_avis'], (int) $_SESSION['user_id'], 'valider', is_string($_POST['motif'] ?? null) ? $_POST['motif'] : '');
+        rediriger('avis_a_valider.php', $type, $message);
     }
     if ($action === 'refuser') {
-        $pdo->prepare("UPDATE avis SET statut = 'masque', date_validation = NOW(), id_validateur = ? WHERE id_avis = ?")->execute([$_SESSION['user_id'], $avis['id_avis']]);
-        changerStatutMouvement($pdo, (int) $avis['id_user'], 'avis', 'livre:' . $avis['id_livre'], ['en_attente'], 'refuse');
-        insertLog('MODERATION', "Avis #{$avis['id_avis']} refusé et masqué");
-        rediriger('avis_a_valider.php', 'success', "Avis refusé : il est masqué et ses points ne seront pas crédités.");
+        [$type, $message] = traiterAvisEquipe($pdo, (int) $avis['id_avis'], (int) $_SESSION['user_id'], 'refuser', is_string($_POST['motif'] ?? null) ? $_POST['motif'] : '');
+        rediriger('avis_a_valider.php', $type, $message);
     }
     rediriger('avis_a_valider.php');
 }
@@ -114,12 +103,14 @@ echo etoilesStyle();
                 <?= champCsrf() ?>
                 <input type="hidden" name="action" value="valider">
                 <input type="hidden" name="id_avis" value="<?= (int) $a['id_avis'] ?>">
+                <input name="motif" class="form-control form-control-sm mb-2" maxlength="1000" placeholder="Note de validation (facultative)" aria-label="Note de validation de l’avis sur <?= e($a['titre_livre']) ?>">
                 <button class="btn btn-vert btn-sm"><i class="bi bi-check-lg" aria-hidden="true"></i> Valider</button>
             </form>
             <form method="POST" data-confirmer="Refuser cet avis ? Il sera masqué et ses points ne seront pas crédités." data-bouton-confirmer="Refuser">
                 <?= champCsrf() ?>
                 <input type="hidden" name="action" value="refuser">
                 <input type="hidden" name="id_avis" value="<?= (int) $a['id_avis'] ?>">
+                <input name="motif" class="form-control form-control-sm mb-2" maxlength="1000" placeholder="Motif du refus (facultatif)" aria-label="Motif du refus de l’avis sur <?= e($a['titre_livre']) ?>">
                 <button class="btn btn-outline-danger btn-sm"><i class="bi bi-x-lg" aria-hidden="true"></i> Refuser</button>
             </form>
         </div>

@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/dons_lib.php';
 require_once __DIR__ . '/messagerie_lib.php';
+require_once __DIR__ . '/decisions_equipe_lib.php';
 
 function modifierContenuDonEquipe(PDO $pdo, int $idDon, int $idActeur, array $saisie): array
 {
@@ -27,6 +28,7 @@ function modifierContenuDonEquipe(PDO $pdo, int $idDon, int $idActeur, array $sa
             ->execute([$valeurs['titre'], $valeurs['auteur'], $valeurs['lieu_retrait'], $valeurs['description'], $valeurs['conditions_retrait'], $idLivre, $idDon]);
         $pdo->prepare("INSERT INTO don_moderation (id_don, id_moderateur, action, motif, ancien_statut, nouveau_statut, id_beneficiaire) VALUES (?, ?, 'modifier', ?, ?, 'en_validation', NULL)")
             ->execute([$idDon, $idActeur, $valeurs['motif'], $don['statut']]);
+        enregistrerDecisionEquipe($pdo, $idActeur, 'don', $idDon, 'modifier', $valeurs['titre'], $valeurs['motif'], $don['statut'], 'en_validation');
         $pdo->commit();
     } catch (Throwable $erreur) {
         if ($pdo->inTransaction()) { $pdo->rollBack(); }
@@ -106,6 +108,7 @@ function modererDon(PDO $pdo, int $idDon, int $idModerateur, string $action, str
         foreach ($requete->fetchAll(PDO::FETCH_COLUMN) as $idConversation) {
             fermerConversation($pdo, (int) $idConversation, $message . ' Motif : ' . $motif);
         }
+        enregistrerDecisionEquipe($pdo, $idModerateur, 'don', $idDon, $action, $don['titre'], $motif, $don['statut'], $nouveauStatut);
         $pdo->commit();
     } catch (DomainException $erreur) {
         if ($pdo->inTransaction()) { $pdo->rollBack(); }

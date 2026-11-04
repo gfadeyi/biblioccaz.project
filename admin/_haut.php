@@ -10,6 +10,7 @@ $menu = [
     'Pilotage' => [
         ['index', 'index.php', 'speedometer2', 'Tableau de bord', 'equipe', 0],
         ['messagerie_equipe', 'messagerie_equipe.php', 'chat-left-text', 'Messagerie de l’équipe', 'equipe', $nonLusEquipe],
+        ['historique_decisions', 'historique_decisions.php', 'clock-history', 'Historique des décisions', 'equipe', 0],
     ],
     'Catalogue' => [
         ['moderation_livres', 'moderation_livres.php', 'shield-check', 'Fiches à valider', 'moderation', $compteurs['livres']],

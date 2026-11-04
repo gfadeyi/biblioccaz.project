@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/decisions_equipe_lib.php';
 const ROLES_CANDIDATURE_EQUIPE = ['moderateur' => 'Modérateur', 'gestionnaire' => 'Gestionnaire'];
 const MISSIONS_CANDIDATURE_EQUIPE = [
     'moderateur' => 'Valider les fiches de livres, les avis, les annonces et les dons, et veiller au respect des échanges entre lecteurs.',
@@ -264,6 +265,7 @@ function accepterCandidatureEquipe(PDO $pdo, int $idCandidature, string $pseudo,
         $pdo->prepare("UPDATE candidature_equipe SET statut = 'acceptee', date_decision = NOW(), id_decideur = ?, pseudo_attribue = ?, message_decision = ?, id_user = ? WHERE id_candidature = ?")
             ->execute([$idDecideur, $pseudo, $message !== '' ? $message : null, (int) $compte['id'], $idCandidature]);
         clotureAncienneCandidatureModerateur($pdo, (int) $compte['id'], 'acceptee', $idDecideur, $message !== '' ? $message : null);
+        enregistrerDecisionEquipe($pdo, $idDecideur, 'candidature_equipe', $idCandidature, 'valider', $pseudo . ' — ' . $candidature['role_vise'], $message, 'en_attente', 'acceptee');
         $pdo->commit();
     } catch (Throwable $e) {
         if ($pdo->inTransaction()) {
@@ -287,6 +289,7 @@ function refuserCandidatureEquipe(PDO $pdo, int $idCandidature, int $idDecideur,
                 ->execute([(int) $candidature['id_user']]);
             clotureAncienneCandidatureModerateur($pdo, (int) $candidature['id_user'], 'refusee', $idDecideur, $message !== '' ? $message : null);
         }
+        enregistrerDecisionEquipe($pdo, $idDecideur, 'candidature_equipe', $idCandidature, 'refuser', $candidature['pseudo_souhaite'] . ' — ' . $candidature['role_vise'], $message, 'en_attente', 'refusee');
         $pdo->commit();
     } catch (Throwable $e) {
         if ($pdo->inTransaction()) {

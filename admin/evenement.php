@@ -146,6 +146,7 @@ include __DIR__ . '/_haut.php';
 <?php endif; ?>
 
 <div class="row g-4">
+    <p class="text-muted">Tous les événements sont gratuits. N’indiquez pas de participation payante dans la description.</p>
     <div class="col-xl-8">
         <form method="POST" enctype="multipart/form-data" class="carte p-4">
             <?= champCsrf() ?>

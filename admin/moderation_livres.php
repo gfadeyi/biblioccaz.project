@@ -2,6 +2,7 @@
 require_once __DIR__ . '/_init.php';
 require_once __DIR__ . '/../archivage_catalogue_lib.php';
 require_once __DIR__ . '/../messagerie_equipe_lib.php';
+require_once __DIR__ . '/../decisions_equipe_lib.php';
 exigerDroit('moderation');
 $exclureArchives = archivageCatalogueDisponible($pdo) ? ' AND NOT EXISTS (SELECT 1 FROM livre_archive ar WHERE ar.id_livre = l.id_livre AND ar.actif = 1)' : '';
 
@@ -11,22 +12,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
 
     if ($action === 'modifier_description') {
-        $pdo->prepare("UPDATE livre SET description = ? WHERE id_livre = ?")->execute([trim($_POST['description'] ?? ''), $id]);
-        insertLog('MODERATION', "Modification de la description du livre #$id");
-        rediriger('moderation_livres.php', 'success', 'Description enregistrée.');
+        [$type, $message] = traiterFicheEquipe($pdo, $id, (int) $_SESSION['user_id'], 'modifier', is_string($_POST['motif'] ?? null) ? $_POST['motif'] : '', is_string($_POST['description'] ?? null) ? trim($_POST['description']) : '');
+        rediriger('moderation_livres.php', $type, $message);
     }
 
     if ($action === 'valider') {
-        $pdo->prepare("UPDATE livre l SET l.is_valide = 1 WHERE l.id_livre = ? AND l.is_valide = 0 $exclureArchives AND NOT EXISTS (SELECT 1 FROM exemplaire e WHERE e.id_livre = l.id_livre AND e.id_proprietaire IS NOT NULL)")->execute([$id]);
-        insertLog('MODERATION', "Validation du livre #$id");
-        rediriger('moderation_livres.php', 'success', 'Fiche validée : elle est maintenant visible dans le catalogue.');
+        [$type, $message] = traiterFicheEquipe($pdo, $id, (int) $_SESSION['user_id'], 'valider', is_string($_POST['motif'] ?? null) ? $_POST['motif'] : '');
+        rediriger('moderation_livres.php', $type, $message);
     }
 
     if ($action === 'refuser') {
         if (!aLeDroit('admin')) {
             rediriger('moderation_livres.php', 'warning', "Seul un administrateur peut refuser (archiver) une fiche.");
         }
-        [$type, $message] = changerArchivageLivre($pdo, $id, (int) $_SESSION['user_id'], true);
+        [$type, $message] = changerArchivageLivre($pdo, $id, (int) $_SESSION['user_id'], true, is_string($_POST['motif'] ?? null) ? $_POST['motif'] : '');
         rediriger('moderation_livres.php', $type, $message);
     }
 
@@ -71,14 +70,16 @@ include __DIR__ . '/_haut.php';
                             <input type="hidden" name="id_livre" value="<?= $l['id_livre'] ?>">
                             <input type="hidden" name="action" value="modifier_description">
                             <textarea name="description" class="form-control form-control-sm mb-1" rows="3" placeholder="Aucune description fournie..."><?= e($l['description']) ?></textarea>
+                            <input name="motif" class="form-control form-control-sm mb-2" maxlength="1000" placeholder="Note de correction (facultative)" aria-label="Note de correction pour <?= e($l['titre']) ?>">
                             <button class="btn btn-outline-secondary btn-sm"><i class="bi bi-save"></i> Enregistrer la description</button>
                         </form>
 
                         <div class="d-flex flex-wrap gap-2">
-                            <form method="POST">
+                            <form method="POST" class="d-flex flex-wrap gap-2 align-items-start">
                                 <?= champCsrf() ?>
                                 <input type="hidden" name="id_livre" value="<?= $l['id_livre'] ?>">
                                 <input type="hidden" name="action" value="valider">
+                                <input name="motif" class="form-control form-control-sm" maxlength="1000" placeholder="Note de validation (facultative)" aria-label="Note de validation pour <?= e($l['titre']) ?>">
                                 <button class="btn btn-sm btn-success fw-bold"><i class="bi bi-check-lg"></i> Valider</button>
                             </form>
                             <a href="messagerie_equipe.php?demande=livre&amp;id=<?= (int) $l['id_livre'] ?>" class="btn btn-sm btn-outline-secondary"><i class="bi bi-people" aria-hidden="true"></i> Demander l’avis de l’équipe</a>
@@ -90,6 +91,7 @@ include __DIR__ . '/_haut.php';
                                     <?= champCsrf() ?>
                                     <input type="hidden" name="id_livre" value="<?= $l['id_livre'] ?>">
                                     <input type="hidden" name="action" value="refuser">
+                                    <input name="motif" class="form-control form-control-sm mb-2" maxlength="1000" placeholder="Motif du refus (facultatif)" aria-label="Motif du refus pour <?= e($l['titre']) ?>">
                                     <button class="btn btn-sm btn-outline-danger"><i class="bi bi-x-lg"></i> Refuser</button>
                                 </form>
                             <?php endif; ?>

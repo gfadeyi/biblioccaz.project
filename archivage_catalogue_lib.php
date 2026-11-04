@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/decisions_equipe_lib.php';
 
 function archivageCatalogueDisponible(PDO $pdo): bool
 {
@@ -19,17 +20,17 @@ function livreEstArchive(PDO $pdo, int $idLivre): bool
     return (bool) $requete->fetchColumn();
 }
 
-function changerArchivageLivre(PDO $pdo, int $idLivre, int $idActeur, bool $archiver): array
+function changerArchivageLivre(PDO $pdo, int $idLivre, int $idActeur, bool $archiver, string $motif = ''): array
 {
     try {
         $pdo->beginTransaction();
         $requete = $pdo->prepare('SELECT role, statut, email_verifie FROM `user` WHERE id = ? FOR UPDATE');
         $requete->execute([$idActeur]);
         $acteur = $requete->fetch(PDO::FETCH_ASSOC);
-        if (!$acteur || !in_array($acteur['statut'], ['actif', 'valide_moderateur'], true) || !(int) $acteur['email_verifie'] || !rolePossedeDroit($pdo, $acteur['role'], 'catalogue', DROITS)) {
+        if (!$acteur || !in_array($acteur['statut'], ['actif', 'valide_moderateur'], true) || !(int) $acteur['email_verifie'] || !rolePossedeDroit($pdo, $acteur['role'], 'catalogue', DROITS_EQUIPE_DEFAUT)) {
             throw new DomainException('Vous ne pouvez pas archiver ce livre.');
         }
-        $requete = $pdo->prepare('SELECT is_valide FROM livre WHERE id_livre = ? FOR UPDATE');
+        $requete = $pdo->prepare('SELECT is_valide, titre FROM livre WHERE id_livre = ? FOR UPDATE');
         $requete->execute([$idLivre]);
         $livre = $requete->fetch(PDO::FETCH_ASSOC);
         if (!$livre) { throw new DomainException('Livre introuvable.'); }
@@ -45,6 +46,10 @@ function changerArchivageLivre(PDO $pdo, int $idLivre, int $idActeur, bool $arch
             $pdo->prepare('UPDATE livre SET is_valide = ? WHERE id_livre = ?')->execute([(int) $archive['ancienne_validation'], $idLivre]);
             $pdo->prepare('UPDATE livre_archive SET actif = 0, date_reactivation = NOW() WHERE id_livre = ?')->execute([$idLivre]);
         }
+        $ancienStatut = $archiver ? ((int) $livre['is_valide'] ? 'publiee' : 'en_validation') : 'archivee';
+        $nouveauStatut = $archiver ? 'archivee' : ((int) $archive['ancienne_validation'] ? 'publiee' : 'en_validation');
+        $decision = $archiver ? ((int) $livre['is_valide'] ? 'archiver' : 'refuser') : 'reactiver';
+        enregistrerDecisionEquipe($pdo, $idActeur, 'archive', $idLivre, $decision, $livre['titre'], $motif, $ancienStatut, $nouveauStatut);
         $pdo->commit();
         insertLog('CATALOGUE', ($archiver ? 'Archivage' : 'Réactivation') . ' du livre #' . $idLivre . ', historique conservé');
         return ['success', $archiver ? 'Fiche archivée. Les exemplaires et l’historique sont conservés.' : 'Fiche réactivée avec son statut de validation précédent.'];

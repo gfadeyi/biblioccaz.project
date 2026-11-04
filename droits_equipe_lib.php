@@ -1,6 +1,15 @@
 <?php
 require_once __DIR__ . '/parametres_site_lib.php';
 
+const DROITS_EQUIPE_DEFAUT = [
+    'equipe' => ['admin', 'gestionnaire', 'moderateur'],
+    'moderation' => ['admin', 'gestionnaire', 'moderateur'],
+    'catalogue' => ['admin', 'gestionnaire'],
+    'evenements' => ['admin', 'gestionnaire'],
+    'admin' => ['admin'],
+    'candidatures_auteur' => ['admin'],
+];
+
 const FAMILLES_DROITS_CONFIGURABLES = [
     'catalogue' => 'Catalogue, stock, commandes et emprunts',
     'moderation' => 'Modération des contenus, messages et ventes',

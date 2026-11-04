@@ -82,6 +82,12 @@ try {
 } catch (PDOException $e) {
 }
 $actionsSemaine = count(array_filter($mesActions, fn($a) => strtotime($a['date_action']) >= strtotime('-7 days')));
+if (historiqueDecisionsDisponible($pdo)) {
+    $typesHistorique = typesDecisionsAutorises($pdo, (string) $_SESSION['role'], DROITS);
+    $historiquePersonnel = historiqueDecisionsEquipe($pdo, $typesHistorique, ['acteur' => $moi]);
+    $mesActions = array_map(fn($d) => ['type' => $d['type_objet'], 'date_action' => $d['date_decision'], 'titre' => $d['libelle_objet'], 'statut' => $d['nouveau_statut'], 'id_objet' => $d['id_objet']], array_slice($historiquePersonnel['decisions'], 0, 10));
+    $actionsSemaine = historiqueDecisionsEquipe($pdo, $typesHistorique, ['acteur' => $moi, 'depuis' => date('Y-m-d', strtotime('-7 days'))])['total'];
+}
 
 function decrireActionModeration(array $action): array
 {
@@ -89,7 +95,8 @@ function decrireActionModeration(array $action): array
     $statut = str_replace('_', ' ', (string) $action['statut']);
     $id = (int) $action['id_objet'];
     return match ($action['type']) {
-        'avis' => ['patch-check', 'Avis validé sur' . $titre, 'avis_a_valider.php', 'moderation'],
+        'avis' => ['patch-check', 'Avis : ' . $statut . $titre, 'moderation_avis.php', 'moderation'],
+        'livre' => ['book', 'Fiche : ' . $statut . $titre, 'moderation_livres.php', 'moderation'],
         'annonce' => ['shop', 'Annonce ' . $statut . $titre, 'annonce.php?id=' . $id, 'moderation'],
         'don' => ['gift', 'Don : ' . $statut . $titre, 'don.php?id=' . $id, 'moderation'],
         'message' => ['chat-dots', 'Signalement de message traité', 'conversation.php?id=' . $id, 'moderation'],
@@ -150,7 +157,7 @@ include __DIR__ . '/_haut.php';
     </div>
     <div class="col-xl-6 d-flex flex-column gap-4">
         <section class="carte" id="mes-actions" aria-labelledby="titreMesActions">
-            <div class="carte-entete"><h2 id="titreMesActions">Mes dernières actions</h2></div>
+            <div class="carte-entete"><h2 id="titreMesActions">Mes dernières actions</h2><a class="small" href="historique_decisions.php?acteur=<?= (int) $moi ?>">Historique détaillé</a></div>
             <?php if (!$mesActions): ?>
                 <div class="etat-vide"><div class="icone-vide"><i class="bi bi-clock-history"></i></div><strong>Aucune action pour l’instant</strong>Vos validations, refus et traitements de signalements apparaîtront ici.</div>
             <?php else: ?>
