@@ -38,6 +38,7 @@ $menu = [
         ['newsletter', 'newsletter.php', 'megaphone', 'Newsletter', 'admin', 0],
     ],
     'Système' => [
+        ['sante', 'sante.php', 'heart-pulse', 'Santé du site', 'admin', 0],
         ['droits_equipe', 'droits_equipe.php', 'shield-lock', 'Droits de l’équipe', 'admin', 0],
         ['parametres_site', 'parametres_site.php', 'gear', 'Paramètres du site', 'admin', 0],
         ['relances_emprunts', 'relances_emprunts.php', 'bell', 'Suivi des relances', 'catalogue', 0],

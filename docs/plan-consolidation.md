@@ -43,7 +43,7 @@ Le propriétaire maintient tous les événements gratuits et annule le chantier 
 ## Livraison 3 : administration et qualité
 
 - Étendre progressivement l'historique aux autres décisions sensibles, avec une recette par domaine.
-- Écran de santé réservé à l'administrateur : dernières relances, erreurs de mail et état des sauvegardes, sans affichage de secrets ni de contenu privé des journaux.
+- Écran de santé livré le 5 novembre 2026, réservé à l'administrateur : dernières relances, erreurs de mail et entrées du journal PHP repérées, exports SQL et dossiers de copie du code détectés. Lecture seule, limites explicites ; aucune modification de la tâche planifiée, envoi de test, restauration ou programmation de sauvegarde.
 - Accessibilité : parcours clavier, focus, noms accessibles, erreurs de formulaire et contrastes ; audit complet dans un chantier distinct, avec preuves et limites explicites.
 
 ## Conservation des données

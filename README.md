@@ -80,6 +80,7 @@ Les couvertures visibles sur ces captures sont générées pour l'aperçu : les 
 
 ### Back-office (`admin/`)
 
+- **Santé du site**, réservée à l’administrateur : derniers passages des relances, erreurs de courriel et entrées du journal PHP repérées, exports SQL et copies du code détectés ; informations manquantes et limites de lecture explicites, sans contenu privé des journaux ni action de maintenance depuis cet écran.
 - **Historique des décisions de l’équipe** : auteur, date, objet, décision, changement de statut et motif éventuel ; recherche et filtres par domaine, membre, décision et période, avec pagination. Lecture seule et périmètre adapté aux droits de chaque rôle ; nouvelles décisions enregistrées dans la même transaction que l’action. Migration : `sql/maj_historique_decisions.sql`.
 - Session séparée du site, droits par rôle, menu latéral et fil d'Ariane ; connexion sans captcha, protégée côté serveur par un blocage de 15 minutes après cinq échecs par adresse IP ou identifiant
 - **Connexions actives** : synthèse des sessions et utilisateurs, recherche, filtres et consultation par membre (appareil en libellé court, connexion et dernière activité lisibles, activité la plus récente en premier) ; fermetures individuelles et globale des clients/auteurs avec confirmation, autres administrateurs protégés, anciennes connexions invalidées après changement du mot de passe
