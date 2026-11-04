@@ -324,3 +324,15 @@ Recette sur PHP 8.4 / MariaDB 11.8 isolés avec deux modérateurs et deux gestio
 - À chaque arrivée dans l'équipe (candidature acceptée ou compte créé par l'administrateur avec un rôle d'équipe), `accueillirNouveauMembreEquipe()` dépose un message privé de bienvenue de l'administrateur et une annonce dans le fil « Équipe ».
 - Messagerie de l'équipe en direct : `javascript/messagerie_equipe.js` interroge `admin/messagerie_equipe_nouveaux.php` toutes les 5 secondes (30 secondes onglet masqué, ralentissement progressif en cas d'erreur). Les nouveaux messages s'ajoutent au fil (bouton « Nouveaux messages » si l'on a remonté la conversation), la liste des conversations, le badge du menu et le titre de l'onglet se mettent à jour. Ces appels ne prolongent pas la session (déconnexion après 10 minutes sans action conservée).
 - Migration `sql/maj_candidatures_equipe.sql`, reportée dans `sql/biblioccaz.sql`. Recette : 67 contrôles sur la copie isolée PHP 8.4 / MariaDB 11.8, 96 contrôles de la recette de l'équipe rejoués, 14 contrôles sur MariaDB 10.4.
+
+### Consolidation : accueil et séparation des romans Orange — 4 novembre 2026
+
+Le bandeau élargit sa sélection aux 200 derniers titres éligibles, toujours trois livres avec couverture et stock disponible, un par série et un tirage stable pendant la visite. « Nouveau chez nous » est inchangé. Une icône SVG d'onglet est déclarée dans les en-têtes public et du back-office.
+
+La série Orange mélangeait trois adaptations en roman avec les mangas. `sql/maj_orange_editions.sql`, également reporté dans l'installation complète, sépare « Orange — Romans » de Yui Tokiumi, corrige l'auteur de la série manga en Ichigo Takano et explicite les titres des romans. Les fiches conservent leur identifiant, ISBN et couverture ; offres, stocks et commandes ne sont pas modifiés. Aucun tome manquant n'est inventé ou réimporté.
+
+Recette fictive à accès restreint : 405 contrôles sur PHP 8.4.27 / MariaDB 11.8.9 et 405 sur PHP 8.2 / MariaDB 10.4.32, migration rejouée deux fois. Navigateur : 59 contrôles en visiteur et client à 375, 768 et 1440 px ; captures pleine page avec réduction des mouvements pour figer les apparitions liées au défilement. Les comptes applicatifs de test ne peuvent pas accéder à la base principale. Sauvegarde locale restaurée dans une base privée non exposée en HTTP, comparée sur les 58 tables, puis migration locale conforme au résultat testé.
+
+L'audit technique des 5 433 fiches locales trouve 5 403 images lisibles, une fiche sans couverture et 29 fichiers absents dans l'ancien dossier `livres/demo/`. Ce constat local ne décrit pas automatiquement la production et n'atteste pas la correspondance bibliographique de toutes les images. Les trois couvertures des romans Orange ont été examinées visuellement.
+
+Suite et critères de recette : [plan de consolidation](plan-consolidation.md). Le propriétaire reporte la configuration Google ; le scan physique QR reste à effectuer. Tarifs structurés des événements, historique unifié, écran de santé, audit complet d'accessibilité et purges restent des chantiers à venir.

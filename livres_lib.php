@@ -47,7 +47,7 @@ function privilegierVraiesCouvertures(array $livres, int $nombre): array
     return array_slice([...array_values($avecCouverture), ...array_values($sansCouverture)], 0, $nombre);
 }
 
-function livresBandeauAccueil(PDO $pdo, int $nombre = 3, int $parmiLesDerniers = 50): array
+function livresBandeauAccueil(PDO $pdo, int $nombre = 3, int $parmiLesDerniers = 200): array
 {
     $recents = $pdo->query("
         SELECT cartes.*, (SELECT MIN(ls.id_serie) FROM livre_serie ls WHERE ls.id_livre = cartes.id_livre) AS id_serie

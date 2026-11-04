@@ -68,6 +68,7 @@ $iconesFlash = ['success' => 'check-circle-fill', 'danger' => 'x-octagon-fill', 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex, nofollow">
     <title><?= e($titrePage) ?> · Back-office BIBLIOccaz</title>
+    <link rel="icon" type="image/svg+xml" href="<?= urlStatique('favicon.svg', '../') ?>">
     <link rel="stylesheet" href="<?= urlStatique('ressources/polices/polices.css', '../') ?>">
     <link rel="stylesheet" href="<?= urlStatique('ressources/bootstrap-5.3.0/bootstrap.min.css', '../') ?>">
     <link rel="stylesheet" href="<?= urlStatique('ressources/bootstrap-icons-1.11.0/bootstrap-icons.min.css', '../') ?>">

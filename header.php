@@ -124,6 +124,7 @@ $classeRaccourci = fn(array $pages) => in_array($pageActuelle, $pages, true) ? '
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php if (!empty($adresseBase)): ?><base href="<?= htmlspecialchars($adresseBase) ?>"><?php endif; ?>
     <title><?= htmlspecialchars(isset($titreDocument) ? $titreDocument . ' - BIBLIOccaz' : 'BIBLIOccaz') ?></title>
+    <link rel="icon" type="image/svg+xml" href="<?= urlStatique('favicon.svg') ?>">
     <link rel="stylesheet" href="<?= urlStatique('ressources/polices/polices.css') ?>">
     <link rel="stylesheet" href="<?= urlStatique('ressources/bootstrap-5.3.0/bootstrap.min.css') ?>">
     <link rel="stylesheet" href="<?= urlStatique('ressources/bootstrap-icons-1.11.0/bootstrap-icons.min.css') ?>">
