@@ -46,6 +46,12 @@ Le propriétaire maintient tous les événements gratuits et annule le chantier 
 - Écran de santé livré le 5 novembre 2026, réservé à l'administrateur : dernières relances, erreurs de mail et entrées du journal PHP repérées, exports SQL et dossiers de copie du code détectés. Lecture seule, limites explicites ; aucune modification de la tâche planifiée, envoi de test, restauration ou programmation de sauvegarde.
 - Accessibilité : parcours clavier, focus, noms accessibles, erreurs de formulaire et contrastes ; audit complet dans un chantier distinct, avec preuves et limites explicites.
 
+## Livraison 4 : catalogue et choix de lecture
+
+- Auteur de la série manga Fullmetal Alchemist corrigé par `sql/maj_fullmetal_auteur.sql`, sans déplacer les romans déjà séparés ni modifier les stocks.
+- Vérifications techniques des ISBN, rattachements et fichiers de couverture ; les éditions d'un même tome sont conservées. Les contrôles automatiques ne garantissent pas la correspondance visuelle de chaque couverture ni la complétude des séries.
+- Parcours public « Trouver ma prochaine lecture » : univers, ambiance et budget par livre ; jusqu'à six livres disponibles en magasin, un par série, puis accès au catalogue avec les mêmes filtres. Fonctionne sans compte et sans JavaScript, en complément des suggestions personnalisées.
+
 ## Conservation des données
 
 Définir et faire valider les durées, exceptions et données à anonymiser avant d'activer une purge. Prévoir une simulation sans écriture, un récapitulatif des lignes concernées, des lots limités et une traçabilité des opérations. Aucune purge automatique ni durée arbitraire n'est activée par cette première livraison.

@@ -1359,3 +1359,8 @@ UPDATE evenement SET description = REPLACE(description, 'Entrée 5 €.', 'Entr�
 UPDATE evenement SET description = REPLACE(description, 'Participation de 3 €.', 'Participation gratuite.') WHERE description LIKE '%Participation de 3 €.%';
 
 COMMIT;
+
+UPDATE serie s
+SET s.auteur = 'Hiromu Arakawa'
+WHERE s.nom = 'Fullmetal Alchemist' AND s.auteur = 'Makoto Inoue'
+  AND NOT EXISTS (SELECT 1 FROM (SELECT id_serie FROM serie WHERE nom = 'Fullmetal Alchemist' AND auteur = 'Hiromu Arakawa') autre);

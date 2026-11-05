@@ -109,6 +109,7 @@ include 'header.php';
                     <a href="catalogue.php" class="bouton bouton-action"><?= iconeDessin('cabas') ?> Acheter des livres</a>
                     <a href="vendre.php" class="bouton bouton-contour"><?= iconeDessin('carton') ?> Donner ou revendre mes livres</a>
                 </div>
+                <p class="mt-3 mb-0">Pas encore d’idée ? <a href="trouver_lecture.php" class="lien-voir-tout">Trouver ma prochaine lecture <i class="bi bi-arrow-right" aria-hidden="true"></i></a></p>
                 <div class="atouts-courts">
                     <span><?= iconeDessin('camion') ?> Livraison offerte dès 20 €</span>
                     <span><?= iconeDessin('etiquette') ?> -10 % dès 50 €</span>
