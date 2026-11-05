@@ -409,3 +409,7 @@ Le rendu PHP enregistré et le rendu JavaScript interactif utilisent les mêmes 
 ### Livres de face sur l’étagère — 5 novembre 2026
 
 À la demande de Gaël, les tranches typographiques sont remplacées par les couvertures entières de face. Cinq livres par niveau, soit quinze couvertures exposées ; les autres volumes restent cochés, enregistrés et comptabilisés. Les cadres sont uniformes et les images conservent leurs proportions, sans recadrage. Le rendu PHP enregistré et l’aperçu JavaScript utilisent les mêmes couvertures que la grille. Aucune migration ni modification des choix enregistrés.
+
+### Meuble de collection agrandi — 5 novembre 2026
+
+Meuble vertical à cinq tablettes, cadre gris sauge, fond clair et ombres discrètes. Jusqu’à vingt-cinq couvertures entières exposées, cinq par niveau, et largeur maximale portée à 620 px. Les volumes supplémentaires restent enregistrés et comptabilisés.

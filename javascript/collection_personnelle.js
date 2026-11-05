@@ -10,7 +10,7 @@ document.querySelectorAll('[data-selection-collection]').forEach(function (formu
         const choisis = cases.filter(caseVolume => caseVolume.checked);
         const niveaux = [...etagere.querySelectorAll('[data-etagere-niveau]')];
         const fragments = niveaux.map(() => document.createDocumentFragment());
-        choisis.slice(0, 15).forEach(function (caseVolume, index) {
+        choisis.slice(0, 25).forEach(function (caseVolume, index) {
             const carte = caseVolume.closest('.collection-volume');
             const tranche = document.createElement('span');
             tranche.className = 'etagere-livre';
@@ -27,7 +27,7 @@ document.querySelectorAll('[data-selection-collection]').forEach(function (formu
         });
         niveaux.forEach((niveau, index) => niveau.replaceChildren(fragments[index]));
         derniersChoix = new Set(choisis.map(caseVolume => caseVolume.value));
-        etagere.querySelector('[data-etagere-message]').textContent = choisis.length === 0 ? 'Votre étagère attend ses premières trouvailles.' : choisis.length > 15 ? '15 volumes exposés et ' + (choisis.length - 15) + ' autres dans votre collection.' : choisis.length + (choisis.length === 1 ? ' volume sur votre étagère.' : ' volumes sur votre étagère.');
+        etagere.querySelector('[data-etagere-message]').textContent = choisis.length === 0 ? 'Votre étagère attend ses premières trouvailles.' : choisis.length > 25 ? '25 volumes exposés et ' + (choisis.length - 25) + ' autres dans votre collection.' : choisis.length + (choisis.length === 1 ? ' volume sur votre étagère.' : ' volumes sur votre étagère.');
     }
     function actualiserCompteur() {
         const nombre = cases.filter(caseVolume => caseVolume.checked).length;

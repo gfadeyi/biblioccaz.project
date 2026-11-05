@@ -2138,13 +2138,15 @@ form[data-selection-collection] legend { float: none; width: auto; }
 .collection-volume__couverture img { width: 100%; height: clamp(148px, 16vw, 190px); object-fit: contain; }
 .collection-volume__titre { font-size: .85rem; line-height: 1.4; }
 .collection-volume:has(input:checked) { border-color: var(--vert-500); box-shadow: 0 0 0 1px var(--vert-500); background: var(--vert-50); }
-.collection-etagere { max-width: 520px; margin: 0 auto 24px; padding: 0; border: 0; background: transparent; }
-.etagere-meuble { position: relative; width: 100%; aspect-ratio: 720 / 760; }
+.collection-etagere { max-width: 620px; margin: 0 auto 24px; padding: 0; border: 0; background: transparent; }
+.etagere-meuble { position: relative; width: 100%; aspect-ratio: 720 / 1320; }
 .etagere-meuble__fond { display: block; width: 100%; height: 100%; }
-.etagere-niveau { position: absolute; left: 13.05%; right: 15.28%; top: 10.526%; height: 23.158%; display: flex; align-items: flex-end; gap: .8%; padding: 0; border: 0; box-shadow: none; }
-.etagere-niveau:nth-of-type(2) { top: 36.316%; }
-.etagere-niveau:nth-of-type(3) { top: 62.105%; }
-.etagere-livre { display: flex; align-items: flex-end; justify-content: center; flex: 0 0 18.5%; width: 18.5%; min-width: 0; height: 83%; }
+.etagere-niveau { position: absolute; left: 10.56%; right: 11.67%; top: 5.76%; height: 16.06%; display: flex; align-items: flex-end; justify-content: flex-start; gap: 2%; padding: 0 1%; }
+.etagere-niveau:nth-of-type(2) { top: 22.424%; }
+.etagere-niveau:nth-of-type(3) { top: 39.091%; }
+.etagere-niveau:nth-of-type(4) { top: 55.758%; }
+.etagere-niveau:nth-of-type(5) { top: 72.424%; }
+.etagere-livre { display: flex; align-items: flex-end; justify-content: center; flex: 0 0 18.4%; width: 18.4%; min-width: 0; height: 88%; }
 .etagere-livre img { display: block; width: 100%; height: 100%; object-fit: contain; object-position: center bottom; filter: drop-shadow(2px 1px 2px #19171155); }
 .etagere-livre.vient-arriver { animation: range-livre 220ms ease-out both; transform-origin: bottom; }
 @keyframes range-livre { from { opacity: 0; transform: translateY(10px) rotate(-4deg); } to { opacity: 1; transform: translateY(0) rotate(0); } }

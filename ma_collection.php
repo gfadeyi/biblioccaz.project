@@ -93,8 +93,8 @@ include __DIR__.'/header.php';
                     <div class="collection-etagere" data-etagere-collection data-nom-serie="<?= htmlspecialchars($serie['nom']) ?>">
                         <h3 class="h5">Mon étagère prend vie</h3>
                         <div class="etagere-meuble" aria-hidden="true">
-                            <img class="etagere-meuble__fond" src="<?= htmlspecialchars(urlStatique('ressources/illustrations/bibliotheque-collection.svg')) ?>" width="720" height="760" alt="" decoding="async">
-                            <?php for($niveau=0;$niveau<3;$niveau++): ?>
+                            <img class="etagere-meuble__fond" src="<?= htmlspecialchars(urlStatique('ressources/illustrations/bibliotheque-collection.svg')) ?>" width="720" height="1320" alt="" decoding="async">
+                            <?php for($niveau=0;$niveau<5;$niveau++): ?>
                                 <div class="etagere-niveau" data-etagere-niveau>
                                     <?php foreach(array_slice($livresRanges,$niveau*5,5) as $range): ?>
                                         <span class="etagere-livre" title="<?= htmlspecialchars($range['titre']) ?>"><img src="<?= htmlspecialchars(urlImage($range['couverture'])) ?>" alt="" decoding="async" width="160" height="220"></span>
@@ -102,7 +102,7 @@ include __DIR__.'/header.php';
                                 </div>
                             <?php endfor; ?>
                         </div>
-                        <p class="small mt-3 mb-1" data-etagere-message><?= count($livresRanges)===0?'Votre étagère attend ses premières trouvailles.':(count($livresRanges)>15?'15 volumes exposés et '.(count($livresRanges)-15).' autres dans votre collection.':count($livresRanges).(count($livresRanges)===1?' volume sur votre étagère.':' volumes sur votre étagère.')) ?></p>
+                        <p class="small mt-3 mb-1" data-etagere-message><?= count($livresRanges)===0?'Votre étagère attend ses premières trouvailles.':(count($livresRanges)>25?'25 volumes exposés et '.(count($livresRanges)-25).' autres dans votre collection.':count($livresRanges).(count($livresRanges)===1?' volume sur votre étagère.':' volumes sur votre étagère.')) ?></p>
                         <p class="small mb-0">Couvertures de face, d’après vos cases cochées. Enregistrez pour conserver vos changements.</p>
                     </div>
                     <fieldset><legend class="h5">Je possède ces volumes</legend>
