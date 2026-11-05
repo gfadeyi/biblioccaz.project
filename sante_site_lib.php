@@ -120,7 +120,7 @@ function santeSauvegardes(string $dossierPrive, int $maintenant): array
     try {
         if (fseek($fichier, max(0, $export['octets'] - 2048)) !== 0) { $resultat['libelle'] = 'Export non lisible'; return $resultat; }
         $fin = stream_get_contents($fichier, 2048);
-        $resultat['fin_export'] = is_string($fin) && preg_match('/(?:^|\n)-- Dump completed on [0-9-]{10}\s+[0-9:]{8}\s*\z/', $fin) === 1;
+        $resultat['fin_export'] = is_string($fin) && preg_match('/(?:^|\n)-- Dump completed on [0-9-]{10}\s+[0-9]{1,2}:[0-9]{2}:[0-9]{2}\s*\z/', $fin) === 1;
     } finally { fclose($fichier); }
     $resultat['etat'] = 'attention';
     $resultat['libelle'] = 'Export à vérifier';
