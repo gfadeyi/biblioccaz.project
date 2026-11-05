@@ -413,3 +413,11 @@ Le rendu PHP enregistré et le rendu JavaScript interactif utilisent les mêmes 
 ### Meuble de collection agrandi — 5 novembre 2026
 
 Meuble vertical à cinq tablettes, cadre gris sauge, fond clair et ombres discrètes. Jusqu’à vingt-cinq couvertures entières exposées, cinq par niveau, et largeur maximale portée à 620 px. Les volumes supplémentaires restent enregistrés et comptabilisés.
+
+### Diversification du catalogue — 5 novembre 2026
+
+Import de 500 nouvelles références papier françaises à ISBN contrôlés : 100 supports scolaires (primaire, collège, lycée et prépa), 90 romans ou récits, 35 recueils de poésie, 25 ouvrages de théâtre, 30 références d’art/culture, 60 de savoirs et 35 de vie pratique ; les 125 références graphiques représentent exactement 25 % (87 BD, 32 comics, 6 mangas). La catégorie existante Poésie & Théâtre accueille les deux ensembles. Les niveaux et matières scolaires sont renseignés quand ils sont identifiables dans les notices. Les programmes anciens ne sont pas présentés comme les programmes actuels.
+
+500 notices BnF conservées avec leurs identifiants et sources ; 500 couvertures optimisées, environ 13,3 Mo. Les dates complètes ne sont pas inventées : seule l’année bibliographique vérifiée est renseignée. Prix neuf laissé inconnu pour 36 éditions ; les autres montants sont ceux de la notice, potentiellement historiques. Trois offres d’occasion de démonstration par référence, soit 1 500 offres et 1 500 exemplaires fictifs. Les présentations sont bibliographiques et ne prétendent pas résumer chaque intrigue. Les collections bibliographiques sont conservées sans créer de numéros ou rattachements de série incertains.
+
+`sql/ajout_catalogue_equilibre_20261105.sql` est un ajout de données optionnel, sans évolution de structure. Il n’écrase ni les anciennes fiches, ni leurs couvertures, ni les stocks. Réexécution sans doublon et sans réapprovisionnement d’une offre épuisée. Les images sont livrées séparément, hors Git ; le CSV public fournit les références et sources.
