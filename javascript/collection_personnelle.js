@@ -10,24 +10,24 @@ document.querySelectorAll('[data-selection-collection]').forEach(function (formu
         const choisis = cases.filter(caseVolume => caseVolume.checked);
         const niveaux = [...etagere.querySelectorAll('[data-etagere-niveau]')];
         const fragments = niveaux.map(() => document.createDocumentFragment());
-        choisis.slice(0, 36).forEach(function (caseVolume, index) {
+        choisis.slice(0, 15).forEach(function (caseVolume, index) {
             const carte = caseVolume.closest('.collection-volume');
             const tranche = document.createElement('span');
-            tranche.className = 'etagere-tranche';
+            tranche.className = 'etagere-livre';
             tranche.title = carte.querySelector('.collection-volume__titre').textContent.trim();
             if (!derniersChoix.has(caseVolume.value)) tranche.classList.add('vient-arriver');
-            const titre = document.createElement('span');
-            titre.className = 'tranche-titre';
-            titre.textContent = caseVolume.dataset.numeroVolume ? etagere.dataset.nomSerie : carte.querySelector('.collection-volume__titre').textContent.trim();
-            const numero = document.createElement('span');
-            numero.className = 'tranche-numero';
-            numero.textContent = caseVolume.dataset.numeroVolume || '•';
-            tranche.append(titre, numero);
-            fragments[Math.floor(index / 12)].append(tranche);
+            const couverture = document.createElement('img');
+            couverture.src = carte.querySelector('.collection-volume__couverture img').getAttribute('src');
+            couverture.alt = '';
+            couverture.decoding = 'async';
+            couverture.width = 160;
+            couverture.height = 220;
+            tranche.append(couverture);
+            fragments[Math.floor(index / 5)].append(tranche);
         });
         niveaux.forEach((niveau, index) => niveau.replaceChildren(fragments[index]));
         derniersChoix = new Set(choisis.map(caseVolume => caseVolume.value));
-        etagere.querySelector('[data-etagere-message]').textContent = choisis.length === 0 ? 'Votre étagère attend ses premières trouvailles.' : choisis.length > 36 ? '36 volumes exposés et ' + (choisis.length - 36) + ' autres dans votre collection.' : choisis.length + (choisis.length === 1 ? ' volume sur votre étagère.' : ' volumes sur votre étagère.');
+        etagere.querySelector('[data-etagere-message]').textContent = choisis.length === 0 ? 'Votre étagère attend ses premières trouvailles.' : choisis.length > 15 ? '15 volumes exposés et ' + (choisis.length - 15) + ' autres dans votre collection.' : choisis.length + (choisis.length === 1 ? ' volume sur votre étagère.' : ' volumes sur votre étagère.');
     }
     function actualiserCompteur() {
         const nombre = cases.filter(caseVolume => caseVolume.checked).length;
