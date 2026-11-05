@@ -20,7 +20,7 @@ document.querySelectorAll('[data-selection-collection]').forEach(function (formu
             const image = document.createElement('img');
             image.src = couverture.getAttribute('src');
             image.alt = '';
-            image.loading = 'lazy';
+            image.loading = 'eager';
             image.decoding = 'async';
             tranche.append(image);
             fragments[Math.floor(index / 12)].append(tranche);

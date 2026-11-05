@@ -1384,3 +1384,7 @@ CREATE TABLE IF NOT EXISTS collection_volume (
     CONSTRAINT fk_collection_volume_suivi FOREIGN KEY (id_user, id_serie) REFERENCES collection_serie(id_user, id_serie) ON DELETE CASCADE,
     CONSTRAINT fk_collection_volume_livre FOREIGN KEY (id_livre) REFERENCES livre(id_livre) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+UPDATE livre
+SET couverture = 'livres/corrections-20261105/9791032716205.jpg'
+WHERE isbn = '9791032716205' AND couverture = 'Jujutsu-Kaisen-T22.jpg';

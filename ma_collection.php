@@ -92,11 +92,12 @@ include __DIR__.'/header.php';
                     <?php $livresRanges=array_values(array_filter($tomes,fn($t)=>isset($possedes[cleVolumeCollection($t)]))); ?>
                     <div class="collection-etagere" data-etagere-collection>
                         <h3 class="h5">Mon étagère prend vie</h3>
-                        <div aria-hidden="true">
+                        <div class="etagere-meuble" aria-hidden="true">
+                            <img class="etagere-meuble__fond" src="<?= htmlspecialchars(urlStatique('ressources/illustrations/bibliotheque-collection.svg')) ?>" width="720" height="760" alt="" decoding="async">
                             <?php for($niveau=0;$niveau<3;$niveau++): ?>
                                 <div class="etagere-niveau" data-etagere-niveau>
                                     <?php foreach(array_slice($livresRanges,$niveau*12,12) as $range): ?>
-                                        <span class="etagere-tranche" title="<?= htmlspecialchars($range['titre']) ?>"><img src="<?= htmlspecialchars(urlImage($range['couverture'])) ?>" alt="" loading="lazy" decoding="async"></span>
+                                        <span class="etagere-tranche" title="<?= htmlspecialchars($range['titre']) ?>"><img src="<?= htmlspecialchars(urlImage($range['couverture'])) ?>" alt="" loading="eager" decoding="async"></span>
                                     <?php endforeach; ?>
                                 </div>
                             <?php endfor; ?>
