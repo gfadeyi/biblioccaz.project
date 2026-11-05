@@ -52,6 +52,13 @@ Le propriétaire maintient tous les événements gratuits et annule le chantier 
 - Vérifications techniques des ISBN, rattachements et fichiers de couverture ; les éditions d'un même tome sont conservées. Les contrôles automatiques ne garantissent pas la correspondance visuelle de chaque couverture ni la complétude des séries.
 - Parcours public « Trouver ma prochaine lecture » : univers, ambiance et budget par livre ; jusqu'à six livres disponibles en magasin, un par série, puis accès au catalogue avec les mêmes filtres. Fonctionne sans compte et sans JavaScript, en complément des suggestions personnalisées.
 
+## Livraison 5 : compléter sa collection
+
+- Suivi personnel des séries et volumes possédés pour les lecteurs et auteurs, accessible depuis une série ou le menu du compte.
+- Rééditions d'un même volume regroupées dans leur série ; formats simples, doubles et œuvres non numérotées distincts. Aucun rapprochement automatique entre différentes séries Perfect/Deluxe.
+- Volumes manquants parmi les seules références publiques du catalogue, offres magasin disponibles et prix actuels. La liste ne prétend pas attester une collection bibliographiquement complète.
+- Deux tables de suivi privé, formulaires POST avec CSRF et transactions ; aucune modification des livres, stocks ou commandes. Les alertes automatiques de collection restent pour une deuxième version.
+
 ## Conservation des données
 
 Définir et faire valider les durées, exceptions et données à anonymiser avant d'activer une purge. Prévoir une simulation sans écriture, un récapitulatif des lignes concernées, des lots limités et une traçabilité des opérations. Aucune purge automatique ni durée arbitraire n'est activée par cette première livraison.

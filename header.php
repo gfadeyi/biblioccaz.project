@@ -87,6 +87,10 @@ if ($resumeCompte) {
     ];
 }
 
+if ($connected && in_array($userRole, ['client', 'auteur'], true)) {
+    $liensMenuCompte[] = ['ma_collection.php', 'pile', 'Mes collections', 0];
+}
+
 $livreAjoute = $_SESSION['panier_ajout'] ?? null;
 unset($_SESSION['panier_ajout']);
 

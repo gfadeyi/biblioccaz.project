@@ -50,6 +50,7 @@ include __DIR__ . '/header.php';
 <section class="container my-4">
     <a href="catalogue.php" class="small text-muted">Tout le catalogue</a>
     <h1 class="mt-3 mb-2"><?= htmlspecialchars($titreCollection) ?></h1>
+    <?php if(($modeCollection ?? '') === 'serie' && !empty($serieCollection)): ?><p><a href="ma_collection.php?serie=<?= (int)$idSerie ?>" class="bouton bouton-contour">Compléter ma collection</a></p><?php endif; ?>
     <p class="text-muted"><?= count($livresCollection) ?> livre(s)<?= ($modeCollection ?? '') === 'serie' && !$collectionRegroupee ? ', dans l’ordre des tomes.' : '.' ?></p>
     <?php if (!$livresCollection): ?><div class="carte-compte">Aucun livre dans cette sélection pour le moment.</div><?php endif; ?>
     <div class="row g-3">
