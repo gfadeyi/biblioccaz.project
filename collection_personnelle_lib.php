@@ -28,7 +28,34 @@ function seriesCollectionPersonnelle(PDO $pdo, int $idUser): array
 {
     $requete = $pdo->prepare('SELECT s.id_serie,s.nom,s.auteur,COUNT(v.cle_volume) AS possedes FROM collection_serie c JOIN serie s ON s.id_serie=c.id_serie LEFT JOIN collection_volume v ON v.id_user=c.id_user AND v.id_serie=c.id_serie WHERE c.id_user=? GROUP BY s.id_serie,s.nom,s.auteur ORDER BY s.nom LIMIT 100');
     $requete->execute([$idUser]);
-    return $requete->fetchAll(PDO::FETCH_ASSOC);
+    $series = $requete->fetchAll(PDO::FETCH_ASSOC);
+    if (!$series) { return []; }
+    $requete = $pdo->prepare('SELECT id_serie,cle_volume FROM collection_volume WHERE id_user=?');
+    $requete->execute([$idUser]);
+    $possedes = [];
+    foreach ($requete->fetchAll(PDO::FETCH_ASSOC) as $volume) { $possedes[$volume['id_serie']][$volume['cle_volume']] = true; }
+    $requete = $pdo->prepare('SELECT ls.* FROM collection_serie c JOIN livre_serie ls ON ls.id_serie=c.id_serie JOIN livre l ON l.id_livre=ls.id_livre WHERE c.id_user=? AND l.is_valide=1');
+    $requete->execute([$idUser]);
+    $references = [];
+    foreach ($requete->fetchAll(PDO::FETCH_ASSOC) as $volume) { $references[$volume['id_serie']][cleVolumeCollection($volume)] = true; }
+    foreach ($series as &$serie) {
+        $cles = $references[$serie['id_serie']] ?? [];
+        $serie['total'] = count($cles);
+        $serie['possedes'] = count(array_intersect_key($cles,$possedes[$serie['id_serie']] ?? []));
+    }
+    unset($serie);
+    return $series;
+}
+
+function messageProgressionCollection(string $nom, int $possedes, int $total): array
+{
+    $possedes = max(0,min($possedes,$total));
+    $restants = max(0,$total-$possedes);
+    if ($total <= 0) { return ['court'=>'La prochaine aventure se prépare…','titre'=>'Votre prochaine trouvaille vous attend !','detail'=>'Les volumes de cette série ne sont pas encore référencés au catalogue.','complete'=>false]; }
+    if ($restants === 0) { return ['court'=>'Bravo, tout est sur votre étagère !','titre'=>'Bravo, vous avez réuni tous les volumes de « '.$nom.' » !','detail'=>'Tous les volumes référencés dans notre catalogue sont dans votre bibliothèque.','complete'=>true]; }
+    if ($possedes === 0) { return ['court'=>'À vous la première trouvaille !','titre'=>'Une nouvelle aventure commence avec « '.$nom.' » !','detail'=>'Quel volume rejoindra votre étagère en premier ?','complete'=>false]; }
+    $volumes = $possedes . ($possedes === 1 ? ' volume' : ' volumes');
+    return ['court'=>'Déjà '.$volumes.' sur votre étagère !','titre'=>$restants === 1 ? 'Plus qu’un volume pour compléter « '.$nom.' » !' : 'Votre collection « '.$nom.' » prend vie !','detail'=>'Déjà '.$volumes.' dans votre bibliothèque. '.($restants === 1 ? 'La dernière trouvaille vous attend parmi les références du catalogue.' : 'Encore '.$restants.' à dénicher parmi les références du catalogue.'),'complete'=>false];
 }
 
 function volumesCollectionPersonnelle(PDO $pdo, int $idUser, int $idSerie): array

@@ -4,7 +4,8 @@ document.querySelectorAll('[data-selection-collection]').forEach(function (formu
     if (!outils || !cases.length) return;
     const compteur = outils.querySelector('[data-compteur-collection]');
     function actualiserCompteur() {
-        compteur.textContent = cases.filter(caseVolume => caseVolume.checked).length + ' / ' + cases.length + ' volumes cochés. Pensez à enregistrer.';
+        const nombre = cases.filter(caseVolume => caseVolume.checked).length;
+        compteur.textContent = nombre ? nombre + (nombre === 1 ? ' volume choisi' : ' volumes choisis') + ' pour votre étagère. Pensez à enregistrer.' : 'À vous de choisir les prochains livres de votre étagère !';
     }
     function cocherTout(cocher) {
         cases.forEach(caseVolume => { caseVolume.checked = cocher; });

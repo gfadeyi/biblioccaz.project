@@ -20,7 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $volumes = $_POST['volumes'] ?? [];
                 if (!is_array($volumes)) { throw new DomainException('Sélection de volumes invalide.'); }
                 enregistrerCollectionPersonnelle($pdo,$idUser,$idSerie,$volumes);
-                $_SESSION['flash_collection'] = 'Votre collection est enregistrée.';
+                $_SESSION['flash_collection'] = 'Et voilà, votre étagère est à jour !';
             } elseif ($action === 'retirer') {
                 retirerSerieCollection($pdo,$idUser,$idSerie);
                 $_SESSION['flash_collection'] = 'La série a été retirée de votre collection.';
@@ -73,14 +73,18 @@ include __DIR__.'/header.php';
             <?php if(count($resultats)===50): ?><p class="small">50 résultats affichés. Précisez votre recherche pour retrouver les autres séries.</p><?php endif; ?>
         </section>
     <?php endif; ?>
-    <section class="mb-4"><h2 class="h4">Mes séries suivies</h2>
+    <section class="mb-4"><h2 class="h4">Mon coin des collectionneurs</h2><p class="small">Votre progression parmi les volumes référencés dans notre catalogue.</p>
         <?php if(!$mesSeries): ?><p>Votre collection commence ici : cherchez une série, puis enregistrez les volumes que vous possédez.</p><?php endif; ?>
-        <ul class="collection-series"><?php foreach($mesSeries as $s): ?><li><a href="ma_collection.php?serie=<?= (int)$s['id_serie'] ?>"><?= htmlspecialchars($s['nom']) ?></a><span class="small"><?= (int)$s['possedes'] ?> volume(s) enregistré(s)</span></li><?php endforeach; ?></ul>
+        <ul class="collection-series"><?php foreach($mesSeries as $s): $message=messageProgressionCollection($s['nom'],(int)$s['possedes'],(int)$s['total']); ?><li><a href="ma_collection.php?serie=<?= (int)$s['id_serie'] ?>"><?= htmlspecialchars($s['nom']) ?></a><span class="small"><?php if($message['complete']): ?><i class="bi bi-stars" aria-hidden="true"></i> <?php endif; ?><?= htmlspecialchars($message['court']) ?></span></li><?php endforeach; ?></ul>
     </section>
     <?php if($serie): ?>
         <section class="carte-compte mb-4">
             <h2><?= htmlspecialchars($serie['nom']) ?></h2>
-            <p><?= count($tomes)-count($manquants) ?> / <?= count($tomes) ?> volume(s) du catalogue possédé(s).</p>
+            <?php $progression=messageProgressionCollection($serie['nom'],count($tomes)-count($manquants),count($tomes)); ?>
+            <div class="<?= $progression['complete']?'alert alert-success':'mb-3' ?>" data-progression-collection>
+                <p class="h5"><?php if($progression['complete']): ?><i class="bi bi-stars" aria-hidden="true"></i> <?php endif; ?><?= htmlspecialchars($progression['titre']) ?></p>
+                <p class="mb-0"><?= htmlspecialchars($progression['detail']) ?></p>
+            </div>
             <p class="small">Un tome simple et un volume double ou intégral sont suivis séparément. Les autres éditions du même volume sont regroupées dans cette série. Les éditions Perfect, Deluxe et les autres découpages ont leur propre série lorsqu’ils sont distingués au catalogue. Les références absentes du catalogue ne sont pas comptées.</p>
             <?php if($disponible && count($tomes)<=COLLECTION_VOLUMES_MAX): ?>
                 <form method="post" action="ma_collection.php?serie=<?= $idSerie ?>" data-selection-collection>
@@ -103,7 +107,7 @@ include __DIR__.'/header.php';
             <?php if($disponible): ?><form method="post" action="ma_collection.php" class="mt-3" data-confirmer="Retirer cette série et ses volumes de votre collection ?"><input type="hidden" name="csrf" value="<?= htmlspecialchars(jetonCsrf()) ?>"><input type="hidden" name="serie" value="<?= $idSerie ?>"><input type="hidden" name="action" value="retirer"><button type="submit" class="bouton bouton-discret bouton-petit">Ne plus suivre cette série</button></form><?php endif; ?>
         </section>
         <section id="volumes-manquants"><h2>Les volumes qui me manquent</h2><p>Offres magasin consultées maintenant ; prix et stock revérifiés dans le panier. Aucun achat n’est ajouté automatiquement à votre collection.</p>
-            <?php if(!$tomes): ?><p>Aucun volume public référencé pour le moment.</p><?php elseif(!$manquants): ?><p class="alert alert-success">Tous les volumes actuellement référencés pour cette série sont cochés.</p><?php endif; ?>
+            <?php if(!$tomes): ?><p>Aucun volume public référencé pour le moment.</p><?php elseif(!$manquants): ?><p>Votre étagère est à jour ! Envie de commencer une nouvelle aventure ? <a href="ma_collection.php">Cherchez une autre série</a>.</p><?php endif; ?>
             <div class="collection-manquants"><?php foreach($manquants as $tome): $offre=$offres[$tome['id_livre']]??null; ?>
                 <article class="carte-compte"><h3 class="h5"><a href="detail_livre.php?id=<?= (int)$tome['id_livre'] ?>"><?= htmlspecialchars($tome['titre']) ?></a></h3>
                     <?php if($tome['numero_tome']!==null): ?><p class="small">Volume <?= htmlspecialchars(numeroVolumeSerie($tome)) ?></p><?php endif; ?>
