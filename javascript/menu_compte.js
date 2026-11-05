@@ -50,15 +50,35 @@ document.addEventListener('DOMContentLoaded', function () {
         if (ecranLarge.matches && !zone.contains(evenement.relatedTarget)) declencheur.setAttribute('aria-expanded', 'false');
     });
 
-    document.addEventListener('keydown', function (evenement) {
+    window.addEventListener('keydown', function (evenement) {
+        const controles = [...menu.querySelectorAll('a[href], button:not(:disabled), input:not([type="hidden"]):not(:disabled)')].filter(element => element.getClientRects().length);
+        if (['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(evenement.key) && zone.contains(document.activeElement) && controles.length) {
+            evenement.preventDefault();
+            evenement.stopPropagation();
+            const index = controles.indexOf(document.activeElement);
+            const suivant = evenement.key === 'Home' ? 0 : evenement.key === 'End' ? controles.length - 1 : (index + (evenement.key === 'ArrowDown' ? 1 : -1) + controles.length) % controles.length;
+            controles[suivant].focus();
+            return;
+        }
+        if (evenement.key === 'Tab' && panneauOuvert()) {
+            const premier = controles[0];
+            const dernier = controles[controles.length - 1];
+            if (evenement.shiftKey && document.activeElement === premier) { evenement.preventDefault(); dernier.focus(); }
+            else if (!evenement.shiftKey && document.activeElement === dernier) { evenement.preventDefault(); premier.focus(); }
+        }
         if (evenement.key !== 'Escape') return;
         if (panneauOuvert()) {
+            evenement.preventDefault();
+            evenement.stopPropagation();
             fermerPanneau(true);
         } else if (zone.contains(document.activeElement)) {
+            evenement.preventDefault();
+            evenement.stopPropagation();
             declencheur.focus();
             zone.classList.add('menu-replie');
+            declencheur.setAttribute('aria-expanded', 'false');
         }
-    });
+    }, true);
     zone.addEventListener('mouseleave', function () { zone.classList.remove('menu-replie'); });
     declencheur.addEventListener('blur', function () { zone.classList.remove('menu-replie'); });
 

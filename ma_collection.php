@@ -52,6 +52,7 @@ if ($idSerie) {
 $mesSeries=$disponible?seriesCollectionPersonnelle($pdo,$idUser):[];
 $flash=$_SESSION['flash_collection']??'';unset($_SESSION['flash_collection']);
 $titreDocument='Mes collections';
+$scriptsPage=['collection_personnelle.js'];
 include __DIR__.'/header.php';
 ?>
 <main class="container-xxl py-4">
@@ -82,9 +83,14 @@ include __DIR__.'/header.php';
             <p><?= count($tomes)-count($manquants) ?> / <?= count($tomes) ?> volume(s) du catalogue possédé(s).</p>
             <p class="small">Un tome simple et un volume double ou intégral sont suivis séparément. Les autres éditions du même volume sont regroupées dans cette série. Les éditions Perfect, Deluxe et les autres découpages ont leur propre série lorsqu’ils sont distingués au catalogue. Les références absentes du catalogue ne sont pas comptées.</p>
             <?php if($disponible && count($tomes)<=COLLECTION_VOLUMES_MAX): ?>
-                <form method="post" action="ma_collection.php?serie=<?= $idSerie ?>">
+                <form method="post" action="ma_collection.php?serie=<?= $idSerie ?>" data-selection-collection>
                     <input type="hidden" name="csrf" value="<?= htmlspecialchars(jetonCsrf()) ?>"><input type="hidden" name="serie" value="<?= $idSerie ?>"><input type="hidden" name="action" value="enregistrer">
                     <fieldset><legend class="h5">Je possède ces volumes</legend>
+                        <div class="selection-collection" data-outils-collection hidden>
+                            <button type="button" class="bouton bouton-contour bouton-petit" data-tout-cocher>Tout cocher</button>
+                            <button type="button" class="bouton bouton-discret bouton-petit" data-tout-decocher>Tout décocher</button>
+                            <span class="small" aria-live="polite" data-compteur-collection></span>
+                        </div>
                         <div class="collection-volumes"><?php foreach($tomes as $tome): ?>
                             <label class="collection-volume"><input type="checkbox" name="volumes[]" value="<?= (int)$tome['id_livre'] ?>" <?= isset($possedes[cleVolumeCollection($tome)])?'checked':'' ?>><span><?= $tome['numero_tome']!==null?'Volume '.htmlspecialchars(numeroVolumeSerie($tome)).' — ':'' ?><?= htmlspecialchars($tome['titre']) ?></span></label>
                         <?php endforeach; ?></div>

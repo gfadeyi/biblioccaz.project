@@ -2122,3 +2122,10 @@ fieldset legend.form-label { float: none; width: auto; }
 .collection-volume input { flex: 0 0 auto; width: 20px; height: 20px; accent-color: var(--vert-500); }
 .collection-volume:focus-within { outline: 2px solid var(--texte-vert); outline-offset: 2px; }
 @media (max-width: 767px) { .collection-volumes, .collection-manquants { grid-template-columns: minmax(0, 1fr); } }
+
+.selection-collection:not([hidden]) { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 14px; }
+#menu-compte { max-height: min(480px, var(--hauteur-dispo, calc(100dvh - 7rem))); scrollbar-color: var(--vert-400) var(--surface); scrollbar-gutter: stable; }
+#menu-compte .lien-menu-compte { padding: .3rem .55rem; font-size: .9rem; }
+#menu-compte .lien-menu-compte .icone-dessin { width: 28px; height: 28px; padding: 4px; }
+#menu-compte > li { animation-delay: 0ms; animation-duration: 180ms; }
+@media (max-width: 991.98px) { .panneau-ouvert #menu-compte { inset: 12px 8px auto auto; height: auto; max-height: min(560px, calc(100dvh - 24px)); width: min(360px, calc(100vw - 16px)); border-radius: var(--rayon-grand); padding-top: 8px; } .panneau-ouvert #menu-compte .menu-entete__fermer { position: sticky; top: 0; right: auto; display: flex; justify-content: flex-end; z-index: 2; background: var(--surface); } }
