@@ -89,6 +89,21 @@ include __DIR__.'/header.php';
             <?php if($disponible && count($tomes)<=COLLECTION_VOLUMES_MAX): ?>
                 <form method="post" action="ma_collection.php?serie=<?= $idSerie ?>" data-selection-collection>
                     <input type="hidden" name="csrf" value="<?= htmlspecialchars(jetonCsrf()) ?>"><input type="hidden" name="serie" value="<?= $idSerie ?>"><input type="hidden" name="action" value="enregistrer">
+                    <?php $livresRanges=array_values(array_filter($tomes,fn($t)=>isset($possedes[cleVolumeCollection($t)]))); ?>
+                    <div class="collection-etagere" data-etagere-collection>
+                        <h3 class="h5">Mon étagère prend vie</h3>
+                        <div aria-hidden="true">
+                            <?php for($niveau=0;$niveau<3;$niveau++): ?>
+                                <div class="etagere-niveau" data-etagere-niveau>
+                                    <?php foreach(array_slice($livresRanges,$niveau*12,12) as $range): ?>
+                                        <span class="etagere-tranche" title="<?= htmlspecialchars($range['titre']) ?>"><img src="<?= htmlspecialchars(urlImage($range['couverture'])) ?>" alt="" loading="lazy" decoding="async"></span>
+                                    <?php endforeach; ?>
+                                </div>
+                            <?php endfor; ?>
+                        </div>
+                        <p class="small mt-3 mb-1" data-etagere-message><?= count($livresRanges)===0?'Votre étagère attend ses premières trouvailles.':(count($livresRanges)>36?'36 volumes exposés et '.(count($livresRanges)-36).' autres dans votre collection.':count($livresRanges).(count($livresRanges)===1?' volume sur votre étagère.':' volumes sur votre étagère.')) ?></p>
+                        <p class="small mb-0">Un aperçu de vos cases cochées. Enregistrez pour conserver vos changements.</p>
+                    </div>
                     <fieldset><legend class="h5">Je possède ces volumes</legend>
                         <div class="selection-collection" data-outils-collection hidden>
                             <button type="button" class="bouton bouton-contour bouton-petit" data-tout-cocher>Tout cocher</button>
@@ -96,7 +111,11 @@ include __DIR__.'/header.php';
                             <span class="small" aria-live="polite" data-compteur-collection></span>
                         </div>
                         <div class="collection-volumes"><?php foreach($tomes as $tome): ?>
-                            <label class="collection-volume"><input type="checkbox" name="volumes[]" value="<?= (int)$tome['id_livre'] ?>" <?= isset($possedes[cleVolumeCollection($tome)])?'checked':'' ?>><span><?= $tome['numero_tome']!==null?'Volume '.htmlspecialchars(numeroVolumeSerie($tome)).' — ':'' ?><?= htmlspecialchars($tome['titre']) ?></span></label>
+                            <label class="collection-volume">
+                                <input type="checkbox" name="volumes[]" value="<?= (int)$tome['id_livre'] ?>" <?= isset($possedes[cleVolumeCollection($tome)])?'checked':'' ?>>
+                                <span class="collection-volume__couverture"><img src="<?= htmlspecialchars(urlImage($tome['couverture'])) ?>" alt="" loading="lazy" decoding="async" width="160" height="220"></span>
+                                <span class="collection-volume__titre"><?= $tome['numero_tome']!==null?'Volume '.htmlspecialchars(numeroVolumeSerie($tome)).' — ':'' ?><?= htmlspecialchars($tome['titre']) ?></span>
+                            </label>
                         <?php endforeach; ?></div>
                     </fieldset>
                     <button type="submit" class="bouton bouton-action mt-3">Enregistrer mes volumes</button>

@@ -2129,3 +2129,20 @@ fieldset legend.form-label { float: none; width: auto; }
 #menu-compte .lien-menu-compte .icone-dessin { width: 28px; height: 28px; padding: 4px; }
 #menu-compte > li { animation-delay: 0ms; animation-duration: 180ms; }
 @media (max-width: 991.98px) { .panneau-ouvert #menu-compte { inset: 12px 8px auto auto; height: auto; max-height: min(560px, calc(100dvh - 24px)); width: min(360px, calc(100vw - 16px)); border-radius: var(--rayon-grand); padding-top: 8px; } .panneau-ouvert #menu-compte .menu-entete__fermer { position: sticky; top: 0; right: auto; display: flex; justify-content: flex-end; z-index: 2; background: var(--surface); } }
+
+form[data-selection-collection] legend { float: none; width: auto; }
+.collection-volumes { grid-template-columns: repeat(auto-fill, minmax(min(100%, 128px), 1fr)); align-items: stretch; }
+.collection-volume { position: relative; flex-direction: column; gap: 10px; padding: 10px; background: var(--surface); transition: border-color 180ms ease-out, box-shadow 180ms ease-out; }
+.collection-volume input { position: absolute; top: 8px; right: 8px; z-index: 1; width: 24px; height: 24px; cursor: pointer; }
+.collection-volume__couverture { display: grid; place-items: center; width: 100%; padding: 8px 0; background: var(--papier); border-radius: 6px; }
+.collection-volume__couverture img { width: 100%; height: clamp(148px, 16vw, 190px); object-fit: contain; }
+.collection-volume__titre { font-size: .85rem; line-height: 1.4; }
+.collection-volume:has(input:checked) { border-color: var(--vert-500); box-shadow: 0 0 0 1px var(--vert-500); background: var(--vert-50); }
+.collection-etagere { max-width: 440px; margin: 0 auto 24px; padding: 16px; border: 1px solid var(--trait); border-radius: 16px; background: var(--papier); }
+.etagere-niveau { display: flex; align-items: flex-end; gap: 4px; min-height: 84px; padding: 8px 8px 0; border-bottom: 8px solid var(--vert-200); box-shadow: 0 5px 5px #17230f12; }
+.etagere-tranche { display: block; flex: 1; min-width: 0; max-width: 28px; height: 66px; overflow: hidden; border-radius: 3px 3px 0 0; box-shadow: 1px 0 3px #17230f30; }
+.etagere-tranche:nth-child(3n) { height: 70px; }
+.etagere-tranche:nth-child(4n) { height: 60px; }
+.etagere-tranche img { width: 100%; height: 100%; object-fit: cover; }
+.etagere-tranche.vient-arriver { animation: range-livre 220ms ease-out both; transform-origin: bottom; }
+@keyframes range-livre { from { opacity: 0; transform: translateY(10px) rotate(-4deg); } to { opacity: 1; transform: translateY(0) rotate(0); } }

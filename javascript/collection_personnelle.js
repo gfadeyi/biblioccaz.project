@@ -3,9 +3,36 @@ document.querySelectorAll('[data-selection-collection]').forEach(function (formu
     const outils = formulaire.querySelector('[data-outils-collection]');
     if (!outils || !cases.length) return;
     const compteur = outils.querySelector('[data-compteur-collection]');
+    const etagere = formulaire.querySelector('[data-etagere-collection]');
+    let derniersChoix = new Set(cases.filter(caseVolume => caseVolume.checked).map(caseVolume => caseVolume.value));
+    function actualiserEtagere() {
+        if (!etagere) return;
+        const choisis = cases.filter(caseVolume => caseVolume.checked);
+        const niveaux = [...etagere.querySelectorAll('[data-etagere-niveau]')];
+        const fragments = niveaux.map(() => document.createDocumentFragment());
+        choisis.slice(0, 36).forEach(function (caseVolume, index) {
+            const carte = caseVolume.closest('.collection-volume');
+            const couverture = carte.querySelector('img');
+            const tranche = document.createElement('span');
+            tranche.className = 'etagere-tranche';
+            tranche.title = carte.querySelector('.collection-volume__titre').textContent.trim();
+            if (!derniersChoix.has(caseVolume.value)) tranche.classList.add('vient-arriver');
+            const image = document.createElement('img');
+            image.src = couverture.getAttribute('src');
+            image.alt = '';
+            image.loading = 'lazy';
+            image.decoding = 'async';
+            tranche.append(image);
+            fragments[Math.floor(index / 12)].append(tranche);
+        });
+        niveaux.forEach((niveau, index) => niveau.replaceChildren(fragments[index]));
+        derniersChoix = new Set(choisis.map(caseVolume => caseVolume.value));
+        etagere.querySelector('[data-etagere-message]').textContent = choisis.length === 0 ? 'Votre étagère attend ses premières trouvailles.' : choisis.length > 36 ? '36 volumes exposés et ' + (choisis.length - 36) + ' autres dans votre collection.' : choisis.length + (choisis.length === 1 ? ' volume sur votre étagère.' : ' volumes sur votre étagère.');
+    }
     function actualiserCompteur() {
         const nombre = cases.filter(caseVolume => caseVolume.checked).length;
         compteur.textContent = nombre ? nombre + (nombre === 1 ? ' volume choisi' : ' volumes choisis') + ' pour votre étagère. Pensez à enregistrer.' : 'À vous de choisir les prochains livres de votre étagère !';
+        actualiserEtagere();
     }
     function cocherTout(cocher) {
         cases.forEach(caseVolume => { caseVolume.checked = cocher; });
