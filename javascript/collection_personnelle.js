@@ -12,17 +12,17 @@ document.querySelectorAll('[data-selection-collection]').forEach(function (formu
         const fragments = niveaux.map(() => document.createDocumentFragment());
         choisis.slice(0, 36).forEach(function (caseVolume, index) {
             const carte = caseVolume.closest('.collection-volume');
-            const couverture = carte.querySelector('img');
             const tranche = document.createElement('span');
             tranche.className = 'etagere-tranche';
             tranche.title = carte.querySelector('.collection-volume__titre').textContent.trim();
             if (!derniersChoix.has(caseVolume.value)) tranche.classList.add('vient-arriver');
-            const image = document.createElement('img');
-            image.src = couverture.getAttribute('src');
-            image.alt = '';
-            image.loading = 'eager';
-            image.decoding = 'async';
-            tranche.append(image);
+            const titre = document.createElement('span');
+            titre.className = 'tranche-titre';
+            titre.textContent = caseVolume.dataset.numeroVolume ? etagere.dataset.nomSerie : carte.querySelector('.collection-volume__titre').textContent.trim();
+            const numero = document.createElement('span');
+            numero.className = 'tranche-numero';
+            numero.textContent = caseVolume.dataset.numeroVolume || '•';
+            tranche.append(titre, numero);
             fragments[Math.floor(index / 12)].append(tranche);
         });
         niveaux.forEach((niveau, index) => niveau.replaceChildren(fragments[index]));
