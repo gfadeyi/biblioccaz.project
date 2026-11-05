@@ -2150,3 +2150,14 @@ form[data-selection-collection] legend { float: none; width: auto; }
 .etagere-livre img { display: block; width: 100%; height: 100%; object-fit: contain; object-position: center bottom; filter: drop-shadow(2px 1px 2px #19171155); }
 .etagere-livre.vient-arriver { animation: range-livre 220ms ease-out both; transform-origin: bottom; }
 @keyframes range-livre { from { opacity: 0; transform: translateY(10px) rotate(-4deg); } to { opacity: 1; transform: translateY(0) rotate(0); } }
+.parcours-scolaire__etapes { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 20px; margin-top: 28px; }
+.parcours-scolaire #choix-matiere, #livres-scolaires { scroll-margin-top: 220px; }
+.selection-scolaire { min-width: 0; display: flex; flex-direction: column; gap: 8px; }
+.selection-scolaire .carte-livre { flex: 1; }
+.selection-scolaire__annee { margin: 0; font-weight: 700; color: var(--texte-vert); }
+.collection-volume__choix { display: flex; flex-direction: column; width: 100%; gap: 10px; cursor: pointer; }
+.collection-volume__lecture { margin-top: auto; font-size: .8rem; font-weight: 700; color: var(--texte-vert); }
+.collection-volume select { min-height: 44px; font-size: .85rem; }
+@media (max-width: 767px) { .parcours-scolaire__etapes { grid-template-columns: minmax(0,1fr); } }
+
+.collection-volume select { min-width: 0; max-width: 100%; }

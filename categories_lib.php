@@ -5,7 +5,7 @@ function listerCategories(PDO $pdo): array
     return $pdo->query("SELECT * FROM categorie ORDER BY ordre, nom")->fetchAll();
 }
 
-const PAGES_CATEGORIES = ['roman' => 'roman.php', 'jeunesse' => 'jeunesse.php', 'bd-manga-jeunesse' => 'bd_mangas.php'];
+const PAGES_CATEGORIES = ['scolaire-etudes' => 'scolaire.php', 'roman' => 'roman.php', 'jeunesse' => 'jeunesse.php', 'bd-manga-jeunesse' => 'bd_mangas.php'];
 
 function arbreCategories(PDO $pdo): array
 {

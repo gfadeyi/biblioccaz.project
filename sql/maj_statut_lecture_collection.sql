@@ -1,0 +1,3 @@
+SET NAMES utf8mb4;
+
+ALTER TABLE collection_volume ADD COLUMN IF NOT EXISTS statut_lecture VARCHAR(20) NULL DEFAULT NULL;

@@ -1388,3 +1388,6 @@ CREATE TABLE IF NOT EXISTS collection_volume (
 UPDATE livre
 SET couverture = 'livres/corrections-20261105/9791032716205.jpg'
 WHERE isbn = '9791032716205' AND couverture = 'Jujutsu-Kaisen-T22.jpg';
+
+
+ALTER TABLE collection_volume ADD COLUMN IF NOT EXISTS statut_lecture VARCHAR(20) NULL DEFAULT NULL;

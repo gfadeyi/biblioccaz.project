@@ -11,8 +11,10 @@ $stmt->execute([$id]);
 $livre = $stmt->fetch();
 
 if (!$livre) {
+    http_response_code(404);
+    $titreDocument='Livre introuvable';
     include 'header.php';
-    echo "<div class='container mt-5'>Livre introuvable.</div>";
+    echo '<main class="container-xxl py-5"><h1>Ce livre n’est plus sur cette étagère</h1><p>Cette fiche est introuvable ou n’est plus publiée. Une autre lecture vous attend peut-être dans le catalogue.</p><a class="bouton bouton-action" href="catalogue.php">Retrouver un livre</a></main>';
     include 'footer.php'; exit;
 }
 

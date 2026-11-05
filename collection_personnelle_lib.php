@@ -65,8 +65,12 @@ function volumesCollectionPersonnelle(PDO $pdo, int $idUser, int $idSerie): arra
     return $requete->fetchAll(PDO::FETCH_KEY_PAIR);
 }
 
-function enregistrerCollectionPersonnelle(PDO $pdo, int $idUser, int $idSerie, array $identifiants): void
+function enregistrerCollectionPersonnelle(PDO $pdo, int $idUser, int $idSerie, array $identifiants, array $lectures = []): void
 {
+    foreach ($lectures as $id => $statut) {
+        if ((!is_int($id) && !ctype_digit((string)$id)) || (int)$id <= 0 || !is_string($statut) || !in_array($statut,['','a_lire','en_cours','lu'],true)) { throw new DomainException('Statut de lecture invalide.'); }
+    }
+    if (count($lectures) > COLLECTION_VOLUMES_MAX) { throw new DomainException('Trop de statuts de lecture.'); }
     if (count($identifiants) > COLLECTION_VOLUMES_MAX) { throw new DomainException('Trop de volumes sélectionnés.'); }
     foreach ($identifiants as $id) {
         if (!is_string($id) || !ctype_digit($id) || (int) $id <= 0) { throw new DomainException('Un volume sélectionné est invalide.'); }
@@ -79,6 +83,8 @@ function enregistrerCollectionPersonnelle(PDO $pdo, int $idUser, int $idSerie, a
         if (!$serie->fetchColumn()) { throw new DomainException('Cette série est introuvable.'); }
         $volumes = tomesDeSerie($pdo,$idSerie);
         if (count($volumes) > COLLECTION_VOLUMES_MAX) { throw new DomainException('Cette série dépasse la limite de volumes gérés pour le moment.'); }
+        $idsVisibles = array_fill_keys(array_column($volumes,'id_livre'),true);
+        foreach ($lectures as $id => $statut) { if (!isset($idsVisibles[(int)$id])) { throw new DomainException('Ce volume ne fait pas partie de cette série.'); } }
         $selection = array_fill_keys(array_map('intval',$identifiants),true);
         $retenus = [];
         foreach ($volumes as $volume) {
@@ -93,12 +99,17 @@ function enregistrerCollectionPersonnelle(PDO $pdo, int $idUser, int $idSerie, a
         $series = array_map('intval',$suivi->fetchAll(PDO::FETCH_COLUMN));
         if (!in_array($idSerie,$series,true) && count($series) >= COLLECTION_SERIES_MAX) { throw new DomainException('La limite est de 100 séries suivies.'); }
         $pdo->prepare('INSERT IGNORE INTO collection_serie(id_user,id_serie) VALUES (?,?)')->execute([$idUser,$idSerie]);
-        $clesAffichees = array_map('cleVolumeCollection',$volumes);
+        $clesAffichees = array_values(array_diff(array_map('cleVolumeCollection',$volumes),array_keys($retenus)));
         if ($clesAffichees) {
             $pdo->prepare('DELETE FROM collection_volume WHERE id_user=? AND id_serie=? AND cle_volume IN (' . implode(',',array_fill(0,count($clesAffichees),'?')) . ')')->execute([$idUser,$idSerie,...$clesAffichees]);
         }
-        $ajout = $pdo->prepare('INSERT INTO collection_volume(id_user,id_serie,cle_volume,id_livre) VALUES (?,?,?,?)');
-        foreach ($retenus as $cle => $idLivre) { $ajout->execute([$idUser,$idSerie,$cle,$idLivre]); }
+        $ajout = $pdo->prepare('INSERT INTO collection_volume(id_user,id_serie,cle_volume,id_livre) VALUES (?,?,?,?) ON DUPLICATE KEY UPDATE id_livre=VALUES(id_livre)');
+        $lectureDisponible = lectureCollectionDisponible($pdo);
+        $modifierLecture = $lectureDisponible ? $pdo->prepare('UPDATE collection_volume SET statut_lecture=? WHERE id_user=? AND id_serie=? AND cle_volume=?') : null;
+        foreach ($retenus as $cle => $idLivre) {
+            $ajout->execute([$idUser,$idSerie,$cle,$idLivre]);
+            if ($modifierLecture && array_key_exists($idLivre,$lectures)) { $modifierLecture->execute([$lectures[$idLivre] ?: null,$idUser,$idSerie,$cle]); }
+        }
         $pdo->commit();
     } catch (Throwable $e) { $pdo->rollBack(); throw $e; }
 }
@@ -119,4 +130,20 @@ function retirerSerieCollection(PDO $pdo, int $idUser, int $idSerie): void
         $pdo->prepare('DELETE FROM collection_serie WHERE id_user=? AND id_serie=?')->execute([$idUser,$idSerie]);
         $pdo->commit();
     } catch (Throwable $e) { $pdo->rollBack(); throw $e; }
+}
+
+const STATUTS_LECTURE_COLLECTION = ['a_lire'=>'À lire','en_cours'=>'En cours','lu'=>'Lu'];
+
+function lectureCollectionDisponible(PDO $pdo): bool
+{
+    try { $pdo->prepare('SELECT statut_lecture FROM collection_volume LIMIT 0')->execute(); return true; }
+    catch (PDOException $e) { if (!in_array($e->errorInfo[0] ?? '',['42S22','42S02'],true)) { throw $e; } return false; }
+}
+
+function lecturesCollectionPersonnelle(PDO $pdo, int $idUser, int $idSerie): array
+{
+    if (!lectureCollectionDisponible($pdo)) { return []; }
+    $requete=$pdo->prepare('SELECT cle_volume,statut_lecture FROM collection_volume WHERE id_user=? AND id_serie=?');
+    $requete->execute([$idUser,$idSerie]);
+    return $requete->fetchAll(PDO::FETCH_KEY_PAIR);
 }

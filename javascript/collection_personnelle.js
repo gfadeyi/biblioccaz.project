@@ -30,6 +30,10 @@ document.querySelectorAll('[data-selection-collection]').forEach(function (formu
         etagere.querySelector('[data-etagere-message]').textContent = choisis.length === 0 ? 'Votre étagère attend ses premières trouvailles.' : choisis.length > 25 ? '25 volumes exposés et ' + (choisis.length - 25) + ' autres dans votre collection.' : choisis.length + (choisis.length === 1 ? ' volume sur votre étagère.' : ' volumes sur votre étagère.');
     }
     function actualiserCompteur() {
+        cases.forEach(function (caseVolume) {
+            const lecture = caseVolume.closest('.collection-volume').querySelector('select');
+            if (lecture) { lecture.disabled = !caseVolume.checked; }
+        });
         const nombre = cases.filter(caseVolume => caseVolume.checked).length;
         compteur.textContent = nombre ? nombre + (nombre === 1 ? ' volume choisi' : ' volumes choisis') + ' pour votre étagère. Pensez à enregistrer.' : 'À vous de choisir les prochains livres de votre étagère !';
         actualiserEtagere();
@@ -42,5 +46,18 @@ document.querySelectorAll('[data-selection-collection]').forEach(function (formu
     outils.querySelector('[data-tout-decocher]').addEventListener('click', function () { cocherTout(false); });
     cases.forEach(caseVolume => caseVolume.addEventListener('change', actualiserCompteur));
     actualiserCompteur();
+    formulaire.addEventListener('submit', function () {
+        const lectures = {};
+        formulaire.querySelectorAll('select[name^="lectures["]').forEach(function (champ) {
+            const id = champ.name.match(/^lectures\[(\d+)\]$/);
+            if (id) { lectures[id[1]] = champ.value; }
+        });
+        if (Object.keys(lectures).length) {
+            const cache = document.createElement('input');
+            cache.type = 'hidden'; cache.name = 'lectures_json'; cache.value = JSON.stringify(lectures);
+            formulaire.append(cache);
+            formulaire.querySelectorAll('select[name^="lectures["]').forEach(champ => { champ.disabled = true; });
+        }
+    });
     outils.hidden = false;
 });

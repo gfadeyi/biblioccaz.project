@@ -19,7 +19,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($action === 'enregistrer') {
                 $volumes = $_POST['volumes'] ?? [];
                 if (!is_array($volumes)) { throw new DomainException('Sélection de volumes invalide.'); }
-                enregistrerCollectionPersonnelle($pdo,$idUser,$idSerie,$volumes);
+                $lectures = $_POST['lectures'] ?? [];
+                if (isset($_POST['lectures_compte']) && !isset($_POST['formulaire_complet'])) { throw new DomainException('Le formulaire est incomplet. Activez JavaScript pour enregistrer une très grande collection, puis rechargez la page.'); }
+                if (isset($_POST['lectures_json'])) {
+                    try { $lectures=json_decode($_POST['lectures_json'],true,512,JSON_THROW_ON_ERROR); }
+                    catch (Throwable $e) { throw new DomainException('Statuts de lecture invalides.'); }
+                }
+                if (!is_array($lectures)) { throw new DomainException('Statuts de lecture invalides.'); }
+                enregistrerCollectionPersonnelle($pdo,$idUser,$idSerie,$volumes,$lectures);
                 $_SESSION['flash_collection'] = 'Et voilà, votre étagère est à jour !';
             } elseif ($action === 'retirer') {
                 retirerSerieCollection($pdo,$idUser,$idSerie);
@@ -38,6 +45,7 @@ if ($recherche !== '') {
     $requete = $pdo->prepare("SELECT s.id_serie,s.nom,s.auteur FROM serie s WHERE (s.nom LIKE ? ESCAPE '!' OR s.auteur LIKE ? ESCAPE '!') AND EXISTS(SELECT 1 FROM livre_serie ls JOIN livre l ON l.id_livre=ls.id_livre WHERE ls.id_serie=s.id_serie AND l.is_valide=1) ORDER BY s.nom LIMIT 50");
     $requete->execute([$motif,$motif]);$resultats=$requete->fetchAll(PDO::FETCH_ASSOC);
 }
+$lectureDisponible=$disponible && lectureCollectionDisponible($pdo);$lectures=[];
 $serie = null;$tomes=[];$possedes=[];$manquants=[];$offres=[];
 if ($idSerie) {
     $requete=$pdo->prepare('SELECT id_serie,nom,auteur FROM serie WHERE id_serie=?');$requete->execute([$idSerie]);$serie=$requete->fetch(PDO::FETCH_ASSOC);
@@ -45,6 +53,7 @@ if ($idSerie) {
     else {
         $tomes=tomesDeSerie($pdo,$idSerie);
         $possedes=$disponible?volumesCollectionPersonnelle($pdo,$idUser,$idSerie):[];
+        $lectures=$lectureDisponible?lecturesCollectionPersonnelle($pdo,$idUser,$idSerie):[];
         foreach(offresMagasinDesLivres($pdo,array_column($tomes,'id_livre')) as $offre){if($offre['libre']>0&&!isset($offres[$offre['id_livre']]))$offres[$offre['id_livre']]=$offre;}
         foreach($tomes as $tome){if(!isset($possedes[cleVolumeCollection($tome)]))$manquants[]=$tome;}
     }
@@ -89,6 +98,7 @@ include __DIR__.'/header.php';
             <?php if($disponible && count($tomes)<=COLLECTION_VOLUMES_MAX): ?>
                 <form method="post" action="ma_collection.php?serie=<?= $idSerie ?>" data-selection-collection>
                     <input type="hidden" name="csrf" value="<?= htmlspecialchars(jetonCsrf()) ?>"><input type="hidden" name="serie" value="<?= $idSerie ?>"><input type="hidden" name="action" value="enregistrer">
+                    <?php if($lectureDisponible): ?><input type="hidden" name="lectures_compte" value="<?= count($tomes) ?>"><?php endif; ?>
                     <?php $livresRanges=array_values(array_filter($tomes,fn($t)=>isset($possedes[cleVolumeCollection($t)]))); ?>
                     <div class="collection-etagere" data-etagere-collection data-nom-serie="<?= htmlspecialchars($serie['nom']) ?>">
                         <h3 class="h5">Mon étagère prend vie</h3>
@@ -112,15 +122,20 @@ include __DIR__.'/header.php';
                             <span class="small" aria-live="polite" data-compteur-collection></span>
                         </div>
                         <div class="collection-volumes"><?php foreach($tomes as $tome): ?>
-                            <label class="collection-volume">
+                            <div class="collection-volume"><label class="collection-volume__choix">
                                 <input type="checkbox" name="volumes[]" value="<?= (int)$tome['id_livre'] ?>" data-numero-volume="<?= htmlspecialchars($tome['numero_tome']!==null?numeroVolumeSerie($tome):'') ?>" <?= isset($possedes[cleVolumeCollection($tome)])?'checked':'' ?>>
                                 <span class="collection-volume__couverture"><img src="<?= htmlspecialchars(urlImage($tome['couverture'])) ?>" alt="" loading="lazy" decoding="async" width="160" height="220"></span>
                                 <span class="collection-volume__titre"><?= $tome['numero_tome']!==null?'Volume '.htmlspecialchars(numeroVolumeSerie($tome)).' — ':'' ?><?= htmlspecialchars($tome['titre']) ?></span>
                             </label>
+                            <?php if($lectureDisponible): ?>
+                                <label class="collection-volume__lecture" for="lecture-<?= (int)$tome['id_livre'] ?>">Ma lecture</label>
+                                <select class="form-select form-select-sm" id="lecture-<?= (int)$tome['id_livre'] ?>" name="lectures[<?= (int)$tome['id_livre'] ?>]" <?= isset($possedes[cleVolumeCollection($tome)])?'':'disabled' ?> aria-label="<?= htmlspecialchars('Lecture de '.$tome['titre']) ?>"><option value="">Non renseignée</option><?php foreach(STATUTS_LECTURE_COLLECTION as $valeur=>$libelle): ?><option value="<?= $valeur ?>" <?= ($lectures[cleVolumeCollection($tome)]??'')===$valeur?'selected':'' ?>><?= $libelle ?></option><?php endforeach; ?></select>
+                            <?php endif; ?>
+                            </div>
                         <?php endforeach; ?></div>
                     </fieldset>
-                    <button type="submit" class="bouton bouton-action mt-3">Enregistrer mes volumes</button>
-                    <p class="small mt-2">Les volumes affichés non cochés seront retirés de vos choix. Le dernier enregistrement remplace les choix précédents ; les anciennes références masquées au catalogue restent conservées.</p>
+                    <button type="submit" class="bouton bouton-action mt-3">Enregistrer ma collection</button><input type="hidden" name="formulaire_complet" value="1">
+                    <p class="small mt-2">Les volumes affichés non cochés seront retirés de vos choix. Le statut de lecture est facultatif et concerne les volumes cochés. Le dernier enregistrement remplace les choix précédents ; les anciennes références masquées au catalogue restent conservées.</p>
                 </form>
             <?php endif; ?>
             <?php if(count($tomes)>COLLECTION_VOLUMES_MAX): ?><p class="alert alert-secondary">Cette série dépasse les 500 volumes gérés par ce formulaire. Son suivi détaillé n’est pas encore disponible.</p><?php endif; ?>

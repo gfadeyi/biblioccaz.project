@@ -8,6 +8,8 @@ require_once 'panier_calcul.php';
 require_once 'compte_lib.php';
 require_once 'categories_lib.php';
 require_once 'illustrations_univers_lib.php';
+require_once 'decouverte_accueil_lib.php';
+$rayonsAccueil = selectionsRayonsAccueil($pdo);
 
 $selectionCartes = sqlCartesLivres();
 
@@ -147,6 +149,13 @@ include 'header.php';
         <?php endforeach; ?>
     </div>
 </section>
+
+<?php foreach ($rayonsAccueil as $rayonAccueil): if (!$rayonAccueil['livres']) { continue; } ?>
+<section class="section-accueil container-xxl" data-rayon-decouverte>
+    <div class="entete-section"><div><h2><?= htmlspecialchars($rayonAccueil['titre']) ?></h2><p><?= htmlspecialchars($rayonAccueil['detail']) ?></p></div><a class="lien-voir-tout" href="<?= htmlspecialchars($rayonAccueil['lien']) ?>">Explorer ce rayon <i class="bi bi-arrow-right" aria-hidden="true"></i></a></div>
+    <div class="carrousel"><?php foreach($rayonAccueil['livres'] as $l): include __DIR__.'/partie_carte_livre.php'; endforeach; ?></div>
+</section>
+<?php endforeach; ?>
 
 <?php if ($selectionLecteurs): ?>
     <section class="section-accueil container-xxl">
