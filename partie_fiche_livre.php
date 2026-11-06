@@ -5,6 +5,8 @@
     </nav>
     <div class="fiche-livre__grille">
             <div class="fiche-livre__visuel">
+                <img class="fiche-livre__dessin" src="<?= htmlspecialchars(urlStatique('ressources/illustrations/lecture-seconde-vie.svg')) ?>" alt="" aria-hidden="true" width="640" height="640">
+                <span class="fiche-livre__clin-oeil" aria-hidden="true">À vous la suite <span>↗</span></span>
                 <div class="fiche-livre__badges">
                     <?php if (stockEstBas($stockTotal)): ?><?= badgeStockBas() ?><?php endif; ?>
                     <?php if (!empty($livre['date_ajout']) && strtotime($livre['date_ajout']) >= strtotime('-30 days')): ?><span class="badge-bibli badge-nouveau">Nouveauté</span><?php endif; ?>
@@ -16,9 +18,14 @@
 
             <section class="fiche-livre__achat" data-achat-livre data-prix-neuf="<?= $prixNeufLivre ?? 0 ?>">
                 <?php if ($flashCompte): ?><div class="alert alert-<?= htmlspecialchars($flashCompte[0]) ?>"><?= htmlspecialchars($flashCompte[1]) ?></div><?php endif; ?>
-                <p class="fiche-livre__auteur"><a href="livres_auteur.php?auteur=<?= rawurlencode($livre['auteur']) ?>"><?= htmlspecialchars($livre['auteur']) ?></a><?php if ($serieLivre): ?> · <a href="serie.php?id=<?= (int) $serieLivre['id_serie'] ?>"><?= htmlspecialchars($serieLivre['nom']) ?><?= $serieLivre['numero_tome'] !== null ? ' #' . htmlspecialchars(numeroVolumeSerie($serieLivre)) : '' ?></a><?php endif; ?></p>
+                <p class="fiche-livre__auteur"><?php if($livre['auteur']!==''): ?><a href="livres_auteur.php?auteur=<?= rawurlencode($livre['auteur']) ?>"><?= htmlspecialchars($livre['auteur']) ?></a><?php else: ?>Auteur non renseigné<?php endif; ?><?php if ($serieLivre): ?> · <a href="serie.php?id=<?= (int) $serieLivre['id_serie'] ?>"><?= htmlspecialchars($serieLivre['nom']) ?><?= $serieLivre['numero_tome'] !== null ? ' #' . htmlspecialchars(numeroVolumeSerie($serieLivre)) : '' ?></a><?php endif; ?></p>
                 <h1><?= htmlspecialchars($livre['titre']) ?></h1>
                 <a href="#avis" class="fiche-livre__avis"><?php if ($noteEntete['nb']): ?><?= etoiles($noteEntete['moyenne']) ?> <span><?= number_format($noteEntete['moyenne'], 1, ',', '') ?> · <?= (int) $noteEntete['nb'] ?> avis</span><?php else: ?><i class="bi bi-star" aria-hidden="true"></i> Donner le premier avis<?php endif; ?></a>
+                <ul class="fiche-livre__reperes" aria-label="Repères sur cette édition">
+                    <?php if(!empty($livre['annee_parution'])): ?><li><i class="bi bi-calendar3" aria-hidden="true"></i> Édition <?= (int)$livre['annee_parution'] ?></li><?php endif; ?>
+                    <?php if(!empty($livre['nb_pages'])): ?><li><i class="bi bi-book" aria-hidden="true"></i> <?= (int)$livre['nb_pages'] ?> pages</li><?php endif; ?>
+                    <?php if(!empty($livre['langue'])): ?><li><?= htmlspecialchars($livre['langue']) ?></li><?php endif; ?>
+                </ul>
                 <div class="fiche-livre__prix">
                     <strong data-prix-fiche><?= $selectionMagasin ? formaterPrix($selectionMagasin['prix']) : 'Épuisé' ?></strong>
                     <?php if ($prixNeufLivre): ?><s data-prix-neuf-fiche <?= !$selectionMagasin || $prixNeufLivre <= $selectionMagasin['prix'] ? 'hidden' : '' ?> title="Prix neuf de référence"><?= formaterPrix($prixNeufLivre) ?></s><?php endif; ?>
@@ -34,7 +41,7 @@
                                 <input class="visually-hidden" type="radio" name="condition" data-condition-fiche data-prix="<?= $offreEtat['prix'] ?? 0 ?>" data-stock-bas="<?= $offreEtat && stockEstBas((int) $offreEtat['libre']) ? '1' : '0' ?>" value="<?= (int) ($offreEtat['id_exemplaire'] ?? 0) ?>" <?= $selectionMagasin && $offreEtat && $selectionMagasin['id_exemplaire'] === $offreEtat['id_exemplaire'] ? 'checked' : '' ?> <?= !$offreEtat || $offreEtat['libre'] <= 0 ? 'disabled' : '' ?>>
                                 <strong><?= $etat === 'use' ? 'Correct' : ($etat === 'tres bon' ? 'Très bon' : ucfirst($etat)) ?></strong>
                                 <span><?= $offreEtat ? formaterPrix($offreEtat['prix']) : '—' ?></span>
-                                <?php if (!$offreEtat || $offreEtat['libre'] <= 0): ?><span>Déjà vendu</span><?php endif; ?>
+                                <?php if (!$offreEtat || $offreEtat['libre'] <= 0): ?><span>Indisponible</span><?php endif; ?>
                             </label>
                         <?php endforeach; ?>
                     </div>
@@ -47,6 +54,7 @@
                     <?php if ($idUserConnecte): ?><?= $enFavori ? formulaireCompte('favori_retirer', (int) $id, '<i class="bi bi-heart-fill"></i> Retirer des favoris', 'btn btn-outline-success', 'Retirer de mes favoris') : formulaireCompte('favori_ajouter', (int) $id, '<i class="bi bi-heart"></i> Ajouter aux favoris', 'btn btn-outline-success', 'Ajouter à mes favoris') ?><?php else: ?><a href="login.php" class="btn btn-outline-success"><i class="bi bi-heart" aria-hidden="true"></i> Ajouter aux favoris</a><?php endif; ?>
                 </div>
                 <?php if ($nombreEditions > 0): ?><a class="fiche-livre__editions" href="editions_livre.php?id=<?= (int) $id ?>">Découvrir <?= $nombreEditions ?> autre<?= $nombreEditions > 1 ? 's' : '' ?> édition<?= $nombreEditions > 1 ? 's' : '' ?> <i class="bi bi-arrow-right" aria-hidden="true"></i></a><?php endif; ?>
+                <p class="fiche-livre__demo"><i class="bi bi-info-circle" aria-hidden="true"></i> Commande de démonstration : aucun paiement ni envoi réel.</p>
                 <div class="fiche-informations">
                     <details><summary>Livraison</summary><p>1,99 € de livraison sous 20 € de livres. Offerte à partir de 20 €, avant utilisation d’un bon.</p></details>
                     <details><summary>Paiement (démo)</summary><p>Paiement simulé : aucune carte n’est demandée et aucun montant n’est débité.</p></details>
@@ -78,9 +86,9 @@
                         </dl>
                     </div>
                     <div class="tab-pane" id="contenu-auteur" role="tabpanel" aria-labelledby="onglet-auteur" tabindex="0">
-                        <h2 class="h5 mt-3"><?= htmlspecialchars($livre['auteur']) ?></h2>
-                        <p class="text-muted">Retrouvez les livres de cet auteur disponibles dans notre catalogue.</p>
-                        <a class="btn btn-outline-success" href="livres_auteur.php?auteur=<?= rawurlencode($livre['auteur']) ?>">Voir ses livres</a>
+                        <h2 class="h5 mt-3"><?= htmlspecialchars($livre['auteur'] ?: 'Auteur non renseigné') ?></h2>
+                        <p class="text-muted"><?= $livre['auteur']!==''?'Retrouvez les livres de cet auteur disponibles dans notre catalogue.':'Les informations sur l’auteur de cette édition ne sont pas encore renseignées.' ?></p>
+                        <?php if($livre['auteur']!==''): ?><a class="btn btn-outline-success" href="livres_auteur.php?auteur=<?= rawurlencode($livre['auteur']) ?>">Voir ses livres</a><?php endif; ?>
                         <?php if ($slugAuteur): ?><a class="d-block mt-3" href="auteur.php?a=<?= rawurlencode($slugAuteur) ?>">Découvrir sa page auteur</a><?php endif; ?>
                     </div>
                 </div>

@@ -18,6 +18,8 @@ if (!$livre) {
     include 'footer.php'; exit;
 }
 
+$livre['auteur'] = (string)($livre['auteur'] ?? '');
+
 $stmtEx = $pdo->prepare("SELECT id_exemplaire, etat, prix, quantite FROM exemplaire e WHERE e.id_livre = ? AND " . conditionOffreMagasin() . " ORDER BY prix ASC");
 $stmtEx->execute([$id]);
 $offres = array_values(array_filter(offresMagasinDuLivre($pdo, (int) $id), fn($offre) => $offre['libre'] > 0));

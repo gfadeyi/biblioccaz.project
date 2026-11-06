@@ -49,6 +49,7 @@ Les couvertures visibles sur ces captures sont générées pour l'aperçu : les 
 - **Découvertes sur l’accueil** : romans, poésie/théâtre et révisions à 10 € maximum, sélections renouvelées chaque jour et un livre par série ; carrousels utilisables au clavier et sur téléphone.
 
 - **Panier minute** : réservation de 15 minutes pour les visiteurs et lecteurs, compte à rebours, changement d’état directement dans le panier, disponibilités et prix contrôlés côté serveur ; libération automatique à expiration et validation atomique de la commande.
+- **Fiche livre illustrée** : typographie compacte, dessin original au trait, choix d’état regroupé et repères d’édition visibles ; adaptation au téléphone, à la tablette et au mode sombre, avec rappel du paiement fictif.
 - **Aperçu des livres** : panneau latéral accessible au clavier, choix de l’état et ajout rapide depuis les cartes, notes et nombre d’avis.
 - **Fiches et séries** : grande couverture, conditions disponibles, prix neuf de référence lorsqu’il est connu, onglets résumé/détails/auteur, autres éditions et sélection des tomes disponibles dans leur ordre.
 
