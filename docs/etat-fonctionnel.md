@@ -447,3 +447,11 @@ Dans les exemplaires du magasin, le gestionnaire et l’administrateur disposent
 Le bouton renseigne le champ seulement sur demande ; changer d’état actualise l’aide sans écraser une saisie. Le montant reste libre, enregistré uniquement par le formulaire POST/CSRF habituel. Sans JavaScript, les quatre propositions et leur provenance restent lisibles. Aucune offre existante, commande ou quantité n’est modifiée par la consultation de l’aide. Aucune migration.
 
 La fiche d’administration permet aussi de renseigner ou de vider le prix neuf de référence déjà prévu dans le schéma. Validation positive, deux décimales maximum ; champ vide enregistré NULL. Une modification de référence ne réécrit pas les tarifs des exemplaires. Un ancien formulaire sans ce champ conserve la référence existante.
+
+### Fluidité de l’inventaire et confirmation de commande — 6 novembre 2026
+
+L’inventaire affiche 50 titres par page, avec total et compteurs sur tout le résultat filtré. Recherche, catégories, archives et tris restent disponibles ; la pagination conserve les filtres, les tris réinitialisent la page et un identifiant départage les ex æquo. Les couvertures sont chargées à la demande.
+
+La gestion d’un titre propose quatre vues accessibles par URL : En vente, Réapprovisionner (avec aide au prix), Offres épuisées et Emprunts. Une seule tâche est affichée ; les données des emprunts sont interrogées seulement sur leur vue. La création d’un titre arrive sur Réapprovisionner ; le comptoir mène à la vue Emprunts. Actions POST/CSRF et historique conservés. Pas de migration.
+
+Après paiement, les liens vers commandes et points/badges sont espacés de 16 px. Une règle de zone tactile qui appliquait des marges négatives aux liens en gras exclut désormais les boutons, qui ont déjà leur propre surface de clic. La carte s’adapte à la tablette. Aucun changement du calcul, de la réservation ou de la validation du paiement. Les mesures de gain concernent l’inventaire sur copie fictive et ne constituent pas un audit de performance de tout le site.

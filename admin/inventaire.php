@@ -63,6 +63,22 @@ $colonnesEtats = implode(",\n           ", array_map(
     array_keys(ETATS_STOCK), array_keys(array_keys(ETATS_STOCK))
 ));
 
+$parPage = 50;
+$numeroPage = filter_var($_GET['page'] ?? 1, FILTER_VALIDATE_INT);
+$page = max(1, $numeroPage ?: 1);
+$stmt = $pdo->prepare("SELECT COUNT(*) AS total, COALESCE(SUM(nb_stock = 0), 0) AS rupture, COALESCE(SUM(nb_stock BETWEEN 1 AND " . SEUIL_STOCK_BAS . "), 0) AS bas FROM (
+    SELECT l.id_livre, COALESCE(SUM(e.quantite), 0) AS nb_stock
+    FROM livre l
+    LEFT JOIN exemplaire e ON e.id_livre = l.id_livre AND e.quantite > 0 AND " . conditionExemplaireMagasin() . "
+    " . ($where ? 'WHERE ' . implode(' AND ', $where) : '') . "
+    GROUP BY l.id_livre $having
+) inventaire_filtre");
+$stmt->execute($params);
+$totaux = $stmt->fetch();
+$totalLivres = (int) $totaux['total'];
+$nombrePages = max(1, (int) ceil($totalLivres / $parPage));
+$page = min($page, $nombrePages);
+
 $stmt = $pdo->prepare("
     SELECT l.id_livre, l.titre, l.auteur, l.isbn, l.couverture, l.is_valide,
            c.nom AS categorie, u.nom AS univers,
@@ -76,24 +92,16 @@ $stmt = $pdo->prepare("
     " . ($where ? 'WHERE ' . implode(' AND ', $where) : '') . "
     GROUP BY l.id_livre, l.titre, l.auteur, l.isbn, l.couverture, l.is_valide, c.nom, u.nom
     $having
-    ORDER BY " . TRIS_INVENTAIRE[$tri] . " $sens, l.id_livre DESC");
+    ORDER BY " . TRIS_INVENTAIRE[$tri] . " $sens, l.id_livre DESC LIMIT " . $parPage . " OFFSET " . (($page - 1) * $parPage));
 $stmt->execute($params);
 $livres = $stmt->fetchAll();
 
-$totaux = ['rupture' => 0, 'bas' => 0];
-foreach ($livres as $livre) {
-    if ((int) $livre['nb_stock'] === 0) {
-        $totaux['rupture']++;
-    } elseif ($livre['nb_stock'] <= SEUIL_STOCK_BAS) {
-        $totaux['bas']++;
-    }
-}
 $filtresActifs = $q !== '' || $filtreStock !== '' || $filtreCategorie !== '';
 
 function lienTri(string $colonne, string $libelle, string $triActuel, string $sensActuel): string
 {
     $sensSuivant = $triActuel === $colonne && $sensActuel === 'ASC' ? 'desc' : 'asc';
-    $parametres = array_filter(array_merge($_GET, ['tri' => $colonne, 'sens' => $sensSuivant]), fn($v) => $v !== '');
+    $parametres = array_filter(array_merge($_GET, ['tri' => $colonne, 'sens' => $sensSuivant, 'page' => 1]), fn($v) => $v !== '');
     $icone = $triActuel === $colonne ? ($sensActuel === 'ASC' ? 'sort-up' : 'sort-down') : 'arrow-down-up';
     return '<a href="inventaire.php?' . e(http_build_query($parametres)) . '" class="th-tri ' . ($triActuel === $colonne ? 'actif' : '') . '">'
         . e($libelle) . ' <i class="bi bi-' . $icone . '" aria-hidden="true"></i></a>';
@@ -133,7 +141,7 @@ include __DIR__ . '/_haut.php';
         <button class="btn btn-outline-secondary">Rechercher</button>
         <?php if ($filtresActifs): ?><a href="inventaire.php" class="btn btn-link">Effacer les filtres</a><?php endif; ?>
         <span class="ms-auto d-flex flex-wrap gap-2">
-            <span class="etiquette etiquette-neutre"><?= count($livres) ?> titre<?= count($livres) > 1 ? 's' : '' ?></span>
+            <span class="etiquette etiquette-neutre"><?= $totalLivres ?> titre<?= $totalLivres > 1 ? 's' : '' ?></span>
             <?php if ($totaux['bas'] > 0): ?><span class="etiquette"><i class="bi bi-exclamation-circle" aria-hidden="true"></i><?= $totaux['bas'] ?> stock bas</span><?php endif; ?>
             <?php if ($totaux['rupture'] > 0): ?><span class="etiquette etiquette-alerte"><i class="bi bi-exclamation-triangle" aria-hidden="true"></i><?= $totaux['rupture'] ?> en rupture</span><?php endif; ?>
         </span>
@@ -167,7 +175,7 @@ include __DIR__ . '/_haut.php';
                         <tr class="<?= $classeLigne ?>">
                             <td>
                                 <div class="d-flex align-items-center gap-3">
-                                    <img src="<?= imageLivre($l['couverture']) ?>" alt="" class="couverture-mini" loading="lazy">
+                                    <img loading="lazy" decoding="async" src="<?= imageLivre($l['couverture']) ?>" alt="" class="couverture-mini">
                                     <div>
                                         <div class="titre-livre"><?= e($l['titre']) ?></div>
                                         <div class="auteur-livre"><?= e($l['auteur']) ?></div>
@@ -227,5 +235,19 @@ include __DIR__ . '/_haut.php';
         </div>
     <?php endif; ?>
 </div>
+
+
+<?php if ($nombrePages > 1): ?>
+<nav class="d-flex flex-wrap align-items-center justify-content-between gap-3 mt-3" aria-label="Pages de l’inventaire">
+    <span class="small text-muted">Page <?= $page ?> sur <?= $nombrePages ?> · <?= $totalLivres ?> titres · 50 par page</span>
+    <div class="d-flex gap-2">
+        <?php foreach (['précédente' => $page - 1, 'suivante' => $page + 1] as $direction => $cible): ?>
+            <?php if ($cible >= 1 && $cible <= $nombrePages): ?>
+                <a class="btn btn-sm btn-outline-secondary" href="inventaire.php?<?= e(http_build_query(array_merge($_GET, ['page' => $cible]))) ?>">Page <?= e($direction) ?></a>
+            <?php endif; ?>
+        <?php endforeach; ?>
+    </div>
+</nav>
+<?php endif; ?>
 
 <?php include __DIR__ . '/_bas.php'; ?>

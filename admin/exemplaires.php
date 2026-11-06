@@ -6,6 +6,9 @@ exigerDroit('catalogue');
 
 const ETATS_EXEMPLAIRE = ['neuf' => 'Neuf', 'tres bon' => 'Très bon état', 'bon' => 'Bon état', 'use' => 'Usé'];
 
+$vuesStock = ['vente' => 'En vente', 'ajouter' => 'Réapprovisionner', 'historique' => 'Offres épuisées', 'emprunt' => 'Emprunts'];
+$vueStock = is_string($_GET['vue'] ?? null) && isset($vuesStock[$_GET['vue']]) ? $_GET['vue'] : 'vente';
+
 $idLivre = (int) ($_GET['id'] ?? 0);
 $stmt = $pdo->prepare("SELECT * FROM livre WHERE id_livre = ?");
 $stmt->execute([$idLivre]);
@@ -13,7 +16,7 @@ $livre = $stmt->fetch();
 if (!$livre) {
     rediriger('inventaire.php', 'warning', "Ce livre n'existe pas.");
 }
-$retour = "exemplaires.php?id=$idLivre";
+$retour = "exemplaires.php?id=$idLivre&vue=$vueStock";
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     exigerPost($retour);
@@ -43,6 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if (str_starts_with($action, 'emprunt_')) {
+        $retour = "exemplaires.php?id=$idLivre&vue=emprunt";
         require_once __DIR__ . '/../emprunts_lib.php';
         $duree = (int) ($_POST['duree'] ?? regleEmprunt($pdo, 'duree_jours'));
         $renouvellements = (int) ($_POST['renouvellements'] ?? regleEmprunt($pdo, 'renouvellements_max'));
@@ -113,6 +117,7 @@ $total = array_sum(array_column($exemplaires, 'quantite'));
 $prixNeufReference = isset($livre['prix_neuf']) ? (float) $livre['prix_neuf'] : null;
 $suggestionsPrix = suggestionsPrixStock($prixNeufReference, $toutesOffres);
 $exemplairesEmprunt = null;
+if ($vueStock === 'emprunt') {
 try {
     require_once __DIR__ . '/../emprunts_lib.php';
     $stmt = $pdo->prepare("
@@ -129,6 +134,8 @@ try {
 } catch (PDOException $e) {
 }
 
+}
+
 $titrePage = 'Stock : ' . $livre['titre'];
 $pageActive = 'inventaire';
 $filAriane = [[null, 'Catalogue'], ['inventaire.php', 'Inventaire & stock']];
@@ -140,8 +147,15 @@ include __DIR__ . '/_haut.php';
     <a href="livre.php?id=<?= $idLivre ?>" class="btn btn-sm btn-outline-secondary"><i class="bi bi-pencil"></i> Modifier la fiche</a>
 </div>
 
+<nav class="d-flex flex-wrap gap-2 mb-4" aria-label="Gestion des exemplaires">
+    <?php foreach ($vuesStock as $cleVue => $libelleVue): ?>
+        <a class="btn btn-sm <?= $vueStock === $cleVue ? 'btn-vert' : 'btn-outline-secondary' ?>" href="exemplaires.php?id=<?= $idLivre ?>&amp;vue=<?= e($cleVue) ?>" <?= $vueStock === $cleVue ? 'aria-current="page"' : '' ?>><?= e($libelleVue) ?></a>
+    <?php endforeach; ?>
+</nav>
+
 <div class="row g-4">
-    <div class="col-lg-4">
+    <?php if ($vueStock === 'ajouter'): ?>
+    <div class="col-lg-7 col-xl-6">
         <form method="POST" class="carte p-4">
             <?= champCsrf() ?>
             <input type="hidden" name="action" value="ajouter">
@@ -195,7 +209,9 @@ include __DIR__ . '/_haut.php';
         </form>
     </div>
 
-    <div class="col-lg-8">
+    <?php endif; ?>
+    <div class="<?= $vueStock === 'ajouter' ? 'd-none' : 'col-12' ?>">
+        <?php if ($vueStock === 'vente'): ?>
         <div class="carte mb-4">
             <div class="carte-entete">Offres en vente</div>
             <div class="table-responsive">
@@ -238,7 +254,9 @@ include __DIR__ . '/_haut.php';
             </div>
         </div>
 
-        <?php if ($offresEpuisees): ?>
+        <?php endif; ?>
+        <?php if ($vueStock === 'historique'): ?>
+            <?php if (!$offresEpuisees): ?><p class="carte p-4 text-muted">Aucune offre épuisée pour ce livre.</p><?php endif; ?>
             <div class="carte">
                 <div class="carte-entete">Offres épuisées <span class="text-muted small fw-normal">Conservées pour l'historique des commandes</span></div>
                 <div class="table-responsive">
@@ -278,7 +296,8 @@ include __DIR__ . '/_haut.php';
             </div>
         <?php endif; ?>
 
-        <div class="carte mt-4" id="emprunt">
+        <?php if ($vueStock === 'emprunt'): ?>
+        <div class="carte" id="emprunt">
             <div class="carte-entete">Emprunt (bibliothèque) <span class="text-muted small fw-normal">Exemplaires prêtés gratuitement, hors stock de vente</span></div>
             <?php if ($exemplairesEmprunt === null): ?>
                 <p class="p-4 mb-0 text-muted small">L'emprunt n'est pas encore installé : importez <code>sql/maj_emprunts.sql</code>.</p>
@@ -400,7 +419,8 @@ include __DIR__ . '/_haut.php';
                 </form>
             <?php endif; ?>
         </div>
+        <?php endif; ?>
     </div>
 </div>
 
-<?php $scriptsPage = '<script src="' . e(urlStatique('javascript/prix_stock.js', '../')) . '" defer></script>'; include __DIR__ . '/_bas.php'; ?>
+<?php $scriptsPage = $vueStock === 'ajouter' ? '<script src="' . e(urlStatique('javascript/prix_stock.js', '../')) . '" defer></script>' : ''; include __DIR__ . '/_bas.php'; ?>

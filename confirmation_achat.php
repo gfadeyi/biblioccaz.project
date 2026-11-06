@@ -260,7 +260,7 @@ include 'header.php';
                     <?php endif; ?>
                 </div>
 
-                <div class="d-grid gap-2 mt-4">
+                <div class="confirmation-actions mt-4">
                     <a href="points_badges.php" class="btn btn-bibli py-3 rounded-pill fw-bold">Voir mes points et badges</a>
                     <a href="commandes.php" class="btn btn-outline-bibli py-3 rounded-pill fw-bold">Voir mes commandes</a>
                 </div>

@@ -80,7 +80,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($livre) {
             rediriger("livre.php?id=$id", 'success', 'Modifications enregistrées.');
         }
-        rediriger("exemplaires.php?id=$id", 'success', "Livre ajouté. Ajoutez maintenant ses exemplaires en stock.");
+        rediriger("exemplaires.php?id=$id&vue=ajouter", 'success', "Livre ajouté. Ajoutez maintenant ses exemplaires en stock.");
     }
 }
 

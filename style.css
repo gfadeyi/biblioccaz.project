@@ -1595,7 +1595,7 @@ fieldset legend.form-label { float: none; width: auto; }
     .pied ul { gap: 0; }
     .pied .reseaux a { display: inline-flex; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; margin-right: .2rem; }
     summary { padding-block: .75rem; }
-    main a:not([class]), main a.small, main a.fw-bold, main a.d-inline-flex { padding-block: .75rem; margin-block: -.75rem; }
+    main a:not([class]), main a.small:not(.btn), main a.fw-bold:not(.btn), main a.d-inline-flex:not(.btn) { padding-block: .75rem; margin-block: -.75rem; }
 }
 
 .offres-section { scroll-margin-top: 9.5rem; }
@@ -2161,3 +2161,7 @@ form[data-selection-collection] legend { float: none; width: auto; }
 @media (max-width: 767px) { .parcours-scolaire__etapes { grid-template-columns: minmax(0,1fr); } }
 
 .collection-volume select { min-width: 0; max-width: 100%; }
+
+.confirmation-actions { display: flex; flex-direction: column; gap: 16px; align-items: stretch; }
+.confirmation-actions > a { display: flex; align-items: center; justify-content: center; min-height: 52px; margin: 0; white-space: normal; text-align: center; }
+@media (max-width: 991px) { .carte-confirmation { padding: 24px 20px; } }

@@ -106,7 +106,7 @@ function carteEmpruntAdmin(array $em, PDO $pdo, bool $resultatCode = false): voi
                 <div class="min-w-0 flex-grow-1">
                     <div class="d-flex flex-wrap justify-content-between gap-2">
                         <div class="min-w-0">
-                            <a href="exemplaires.php?id=<?= (int) $em['id_livre'] ?>#emprunt" class="fw-bold text-decoration-none"><?= e($em['titre']) ?></a>
+                            <a href="exemplaires.php?id=<?= (int) $em['id_livre'] ?>&amp;vue=emprunt#emprunt" class="fw-bold text-decoration-none"><?= e($em['titre']) ?></a>
                             <div class="small text-muted">Emprunt n° <?= $id ?> · exemplaire n° <?= (int) $em['id_exemplaire'] ?> (<?= e(libelleEtat($em['etat'])) ?>)</div>
                         </div>
                         <span class="emprunt-admin__code" title="Code de retrait"><?= e($em['code_retrait']) ?></span>
