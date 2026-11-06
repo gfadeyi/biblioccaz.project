@@ -1,12 +1,13 @@
 <?php
 require_once __DIR__ . '/_init.php';
 require_once __DIR__ . '/../compte_lib.php';
+require_once __DIR__ . '/../prix_stock_lib.php';
 exigerDroit('catalogue');
 
 const ETATS_EXEMPLAIRE = ['neuf' => 'Neuf', 'tres bon' => 'Très bon état', 'bon' => 'Bon état', 'use' => 'Usé'];
 
 $idLivre = (int) ($_GET['id'] ?? 0);
-$stmt = $pdo->prepare("SELECT id_livre, titre, auteur, couverture FROM livre WHERE id_livre = ?");
+$stmt = $pdo->prepare("SELECT * FROM livre WHERE id_livre = ?");
 $stmt->execute([$idLivre]);
 $livre = $stmt->fetch();
 if (!$livre) {
@@ -109,6 +110,8 @@ $toutesOffres = $stmt->fetchAll();
 $exemplaires = array_values(array_filter($toutesOffres, fn($offre) => (int) $offre['quantite'] > 0));
 $offresEpuisees = array_values(array_filter($toutesOffres, fn($offre) => (int) $offre['quantite'] <= 0));
 $total = array_sum(array_column($exemplaires, 'quantite'));
+$prixNeufReference = isset($livre['prix_neuf']) ? (float) $livre['prix_neuf'] : null;
+$suggestionsPrix = suggestionsPrixStock($prixNeufReference, $toutesOffres);
 $exemplairesEmprunt = null;
 try {
     require_once __DIR__ . '/../emprunts_lib.php';
@@ -146,7 +149,7 @@ include __DIR__ . '/_haut.php';
                 <img src="<?= imageLivre($livre['couverture']) ?>" alt="" class="rounded shadow-sm" style="width: 70px; height: 100px; object-fit: cover;">
                 <div>
                     <div class="fw-bold"><?= e($livre['titre']) ?></div>
-                    <div class="small text-muted"><?= e($livre['auteur']) ?></div>
+                    <div class="small text-muted"><?= e($livre['auteur'] ?? '') ?></div>
                     <div class="small mt-1"><strong><?= $total ?></strong> ex. en stock</div>
                 </div>
             </div>
@@ -162,12 +165,31 @@ include __DIR__ . '/_haut.php';
             <div class="row g-2 mb-3">
                 <div class="col-7">
                     <label class="form-label small fw-bold" for="prix">Prix (€)</label>
-                    <input type="number" id="prix" name="prix" step="0.01" min="0.01" class="form-control" placeholder="12.50" required>
+                    <input type="number" id="prix" name="prix" step="0.01" min="0.01" class="form-control" placeholder="12.50" aria-describedby="explicationPrixStock" required>
                 </div>
                 <div class="col-5">
                     <label class="form-label small fw-bold" for="quantite">Quantité</label>
                     <input type="number" id="quantite" name="quantite" value="1" min="1" class="form-control">
                 </div>
+            </div>
+            <div class="border rounded-3 p-3 mb-3 small" data-aide-prix-stock="<?= e(json_encode($suggestionsPrix, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE)) ?>">
+                <h3 class="h6 mb-2"><i class="bi bi-lightbulb" aria-hidden="true"></i> Un coup de pouce pour le prix</h3>
+                <p id="explicationPrixStock" class="text-muted mb-2">Une aide indicative, pas une cote du marché. Le tarif reste votre choix. Les anciens prix, y compris le prix neuf de référence, peuvent dater ou provenir de la démonstration.</p>
+                <?php if ($prixNeufReference !== null && $prixNeufReference > 0): ?>
+                    <p class="mb-2">Prix neuf de référence : <strong><?= formaterPrix($prixNeufReference) ?></strong> · <a href="livre.php?id=<?= $idLivre ?>">Vérifier la fiche</a></p>
+                <?php else: ?>
+                    <p class="mb-2">Prix neuf non renseigné · <a href="livre.php?id=<?= $idLivre ?>">Compléter la fiche</a></p>
+                <?php endif; ?>
+                <div data-prix-sans-script>
+                    <ul class="ps-3 mb-2">
+                        <?php foreach ($suggestionsPrix as $etatSuggere => $suggestion): ?>
+                            <li><strong><?= e(ETATS_EXEMPLAIRE[$etatSuggere]) ?> : <?= $suggestion['prix'] !== null ? formaterPrix($suggestion['prix']) : 'à renseigner' ?></strong> — <?= e($suggestion['origine']) ?></li>
+                        <?php endforeach; ?>
+                    </ul>
+                </div>
+                <p class="mb-2" data-description-prix aria-live="polite"></p>
+                <button type="button" class="btn btn-sm btn-outline-success" data-utiliser-prix hidden>Utiliser ce prix</button>
+                <p class="mb-0 mt-2 text-muted" data-message-prix role="status"></p>
             </div>
             <button class="btn btn-vert w-100 fw-bold"><i class="bi bi-plus-lg"></i> Ajouter au stock</button>
         </form>
@@ -381,4 +403,4 @@ include __DIR__ . '/_haut.php';
     </div>
 </div>
 
-<?php include __DIR__ . '/_bas.php'; ?>
+<?php $scriptsPage = '<script src="' . e(urlStatique('javascript/prix_stock.js', '../')) . '" defer></script>'; include __DIR__ . '/_bas.php'; ?>

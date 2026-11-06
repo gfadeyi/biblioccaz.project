@@ -25,9 +25,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $valeurs[$c] = is_string($_POST[$c] ?? null) ? trim($_POST[$c]) : '';
     }
     $isbn = str_replace(['-', ' '], '', $valeurs['isbn']);
+    $prixNeufSaisi = $_POST['prix_neuf'] ?? ($livre['prix_neuf'] ?? '');
+    $valeurs['prix_neuf'] = is_string($prixNeufSaisi) || is_numeric($prixNeufSaisi) ? str_replace(',', '.', trim((string) $prixNeufSaisi)) : '';
+    $prixNeufInvalide = is_array($prixNeufSaisi) || ($valeurs['prix_neuf'] !== '' && (!preg_match('/^\d{1,6}(?:\.\d{1,2})?$/', $valeurs['prix_neuf']) || (float) $valeurs['prix_neuf'] <= 0));
 
     if ($valeurs['titre'] === '' || $valeurs['auteur'] === '' || $valeurs['description'] === '') {
         $erreur = "Le titre, l'auteur et la description sont obligatoires.";
+    } elseif ($prixNeufInvalide) {
+        $erreur = 'Renseignez un prix neuf positif, avec deux décimales maximum, ou laissez le champ vide.';
     } elseif (!$id && $isbn === '') {
         $erreur = "L'ISBN est obligatoire pour un nouveau livre.";
     } elseif ($isbn !== '' && !preg_match('/^(\d{9}[\dXx]|\d{13})$/', $isbn)) {
@@ -51,11 +56,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             in_array($valeurs['reliure'], ['Broché', 'Relié', 'Poche'], true) ? $valeurs['reliure'] : 'Broché',
             $valeurs['niveau_scolaire'] ?: null,
             $valeurs['matiere'] ?: null,
+            $valeurs['prix_neuf'] !== '' ? $valeurs['prix_neuf'] : null,
         ];
 
         if ($id) {
             $sql = "UPDATE livre SET titre = ?, auteur = ?, description = ?, isbn = ?, editeur = ?, annee_parution = ?,
-                    nb_pages = ?, poids = ?, dimensions = ?, reliure = ?, niveau_scolaire = ?, matiere = ?" . ($image ? ", couverture = ?" : "") . " WHERE id_livre = ?";
+                    nb_pages = ?, poids = ?, dimensions = ?, reliure = ?, niveau_scolaire = ?, matiere = ?, prix_neuf = ?" . ($image ? ", couverture = ?" : "") . " WHERE id_livre = ?";
             if ($image) {
                 $donnees[] = $image;
             }
@@ -63,8 +69,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $pdo->prepare($sql)->execute($donnees);
         } else {
             $donnees[] = $image ?: 'default.png';
-            $pdo->prepare("INSERT INTO livre (titre, auteur, description, isbn, editeur, annee_parution, nb_pages, poids, dimensions, reliure, niveau_scolaire, matiere, couverture)
-                           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")->execute($donnees);
+            $pdo->prepare("INSERT INTO livre (titre, auteur, description, isbn, editeur, annee_parution, nb_pages, poids, dimensions, reliure, niveau_scolaire, matiere, prix_neuf, couverture)
+                           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")->execute($donnees);
             $id = (int) $pdo->lastInsertId();
         }
 
@@ -123,6 +129,12 @@ $v = fn(string $c) => e((string) ($valeurs[$c] ?? ''));
                 <input type="file" id="image" name="image" class="form-control" accept="image/jpeg,image/png,image/webp">
             </div>
         </div>
+    </div>
+
+    <div class="mb-4">
+        <label class="form-label small fw-bold" for="prix_neuf">Prix neuf de référence (€), facultatif</label>
+        <input type="number" id="prix_neuf" name="prix_neuf" class="form-control" min="0.01" max="999999.99" step="0.01" value="<?= $v('prix_neuf') ?>" aria-describedby="aidePrixNeuf">
+        <p id="aidePrixNeuf" class="small text-muted mt-2 mb-0">Renseignez une référence vérifiée pour cette édition. Laissez vide si elle est inconnue. Sert à l’aide au prix du stock et à la comparaison affichée sur la fiche publique ; ne change pas les tarifs des offres existantes.</p>
     </div>
 
     <h2 class="h6 fw-bold text-success mb-3">Caractéristiques</h2>
