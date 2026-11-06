@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', function () {
     let minuterie = null;
     let requeteEnCours = null;
     let version = 0;
+    const cacheSuggestions = new Map();
 
     function masquerSuggestions() {
         suggestions.classList.add('d-none');
@@ -50,13 +51,22 @@ document.addEventListener('DOMContentLoaded', function () {
 
         minuterie = setTimeout(function () {
             requeteEnCours = new AbortController();
-            fetch('recherche.php?q=' + encodeURIComponent(saisie), { signal: requeteEnCours.signal })
+            const memorise = cacheSuggestions.get(saisie);
+            const utiliserCache = memorise && Date.now() - memorise.date < 30000;
+            const resultat = utiliserCache ? Promise.resolve(memorise.livres) : fetch('recherche.php?q=' + encodeURIComponent(saisie), { signal: requeteEnCours.signal })
                 .then(reponse => {
                     if (!reponse.ok) throw new Error('Recherche indisponible');
                     return reponse.json();
-                })
+                });
+            resultat
                 .then(livres => {
                     if (versionSaisie !== version) return;
+                    if (!Array.isArray(livres)) throw new Error('Réponse de recherche invalide');
+                    if (!utiliserCache) {
+                        cacheSuggestions.delete(saisie);
+                        cacheSuggestions.set(saisie, {date: Date.now(), livres});
+                        if (cacheSuggestions.size > 20) cacheSuggestions.delete(cacheSuggestions.keys().next().value);
+                    }
                     if (livres.length === 0) {
                         afficherMessage('Aucun livre trouvé...');
                         return;

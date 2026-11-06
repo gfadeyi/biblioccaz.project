@@ -1,7 +1,9 @@
 <?php
 require_once __DIR__ . '/livres_lib.php';
+require_once __DIR__ . '/couvertures_lib.php';
 $favori = in_array((int) $l['id_livre'], $idsFavoris ?? [], true);
 $couverture = !empty($l['couverture']) ? $l['couverture'] : 'default.png';
+$imageCarte = couverturePourCarte($couverture);
 $lienLivre = 'detail_livre.php?id=' . (int) $l['id_livre'];
 $stockLivre = isset($l['stock']) ? (int) $l['stock'] : null;
 $nbOffres = isset($l['nb_offres']) ? (int) $l['nb_offres'] : 0;
@@ -39,7 +41,7 @@ $empruntSeulement = $sansPrix && !$donSeulement;
             <button type="button" class="bouton-apercu" data-apercu="<?= (int) $l['id_livre'] ?>" aria-label="Aperçu de <?= htmlspecialchars($l['titre']) ?>" title="Aperçu"><i class="bi bi-eye" aria-hidden="true"></i></button>
             <button type="button" class="bouton-panier-rapide" data-ajout-rapide="<?= (int) $l['id_livre'] ?>" aria-label="Ajouter <?= htmlspecialchars($l['titre']) ?> au panier" title="Ajouter au panier"><i class="bi bi-bag-plus" aria-hidden="true"></i></button>
         </div>
-        <img src="<?= htmlspecialchars(urlImage($couverture)) ?>" alt="Couverture de <?= htmlspecialchars($l['titre']) ?>" loading="lazy">
+        <img src="<?= htmlspecialchars($imageCarte['src']) ?>" <?php if ($imageCarte['srcset']): ?>srcset="<?= htmlspecialchars($imageCarte['srcset']) ?>"<?php endif; ?> alt="Couverture de <?= htmlspecialchars($l['titre']) ?>" loading="lazy" decoding="async">
     </div>
 
     <div class="carte-livre__corps">
