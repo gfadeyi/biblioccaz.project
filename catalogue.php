@@ -168,13 +168,15 @@ $sqlBase = "
     GROUP BY l.id_livre, l.titre, l.auteur, l.couverture, c.nom, c.slug, av.moyenne, av.nb" . ($decouverte ? ", ls.id_serie, ls.numero_tome" : "") . "
     " . ($having ? "HAVING " . implode(' AND ', $having) : "");
 
-$stmt = $pdo->prepare($decouverte
-    ? "SELECT COUNT(*), COALESCE(SUM(rang_serie <= " . TOMES_PAR_SERIE_DECOUVERTE . "), 0)
-       FROM (SELECT " . $rangSerieDecouverte('') . "
-             FROM (SELECT l.id_livre, ls.id_serie AS serie_decouverte, ls.numero_tome AS tome_decouverte $sqlBase) AS livres_filtres) AS resultats"
-    : "SELECT COUNT(*), COUNT(*) FROM (SELECT l.id_livre $sqlBase) AS resultats");
-$stmt->execute($params);
-[$total, $totalPagine] = array_map('intval', $stmt->fetch(PDO::FETCH_NUM));
+if (!$decouverte || isset($_GET['compter'])) {
+    $stmt = $pdo->prepare($decouverte
+        ? "SELECT COUNT(*), COALESCE(SUM(rang_serie <= " . TOMES_PAR_SERIE_DECOUVERTE . "), 0)
+           FROM (SELECT " . $rangSerieDecouverte('') . "
+                 FROM (SELECT l.id_livre, ls.id_serie AS serie_decouverte, ls.numero_tome AS tome_decouverte $sqlBase) AS livres_filtres) AS resultats"
+        : "SELECT COUNT(*), COUNT(*) FROM (SELECT l.id_livre $sqlBase) AS resultats");
+    $stmt->execute($params);
+    [$total, $totalPagine] = array_map('intval', $stmt->fetch(PDO::FETCH_NUM));
+}
 
 if (isset($_GET['compter'])) {
     header('Content-Type: application/json');
@@ -182,9 +184,11 @@ if (isset($_GET['compter'])) {
     exit;
 }
 
-$nbPages = max(1, (int) ceil($totalPagine / LIVRES_PAR_PAGE));
-$page = min($page, $nbPages);
-$offset = ($page - 1) * LIVRES_PAR_PAGE;
+if (!$decouverte) {
+    $nbPages = max(1, (int) ceil($totalPagine / LIVRES_PAR_PAGE));
+    $page = min($page, $nbPages);
+    $offset = ($page - 1) * LIVRES_PAR_PAGE;
+}
 
 $sqlLivres = "
     SELECT l.id_livre, l.titre, l.auteur, l.couverture,
@@ -196,14 +200,37 @@ $sqlLivres = "
            av.moyenne AS note_moyenne, COALESCE(av.nb, 0) AS nb_avis$selectPertinence$selectClassement$selectDecouverte
     $sqlBase";
 if ($decouverte) {
-    $sqlLivres = "SELECT * FROM (SELECT livres_filtres.*, " . $rangSerieDecouverte('cle_decouverte,') . " FROM ($sqlLivres) AS livres_filtres) AS livres_decouverte
-                  WHERE rang_serie <= " . TOMES_PAR_SERIE_DECOUVERTE;
+    $debutPage = "((LEAST($page, CEIL(total_pagine / " . LIVRES_PAR_PAGE . ")) - 1) * " . LIVRES_PAR_PAGE . ")";
+    $sqlPage = "SELECT * FROM (
+        SELECT livres_retenus.*, COUNT(*) OVER () AS total_pagine,
+               ROW_NUMBER() OVER (ORDER BY cle_decouverte, id_livre) AS position_decouverte
+        FROM (
+            SELECT livres_classes.*, COUNT(*) OVER () AS total_complet
+            FROM (
+                SELECT livres_filtres.*, " . $rangSerieDecouverte('cle_decouverte,') . "
+                FROM ($sqlLivres) AS livres_filtres
+            ) AS livres_classes
+        ) AS livres_retenus
+        WHERE rang_serie <= " . TOMES_PAR_SERIE_DECOUVERTE . "
+    ) AS page_decouverte
+    WHERE position_decouverte > $debutPage AND position_decouverte <= $debutPage + " . LIVRES_PAR_PAGE . "
+    ORDER BY position_decouverte";
+} else {
+    $sqlPage = "$sqlLivres ORDER BY {$trisPossibles[$triActif][1]} LIMIT " . LIVRES_PAR_PAGE . " OFFSET $offset";
 }
-$stmt = $pdo->prepare("$sqlLivres
-    ORDER BY {$trisPossibles[$triActif][1]}
-    LIMIT " . LIVRES_PAR_PAGE . " OFFSET $offset");
+$stmt = $pdo->prepare($sqlPage);
 $stmt->execute($params + $paramsTri);
 $livres = $stmt->fetchAll();
+if ($decouverte) {
+    $total = (int) ($livres[0]['total_complet'] ?? 0);
+    $totalPagine = (int) ($livres[0]['total_pagine'] ?? 0);
+    $nbPages = max(1, (int) ceil($totalPagine / LIVRES_PAR_PAGE));
+    $page = min($page, $nbPages);
+    foreach ($livres as &$livreCompte) {
+        unset($livreCompte['total_complet'], $livreCompte['total_pagine'], $livreCompte['position_decouverte']);
+    }
+    unset($livreCompte);
+}
 if ($classementActif !== '') {
     foreach ($livres as &$livreClasse) { $livreClasse['type_classement'] = $classementActif; }
     unset($livreClasse);
