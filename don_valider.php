@@ -4,6 +4,7 @@ require_once 'dons_lib.php';
 require_once 'messagerie_lib.php';
 require_once 'points_lib.php';
 require_once 'avis_lib.php';
+require_once 'notifications_membre_lib.php';
 if (session_status() === PHP_SESSION_NONE) { session_start(); }
 
 $idUser = (int) ($_SESSION['user_id'] ?? 0);
@@ -45,6 +46,7 @@ if ($don && $idUser && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['co
             verifierBadges($pdo, (int) $don['id_donneur']);
             fermerConversationsObjet($pdo, 'don', (int) $don['id_don'], "Livre récupéré : l'échange est terminé. Bonne lecture !");
             insertLog('DON', "Don #{$don['id_don']} récupéré (+" . pointsRegle($pdo, 'don') . " points pour le donneur)");
+            notifierMembre($pdo, (int) $don['id_donneur'], 'don_recupere', 'Votre don « ' . $don['titre'] . ' » a été récupéré par ' . $_SESSION['pseudo'] . ' : +' . pointsRegle($pdo, 'don') . ' points.', 'mes_dons.php');
             notifierParMail($don['donneur_email'], "Votre don a été récupéré",
                 "Bonjour {$don['donneur_pseudo']},\n\nVotre livre « {$don['titre']} » a bien été récupéré par {$_SESSION['pseudo']}.\n"
                 . "Merci pour votre générosité ! Vous gagnez " . pointsRegle($pdo, 'don') . " points BIBLIOccaz.");

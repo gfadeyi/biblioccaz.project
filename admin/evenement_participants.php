@@ -61,7 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (!$promus) {
             rediriger($retour, 'warning', "Plus aucune place libre : augmentez le nombre de places ou retirez un participant.");
         }
-        prevenirPromus($promus, $evt);
+        prevenirPromus($promus, $evt, $pdo);
         rediriger($retour, 'success', "@{$inscription['pseudo']} est inscrit et a été prévenu par mail.");
     }
 

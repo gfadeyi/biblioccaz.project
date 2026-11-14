@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/points_lib.php';
 require_once __DIR__ . '/notifications_lib.php';
+require_once __DIR__ . '/notifications_membre_lib.php';
 require_once __DIR__ . '/decisions_equipe_lib.php';
 
 const EVT_TYPES = [
@@ -134,7 +135,8 @@ function inscrireAEvenement(PDO $pdo, int $idEvt, int $idUser): array
             return ['info', "Vous êtes déjà " . ($existante['statut'] === 'inscrit' ? 'inscrit' : "sur la liste d'attente") . "."];
         }
 
-        $statut = placesRestantes($evt) > 0 ? 'inscrit' : 'attente';
+        $placesAvant = placesRestantes($evt);
+        $statut = $placesAvant > 0 ? 'inscrit' : 'attente';
         $prioritaire = niveauMembre($pdo, $idUser)['prioritaire'] ? 1 : 0;
         if ($existante) {
             $pdo->prepare("UPDATE evenement_inscription SET statut = ?, prioritaire = ?, date_inscription = NOW(), present = 0, date_presence = NULL WHERE id_inscription = ?")
@@ -151,6 +153,10 @@ function inscrireAEvenement(PDO $pdo, int $idEvt, int $idUser): array
 
     insertLog('EVENEMENT', "Inscription ($statut) à l'événement #$idEvt");
     $email = emailUtilisateur($pdo, $idUser);
+    if ($statut === 'inscrit' && $placesAvant === 1) {
+        prevenirEvenementComplet($pdo, $evt);
+    }
+    notifierMembre($pdo, $idUser, $statut === 'inscrit' ? 'evenement_place' : 'evenement_complet', $statut === 'inscrit' ? 'Votre place est réservée pour « ' . $evt['titre'] . ' » : votre billet est prêt.' : 'L’événement « ' . $evt['titre'] . ' » est complet : vous êtes sur la liste d’attente.', 'mes_evenements.php');
     if ($statut === 'inscrit') {
         notifierParMail($email, "Inscription confirmée : " . $evt['titre'],
             "Votre place est réservée pour « {$evt['titre']} ».\n\nQuand : " . horaireEvenement($evt) . "\nOù : {$evt['lieu']}\n\n"
@@ -186,7 +192,7 @@ function desinscrireDeEvenement(PDO $pdo, int $idEvt, int $idUser, bool $parEqui
     }
 
     insertLog('EVENEMENT', ($parEquipe ? "Retrait par l'équipe" : "Désinscription") . " de l'utilisateur #$idUser (événement #$idEvt)");
-    prevenirPromus($promus, $evt);
+    prevenirPromus($promus, $evt, $pdo);
     return ['success', $inscription['statut'] === 'inscrit' ? "Inscription annulée, votre place a été libérée." : "Vous avez quitté la liste d'attente."];
 }
 
@@ -199,12 +205,12 @@ function promouvoirListeAttente(PDO $pdo, int $idEvt, ?int $idInscription = null
     }
     if ($idInscription !== null) {
         $stmt = $pdo->prepare("
-            SELECT i.id_inscription, u.email FROM evenement_inscription i INNER JOIN user u ON u.id = i.id_user
+            SELECT i.id_inscription, i.id_user, u.email FROM evenement_inscription i INNER JOIN user u ON u.id = i.id_user
             WHERE i.id_evenement = ? AND i.statut = 'attente' AND i.id_inscription = ?");
         $stmt->execute([$idEvt, $idInscription]);
     } else {
         $stmt = $pdo->prepare("
-            SELECT i.id_inscription, u.email FROM evenement_inscription i INNER JOIN user u ON u.id = i.id_user
+            SELECT i.id_inscription, i.id_user, u.email FROM evenement_inscription i INNER JOIN user u ON u.id = i.id_user
             WHERE i.id_evenement = ? AND i.statut = 'attente'
             ORDER BY i.prioritaire DESC, i.date_inscription, i.id_inscription LIMIT $places");
         $stmt->execute([$idEvt]);
@@ -217,9 +223,21 @@ function promouvoirListeAttente(PDO $pdo, int $idEvt, ?int $idInscription = null
     return $promus;
 }
 
-function prevenirPromus(array $promus, array $evt): void
+function prevenirEvenementComplet(PDO $pdo, array $evt): void
+{
+    $stmt = $pdo->prepare("SELECT role FROM user WHERE id = ?");
+    $stmt->execute([(int) ($evt['id_createur'] ?? 0)]);
+    if (in_array($stmt->fetchColumn(), ['auteur', 'client'], true)) {
+        notifierMembre($pdo, (int) $evt['id_createur'], 'evenement_complet', 'Votre événement « ' . $evt['titre'] . ' » est complet : les ' . (int) $evt['places_max'] . ' places sont réservées.', estPropositionAuteur($evt) ? 'dashboard_auteur.php' : 'evenement.php?id=' . (int) $evt['id_evenement']);
+    }
+}
+
+function prevenirPromus(array $promus, array $evt, ?PDO $pdo = null): void
 {
     foreach ($promus as $p) {
+        if ($pdo && isset($p['id_user'])) {
+            notifierMembre($pdo, (int) $p['id_user'], 'evenement_place', 'Une place s’est libérée pour « ' . $evt['titre'] . ' » : elle est à vous !', 'mes_evenements.php');
+        }
         insertLog('EVENEMENT', "Inscription #{$p['id_inscription']} passée de la liste d'attente à inscrit (événement #{$evt['id_evenement']})");
         notifierParMail($p['email'], "Une place s'est libérée : " . $evt['titre'],
             "Bonne nouvelle : une place s'est libérée pour « {$evt['titre']} » et elle est à vous !\n\n"
@@ -395,6 +413,7 @@ function validerEvenementPropose(PDO $pdo, int $idEvt, int $idValidateur): array
     insertLog('EVENEMENT', "Validation de l'événement proposé #$idEvt : {$evt['titre']}");
     $proposeur = proposeurEvenement($pdo, $evt);
     if ($proposeur) {
+        notifierMembre($pdo, (int) $proposeur['id'], 'evenement_proposition', 'Votre événement « ' . $evt['titre'] . ' » est validé et publié.', 'evenement.php?id=' . $idEvt);
         notifierParMail($proposeur['email'], "Votre événement est publié : " . $evt['titre'],
             "Bonne nouvelle : l'équipe a validé votre événement « {$evt['titre']} ». Il est maintenant visible dans le calendrier et ouvert aux inscriptions.\n\n"
             . "Quand : " . horaireEvenement($evt) . "\nOù : {$evt['lieu']}\nPlaces : {$evt['places_max']}\n\n"
@@ -431,6 +450,7 @@ function refuserEvenementPropose(PDO $pdo, int $idEvt, int $idValidateur, string
     insertLog('EVENEMENT', "Refus de l'événement proposé #$idEvt : {$evt['titre']}");
     $proposeur = proposeurEvenement($pdo, $evt);
     if ($proposeur) {
+        notifierMembre($pdo, (int) $proposeur['id'], 'evenement_proposition', 'Votre proposition « ' . $evt['titre'] . ' » n’a pas été retenue : le motif vous attend par mail.', 'dashboard_auteur.php');
         notifierParMail($proposeur['email'], "Votre proposition d'événement : " . $evt['titre'],
             "L'équipe a examiné votre proposition « {$evt['titre']} » (" . horaireEvenement($evt) . ") et ne peut pas la publier.\n\n"
             . "Motif :\n$motif\n\n"
@@ -445,6 +465,7 @@ function prevenirAuteurAnnulation(PDO $pdo, array $evt, string $motif): void
     if (!$proposeur) {
         return;
     }
+    notifierMembre($pdo, (int) $proposeur['id'], 'evenement_proposition', 'Votre événement « ' . $evt['titre'] . ' » a été annulé par l’équipe.', 'dashboard_auteur.php');
     notifierParMail($proposeur['email'], "Votre événement est annulé : " . $evt['titre'],
         "L'équipe a annulé votre événement « {$evt['titre']} » prévu " . horaireEvenement($evt) . "."
         . ($motif !== '' ? "\n\nRaison : $motif" : '')

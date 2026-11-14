@@ -2,6 +2,7 @@
 require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/avis_lib.php';
 require_once __DIR__ . '/anti_abus_lib.php';
+require_once __DIR__ . '/captcha_lib.php';
 require_once __DIR__ . '/validation_email_lib.php';
 require_once __DIR__ . '/notifications_lib.php';
 header('Cache-Control: no-store');
@@ -11,6 +12,7 @@ $recu = false;
 $email = is_string($_POST['email'] ?? null) ? trim($_POST['email']) : '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!verifierCsrf()) { http_response_code(403); $erreur = 'La session du formulaire a expiré. Rechargez la page.'; }
+    elseif (!captchaRecent()) { $erreur = CAPTCHA_MESSAGE_REQUIS; }
     elseif (!filter_var($email, FILTER_VALIDATE_EMAIL) || mb_strlen($email) > 150) { $erreur = 'Indiquez une adresse email valide.'; }
     else {
         try {
@@ -38,6 +40,7 @@ include __DIR__ . '/header.php';
                 <input type="hidden" name="csrf" value="<?= jetonCsrf() ?>">
                 <label for="email-validation" class="form-label">Adresse email</label>
                 <input id="email-validation" name="email" type="email" class="form-control mb-3" maxlength="150" autocomplete="email" value="<?= htmlspecialchars($email) ?>" required>
+                <?php include __DIR__ . '/partie_captcha.php'; ?>
                 <button class="bouton bouton-principal" type="submit">Recevoir un nouveau lien</button>
             </form>
         <?php endif; ?>

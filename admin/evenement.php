@@ -85,7 +85,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? 'enregistrer')
             $pdo->commit();
 
             $nouveau = chargerEvenement($pdo, $id);
-            prevenirPromus($promus, $nouveau);
+            prevenirPromus($promus, $nouveau, $pdo);
             $message = $estProposition ? "Modifications enregistrées. Vous pouvez maintenant valider la proposition." : "Modifications enregistrées.";
             if ($nouveau['date_debut'] !== $evt['date_debut'] || $nouveau['date_fin'] !== $evt['date_fin'] || $nouveau['lieu'] !== $evt['lieu']) {
                 $nb = notifierParticipants($pdo, $id, "Changement pour « {$nouveau['titre']} »",

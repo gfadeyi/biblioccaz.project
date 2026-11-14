@@ -5,6 +5,7 @@ require_once 'avis_lib.php';
 require_once 'anti_abus_lib.php';
 require_once 'validation_email_lib.php';
 require_once 'mot_de_passe_lib.php';
+require_once 'captcha_lib.php';
 $validationDisponible = validationEmailDisponible($pdo);
 
 use PHPMailer\PHPMailer\Exception;
@@ -30,6 +31,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif (!verifierCsrf()) {
         http_response_code(403);
         $erreur = 'La session du formulaire a expiré. Rechargez la page.';
+    } elseif (!captchaRecent()) {
+        $erreur = CAPTCHA_MESSAGE_REQUIS;
     } elseif (!autoriserActionPublique('inscription', 10, 3600)) {
         http_response_code(429);
         $erreur = 'Trop de demandes. Merci de réessayer plus tard.';
@@ -133,6 +136,7 @@ include 'header.php';
                 </div>
 
                 <div class="col-12 mt-4">
+                    <?php include 'partie_captcha.php'; ?>
                     <button type="submit" class="bouton bouton-principal">Créer mon compte</button>
                     <p class="small text-muted mt-3 mb-0">Vos données servent à gérer votre compte et vos échanges sur BIBLIOccaz. Pour en savoir plus et exercer vos droits, consultez la <a href="confidentialite.php">politique de confidentialité</a>.</p>
                 </div>

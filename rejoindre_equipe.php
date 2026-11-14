@@ -2,6 +2,7 @@
 require_once 'config.php';
 require_once 'avis_lib.php';
 require_once 'candidatures_equipe_lib.php';
+require_once 'captcha_lib.php';
 
 $disponible = candidaturesEquipeDisponibles($pdo);
 $membre = null;
@@ -30,6 +31,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $etat['etat'] === 'ouverte') {
     $erreurs = $saisie['erreurs'];
     if (!verifierCsrf()) {
         $erreurs = ['Votre session a expiré : vérifiez vos informations puis renvoyez le formulaire.'];
+    } elseif (!$membre && !captchaRecent()) {
+        $erreurs[] = CAPTCHA_MESSAGE_REQUIS;
     }
     if (!$erreurs) {
         try {
@@ -130,6 +133,7 @@ include 'header.php';
                         <div id="aide-motivations" class="form-text">Pourquoi ce rôle, vos disponibilités, ce que vous aimez lire, une expérience utile…</div>
                     </div>
                     <div class="col-12 mt-4">
+                        <?php if (!$membre) { include 'partie_captcha.php'; } ?>
                         <button type="submit" class="bouton bouton-principal">Envoyer ma candidature</button>
                         <p class="small text-muted mt-3 mb-0">Ces informations servent uniquement à étudier votre candidature. Pour en savoir plus et exercer vos droits, consultez la <a href="confidentialite.php">politique de confidentialité</a>.</p>
                     </div>

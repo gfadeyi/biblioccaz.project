@@ -4,6 +4,7 @@ require_once 'config.php';
 require_once 'avis_lib.php';
 require_once 'recuperation_mdp_lib.php';
 require_once 'anti_abus_lib.php';
+require_once 'captcha_lib.php';
 
 header('Cache-Control: no-store');
 header('Referrer-Policy: no-referrer');
@@ -21,6 +22,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (!is_string($_POST['csrf'] ?? null) || !verifierCsrf()) {
         $erreur = "Session expirée, merci de réessayer.";
+    } elseif (!captchaRecent()) {
+        $erreur = CAPTCHA_MESSAGE_REQUIS;
     } elseif (strlen($email) > 150 || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $erreur = "Veuillez entrer une adresse email valide.";
     } else {
@@ -75,6 +78,7 @@ include 'header.php';
                 <label for="email" class="form-label">Adresse email *</label>
                 <input type="email" id="email" name="email" class="form-control" placeholder="exemple@mail.com" autocomplete="email" required>
             </div>
+            <?php include 'partie_captcha.php'; ?>
             <button type="submit" class="bouton bouton-principal">Recevoir le lien</button>
         </form>
         <p class="carte-formulaire__pied"><a href="login.php">Retour à la connexion</a></p>

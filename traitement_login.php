@@ -16,10 +16,8 @@ if ($pseudo === '' || mb_strlen($pseudo) > 150 || strlen($mdp) > 72 || str_conta
     exit();
 }
 
-$captcha = $_SESSION['captcha'] ?? null;
-unset($_SESSION['captcha']);
-
-if (!$captcha || empty($captcha['valide']) || time() - $captcha['valide_le'] > 300) {
+require_once 'captcha_lib.php';
+if (!captchaRecent()) {
     header("Location: login.php?error=captcha");
     exit();
 }
@@ -50,6 +48,7 @@ try {
         exit();
     } else {
         $_SESSION['identifiant_connexion'] = $pseudo;
+        compterEchecConnexionCaptcha();
         header("Location: login.php?error=1");
         exit();
     }

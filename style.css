@@ -2233,3 +2233,20 @@ form[data-selection-collection] legend { float: none; width: auto; }
 .avis-spoiler__contenu:focus { outline: none; }
 .case-spoiler { margin: 0 0 .8rem; font-size: .9rem; }
 .case-spoiler .form-text { font-size: .78rem; }
+.captcha-deja-valide { display: flex; align-items: center; gap: .4rem; margin: 0 0 1.2rem; font-size: .88rem; color: var(--texte-vert); }
+
+.menu-notifications { width: min(360px, calc(100vw - 1.5rem)); border-radius: var(--rayon-grand); background: var(--surface); }
+.menu-notifications__titre { padding: .4rem .6rem .5rem; font-weight: 700; font-size: .9rem; }
+.menu-notifications__vide { padding: .6rem; color: var(--encre-douce); font-size: .88rem; }
+.menu-notifications__pied { border-top: 1px solid var(--trait); margin-top: .3rem; padding: .5rem .6rem .2rem; text-align: center; font-size: .88rem; }
+.menu-notifications__pied a { color: var(--texte-vert); font-weight: 600; }
+.liste-notifications { list-style: none; margin: 0; padding: 0; display: grid; gap: .5rem; }
+.notification__bouton { display: flex; align-items: flex-start; gap: .7rem; width: 100%; padding: .65rem .7rem; border: 1px solid transparent; border-radius: var(--rayon); background: transparent; color: var(--encre); text-align: left; font-size: .88rem; line-height: 1.35; transition: background var(--transition), border-color var(--transition); }
+.liste-notifications .notification__bouton { border-color: var(--trait); background: var(--surface); padding: .85rem 1rem; font-size: .95rem; }
+.notification__bouton:hover, .notification__bouton:focus-visible { background: var(--vert-50); border-color: var(--vert-100); }
+.notification__bouton.notification--non-lue, .notification--non-lue .notification__bouton { border-left: 3px solid var(--vert-500); }
+.notification--non-lue .notification__texte > span:first-child, .notification__bouton.notification--non-lue .notification__texte > span:first-child { font-weight: 700; }
+.notification__icone { flex-shrink: 0; display: inline-flex; width: 2rem; height: 2rem; align-items: center; justify-content: center; border-radius: 50%; background: var(--vert-50); color: var(--texte-vert); }
+.notification__texte { display: flex; flex-direction: column; gap: .15rem; min-width: 0; overflow-wrap: anywhere; }
+.notification__texte small { color: var(--encre-douce); font-size: .78rem; }
+@media (max-width: 767px) { #entete-notifications .icone-entete span.pastille { display: flex; } }

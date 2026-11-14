@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ . '/sessions_lib.php';
+require_once __DIR__ . '/captcha_lib.php';
 demarrerSession();
 header('Content-Type: application/json');
 header('Cache-Control: no-store');
@@ -32,8 +33,7 @@ if ($ok) {
 }
 
 if ($ok) {
-    $_SESSION['captcha']['valide'] = true;
-    $_SESSION['captcha']['valide_le'] = time();
+    enregistrerCaptchaReussi();
 }
 
 echo json_encode(['ok' => $ok]);

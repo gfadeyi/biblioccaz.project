@@ -6,6 +6,7 @@ require_once 'notifications_lib.php';
 require_once 'auteurs_lib.php';
 require_once 'validation_email_lib.php';
 require_once 'mot_de_passe_lib.php';
+require_once 'captcha_lib.php';
 
 use PHPMailer\PHPMailer\Exception;
 
@@ -67,6 +68,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $disponible && $etat['etat'] === 'o
 
     if (!verifierCsrf()) {
         $erreurs = ['Votre session a expiré : vérifiez vos informations, ajoutez de nouveau la photo si besoin, puis renvoyez le formulaire.'];
+    } elseif (!$connecte && !captchaRecent()) {
+        $erreurs[] = CAPTCHA_MESSAGE_REQUIS;
     }
 
     $photo = null;
@@ -223,6 +226,7 @@ include 'header.php';
 
                 <?php include 'partie_formulaire_auteur.php'; ?>
 
+                <?php if (!$connecte): ?><div class="mt-4"><?php include 'partie_captcha.php'; ?></div><?php endif; ?>
                 <div class="d-flex flex-wrap gap-2 mt-4">
                     <button type="submit" class="bouton bouton-principal"><i class="bi bi-send" aria-hidden="true"></i> Envoyer ma candidature</button>
                     <a href="<?= $connecte ? 'profil.php' : 'inscription.php' ?>" class="bouton bouton-discret">Annuler</a>

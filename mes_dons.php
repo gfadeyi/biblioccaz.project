@@ -63,7 +63,7 @@ function ligneDon(array $d, string $infoPersonne): void { ?>
         <?php if (!$donnes): ?><div class="list-group-item text-muted py-3">Vous n'avez encore rien donné. <a href="don_creer.php">Proposer un livre</a></div><?php endif; ?>
     </div>
 
-    <h5 class="fw-bold">Livres que j'ai réservés ou reçus</h5>
+    <h5 class="fw-bold" id="dons-recus">Livres que j'ai réservés ou reçus</h5>
     <div class="list-group shadow-sm" style="border-radius: 15px; overflow: hidden;">
         <?php foreach ($recus as $d): ?>
             <?php ligneDon($d, 'Don de ' . htmlspecialchars($d['donneur_pseudo']) . ' · ' . htmlspecialchars($d['lieu_retrait'])); ?>
