@@ -26,10 +26,22 @@ $erreurs = [];
 $v = array_merge([
     'id_livre' => '', 'titre' => '', 'auteur' => '', 'id_categorie' => '', 'etat' => 'bon',
     'description' => '', 'lieu_retrait' => '', 'conditions_retrait' => '',
-    'date_limite' => date('Y-m-d', strtotime('+14 days')),
+    'date_limite' => date('Y-m-d', strtotime('+14 days')), 'id_commande_ligne' => '',
 ], array_map(fn($valeur) => $valeur === null ? '' : (string) $valeur, $donAModifier ?: []), array_map('trim', array_filter($_POST, 'is_string')));
 
-if ($_SERVER['REQUEST_METHOD'] !== 'POST' && !empty($_GET['livre'])) {
+$ligneCommande = null;
+$idLigneDemandee = $donAModifier ? 0 : (int) ($_SERVER['REQUEST_METHOD'] === 'POST' ? ($_POST['id_commande_ligne'] ?? 0) : ($_GET['ligne'] ?? 0));
+if ($idLigneDemandee > 0) {
+    $ligneCommande = ligneCommandeADonner($pdo, $idLigneDemandee, (int) $_SESSION['user_id']);
+    if (!$ligneCommande) {
+        $_SESSION['flash_message'] = ['warning', 'Ce livre ne peut pas être donné depuis cette commande : elle doit être livrée et chaque exemplaire ne se donne qu’une fois.'];
+        header('Location: commandes.php'); exit();
+    }
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        $v = array_merge($v, ['id_livre' => (string) $ligneCommande['id_livre'], 'titre' => (string) $ligneCommande['titre'], 'auteur' => (string) ($ligneCommande['auteur'] ?? ''), 'id_categorie' => (string) ($ligneCommande['id_categorie'] ?? ''), 'etat' => etatDonDepuisCommande((string) $ligneCommande['etat'])]);
+    }
+    $v['id_commande_ligne'] = (string) $ligneCommande['id_ligne'];
+} elseif ($_SERVER['REQUEST_METHOD'] !== 'POST' && !empty($_GET['livre'])) {
     $stmt = $pdo->prepare("SELECT id_livre, titre, auteur, id_categorie FROM livre WHERE id_livre = ? AND is_valide = 1");
     $stmt->execute([(int) $_GET['livre']]);
     if ($l = $stmt->fetch()) {
@@ -61,7 +73,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     $idLivre = null;
-    if ($v['id_livre'] !== '') {
+    if ($ligneCommande) {
+        $idLivre = (int) $ligneCommande['id_livre'];
+    } elseif ($v['id_livre'] !== '') {
         $stmt = $pdo->prepare("SELECT id_livre FROM livre WHERE id_livre = ? AND is_valide = 1");
         $stmt->execute([(int) $v['id_livre']]);
         $idLivre = $stmt->fetchColumn() ?: null;
@@ -74,6 +88,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $requete->execute([(int) $_SESSION['user_id']]);
             $donneur = $requete->fetch();
             if (!$donneur || !(int) $donneur['email_verifie'] || !in_array($donneur['statut'], ['actif', 'valide_moderateur'], true)) { throw new DomainException('Votre compte doit être actif et votre email confirmé.'); }
+            if ($ligneCommande && !ligneCommandeADonner($pdo, (int) $ligneCommande['id_ligne'], (int) $_SESSION['user_id'], true)) { throw new DomainException('Ce livre de votre commande a déjà été proposé en don.'); }
             $donnees = [$idLivre, $v['id_categorie'] !== '' ? (int) $v['id_categorie'] : null, $v['titre'], $v['auteur'] ?: null, $v['etat'], $v['description'] ?: null, $photo ?: ($donAModifier['photo'] ?? null), $v['lieu_retrait'], $v['conditions_retrait'] ?: null, $v['date_limite']];
             if ($idDon) {
                 $requete = $pdo->prepare('SELECT statut FROM don WHERE id_don = ? AND id_donneur = ? FOR UPDATE');
@@ -81,6 +96,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 if (!in_array($requete->fetchColumn(), ['en_validation', 'refuse', 'disponible'], true)) { throw new DomainException('La réservation ou le statut de ce don a changé. Rechargez la page.'); }
                 $pdo->prepare("UPDATE don SET id_livre = ?, id_categorie = ?, titre = ?, auteur = ?, etat = ?, description = ?, photo = ?, lieu_retrait = ?, conditions_retrait = ?, date_limite = ?, statut = 'en_validation' WHERE id_don = ?")
                     ->execute([...$donnees, $idDon]);
+            } elseif ($ligneCommande) {
+                $pdo->prepare("INSERT INTO don (id_livre, id_categorie, titre, auteur, etat, description, photo, lieu_retrait, conditions_retrait, date_limite, id_donneur, code, code_court, statut, id_commande_ligne) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'en_validation', ?)")
+                    ->execute([...$donnees, (int) $_SESSION['user_id'], bin2hex(random_bytes(16)), genererCodeCourt($pdo), (int) $ligneCommande['id_ligne']]);
+                $idDon = (int) $pdo->lastInsertId();
             } else {
                 $pdo->prepare("INSERT INTO don (id_livre, id_categorie, titre, auteur, etat, description, photo, lieu_retrait, conditions_retrait, date_limite, id_donneur, code, code_court, statut) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'en_validation')")
                     ->execute([...$donnees, (int) $_SESSION['user_id'], bin2hex(random_bytes(16)), genererCodeCourt($pdo)]);
@@ -102,7 +121,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-$livresCatalogue = $pdo->query("SELECT id_livre, titre, auteur, id_categorie FROM livre WHERE is_valide = 1 ORDER BY titre")->fetchAll();
 $arbreCategoriesDon = arbreCategories($pdo);
 
 include 'header.php';
@@ -118,20 +136,23 @@ include 'header.php';
 
     <form method="POST" enctype="multipart/form-data" class="card border-0 shadow-sm p-4" style="border-radius: 20px;">
         <input type="hidden" name="csrf" value="<?= jetonCsrf() ?>">
+        <?php if ($ligneCommande): ?>
+            <input type="hidden" name="id_commande_ligne" value="<?= (int) $ligneCommande['id_ligne'] ?>">
+            <div class="alert alert-success rounded-3 d-flex gap-2 align-items-start" role="note"><i class="bi bi-bag-check" aria-hidden="true"></i><span>Vous donnez un livre acheté sur BIBLIOccaz (commande n°<?= (int) $ligneCommande['id_commande'] ?>) : titre, auteur, catégorie et état sont déjà remplis. Ajoutez une photo de votre exemplaire et le lieu de retrait.</span></div>
+        <?php endif; ?>
         <p class="text-muted">Chaque nouveau don ou modification est vérifié par l’équipe avant publication. Pour une modification, la photo actuelle est conservée si vous n’en choisissez pas une nouvelle.</p>
         <h5 class="fw-bold mb-3">Le livre</h5>
         <div class="row g-3">
             <div class="col-12">
                 <label for="don_titre" class="form-label fw-bold small">Titre *</label>
-                <input type="text" name="titre" id="don_titre" class="form-control" list="livres_catalogue" maxlength="255" required
-                       value="<?= htmlspecialchars($v['titre']) ?>" placeholder="Commencez à taper : les livres du catalogue sont proposés" autocomplete="off">
-                <datalist id="livres_catalogue">
-                    <?php foreach ($livresCatalogue as $l): ?>
-                        <option value="<?= htmlspecialchars($l['titre']) ?>"><?= htmlspecialchars((string) ($l['auteur'] ?? '')) ?></option>
-                    <?php endforeach; ?>
-                </datalist>
+                <div class="recherche-don" data-recherche-don>
+                    <input type="text" name="titre" id="don_titre" class="form-control" maxlength="255" required
+                           value="<?= htmlspecialchars($v['titre']) ?>" placeholder="Titre, auteur ou ISBN : les livres du catalogue sont proposés" autocomplete="off"
+                           role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="don_suggestions" aria-describedby="don_lien_info">
+                    <ul class="recherche-don__liste" id="don_suggestions" role="listbox" aria-label="Livres du catalogue" hidden></ul>
+                </div>
                 <input type="hidden" name="id_livre" id="don_id_livre" value="<?= htmlspecialchars($v['id_livre']) ?>">
-                <div class="form-text" id="don_lien_info"><?= $v['id_livre'] !== '' ? '✓ Livre lié au catalogue' : '' ?></div>
+                <div class="form-text" id="don_lien_info" aria-live="polite"><?= $v['id_livre'] !== '' ? '✓ Livre lié au catalogue' : 'Tapez au moins deux lettres pour retrouver le livre dans le catalogue, ou saisissez un titre libre.' ?></div>
             </div>
             <div class="col-md-6">
                 <label for="don_auteur" class="form-label fw-bold small">Auteur</label>
@@ -188,18 +209,6 @@ include 'header.php';
     </form>
 </div>
 
-<script>
-const livres = <?= json_encode(array_map(fn($l) => ['id' => $l['id_livre'], 't' => $l['titre'], 'a' => $l['auteur'], 'c' => $l['id_categorie']], $livresCatalogue), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG) ?>;
-document.getElementById('don_titre').addEventListener('input', function () {
-    const trouve = livres.find(l => l.t.toLowerCase() === this.value.trim().toLowerCase());
-    document.getElementById('don_id_livre').value = trouve ? trouve.id : '';
-    document.getElementById('don_lien_info').textContent = trouve ? '✓ Livre lié au catalogue' : '';
-    if (trouve) {
-        if (!document.getElementById('don_auteur').value) document.getElementById('don_auteur').value = trouve.a || '';
-        if (trouve.c) document.getElementById('don_categorie').value = trouve.c;
-    }
-});
-</script>
-
+<script src="<?= urlStatique('javascript/don_recherche.js') ?>" defer></script>
 <script src="javascript/don_photo.js?v=<?= filemtime(__DIR__ . '/javascript/don_photo.js') ?>" defer></script>
 <?php include 'footer.php'; ?>

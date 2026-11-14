@@ -50,6 +50,9 @@ if ($don && $idUser && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['co
             notifierParMail($don['donneur_email'], "Votre don a été récupéré",
                 "Bonjour {$don['donneur_pseudo']},\n\nVotre livre « {$don['titre']} » a bien été récupéré par {$_SESSION['pseudo']}.\n"
                 . "Merci pour votre générosité ! Vous gagnez " . pointsRegle($pdo, 'don') . " points BIBLIOccaz.");
+            notifierParMail(emailMembreDon($pdo, $idUser), "Retrait confirmé : " . $don['titre'],
+                "Bonjour {$_SESSION['pseudo']},\n\nVous avez bien récupéré « {$don['titre']} », offert par {$don['donneur_pseudo']}. Merci de faire vivre le don de livres !\n\nUne fois lu, pourquoi ne pas le donner à votre tour ?",
+                SITE_URL . '/mes_dons.php#dons-recus', 'Voir mes dons');
             $succes = "Retrait validé ! Bonne lecture avec « {$don['titre']} ».";
             $don['statut'] = 'recupere';
         } else {

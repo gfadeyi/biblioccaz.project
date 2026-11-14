@@ -123,7 +123,7 @@ $bonsPlansMenu = [
     ['plus_dons.php', 'bi-gift', 'Les plus donnés'],
     ['petits_prix.php', 'bi-tag', 'Moins de 10 €'],
     ['dernière_chance.php', 'bi-hourglass-split', 'Dernière chance'],
-    ['dons.php', 'bi-gift', 'Livres à donner'],
+    ['dons.php', 'bi-gift', 'Voir les livres à donner'],
 ];
 $classeRaccourci = fn(array $pages) => in_array($pageActuelle, $pages, true) ? 'puce actif' : 'puce';
 $titresOnglets = [
@@ -137,7 +137,7 @@ $titresOnglets = [
     'mes_evenements.php' => 'Mes événements', 'suggestions.php' => 'Suggestions de lecture',
     'trouver_lecture.php' => 'Trouver ma prochaine lecture',
     'evenements.php' => 'Les événements', 'evenement.php' => 'Détail de l’événement',
-    'dons.php' => 'Livres à donner', 'don_creer.php' => 'Proposer un don',
+    'dons.php' => 'Voir les livres à donner', 'don_creer.php' => 'Proposer un don',
     'don_detail.php' => 'Détail du don', 'vendre.php' => 'Donner ou revendre un livre',
     'auteurs.php' => 'Nos auteurs', 'dashboard_auteur.php' => 'Espace auteur',
     'proposer_evenement.php' => 'Proposer un événement', 'proposer_ouvrage.php' => 'Proposer un livre',
@@ -371,7 +371,7 @@ $nomOnglet = trim((string) ($titreDocument ?? $titrePage ?? $titresOnglets[$page
         <a href="meilleures_ventes.php" class="<?= $classeRaccourci(['meilleures_ventes.php']) ?>"><i class="bi bi-award"></i> Meilleures ventes</a>
         <a href="petits_prix.php" class="<?= $classeRaccourci(['petits_prix.php']) ?>"><i class="bi bi-tag"></i> Moins de 10 €</a>
         <a href="dernière_chance.php" class="<?= $classeRaccourci(['dernière_chance.php']) ?>"><i class="bi bi-hourglass-split"></i> Dernière chance</a>
-        <a href="dons.php" class="<?= $classeRaccourci(['dons.php', 'don_detail.php']) ?>"><i class="bi bi-gift"></i> Livres à donner</a>
+        <a href="dons.php" class="<?= $classeRaccourci(['dons.php', 'don_detail.php']) ?>"><i class="bi bi-gift"></i> Voir les livres à donner</a>
         <a href="evenements.php" class="<?= $classeRaccourci(['evenements.php', 'evenement.php', 'mes_evenements.php']) ?>"><i class="bi bi-calendar-event"></i> Événements</a>
         <a href="catalogue.php" class="<?= $pageActuelle === 'catalogue.php' && !$menuCatActive ? 'puce actif' : 'puce' ?>"><i class="bi bi-grid"></i> Tout le catalogue</a>
         </nav>

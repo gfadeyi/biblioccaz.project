@@ -2250,3 +2250,22 @@ form[data-selection-collection] legend { float: none; width: auto; }
 .notification__texte { display: flex; flex-direction: column; gap: .15rem; min-width: 0; overflow-wrap: anywhere; }
 .notification__texte small { color: var(--encre-douce); font-size: .78rem; }
 @media (max-width: 767px) { #entete-notifications .icone-entete span.pastille { display: flex; } }
+
+.recherche-don { position: relative; }
+.recherche-don__liste { position: absolute; z-index: 20; top: calc(100% + 4px); left: 0; right: 0; max-height: 320px; overflow-y: auto; margin: 0; padding: .3rem; list-style: none; background: var(--surface); border: 1px solid var(--trait); border-radius: var(--rayon); box-shadow: var(--ombre); }
+.recherche-don__option { display: flex; align-items: center; gap: .7rem; padding: .45rem .55rem; border-radius: calc(var(--rayon) - 2px); cursor: pointer; }
+.recherche-don__option img { width: 34px; height: 48px; object-fit: cover; border-radius: 3px; flex-shrink: 0; background: var(--vert-50); }
+.recherche-don__option span { display: flex; flex-direction: column; min-width: 0; }
+.recherche-don__option strong { font-size: .9rem; overflow-wrap: anywhere; }
+.recherche-don__option small { color: var(--encre-douce); font-size: .78rem; }
+.recherche-don__option:hover, .recherche-don__option[aria-selected="true"] { background: var(--vert-50); outline: 1px solid var(--vert-100); }
+.recherche-don__vide { padding: .6rem; color: var(--encre-douce); font-size: .85rem; }
+.filtres-dons { display: grid; grid-template-columns: repeat(12, 1fr); gap: .6rem; margin-bottom: 1rem; }
+.filtres-dons > * { grid-column: span 12; min-width: 0; }
+@media (min-width: 768px) { .filtres-dons__texte { grid-column: span 5; } .filtres-dons__lieu { grid-column: span 3; } .filtres-dons__choix { grid-column: span 4; } .filtres-dons__etat, .filtres-dons__tri { grid-column: span 4; } .filtres-dons__actions { grid-column: span 4; } }
+.filtres-dons__actions { display: flex; gap: .5rem; align-items: stretch; }
+.filtres-dons__actions .btn { flex: 1; }
+.dons-resume { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem; margin-bottom: 1.2rem; font-size: .9rem; color: var(--encre-douce); }
+.dons-resume .puce-filtre { display: inline-flex; align-items: center; gap: .3rem; padding: .2rem .65rem; border-radius: var(--rayon-pilule); background: var(--vert-50); border: 1px solid var(--vert-100); color: var(--encre); text-decoration: none; }
+.dons-resume .puce-filtre:hover { border-color: var(--vert-500); }
+.don-commande { display: inline-flex; align-items: center; gap: .3rem; font-size: .8rem; }

@@ -1,5 +1,7 @@
 <?php
 require_once 'config.php';
+require_once 'livraison_lib.php';
+require_once 'dons_lib.php';
 if (session_status() === PHP_SESSION_NONE) { session_start(); }
 
 if (!isset($_SESSION['user_id'])) {
@@ -27,6 +29,10 @@ if ($commandes) {
     }
 }
 
+$donsDesLignes = donsParLigneCommande($pdo, array_map('intval', array_merge([], ...array_map(fn($lignes) => array_column($lignes, 'id_ligne'), array_values($lignesParCommande)))));
+$flash = $_SESSION['flash_message'] ?? null;
+unset($_SESSION['flash_message']);
+
 function etatLisible($etat) {
     $e = strtolower($etat);
     if ($e == 'tres bon' || $e == 'très bon') return 'Très bon état';
@@ -45,6 +51,9 @@ include 'header.php';
         <a href="profil.php" class="btn btn-outline-secondary rounded-pill px-4"><i class="bi bi-arrow-left me-1"></i> Mon compte</a>
     </div>
 
+    <?php if ($flash): ?>
+        <div class="alert alert-<?= htmlspecialchars($flash[0]) ?> rounded-3" role="status"><?= htmlspecialchars($flash[1]) ?></div>
+    <?php endif; ?>
     <?php if (empty($commandes)): ?>
         <div class="card p-5 text-center shadow-sm border-0 bg-white" style="border-radius: 15px;">
             <i class="bi bi-bag text-muted fs-1 mb-3"></i>
@@ -62,8 +71,13 @@ include 'header.php';
                     <?php $annulee = ($cmd['statut'] ?? 'validee') === 'annulee'; ?>
                     <div class="d-flex align-items-center gap-3">
                         <?php if ($annulee): ?>
-                            <span class="badge bg-danger-subtle text-danger border border-danger-subtle rounded-pill"><i class="bi bi-x-circle" aria-hidden="true"></i> Annulée le <?= date('d/m/Y', strtotime($cmd['date_annulation'])) ?></span>
-                        <?php elseif ($cmd['points_gagnes'] > 0): ?>
+                            <span class="badge bg-danger-subtle text-danger border border-danger-subtle rounded-pill"><i class="bi bi-x-circle" aria-hidden="true"></i> Annulée<?= !empty($cmd['date_annulation']) ? ' le ' . date('d/m/Y', strtotime($cmd['date_annulation'])) : '' ?></span>
+                        <?php elseif (commandeLivree($cmd)): ?>
+                            <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill"><i class="bi bi-box-seam" aria-hidden="true"></i> Livrée le <?= date('d/m/Y', strtotime(dateLivraisonCommande($cmd))) ?></span>
+                        <?php else: ?>
+                            <span class="badge bg-light text-secondary border rounded-pill"><i class="bi bi-truck" aria-hidden="true"></i> Livraison prévue le <?= date('d/m/Y', strtotime(dateLivraisonCommande($cmd))) ?></span>
+                        <?php endif; ?>
+                        <?php if (!$annulee && $cmd['points_gagnes'] > 0): ?>
                             <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill">+<?= $cmd['points_gagnes'] ?> points</span>
                         <?php endif; ?>
                         <span class="fw-bold fs-5 <?= $annulee ? 'text-muted text-decoration-line-through' : 'text-success' ?>"><?= formaterPrix($cmd['total']) ?></span>
@@ -81,7 +95,19 @@ include 'header.php';
                                 <div class="fw-bold small"><?= htmlspecialchars($l['titre']) ?></div>
                                 <div class="text-muted small"><?= etatLisible($l['etat']) ?> · <?= $l['quantite'] ?> × <?= formaterPrix($l['prix_unitaire']) ?></div>
                             </div>
-                            <div class="ms-auto fw-medium small"><?= formaterPrix($l['prix_unitaire'] * $l['quantite']) ?></div>
+                            <div class="ms-auto fw-medium small text-end">
+                                <?= formaterPrix($l['prix_unitaire'] * $l['quantite']) ?>
+                                <?php if (commandeLivree($cmd) && !empty($l['id_livre'])): ?>
+                                    <?php $donnes = $donsDesLignes[(int) $l['id_ligne']] ?? 0; ?>
+                                    <div class="mt-1">
+                                        <?php if ($donnes < (int) $l['quantite']): ?>
+                                            <a href="don_creer.php?ligne=<?= (int) $l['id_ligne'] ?>" class="don-commande link-success"><i class="bi bi-gift" aria-hidden="true"></i> Donner ce livre</a>
+                                        <?php else: ?>
+                                            <span class="don-commande text-muted"><i class="bi bi-check2" aria-hidden="true"></i> Don proposé</span>
+                                        <?php endif; ?>
+                                    </div>
+                                <?php endif; ?>
+                            </div>
                         </div>
                     <?php endforeach; ?>
                     <hr class="my-2">

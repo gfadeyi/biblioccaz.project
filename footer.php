@@ -48,7 +48,7 @@ $messageNewsletter = $messagesNewsletter[$cleNewsletter] ?? null;
             <div class="col-6 col-lg-2">
                 <h3>Communauté</h3>
                 <ul>
-                    <li><a href="dons.php">Livres à donner</a></li>
+                    <li><a href="dons.php">Voir les livres à donner</a></li>
                     <li><a href="evenements.php">Événements</a></li>
                     <li><a href="auteurs.php">Nos auteurs</a></li>
                     <li><a href="vendre.php">Donner ou revendre</a></li>

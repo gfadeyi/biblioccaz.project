@@ -1460,3 +1460,6 @@ CREATE TABLE IF NOT EXISTS notification (
     INDEX idx_notification_membre (id_user, lu, date_creation),
     CONSTRAINT fk_notification_user FOREIGN KEY (id_user) REFERENCES user(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+ALTER TABLE don ADD COLUMN IF NOT EXISTS id_commande_ligne INT NULL AFTER id_livre;
+ALTER TABLE don ADD INDEX IF NOT EXISTS idx_don_commande_ligne (id_commande_ligne);

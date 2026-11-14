@@ -128,7 +128,7 @@ function modererDon(PDO $pdo, int $idDon, int $idModerateur, string $action, str
         $precision = $action === 'liberer' ? ($don['date_limite'] < date('Y-m-d') ? 'La date limite est dépassée : ce don reste expiré et ne sera pas proposé à la réservation.' : 'Le don est de nouveau disponible à la réservation.') : ($action === 'valider' ? 'Le don est maintenant visible et réservable.' : ($action === 'refuser' ? 'Modifiez votre don depuis Mes dons puis soumettez-le à nouveau.' : 'Ce don n’est plus proposé sur le site.'));
         $envoye = notifierParMail($destinataire['email'], $action === 'valider' ? 'Votre don est publié' : ($action === 'refuser' ? 'Votre don est à corriger' : ($action === 'annuler' ? 'Don annulé par l’équipe' : 'Réservation de don libérée')),
             'Bonjour ' . $destinataire['pseudo'] . ",\n\n" . $message . ' Livre : « ' . $don['titre'] . " ».\n\nMotif : " . $motif . "\n\n" . $precision,
-            SITE_URL . '/mes_dons.php', 'Voir mes dons');
+            SITE_URL . ($action === 'valider' ? '/don_detail.php?id=' . $idDon : '/mes_dons.php'), $action === 'valider' ? 'Voir mon don en ligne' : 'Voir mes dons');
         $mailsEnvoyes = $envoye && $mailsEnvoyes;
         $estDonneur = (int) $destinataire['id'] === (int) $don['id_donneur'];
         notifierMembre($pdo, (int) $destinataire['id'], 'don_' . match ($action) { 'valider' => 'valide', 'refuser' => 'refuse', 'annuler' => 'annule', default => 'libere' }, match ($action) {
