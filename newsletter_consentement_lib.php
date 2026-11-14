@@ -58,10 +58,10 @@ function demanderConfirmationNewsletter(PDO $pdo, string $email): ?string
     $pdo->beginTransaction();
     try {
         $pdo->prepare('INSERT IGNORE INTO newsletter_consentement (email) VALUES (?)')->execute([$email]);
-        $q = $pdo->prepare('SELECT actif, date_demande > DATE_SUB(NOW(), INTERVAL 60 SECOND) AS recente FROM newsletter_consentement WHERE email = ? FOR UPDATE');
+        $q = $pdo->prepare('SELECT actif, date_confirmation IS NOT NULL AS confirme, date_demande > DATE_SUB(NOW(), INTERVAL 60 SECOND) AS recente FROM newsletter_consentement WHERE email = ? FOR UPDATE');
         $q->execute([$email]);
         $etat = $q->fetch(PDO::FETCH_ASSOC);
-        if ($etat['actif'] || $etat['recente']) { $pdo->commit(); return null; }
+        if (($etat['actif'] && $etat['confirme']) || $etat['recente']) { $pdo->commit(); return null; }
         $jeton = bin2hex(random_bytes(32));
         $pdo->prepare('UPDATE newsletter_consentement SET confirmation_hash = ?, confirmation_expire = DATE_ADD(NOW(), INTERVAL 24 HOUR), date_demande = NOW() WHERE email = ?')->execute([hash('sha256', $jeton), $email]);
         $pdo->commit();
@@ -72,7 +72,7 @@ function demanderConfirmationNewsletter(PDO $pdo, string $email): ?string
 function confirmationNewsletterValide(PDO $pdo, string $jeton): bool
 {
     if (!preg_match('/\A[a-f0-9]{64}\z/', $jeton) || !consentementNewsletterDisponible($pdo)) { return false; }
-    $q = $pdo->prepare('SELECT 1 FROM newsletter_consentement WHERE confirmation_hash = ? AND confirmation_expire > NOW() AND actif = 0');
+    $q = $pdo->prepare('SELECT 1 FROM newsletter_consentement WHERE confirmation_hash = ? AND confirmation_expire > NOW() AND (actif = 0 OR date_confirmation IS NULL)');
     $q->execute([hash('sha256', $jeton)]);
     return (bool) $q->fetchColumn();
 }
@@ -82,7 +82,7 @@ function confirmerNewsletter(PDO $pdo, string $jeton): bool
     if (!preg_match('/\A[a-f0-9]{64}\z/', $jeton) || !consentementNewsletterDisponible($pdo)) { return false; }
     $pdo->beginTransaction();
     try {
-        $q = $pdo->prepare('SELECT email FROM newsletter_consentement WHERE confirmation_hash = ? AND confirmation_expire > NOW() AND actif = 0 FOR UPDATE');
+        $q = $pdo->prepare('SELECT email FROM newsletter_consentement WHERE confirmation_hash = ? AND confirmation_expire > NOW() AND (actif = 0 OR date_confirmation IS NULL) FOR UPDATE');
         $q->execute([hash('sha256', $jeton)]);
         $email = $q->fetchColumn();
         if (!$email) { $pdo->commit(); return false; }

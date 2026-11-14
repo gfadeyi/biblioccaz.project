@@ -78,10 +78,13 @@ if (!$user) {
 
 require_once 'newsletter_consentement_lib.php';
 if (consentementNewsletterDisponible($pdo)) {
-    $preferenceNewsletter = $pdo->prepare('SELECT actif FROM newsletter_consentement WHERE email = ?');
+    $preferenceNewsletter = $pdo->prepare('SELECT actif, date_confirmation FROM newsletter_consentement WHERE email = ?');
     $preferenceNewsletter->execute([$user['email']]);
-    $user['is_newsletter'] = (int) $preferenceNewsletter->fetchColumn();
+    $etatNewsletter = $preferenceNewsletter->fetch(PDO::FETCH_ASSOC) ?: ['actif' => 0, 'date_confirmation' => null];
+    $user['is_newsletter'] = (int) $etatNewsletter['actif'];
+    $newsletterAReconfirmer = $user['is_newsletter'] === 1 && empty($etatNewsletter['date_confirmation']);
 }
+$newsletterAReconfirmer = $newsletterAReconfirmer ?? false;
 
 $role = $user['role'];
 $estClient = $role === 'client';
@@ -435,17 +438,23 @@ include 'header.php';
         <section class="carte-compte">
             <h2 class="carte-compte__titre"><?= iconeDessin('enveloppe') ?> Newsletter</h2>
             <p class="texte-profil">
-                <?= $user['is_newsletter'] ? 'Vous êtes abonné : une lettre par mois avec nos pépites, dons et événements.' : htmlspecialchars(NOTICE_NEWSLETTER) ?>
+                <?php if ($newsletterAReconfirmer): ?>
+                    Votre abonnement date d’avant la confirmation des choix : la newsletter ne vous est plus envoyée tant que vous ne l’avez pas reconfirmé. <?= htmlspecialchars(NOTICE_NEWSLETTER) ?>
+                <?php else: ?>
+                    <?= $user['is_newsletter'] ? 'Vous êtes abonné : une lettre par mois avec nos pépites, dons et événements.' : htmlspecialchars(NOTICE_NEWSLETTER) ?>
+                <?php endif; ?>
             </p>
             <form method="POST">
                 <input type="hidden" name="csrf" value="<?= $csrf ?>">
                 <input type="hidden" name="action" value="newsletter">
-                <input type="hidden" name="abonner" value="<?= $user['is_newsletter'] ? '0' : '1' ?>">
-                <?php if ($user['is_newsletter']): ?>
+                <?php if ($newsletterAReconfirmer): ?>
+                    <button name="abonner" value="1" class="bouton bouton-principal bouton-petit"><i class="bi bi-envelope-check" aria-hidden="true"></i> Reconfirmer mon abonnement</button>
+                    <button name="abonner" value="0" class="bouton-lien ms-2">Se désabonner</button>
+                <?php elseif ($user['is_newsletter']): ?>
                     <span class="etiquette-profil"><i class="bi bi-check2" aria-hidden="true"></i> Abonné</span>
-                    <button class="bouton-lien ms-2">Se désabonner</button>
+                    <button name="abonner" value="0" class="bouton-lien ms-2">Se désabonner</button>
                 <?php else: ?>
-                    <button class="bouton bouton-principal bouton-petit"><i class="bi bi-envelope-paper" aria-hidden="true"></i> M'abonner</button>
+                    <button name="abonner" value="1" class="bouton bouton-principal bouton-petit"><i class="bi bi-envelope-paper" aria-hidden="true"></i> M'abonner</button>
                 <?php endif; ?>
             </form>
         </section>

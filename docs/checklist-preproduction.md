@@ -26,7 +26,7 @@
 - [ ] Décider du périmètre commercial et faire valider les CGV et règles de vente, dons, prêts et transactions entre membres applicables.
 - [ ] Définir et appliquer les durées de conservation, l’anonymisation et la purge des données et sauvegardes.
 - [ ] Organiser et tester les demandes d’accès, export, rectification et effacement.
-- [ ] Valider et installer le lot local de confirmation newsletter/désabonnement sans compte ; décider de la reconfirmation des abonnements historiques dont la preuve manque.
+- [x] Valider et installer le lot de confirmation newsletter/désabonnement sans compte ; abonnements historiques sans preuve : à reconfirmer, exclus des campagnes, sans relance automatique.
 - [ ] Valider et installer le lot local de jetons de validation email sous empreinte avec expiration ; vérifier les anciens liens après migration et revalider récupération et invitation sur l’hébergement cible.
 - [ ] Valider le parcours des mineurs et les accès aux données de la messagerie d’équipe.
 - [ ] Réaliser les essais avec lecteur d’écran et une alternative accessible au captcha.

@@ -31,7 +31,7 @@ Les couvertures visibles sur ces captures sont générées pour l'aperçu : les 
 ## Fonctionnalités
 
 ### Boutique
-- **Emails et abonnements confirmés** : validation du compte par lien valable 24 heures, renvoi possible, confirmation de la newsletter et désabonnement sans compte depuis chaque lettre ; ouvrir un lien ne modifie aucune préférence. Les jetons sont conservés sous empreinte.
+- **Emails et abonnements confirmés** : validation du compte par lien valable 24 heures, renvoi possible, confirmation de la newsletter et désabonnement sans compte depuis chaque lettre ; ouvrir un lien ne modifie aucune préférence. Les jetons sont conservés sous empreinte. Les abonnements antérieurs à la confirmation sont « à reconfirmer » : ils ne reçoivent plus les campagnes et aucune relance automatique ne leur est envoyée, chacun peut reconfirmer depuis son profil ou le pied de page.
 - **Préparation au référencement** : titres, descriptions et partage social pour les pages publiques ; exclusion des espaces privés et de l’environnement de développement, sitemap des livres publiés. La validation avant publication est suivie dans [la checklist de préproduction](docs/checklist-preproduction.md).
 - **Navigation au clavier** : lien direct vers le contenu, titres d’onglets explicites, focus renforcés et suggestions de recherche parcourables avec les flèches, Entrée et Échap ; recherche classique disponible sans JavaScript.
 - **Interface sobre** : panneaux stables, avis de l’accueil parcourus manuellement, provenance de démonstration signalée pour les avis du jeu identifié et paiement fictif clairement annoncé.

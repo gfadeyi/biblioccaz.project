@@ -32,11 +32,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             rediriger('newsletter.php', 'danger', "Le sujet doit contenir 1 à 150 caractères et le message 1 à 20 000 caractères.");
         }
         if (!$consentementDisponible) { rediriger('newsletter.php', 'warning', 'L’envoi est momentanément indisponible.'); }
-        $q = $pdo->prepare('SELECT email FROM newsletter_consentement WHERE actif = 1 ORDER BY email');
+        $q = $pdo->prepare('SELECT email FROM newsletter_consentement WHERE actif = 1 AND date_confirmation IS NOT NULL ORDER BY email');
         $q->execute();
         $abonnes = $q->fetchAll(PDO::FETCH_COLUMN);
         if (!$abonnes) {
-            rediriger('newsletter.php', 'warning', "Aucun abonné actif.");
+            rediriger('newsletter.php', 'warning', "Aucun abonné confirmé.");
         }
 
         $resultat = envoyerEditionNewsletter($pdo, $abonnes, $sujet, $message);
@@ -70,12 +70,19 @@ try {
 } catch (PDOException $e) {
 }
 $preuves = [];
+$nombreAReconfirmer = 0;
 if ($consentementDisponible) {
-    $q = $pdo->prepare('SELECT email, date_confirmation, source FROM newsletter_consentement');
+    $q = $pdo->prepare('SELECT email, actif, date_confirmation, source FROM newsletter_consentement');
     $q->execute();
-    foreach ($q->fetchAll(PDO::FETCH_ASSOC) as $preuve) { $preuves[mb_strtolower($preuve['email'])] = $preuve; }
+    $destinataires = [];
+    foreach ($q->fetchAll(PDO::FETCH_ASSOC) as $preuve) {
+        $preuves[mb_strtolower($preuve['email'])] = $preuve;
+        if ((int) $preuve['actif'] === 1 && empty($preuve['date_confirmation'])) { $nombreAReconfirmer++; }
+        if ((int) $preuve['actif'] === 1 && !empty($preuve['date_confirmation'])) { $destinataires[] = $preuve['email']; }
+    }
+    $nombreDestinataires = count($destinataires);
 }
-$sources = ['site' => 'Pied de page du site', 'profil' => 'Profil vérifié', 'admin' => 'Back-office', 'reprise' => 'Historique, non reconfirmé', 'confirmation' => 'Confirmation par email', 'lien_email' => 'Lien de désabonnement'];
+$sources = ['site' => 'Pied de page du site', 'profil' => 'Profil vérifié', 'admin' => 'Back-office', 'reprise' => 'Historique, à reconfirmer', 'confirmation' => 'Confirmation par email', 'lien_email' => 'Lien de désabonnement'];
 
 $titrePage = 'Newsletter';
 $pageActive = 'newsletter';
@@ -88,7 +95,7 @@ include __DIR__ . '/_haut.php';
             <?= champCsrf() ?>
             <input type="hidden" name="action" value="envoyer">
             <h2 class="h6 fw-bold"><i class="bi bi-send me-2 text-success"></i>Nouvelle campagne</h2>
-            <p class="small text-muted">Un email individuel avec son lien de désabonnement est envoyé aux <strong><?= $nombreDestinataires ?></strong> abonnés actifs.</p>
+            <p class="small text-muted">Un email individuel avec son lien de désabonnement est envoyé aux <strong><?= $nombreDestinataires ?></strong> abonnés confirmés.<?php if ($nombreAReconfirmer): ?> Les <?= $nombreAReconfirmer ?> abonnés historiques à reconfirmer ne le reçoivent pas et aucune relance ne leur est envoyée.<?php endif; ?></p>
             <div class="mb-3">
                 <label class="form-label small fw-bold" for="sujet">Sujet</label>
                 <input type="text" id="sujet" name="sujet" class="form-control" maxlength="150" value="Des nouvelles fraîches de BIBLIOccaz ! 📚" required>
@@ -101,18 +108,19 @@ De nouveaux ouvrages viennent d'être ajoutés au catalogue par nos auteurs et n
 
 L'équipe BIBLIOccaz</textarea>
             </div>
-            <button class="btn btn-vert fw-bold" <?= $actifs ? '' : 'disabled' ?>><i class="bi bi-rocket-takeoff me-1"></i> Envoyer</button>
+            <button class="btn btn-vert fw-bold" <?= $nombreDestinataires ? '' : 'disabled' ?>><i class="bi bi-rocket-takeoff me-1"></i> Envoyer</button>
         </form>
     </div>
 
     <div class="col-xl-7">
         <div class="row g-3 mb-3">
             <?php foreach ([
-                ['envelope-check', 'Abonnés actifs', $nombreDestinataires],
+                ['envelope-check', 'Abonnés confirmés', $nombreDestinataires],
+                ['envelope-exclamation', 'À reconfirmer', $nombreAReconfirmer],
                 ['person-plus', 'Nouveaux (30 jours)', $nouveaux30],
                 ['envelope-x', 'Désinscrits', count($desinscrits)],
             ] as [$icone, $libelle, $valeur]): ?>
-                <div class="col-4">
+                <div class="col-6 col-md-3">
                     <div class="stat">
                         <span class="stat-icone"><i class="bi bi-<?= $icone ?>"></i></span>
                         <span><span class="stat-valeur d-block"><?= $valeur ?></span><span class="stat-libelle"><?= $libelle ?></span></span>
@@ -122,7 +130,7 @@ L'équipe BIBLIOccaz</textarea>
         </div>
 
         <ul class="nav nav-pills mb-3">
-            <?php foreach (['inscrits' => 'Inscrits (' . $nombreDestinataires . ')', 'desinscrits' => 'Désinscrits (' . count($desinscrits) . ')', 'historique' => 'Historique'] as $cle => $libelle): ?>
+            <?php foreach (['inscrits' => 'Inscrits (' . count($actifs) . ')', 'desinscrits' => 'Désinscrits (' . count($desinscrits) . ')', 'historique' => 'Historique'] as $cle => $libelle): ?>
                 <li class="nav-item"><a class="nav-link <?= $onglet === $cle ? 'active bg-success' : 'text-success' ?>" href="?onglet=<?= $cle ?>"><?= $libelle ?></a></li>
             <?php endforeach; ?>
         </ul>
@@ -166,7 +174,7 @@ L'équipe BIBLIOccaz</textarea>
                                         <?php endif; ?>
                                         <div class="text-muted"><?= e($a['email']) ?></div>
                                         <?php $preuve = $preuves[mb_strtolower($a['email'])] ?? null; ?>
-                                        <small class="text-muted"><?= !empty($preuve['date_confirmation']) ? 'Choix confirmé le ' . e(date('d/m/Y H:i', strtotime($preuve['date_confirmation']))) : 'Abonnement historique, sans nouvelle confirmation' ?></small>
+                                        <small class="text-muted"><?= !empty($preuve['date_confirmation']) ? 'Choix confirmé le ' . e(date('d/m/Y H:i', strtotime($preuve['date_confirmation']))) : '<span class="badge bg-light text-success border border-success">À reconfirmer</span> ne reçoit pas les campagnes' ?></small>
                                     </td>
                                     <td class="text-muted"><?= !empty($a['depuis']) ? e(date('d/m/Y H:i', strtotime($a['depuis']))) : 'Date non renseignée' ?></td>
                                     <td class="text-end">
