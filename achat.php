@@ -140,7 +140,7 @@ include 'header.php';
                         <img src="<?= htmlspecialchars(urlImage($item['image'])) ?>" alt="" loading="lazy" style="width: 40px; height: 50px; object-fit: cover;">
                         <div class="ms-3">
                             <h6 class="mb-0 fw-bold"><?= htmlspecialchars($item['titre']) ?></h6>
-                            <small class="text-muted">Qté : <?= $item['quantite'] ?> - <?= htmlspecialchars($item['etat']) ?></small>
+                            <small class="text-muted">Qté : <?= $item['quantite'] ?> - <?= htmlspecialchars(libelleEtat((string) $item['etat'])) ?></small>
                         </div>
                         <div class="ms-auto ps-2 fw-bold text-nowrap"><?= formaterPrix($item['prix'] * $item['quantite']) ?></div>
                     </div>

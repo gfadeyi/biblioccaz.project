@@ -2,6 +2,7 @@
 require_once 'config.php';
 require_once 'avis_lib.php';
 require_once 'points_lib.php';
+require_once 'avis_spoiler_lib.php';
 if (session_status() === PHP_SESSION_NONE) { session_start(); }
 
 if (!isset($_SESSION['user_id'])) {
@@ -84,6 +85,9 @@ echo etoilesStyle();
                     <p class="mon-avis__texte"><?= htmlspecialchars($a['commentaire']) ?></p>
 
                     <div class="mon-avis__etats">
+                        <?php if ($spoilerLibelle = libelleSpoiler($a['spoiler'] ?? null)): ?>
+                            <span class="pastille-etat"><i class="bi bi-eye-slash" aria-hidden="true"></i> Spoiler <?= htmlspecialchars($spoilerLibelle) ?> : flouté pour les lecteurs</span>
+                        <?php endif; ?>
                         <?php if ($a['statut'] === 'masque'): ?>
                             <span class="pastille-etat refuse"><i class="bi bi-eye-slash" aria-hidden="true"></i> Masqué par la modération</span>
                         <?php endif; ?>

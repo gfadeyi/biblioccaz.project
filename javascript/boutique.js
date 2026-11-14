@@ -59,6 +59,24 @@
         const animation = copie.animate([{transform: 'translate(0, 0) scale(1)', opacity: .8}, {transform: `translate(${arrivee.left - depart.left}px, ${arrivee.top - depart.top}px) scale(.12)`, opacity: 0}], {duration: 480, easing: 'cubic-bezier(.2,.8,.2,1)'});
         animation.finished.catch(() => {}).finally(() => copie.remove());
     }
+    function animerVidagePanier() {
+        const lignes = [...document.querySelectorAll('#page-panier .ligne-panier')];
+        const cible = document.querySelector('#entete-panier > a');
+        if (reduction.matches || !lignes.length) return Promise.resolve();
+        const arrivee = cible?.getBoundingClientRect();
+        const animations = lignes.map((ligne, rang) => {
+            const depart = ligne.getBoundingClientRect();
+            const decalageX = arrivee ? arrivee.left + arrivee.width / 2 - (depart.left + depart.width / 2) : 0;
+            const decalageY = arrivee ? arrivee.top + arrivee.height / 2 - (depart.top + depart.height / 2) : -40;
+            ligne.style.pointerEvents = 'none';
+            return ligne.animate([
+                {transform: 'translate(0, 0) scale(1) rotate(0)', opacity: 1},
+                {transform: 'translate(0, -6px) scale(.98) rotate(-1deg)', opacity: 1, offset: .25},
+                {transform: `translate(${decalageX}px, ${decalageY}px) scale(.08) rotate(-12deg)`, opacity: 0},
+            ], {duration: 520, delay: rang * 70, easing: 'cubic-bezier(.5,0,.75,0)', fill: 'forwards'}).finished.catch(() => {});
+        });
+        return Promise.all(animations);
+    }
     async function envoyerPanier(donnees, image = null) {
         if (!donnees.has('csrf')) donnees.set('csrf', csrf());
         const reponse = await fetch('panier_action.php', {method: 'POST', body: donnees, headers: {'X-Requested-With': 'XMLHttpRequest'}, credentials: 'same-origin'});
@@ -190,18 +208,31 @@
     document.addEventListener('submit', async evenement => {
         const formulaire = evenement.target.closest('[data-panier-formulaire]');
         if (!formulaire) return;
+        if (formulaire.matches('[data-confirmer]') && formulaire.dataset.confirme !== '1') return;
         evenement.preventDefault();
         const donnees = new FormData(formulaire);
         if (evenement.submitter?.name) donnees.set(evenement.submitter.name, evenement.submitter.value);
         const boutons = formulaire.querySelectorAll('button'); boutons.forEach(b => b.disabled = true);
         try {
+            if (formulaire.matches('[data-panier-vider]')) {
+                delete formulaire.dataset.confirme;
+                const fenetre = document.getElementById('fenetreConfirmation');
+                if (fenetre && window.bootstrap) bootstrap.Modal.getOrCreateInstance(fenetre).hide();
+                await animerVidagePanier();
+                await envoyerPanier(donnees);
+                const vide = document.querySelector('#page-panier .panier-vide');
+                if (vide && !reduction.matches) vide.classList.add('panier-vide--apparition');
+                vide?.querySelector('h2')?.setAttribute('tabindex', '-1');
+                vide?.scrollIntoView({block: 'center', behavior: reduction.matches ? 'instant' : 'smooth'});
+                vide?.querySelector('h2')?.focus({preventScroll: true});
+                return;
+            }
             await envoyerPanier(donnees, formulaire.closest('.fiche-livre, .ligne-panier')?.querySelector('img'));
             if (donnees.get('action') === 'acheter') window.location.assign('panier.php');
         } catch (erreur) { informer(erreur.message); if (document.getElementById('page-panier')) await actualiserPagePanier(); }
         finally { boutons.forEach(b => b.disabled = false); }
     });
     document.addEventListener('change', evenement => {
-        if (evenement.target.matches('[data-panier-etat]')) evenement.target.form.requestSubmit();
         if (evenement.target.matches('[data-condition-fiche]')) {
             const champ = evenement.target, bloc = champ.closest('[data-achat-livre]');
             if (!bloc) return;

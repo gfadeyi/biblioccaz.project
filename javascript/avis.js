@@ -21,3 +21,27 @@
     champ.addEventListener('input', actualiser);
     actualiser();
 })();
+(() => {
+    document.querySelectorAll('[data-avis-spoiler]').forEach((bloc) => {
+        const lien = bloc.querySelector('[data-reveler-spoiler]');
+        const contenu = bloc.querySelector('.avis-spoiler__contenu');
+        if (!lien || !contenu) return;
+        const bouton = document.createElement('button');
+        bouton.type = 'button';
+        bouton.className = lien.className;
+        bouton.textContent = 'Afficher';
+        bouton.setAttribute('aria-controls', contenu.id);
+        bouton.setAttribute('aria-expanded', 'false');
+        lien.replaceWith(bouton);
+        contenu.setAttribute('aria-hidden', 'true');
+        contenu.inert = true;
+        bouton.addEventListener('click', () => {
+            const revele = !bloc.classList.contains('avis-spoiler--revele');
+            bloc.classList.toggle('avis-spoiler--revele', revele);
+            contenu.inert = !revele;
+            if (revele) contenu.removeAttribute('aria-hidden'); else contenu.setAttribute('aria-hidden', 'true');
+            bouton.setAttribute('aria-expanded', String(revele));
+            bouton.textContent = revele ? 'Masquer' : 'Afficher';
+        });
+    });
+})();

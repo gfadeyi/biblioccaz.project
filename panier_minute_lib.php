@@ -61,16 +61,16 @@ function chargerPanierMinute(PDO $pdo): void
     if ($ancienPanier && !$panier) { $_SESSION['panier_message'] = 'Votre réservation de 15 minutes a expiré ou une offre a été retirée. Les articles ont été libérés. Vous pouvez les ajouter à nouveau selon leur disponibilité.'; }
 }
 
-function modifierPanierMinute(PDO $pdo, string $action, int $idExemplaire, int $cible = 0, array $liste = []): array
+function modifierPanierMinute(PDO $pdo, string $action, int $idExemplaire, array $liste = []): array
 {
-    if (!in_array($action, ['ajouter', 'plus', 'moins', 'supprimer', 'changer', 'serie'], true)) { throw new DomainException('Action inconnue.'); }
+    if (!in_array($action, ['ajouter', 'plus', 'moins', 'supprimer', 'serie'], true)) { throw new DomainException('Action inconnue.'); }
     $idPanier = identifiantPanierMinute();
     $pdo->exec('SET TRANSACTION ISOLATION LEVEL READ COMMITTED');
     $pdo->beginTransaction();
     try {
         $requete = $pdo->prepare('SELECT id_exemplaire FROM panier_reservation WHERE id_panier = ?');
         $requete->execute([$idPanier]);
-        $identifiants = array_map('intval', [...$requete->fetchAll(PDO::FETCH_COLUMN), $idExemplaire, $cible, ...$liste]);
+        $identifiants = array_map('intval', [...$requete->fetchAll(PDO::FETCH_COLUMN), $idExemplaire, ...$liste]);
         $identifiants = array_values(array_unique(array_filter($identifiants, fn($id) => $id > 0)));
         sort($identifiants, SORT_NUMERIC);
         if (!$identifiants || count($identifiants) > 300) { throw new DomainException('Sélection invalide ou panier trop volumineux.'); }
@@ -88,13 +88,9 @@ function modifierPanierMinute(PDO $pdo, string $action, int $idExemplaire, int $
         }
         $ajoutes = 0;
         $indisponibles = 0;
-        $prolonger = in_array($action, ['ajouter', 'plus', 'changer', 'serie'], true);
-        if (in_array($action, ['moins', 'supprimer', 'changer'], true) && !isset($courant[$idExemplaire])) { throw new DomainException('Cette ligne a expiré. Actualisez le panier.'); }
-        if ($action === 'changer') {
-            if ($idExemplaire === $cible) { $prolonger = false; }
-            elseif (!isset($offres[$cible], $offres[$idExemplaire]) || (int) $offres[$cible]['id_livre'] !== (int) $offres[$idExemplaire]['id_livre']) { throw new DomainException('Choisissez un état de ce même livre.'); }
-            else { $courant[$cible] = ($courant[$cible] ?? 0) + $courant[$idExemplaire]; unset($courant[$idExemplaire]); }
-        } elseif ($action === 'supprimer') { unset($courant[$idExemplaire]); }
+        $prolonger = in_array($action, ['ajouter', 'plus', 'serie'], true);
+        if (in_array($action, ['moins', 'supprimer'], true) && !isset($courant[$idExemplaire])) { throw new DomainException('Cette ligne a expiré. Actualisez le panier.'); }
+        if ($action === 'supprimer') { unset($courant[$idExemplaire]); }
         elseif ($action === 'moins') {
             if (--$courant[$idExemplaire] <= 0) { unset($courant[$idExemplaire]); }
         } else {
@@ -128,6 +124,18 @@ function modifierPanierMinute(PDO $pdo, string $action, int $idExemplaire, int $
     try { $pdo->prepare('DELETE FROM panier_reservation WHERE date_expiration <= NOW() LIMIT 200')->execute(); }
     catch (PDOException $erreur) { error_log('Nettoyage différé du panier : ' . $erreur->getMessage()); }
     return ['ajoutes' => $ajoutes, 'indisponibles' => $indisponibles, 'articles' => array_sum(array_column($_SESSION['panier'] ?? [], 'quantite')), 'expiration' => $_SESSION['panier_expiration'] ?? null, 'maintenant' => time()];
+}
+
+function viderPanierMinute(PDO $pdo): array
+{
+    $requete = $pdo->prepare('DELETE FROM panier_reservation WHERE id_panier = ?');
+    $requete->execute([identifiantPanierMinute()]);
+    $liberes = $requete->rowCount();
+    $_SESSION['panier'] = [];
+    $_SESSION['panier_expiration'] = null;
+    unset($_SESSION['panier_ajout']);
+    enregistrerCookiePanierMinute();
+    return ['liberes' => $liberes, 'articles' => 0, 'expiration' => null, 'maintenant' => time()];
 }
 
 function synchroniserPanierMinute(PDO $pdo): void

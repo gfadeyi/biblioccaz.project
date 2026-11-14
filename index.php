@@ -9,6 +9,7 @@ require_once 'compte_lib.php';
 require_once 'categories_lib.php';
 require_once 'illustrations_univers_lib.php';
 require_once 'decouverte_accueil_lib.php';
+require_once 'avis_spoiler_lib.php';
 $rayonsAccueil = selectionsRayonsAccueil($pdo);
 
 $selectionCartes = sqlCartesLivres();
@@ -88,7 +89,7 @@ try {
         FROM avis a
         INNER JOIN user u ON u.id = a.id_user
         INNER JOIN livre l ON l.id_livre = a.id_livre
-        WHERE a.statut = 'visible'
+        WHERE a.statut = 'visible'" . conditionSansSpoiler($pdo) . "
         ORDER BY a.date_creation DESC
         LIMIT 6");
     $requeteAvisAccueil->execute(['demo-lecteur-%@example.com']);

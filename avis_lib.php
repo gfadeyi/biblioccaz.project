@@ -5,12 +5,21 @@ const AVIS_COMMENTAIRE_MIN = 10;
 const AVIS_COMMENTAIRE_MAX = 2000;
 const AVIS_LONGUEUR_POINTS = 50;
 const AVIS_MOTIFS = [
-    'offensant' => 'Contenu offensant',
-    'spam'      => 'Spam ou publicité',
-    'hors_sujet'=> 'Hors sujet',
-    'spoiler'   => 'Révèle l\'intrigue (spoiler)',
-    'autre'     => 'Autre',
+    'vulgarite'  => 'Vulgarité',
+    'haine'      => 'Propos haineux',
+    'spam'       => 'Spam ou publicité',
+    'hors_sujet' => 'Hors sujet',
+    'autre'      => 'Autre',
 ];
+const AVIS_MOTIFS_ANCIENS = [
+    'offensant' => 'Contenu offensant',
+    'spoiler'   => 'Révèle l\'intrigue (spoiler)',
+];
+
+function libelleMotifAvis(string $motif): string
+{
+    return AVIS_MOTIFS[$motif] ?? AVIS_MOTIFS_ANCIENS[$motif] ?? $motif;
+}
 
 function longueurAvis(string $commentaire): int
 {

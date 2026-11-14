@@ -526,3 +526,13 @@ Avis : motif de signalement obligatoire avec option vide non sélectionnable ; p
 Hébergement : modèle versionné .htaccess.production (page 404 et redirection HTTPS d’IONOS) ; outils/preparer_envoi.php génère la version de production depuis .htaccess et s’arrête si elle ne correspond plus au modèle.
 
 Recette : PHP 8.4/MariaDB 11.8 isolés (62 contrôles HTTP, 4 contrôles sans migration, 153 contrôles navigateur à 375/768/1440 en visiteur et connecté, rôles administrateur, modérateur et gestionnaire), installation neuve et migration rejouée, PHP 8.2/MariaDB 10.4 locaux (syntaxe, migration rejouée, encodage).
+
+### Lot 2 des retours : panier et avis — 14 novembre 2026
+
+Panier : bouton « Vider le panier » (POST + CSRF, confirmation, viderPanierMinute() supprime aussitôt les réservations de 15 minutes du panier en base) ; animation des lignes vers l’icône du panier puis apparition du panier vide, désactivée si le mouvement réduit est demandé ; fonctionne sans JavaScript par redirection. L’état d’un exemplaire ne se modifie plus dans le panier : affichage en lecture seule, action serveur « changer » supprimée. Le récapitulatif d’achat affiche le libellé d’état lisible.
+
+Avis : cartes séparées, fond blanc et contour noir de 1 px. Motifs de signalement : vulgarité, haine, spam, hors sujet, autre ; les anciens motifs (offensant, spoiler) restent lisibles par l’équipe sur les signalements existants.
+
+Spoilers (sql/maj_avis_spoiler.sql : colonnes avis.spoiler et avis.score_spoiler) : case « Mon avis révèle l’intrigue » ; détection côté serveur dans avis_spoiler_lib.php (mots-clés pondérés, formulations « sans spoiler » neutralisées, seuil 4) recalculée à chaque enregistrement. Un avis marqué (auteur ou détecté) garde sa note visible ; titre et texte sont floutés et cachés aux lecteurs d’écran jusqu’au bouton « Afficher » (réversible, clavier, lien d’ancre sans JavaScript). Aucun signalement n’est créé ; l’équipe voit un badge avec le score. Avis spoilers exclus du bloc d’avis de l’accueil. Les avis existants ne sont pas réanalysés. Sans migration, la case n’apparaît pas et les avis restent enregistrés normalement.
+
+Recette : PHP 8.4/MariaDB 11.8 isolés (44 contrôles sans migration, 56 avec, 15 contrôles de rôles d’équipe, non-régression du lot 1 62/62), 212 contrôles navigateur à 375/768/1440 en visiteur et connecté, dont mouvement réduit et mode sans JavaScript ; installation neuve, migration rejouée ; PHP 8.2/MariaDB 10.4 locaux.

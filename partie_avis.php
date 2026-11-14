@@ -2,6 +2,7 @@
 require_once __DIR__ . '/avis_lib.php';
 require_once __DIR__ . '/compte_lib.php';
 require_once __DIR__ . '/recompenses_regles_lib.php';
+require_once __DIR__ . '/avis_spoiler_lib.php';
 
 $idLivreAvis = (int) $livre['id_livre'];
 $idUserCourant = (int) ($_SESSION['user_id'] ?? 0);
@@ -61,8 +62,6 @@ $lienTri = fn($t) => 'detail_livre.php?' . http_build_query(['id' => $idLivreAvi
     .note-saisie input:checked ~ label { color: var(--texte-vif); }
     .barre-note { height: 8px; background: var(--vert-100); border-radius: 10px; overflow: hidden; }
     .barre-note div { height: 100%; background: var(--vert-400); border-radius: inherit; }
-    .carte-avis { border-bottom: 1px solid var(--trait); }
-    .carte-avis:last-child { border-bottom: 0; }
     .etoile-repartition { color: var(--texte-vif); }
 </style>
 
@@ -131,6 +130,13 @@ $lienTri = fn($t) => 'detail_livre.php?' . http_build_query(['id' => $idLivreAvi
                                 <span class="visually-hidden regle-avis-points__annonce" aria-live="polite"></span>
                             </p>
                         <?php endif; ?>
+                        <?php if (spoilerAvisDisponible($pdo)): ?>
+                            <div class="form-check case-spoiler">
+                                <input class="form-check-input" type="checkbox" id="avis-spoiler" name="spoiler" value="1" aria-describedby="aide-avis-spoiler" <?= ($monAvis['spoiler'] ?? null) === 'auteur' ? 'checked' : '' ?>>
+                                <label class="form-check-label" for="avis-spoiler"><i class="bi bi-eye-slash" aria-hidden="true"></i> Mon avis révèle l’intrigue (spoiler)</label>
+                                <div class="form-text" id="aide-avis-spoiler">Le titre et le texte seront floutés ; les lecteurs cliqueront sur « Afficher » pour les lire. Un avis qui semble dévoiler la fin est aussi flouté automatiquement.</div>
+                            </div>
+                        <?php endif; ?>
                         <button class="bouton bouton-principal bouton-petit w-100"><?= $monAvis ? 'Mettre à jour mon avis' : 'Publier mon avis' ?></button>
                         <?php if (!$monAvis && ($_SESSION['role'] ?? '') === 'client'): ?>
                             <div class="form-text text-center">+<?= pointsRegle($pdo, 'avis') ?> points fidélité pour un avis éligible validé</div>
@@ -160,14 +166,15 @@ $lienTri = fn($t) => 'detail_livre.php?' . http_build_query(['id' => $idLivreAvi
                 </div>
             <?php endif; ?>
 
-            <div class="card border-0 shadow-sm px-4" style="border-radius: 15px;">
+            <div class="liste-avis">
 
                 <?php foreach ($listeAvis as $a): ?>
-                    <div class="carte-avis py-3">
+                    <?php $spoilerAvis = libelleSpoiler($a['spoiler'] ?? null); ?>
+                    <article class="carte-avis">
                         <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
                             <div class="d-flex align-items-center gap-2">
                                 <?= etoiles((float) $a['note']) ?>
-                                <?php if ($a['titre']): ?><strong><?= htmlspecialchars($a['titre']) ?></strong><?php endif; ?>
+                                <?php if ($a['titre'] && !$spoilerAvis): ?><strong><?= htmlspecialchars($a['titre']) ?></strong><?php endif; ?>
                             </div>
                             <small class="text-muted">
                                 <?= date('d/m/Y', strtotime($a['date_creation'])) ?>
@@ -183,7 +190,21 @@ $lienTri = fn($t) => 'detail_livre.php?' . http_build_query(['id' => $idLivreAvi
                                 <span class="badge bg-success-subtle text-success border border-success-subtle ms-1"><i class="bi bi-receipt" aria-hidden="true"></i> Commande sur le site</span>
                             <?php endif; ?>
                         </div>
-                        <p class="mt-2 mb-1" style="white-space: pre-line;"><?= htmlspecialchars($a['commentaire']) ?></p>
+                        <?php if ($spoilerAvis): ?>
+                            <div class="avis-spoiler" data-avis-spoiler>
+                                <p class="avis-spoiler__alerte">
+                                    <i class="bi bi-eye-slash" aria-hidden="true"></i>
+                                    <span>Spoiler possible, <?= htmlspecialchars($spoilerAvis) ?>.</span>
+                                    <a class="bouton-spoiler" href="#avis-contenu-<?= (int) $a['id_avis'] ?>" data-reveler-spoiler>Afficher</a>
+                                </p>
+                                <div class="avis-spoiler__contenu" id="avis-contenu-<?= (int) $a['id_avis'] ?>" tabindex="-1">
+                                    <?php if ($a['titre']): ?><strong class="d-block mt-2"><?= htmlspecialchars($a['titre']) ?></strong><?php endif; ?>
+                                    <p class="mt-2 mb-1 carte-avis__texte"><?= htmlspecialchars($a['commentaire']) ?></p>
+                                </div>
+                            </div>
+                        <?php else: ?>
+                            <p class="mt-2 mb-1 carte-avis__texte"><?= htmlspecialchars($a['commentaire']) ?></p>
+                        <?php endif; ?>
 
                         <?php if ($idUserCourant && (int) $a['id_user'] !== $idUserCourant): ?>
                             <?php if (in_array($a['id_avis'], $dejaSignales)): ?>
@@ -207,7 +228,7 @@ $lienTri = fn($t) => 'detail_livre.php?' . http_build_query(['id' => $idLivreAvi
                                 </details>
                             <?php endif; ?>
                         <?php endif; ?>
-                    </div>
+                    </article>
                 <?php endforeach; ?>
             </div>
         </div>

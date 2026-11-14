@@ -19,7 +19,19 @@ try {
     $id = filter_var($_POST['id_exemplaire'] ?? null, FILTER_VALIDATE_INT) ?: 0;
     if (!$id && is_string($_POST['key'] ?? null) && preg_match('/\Aex_([1-9][0-9]*)\z/', $_POST['key'], $correspondance)) { $id = (int) $correspondance[1]; }
     if (in_array($action, ['ajouter', 'acheter'], true) && isset($_POST['condition'])) { $id = filter_var($_POST['condition'], FILTER_VALIDATE_INT) ?: $id; }
-    $cible = filter_var($_POST['nouvel_exemplaire'] ?? null, FILTER_VALIDATE_INT) ?: 0;
+    if ($action === 'vider') {
+        $resultat = viderPanierMinute($pdo);
+        $resultat['message'] = $resultat['liberes'] > 0 ? 'Panier vidé : les livres sont de nouveau disponibles pour les autres lecteurs.' : 'Votre panier est déjà vide.';
+        $_SESSION['panier_message'] = $resultat['message'];
+        insertLog('PANIER', 'Panier vidé (' . $resultat['liberes'] . ' réservation(s) libérée(s))');
+        if ($ajax) {
+            header('Content-Type: application/json; charset=utf-8');
+            echo json_encode(['ok' => true, ...$resultat], JSON_THROW_ON_ERROR);
+            exit();
+        }
+        header('Location: ' . $retour);
+        exit();
+    }
     $liste = [];
     $totalSerie = 0;
     if ($action === 'serie') {
@@ -30,7 +42,7 @@ try {
         $totalSerie = count($selection['tomes']);
         if (!$liste) { throw new DomainException('Aucun tome de cette série n’est actuellement disponible en magasin.'); }
     }
-    $resultat = modifierPanierMinute($pdo, $action === 'acheter' ? 'ajouter' : $action, $id, $cible, $liste);
+    $resultat = modifierPanierMinute($pdo, $action === 'acheter' ? 'ajouter' : $action, $id, $liste);
     $resultat['message'] = $action === 'serie'
         ? $resultat['ajoutes'] . ' tome(s) ajouté(s) sur ' . $totalSerie . '. ' . ($totalSerie - $resultat['ajoutes']) . ' tome(s) indisponible(s) ou non ajouté(s).'
         : (in_array($action, ['supprimer', 'moins'], true) ? 'Panier mis à jour.' : 'Panier mis à jour. Vos articles sont réservés pendant 15 minutes.');

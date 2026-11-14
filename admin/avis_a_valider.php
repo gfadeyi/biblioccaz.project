@@ -2,6 +2,7 @@
 require_once __DIR__ . '/_init.php';
 require_once __DIR__ . '/../points_lib.php';
 require_once __DIR__ . '/../decisions_equipe_lib.php';
+require_once __DIR__ . '/../avis_spoiler_lib.php';
 exigerDroit('moderation');
 
 function validerAvis(PDO $pdo, array $avis): bool
@@ -97,6 +98,7 @@ echo etoilesStyle();
             <?php endif; ?>
         </div>
         <div class="mt-2"><?= etoiles((float) $a['note']) ?> <?php if ($a['titre']): ?><strong class="ms-1"><?= e($a['titre']) ?></strong><?php endif; ?></div>
+        <?php if ($spoilerLibelle = libelleSpoiler($a['spoiler'] ?? null)): ?><div class="small mt-1"><span class="badge bg-secondary"><i class="bi bi-eye-slash" aria-hidden="true"></i> Spoiler <?= e($spoilerLibelle) ?><?= ($a['spoiler'] ?? '') === 'detecte' ? ' (score ' . (int) $a['score_spoiler'] . ')' : '' ?></span> <span class="text-muted">Affiché flouté aux lecteurs, sans signalement.</span></div><?php endif; ?>
         <p class="small mt-1 mb-3" style="white-space: pre-line;"><?= e($a['commentaire']) ?></p>
         <div class="d-flex flex-wrap gap-2">
             <form method="POST">

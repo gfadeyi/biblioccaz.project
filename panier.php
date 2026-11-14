@@ -77,18 +77,7 @@ include 'header.php';
                             </a>
                             <div class="ligne-panier__infos">
                                 <h2><a href="detail_livre.php?id=<?= (int) $item['id_livre'] ?>"><?= htmlspecialchars($item['titre']) ?></a></h2>
-                                <form method="POST" action="panier_action.php" data-panier-formulaire class="ligne-panier__etat">
-                                    <input type="hidden" name="csrf" value="<?= jetonCsrf() ?>">
-                                    <input type="hidden" name="action" value="changer">
-                                    <input type="hidden" name="id_exemplaire" value="<?= (int) $item['id_exemplaire'] ?>">
-                                    <label class="visually-hidden" for="etat-panier-<?= (int) $item['id_exemplaire'] ?>">État de <?= htmlspecialchars($item['titre']) ?></label>
-                                    <select id="etat-panier-<?= (int) $item['id_exemplaire'] ?>" name="nouvel_exemplaire" class="form-select form-select-sm" data-panier-etat>
-                                        <?php foreach (offresMagasinDuLivre($pdo, (int) $item['id_livre']) as $optionEtat): ?>
-                                            <option value="<?= (int) $optionEtat['id_exemplaire'] ?>" <?= (int) $optionEtat['id_exemplaire'] === (int) $item['id_exemplaire'] ? 'selected' : '' ?> <?= $optionEtat['libre'] < (int) $item['quantite'] ? 'disabled' : '' ?>><?= htmlspecialchars(libelleEtat($optionEtat['etat'])) ?> · <?= formaterPrix($optionEtat['prix']) ?><?= $optionEtat['libre'] < (int) $item['quantite'] ? ' · Déjà vendu' : '' ?></option>
-                                        <?php endforeach; ?>
-                                    </select>
-                                    <noscript><button class="btn btn-sm btn-outline-success mt-1">Changer l’état</button></noscript>
-                                </form>
+                                <p class="ligne-panier__etat"><i class="bi bi-bookmark-check" aria-hidden="true"></i> État : <strong><?= htmlspecialchars(libelleEtat((string) $item['etat'])) ?></strong></p>
                                 <p><?= formaterPrix((float) $item['prix']) ?> l'unité</p>
                             </div>
                             <form method="POST" action="action_modifier_panier.php" data-panier-formulaire class="ligne-panier__actions">
@@ -107,6 +96,12 @@ include 'header.php';
                         </article>
                     <?php endforeach; ?>
                 </div>
+                <form method="POST" action="panier_action.php" class="vider-panier" data-panier-formulaire data-panier-vider
+                      data-confirmer="Retirer tous les livres du panier ? Ils redeviennent aussitôt disponibles pour les autres lecteurs." data-titre-confirmer="Vider le panier" data-bouton-confirmer="Vider le panier">
+                    <input type="hidden" name="csrf" value="<?= $jetonPanier ?>">
+                    <input type="hidden" name="action" value="vider">
+                    <button type="submit" class="bouton bouton-contour bouton-petit vider-panier__bouton"><i class="bi bi-trash3" aria-hidden="true"></i> Vider le panier</button>
+                </form>
             </div>
 
             <div class="col-lg-4">

@@ -2,6 +2,7 @@
 require_once 'config.php';
 require_once 'avis_lib.php';
 require_once 'points_lib.php';
+require_once 'avis_spoiler_lib.php';
 if (session_status() === PHP_SESSION_NONE) { session_start(); }
 
 $idLivre = (int) ($_POST['id_livre'] ?? 0);
@@ -39,27 +40,41 @@ try {
             finir($urlRetour, 'danger', "Le commentaire doit faire entre " . AVIS_COMMENTAIRE_MIN . " et " . AVIS_COMMENTAIRE_MAX . " caractères.");
         }
         $titre = mb_substr($titre, 0, 120);
+        $scoreSpoiler = scoreSpoilerAvis($titre, $commentaire);
+        $spoiler = marqueSpoilerAvis(($_POST['spoiler'] ?? '') === '1', $scoreSpoiler);
+        $avecSpoiler = spoilerAvisDisponible($pdo);
+        $messageSpoiler = $spoiler === 'detecte' ? " Il semble révéler l’intrigue : son titre et son texte seront floutés, avec un bouton « Afficher » pour les lecteurs." : ($spoiler === 'auteur' ? ' Il est marqué comme spoiler : son titre et son texte seront floutés.' : '');
 
         $stmt = $pdo->prepare("SELECT id_avis FROM avis WHERE id_livre = ? AND id_user = ?");
         $stmt->execute([$idLivre, $idUser]);
         $existant = $stmt->fetchColumn();
 
         if ($existant) {
-            $pdo->prepare("UPDATE avis SET note = ?, titre = ?, commentaire = ?, date_modification = NOW() WHERE id_avis = ?")
-                ->execute([$note, $titre ?: null, $commentaire, $existant]);
+            if ($avecSpoiler) {
+                $pdo->prepare("UPDATE avis SET note = ?, titre = ?, commentaire = ?, spoiler = ?, score_spoiler = ?, date_modification = NOW() WHERE id_avis = ?")
+                    ->execute([$note, $titre ?: null, $commentaire, $spoiler, $scoreSpoiler, $existant]);
+            } else {
+                $pdo->prepare("UPDATE avis SET note = ?, titre = ?, commentaire = ?, date_modification = NOW() WHERE id_avis = ?")
+                    ->execute([$note, $titre ?: null, $commentaire, $existant]);
+            }
             insertLog('AVIS', "Avis #$existant modifié (livre #$idLivre)");
-            $messageModification = "Votre avis a été mis à jour.";
+            $messageModification = "Votre avis a été mis à jour." . ($avecSpoiler ? $messageSpoiler : '');
             if (!avisAssezLongPourPoints($commentaire) && changerStatutMouvement($pdo, $idUser, 'avis', 'livre:' . $idLivre, ['en_attente'], 'annule')) {
                 $messageModification .= " Les points en attente sont annulés : un avis doit compter au moins " . AVIS_LONGUEUR_POINTS . " caractères pour en rapporter.";
             }
             finir($urlRetour, 'success', $messageModification);
         }
 
-        $pdo->prepare("INSERT INTO avis (id_livre, id_user, note, titre, commentaire) VALUES (?, ?, ?, ?, ?)")
-            ->execute([$idLivre, $idUser, $note, $titre ?: null, $commentaire]);
+        if ($avecSpoiler) {
+            $pdo->prepare("INSERT INTO avis (id_livre, id_user, note, titre, commentaire, spoiler, score_spoiler) VALUES (?, ?, ?, ?, ?, ?, ?)")
+                ->execute([$idLivre, $idUser, $note, $titre ?: null, $commentaire, $spoiler, $scoreSpoiler]);
+        } else {
+            $pdo->prepare("INSERT INTO avis (id_livre, id_user, note, titre, commentaire) VALUES (?, ?, ?, ?, ?)")
+                ->execute([$idLivre, $idUser, $note, $titre ?: null, $commentaire]);
+        }
         insertLog('AVIS', "Nouvel avis ($note/5) sur le livre #$idLivre");
 
-        $message = "Merci, votre avis est publié !";
+        $message = "Merci, votre avis est publié !" . ($avecSpoiler ? $messageSpoiler : '');
         if (($_SESSION['role'] ?? '') === 'client' && pointsRegle($pdo, 'avis') > 0 && !avisAssezLongPourPoints($commentaire)) {
             $message .= " Il ne rapporte pas de points : un avis doit compter au moins " . AVIS_LONGUEUR_POINTS . " caractères pour en rapporter.";
         } elseif (($_SESSION['role'] ?? '') === 'client') {
@@ -90,7 +105,7 @@ try {
     } elseif ($action === 'signaler') {
         $idAvis = (int) ($_POST['id_avis'] ?? 0);
         $motif = $_POST['motif'] ?? '';
-        if (!isset(AVIS_MOTIFS[$motif])) {
+        if (!is_string($motif) || !isset(AVIS_MOTIFS[$motif])) {
             finir($urlRetour, 'danger', "Choisissez un motif de signalement.");
         }
         $stmt = $pdo->prepare("INSERT IGNORE INTO avis_signalement (id_avis, id_user, motif)
