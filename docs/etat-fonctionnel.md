@@ -554,3 +554,9 @@ Don depuis une commande : livraison fictive (livraison_lib.php, COMMANDE_LIVRAIS
 Mails : publication du don (lien vers la fiche du don), récupération au donneur (existant) et confirmation au bénéficiaire (nouveau), en plus des notifications du lot 3.
 
 Recette : PHP 8.4/MariaDB 11.8 isolés (35 contrôles avec Mailpit, contrôle sans migration, non-régression lots 1 à 3), navigateur à 375/768/1440 en visiteur et connecté (recherche, puces, combobox au clavier, commandes, don pré-rempli) ; PHP 8.2/MariaDB 10.4 locaux.
+
+### Lot 5 des retours : retours de commande — 14 novembre 2026
+
+Tables retour_commande, retour_ligne, retour_historique (sql/maj_retours_commande.sql) ; retours_lib.php. Une demande active ou remboursée par commande. Retour : commande validée et livrée (livraison fictive J+3), 14 jours ; lignes et quantités contrôlées côté serveur ; montant = part des livres × (total hors livraison / sous-total). Remboursement : commande annulée depuis moins de 30 jours, montant total. Statuts demande → accepte → recu → rembourse (remboursement sans « reçu »), refuse (motif de 10 caractères) et annule (client, tant que « demandé »). Transitions vérifiées avec le statut attendu et un verrou ; « reçu » remet le stock (exemplairePourRetour) sauf motif « abîmé » et prévient les alertes ; « remboursé » retire au plus les points d’achat de la commande sur la part remboursée. Notification et mail au client à chaque étape. Back-office admin/retours.php et admin/retour.php (droit catalogue), menu Ventes avec compteur, lien depuis la fiche commande. Sans migration : pages client sans erreur, back-office explique l’import.
+
+Recette : PHP 8.4/MariaDB 11.8 isolés (51 contrôles : délais, CSRF, quantités, motifs, droits client et équipe, transitions, stock, points, mails, absence de table ; non-régression lots 1 à 4), navigateur à 375/768/1440 en client, administrateur et gestionnaire ; installation neuve ; PHP 8.2/MariaDB 10.4 locaux.

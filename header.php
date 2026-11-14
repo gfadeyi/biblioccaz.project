@@ -61,6 +61,7 @@ if ($resumeCompte) {
         ['points_badges.php', 'medaille', 'Mes points et badges', 0],
         ['suggestions.php', 'lunettes', 'Suggestions pour vous', 0],
         ['commandes.php', 'colis', 'Mes achats', $resumeCompte['commandes']],
+        ['retours.php', 'carton', 'Mes retours', 0],
         ['wishlist.php', 'marque-page', 'Mes favoris', $nb_favoris],
         ['alertes.php', 'clochette', 'Mes alertes', $resumeCompte['alertes']],
         ['adresses.php', 'enveloppe', 'Mes adresses', 0],

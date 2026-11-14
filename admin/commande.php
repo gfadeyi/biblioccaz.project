@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/_init.php';
 require_once __DIR__ . '/../commandes_lib.php';
+require_once __DIR__ . '/../retours_lib.php';
 exigerDroit('catalogue');
 
 $idCommande = (int) ($_GET['id'] ?? 0);
@@ -48,6 +49,7 @@ if (!$commande) {
     rediriger('commandes.php', 'warning', "Cette commande n'existe pas.");
 }
 $lignes = lignesDeCommande($pdo, $idCommande);
+$retoursCommande = retoursParCommande($pdo, [$idCommande])[$idCommande] ?? [];
 $annulee = $commande['statut'] === 'annulee';
 
 $stmt = $pdo->prepare("SELECT * FROM point_mouvement WHERE id_user = ? AND reference = ? ORDER BY date_mouvement, id_mouvement");
@@ -163,6 +165,16 @@ include __DIR__ . '/_haut.php';
             </div>
         </section>
 
+        <?php if ($retoursCommande): ?>
+            <section class="carte mb-4">
+                <div class="carte-entete"><h2 class="h6 fw-bold mb-0">Retours et remboursements</h2></div>
+                <ul class="carte-corps list-unstyled small mb-0">
+                    <?php foreach ($retoursCommande as $retourCommande): ?>
+                        <li class="mb-1"><a href="retour.php?id=<?= (int) $retourCommande['id_retour'] ?>" class="fw-bold"><?= e((string) $retourCommande['reference']) ?></a> · <?= $retourCommande['type'] === 'retour' ? 'retour' : 'remboursement' ?> · <?= e(libelleStatutRetour($retourCommande['statut'])) ?></li>
+                    <?php endforeach; ?>
+                </ul>
+            </section>
+        <?php endif; ?>
         <?php if (!$annulee): ?>
             <section class="carte carte-annulation">
                 <div class="carte-entete"><h2 class="h6 fw-bold mb-0">Annuler la commande</h2></div>

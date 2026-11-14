@@ -112,6 +112,10 @@ function compteursEquipe(PDO $pdo): array
     } catch (PDOException $e) {
     }
     try {
+        $c['retours'] = (int) $pdo->query("SELECT COUNT(*) FROM retour_commande WHERE statut IN ('demande', 'recu') OR (statut = 'accepte' AND type = 'remboursement')")->fetchColumn();
+    } catch (PDOException $e) {
+    }
+    try {
         $c['dons'] = (int) $pdo->query("SELECT COUNT(*) FROM don WHERE statut = 'en_validation'")->fetchColumn();
         $c['messages'] = (int) $pdo->query("SELECT COUNT(DISTINCT id_message) FROM message_signalement WHERE traite = 0")->fetchColumn();
     } catch (PDOException $e) {

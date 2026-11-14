@@ -2269,3 +2269,35 @@ form[data-selection-collection] legend { float: none; width: auto; }
 .dons-resume .puce-filtre { display: inline-flex; align-items: center; gap: .3rem; padding: .2rem .65rem; border-radius: var(--rayon-pilule); background: var(--vert-50); border: 1px solid var(--vert-100); color: var(--encre); text-decoration: none; }
 .dons-resume .puce-filtre:hover { border-color: var(--vert-500); }
 .don-commande { display: inline-flex; align-items: center; gap: .3rem; font-size: .8rem; }
+
+.lignes-retour { list-style: none; margin: 0 0 .8rem; padding: 0; display: grid; gap: .6rem; }
+.lignes-retour li { display: flex; align-items: center; gap: .8rem; padding: .6rem; border: 1px solid var(--trait); border-radius: var(--rayon); background: var(--surface); }
+.lignes-retour img { width: 40px; height: 56px; object-fit: cover; border-radius: 4px; flex-shrink: 0; }
+.lignes-retour__titre { display: flex; flex-direction: column; min-width: 0; flex: 1; overflow-wrap: anywhere; }
+.lignes-retour__titre small { color: var(--encre-douce); }
+.lignes-retour__quantite { flex-shrink: 0; width: 9.5rem; }
+@media (max-width: 480px) { .lignes-retour li { flex-wrap: wrap; } .lignes-retour__quantite { width: 100%; } }
+.etapes-retour { list-style: none; display: flex; margin: 0 0 1.4rem; padding: 0; counter-reset: etape; }
+.etapes-retour__etape { flex: 1; display: flex; flex-direction: column; align-items: center; gap: .35rem; position: relative; font-size: .85rem; text-align: center; color: var(--encre-douce); }
+.etapes-retour__etape::before { content: ""; position: absolute; top: 15px; left: -50%; right: 50%; height: 2px; background: var(--trait); z-index: 0; }
+.etapes-retour__etape:first-child::before { display: none; }
+.etapes-retour__point { position: relative; z-index: 1; display: inline-flex; width: 32px; height: 32px; align-items: center; justify-content: center; border-radius: 50%; border: 2px solid var(--trait); background: var(--surface); font-weight: 700; }
+.etapes-retour__etape--faite, .etapes-retour__etape--actuelle { color: var(--encre); font-weight: 600; }
+.etapes-retour__etape--faite .etapes-retour__point { background: var(--vert-500); border-color: var(--vert-500); color: #fff; }
+.etapes-retour__etape--faite::before, .etapes-retour__etape--actuelle::before { background: var(--vert-500); }
+.etapes-retour__etape--actuelle .etapes-retour__point { border-color: var(--vert-500); color: var(--texte-vert); box-shadow: 0 0 0 4px var(--vert-50); }
+.recap-retour { margin: 0 0 1rem; display: grid; gap: .5rem; }
+.recap-retour div { display: grid; grid-template-columns: minmax(7rem, 35%) 1fr; gap: .6rem; }
+.recap-retour dt { font-weight: 600; color: var(--encre-douce); font-size: .9rem; }
+.recap-retour dd { margin: 0; overflow-wrap: anywhere; }
+.historique-retour { list-style: none; margin: 0; padding: 0 0 0 1rem; border-left: 2px solid var(--vert-100); display: grid; gap: .8rem; }
+.historique-retour li { position: relative; }
+.historique-retour li::before { content: ""; position: absolute; left: calc(-1rem - 6px); top: .35rem; width: 10px; height: 10px; border-radius: 50%; background: var(--vert-500); }
+.historique-retour time { display: block; font-size: .78rem; color: var(--encre-douce); }
+.liste-retours { list-style: none; margin: 0; padding: 0; display: grid; gap: .5rem; }
+.liste-retours__lien { display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding: .85rem 1rem; border: 1px solid var(--trait); border-radius: var(--rayon); background: var(--surface); color: var(--encre); text-decoration: none; }
+.liste-retours__lien:hover, .liste-retours__lien:focus-visible { border-color: var(--vert-500); background: var(--vert-50); }
+.statut-retour { flex-shrink: 0; padding: .2rem .7rem; border-radius: var(--rayon-pilule); font-size: .8rem; font-weight: 700; border: 1px solid var(--vert-100); background: var(--vert-50); color: var(--texte-vert); }
+.statut-retour--termine { background: var(--vert-500); border-color: var(--vert-500); color: #fff; }
+.statut-retour--refuse { background: var(--surface); border-color: var(--trait); color: var(--encre-douce); }
+.liens-retour-commande { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; margin-top: .6rem; }

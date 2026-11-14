@@ -2,6 +2,7 @@
 require_once 'config.php';
 require_once 'livraison_lib.php';
 require_once 'dons_lib.php';
+require_once 'retours_lib.php';
 if (session_status() === PHP_SESSION_NONE) { session_start(); }
 
 if (!isset($_SESSION['user_id'])) {
@@ -30,6 +31,7 @@ if ($commandes) {
 }
 
 $donsDesLignes = donsParLigneCommande($pdo, array_map('intval', array_merge([], ...array_map(fn($lignes) => array_column($lignes, 'id_ligne'), array_values($lignesParCommande)))));
+$retoursDesCommandes = retoursParCommande($pdo, array_column($commandes, 'id_commande'));
 $flash = $_SESSION['flash_message'] ?? null;
 unset($_SESSION['flash_message']);
 
@@ -123,6 +125,18 @@ include 'header.php';
                         Livraison : <?= $cmd['frais_livraison'] > 0 ? formaterPrix($cmd['frais_livraison']) : 'offerte' ?>
                         · Livré à <?= htmlspecialchars($cmd['prenom'] . ' ' . $cmd['nom']) ?>, <?= htmlspecialchars($cmd['adresse']) ?>
                     </div>
+                    <?php $demandeRetour = retourActifCommande($retoursDesCommandes[(int) $cmd['id_commande']] ?? []); $typeRetour = typeRetourPossible($cmd); ?>
+                    <?php if ($demandeRetour || $typeRetour): ?>
+                        <div class="liens-retour-commande">
+                            <?php if ($demandeRetour): ?>
+                                <a href="retours.php?id=<?= (int) $demandeRetour['id_retour'] ?>" class="btn btn-sm btn-outline-bibli rounded-pill"><i class="bi bi-arrow-return-left" aria-hidden="true"></i> Suivre la demande <?= htmlspecialchars((string) $demandeRetour['reference']) ?></a>
+                                <span class="statut-retour statut-retour--<?= RETOUR_STATUTS[$demandeRetour['statut']][1] ?? 'attente' ?>"><?= libelleStatutRetour($demandeRetour['statut']) ?></span>
+                            <?php else: ?>
+                                <a href="retour_demander.php?commande=<?= (int) $cmd['id_commande'] ?>" class="btn btn-sm btn-outline-bibli rounded-pill"><i class="bi bi-arrow-return-left" aria-hidden="true"></i> <?= $typeRetour === 'retour' ? 'Retourner des livres' : 'Suivre le remboursement' ?></a>
+                                <small class="text-muted">jusqu’au <?= date('d/m/Y', strtotime(dateLimiteRetour($cmd))) ?></small>
+                            <?php endif; ?>
+                        </div>
+                    <?php endif; ?>
                 </div>
             </div>
         <?php endforeach; ?>

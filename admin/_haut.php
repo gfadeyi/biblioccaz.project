@@ -21,6 +21,7 @@ $menu = [
     ],
     'Ventes' => [
         ['commandes', 'commandes.php', 'bag-check', 'Commandes', 'catalogue', 0],
+        ['retours', 'retours.php', 'arrow-return-left', 'Retours', 'catalogue', $compteurs['retours'] ?? 0],
         ['ventes', 'ventes.php', 'people', 'Entre lecteurs', 'moderation', $compteurs['ventes'] ?? 0],
         ['emprunts', 'emprunts.php', 'book', 'Emprunts', 'catalogue', $compteurs['emprunts'] ?? 0],
     ],
