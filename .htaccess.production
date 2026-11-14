@@ -1,0 +1,29 @@
+ErrorDocument 404 /erreur_404.php
+Options -Indexes
+DirectoryIndex index.php
+
+RewriteEngine On
+RewriteCond %{REQUEST_URI} !^/\.well-known/acme-challenge/
+RewriteCond %{HTTPS} !=on
+RewriteCond %{HTTP:X-Forwarded-Proto} !=https
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
+RewriteRule ^robots\.txt$ robots.php [END]
+RewriteRule ^\.well-known/acme-challenge/[A-Za-z0-9_-]+$ - [END]
+RewriteRule (^|/)(\.[^/]+|secure_data|sauvegardes|sql|docs|vendor|nbproject|cron|outils)(/|$) - [F,END,NC]
+
+<FilesMatch "(?i)(\.(md|sql|log|ini|env|bak|old|orig|save|swp|dist|ya?ml|toml|lock|zip|7z|tar|gz)$|~$|^composer\.(json|lock)$|^secrets.*\.php$|^config\.php$|^mailer\.php$|_lib\.php$|^partie_.*\.php$|^(header|footer|panier_calcul)\.php$)">
+    Require all denied
+</FilesMatch>
+
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    <FilesMatch "^(modifier_email|confirmer_email|modifier_mdp|verification_mail)\.php$">
+        Header always set Referrer-Policy "no-referrer"
+    </FilesMatch>
+</IfModule>
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ erreur_404.php [END]

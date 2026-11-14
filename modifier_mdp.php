@@ -2,12 +2,11 @@
 require_once 'config.php';
 require_once 'avis_lib.php';
 require_once 'recuperation_mdp_lib.php';
+require_once 'mot_de_passe_lib.php';
 if (session_status() === PHP_SESSION_NONE) { session_start(); }
 
 header('Cache-Control: no-store');
 header('Referrer-Policy: no-referrer');
-
-const MDP_LONGUEUR_MIN = 8;
 
 $jetonSaisi = $_POST['token'] ?? $_GET['token'] ?? '';
 $token = is_string($jetonSaisi) ? $jetonSaisi : '';
@@ -43,12 +42,10 @@ if ($user && $_SERVER['REQUEST_METHOD'] === 'POST') {
         $erreur = "Session expirée, merci de réessayer.";
     } elseif ($mode === 'connecte' && !password_verify($motDePasseActuel, $user['mot_de_passe'])) {
         $erreur = "Votre mot de passe actuel est incorrect.";
-    } elseif (mb_strlen($nouveau) < MDP_LONGUEUR_MIN) {
-        $erreur = "Le nouveau mot de passe doit contenir au moins " . MDP_LONGUEUR_MIN . " caractères.";
+    } elseif ($erreurMotDePasse = erreurMotDePasse($nouveau)) {
+        $erreur = $erreurMotDePasse;
     } elseif ($nouveau !== $confirmation) {
         $erreur = "Les deux mots de passe ne correspondent pas.";
-    } elseif (strlen($nouveau) > 72 || str_contains($nouveau, "\0")) {
-        $erreur = "Le nouveau mot de passe est trop long ou contient un caractère non autorisé.";
     } else {
         if ($mode === 'reset') {
             $modifie = consommerJetonRecuperation($pdo, (int) $user['id'], $token, $nouveau);
@@ -70,6 +67,8 @@ if ($user && $_SERVER['REQUEST_METHOD'] === 'POST') {
             exit();
         } else {
             insertLog('SECURITE', "Mot de passe modifié depuis le profil");
+            supprimerConnexionsPersistantes($pdo, (int) $user['id']);
+            effacerCookiePersistant();
             terminerSuiviSession($pdo);
             session_regenerate_id(true);
             try {
@@ -109,19 +108,15 @@ include 'header.php';
                     <input type="hidden" name="token" value="<?= htmlspecialchars($token) ?>">
                 <?php else: ?>
                     <div class="mb-3">
-                        <label for="mdp-actuel" class="form-label">Mot de passe actuel *</label>
-                        <input type="password" id="mdp-actuel" name="mdp_actuel" class="form-control" required autocomplete="current-password">
+                        <?= champMotDePasse('mdp-actuel', 'mdp_actuel', 'Mot de passe actuel *', 'current-password') ?>
                     </div>
                 <?php endif; ?>
 
                 <div class="mb-3">
-                    <label for="nouveau-mdp" class="form-label">Nouveau mot de passe *</label>
-                    <input type="password" id="nouveau-mdp" name="nouveau_mdp" class="form-control" minlength="<?= MDP_LONGUEUR_MIN ?>" required autocomplete="new-password" aria-describedby="aide-mdp">
-                    <div class="form-text" id="aide-mdp">Au moins <?= MDP_LONGUEUR_MIN ?> caractères.</div>
+                    <?= champMotDePasse('nouveau-mdp', 'nouveau_mdp', 'Nouveau mot de passe *', 'new-password', true) ?>
                 </div>
                 <div class="mb-4">
-                    <label for="confirmation-mdp" class="form-label">Confirmer le nouveau mot de passe *</label>
-                    <input type="password" id="confirmation-mdp" name="confirmation" class="form-control" minlength="<?= MDP_LONGUEUR_MIN ?>" required autocomplete="new-password">
+                    <?= champMotDePasse('confirmation-mdp', 'confirmation', 'Confirmer le nouveau mot de passe *', 'new-password') ?>
                 </div>
                 <button type="submit" class="bouton bouton-principal">Enregistrer</button>
             </form>

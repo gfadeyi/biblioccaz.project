@@ -107,5 +107,7 @@ $messageNewsletter = $messagesNewsletter[$cleNewsletter] ?? null;
 
 <?php include __DIR__ . '/partie_apercu_livre.php'; ?>
 <script src="<?= urlStatique('javascript/boutique.js') ?>" defer></script>
+<script src="<?= urlStatique('javascript/mot_de_passe.js') ?>" defer></script>
+<script src="<?= urlStatique('javascript/avis.js') ?>" defer></script>
 </body>
 </html>

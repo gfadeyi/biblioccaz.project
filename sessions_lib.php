@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/connexion_persistante_lib.php';
 
 const SESSION_INACTIVITE = 600;
 
@@ -108,6 +109,7 @@ function terminerSuiviSession(PDO $pdo): void
 function refuserSession(PDO $pdo, string $motif, string $raison = 'inconnue'): void
 {
     terminerSuiviSession($pdo);
+    if ($raison !== 'expiree' && session_name() !== 'BIBLIOCCAZ_ADMIN') { supprimerConnexionPersistanteCourante($pdo); }
     insertLog('DECONNEXION', $motif);
     detruireSessionCourante();
     session_id('');
@@ -154,6 +156,10 @@ function enregistrerSessionUtilisateur(PDO $pdo, array $membre): void
 function controlerSessionUtilisateur(PDO $pdo, bool $actualiser = true): void
 {
     $inactive = isset($_SESSION['last_activity']) && time() - (int) $_SESSION['last_activity'] >= SESSION_INACTIVITE;
+    if (session_name() !== 'BIBLIOCCAZ_ADMIN' && (!isset($_SESSION['user_id']) || $inactive) && isset($_COOKIE[CONNEXION_PERSISTANTE_COOKIE])) {
+        if (isset($_SESSION['user_id'])) { terminerSuiviSession($pdo); }
+        if (restaurerConnexionPersistante($pdo)) { return; }
+    }
     if (!isset($_SESSION['user_id'])) {
         if ($inactive) { refuserSession($pdo,'Expiration après dix minutes sans activité','expiree'); }
         $_SESSION['last_activity'] = time(); return;
@@ -245,6 +251,7 @@ function revoquerSessionsUtilisateur(PDO $pdo, int $idAdministrateur, int $idMem
         $stmt = $pdo->prepare($sql);
         $stmt->execute($parametres);
         $nombre = $stmt->rowCount();
+        if ($idSuivi === null) { supprimerConnexionsPersistantes($pdo, $idMembre); }
         $pdo->commit();
         return $nombre;
     } catch (Throwable $e) {

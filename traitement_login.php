@@ -44,9 +44,12 @@ try {
         }
 
         $retour = ouvrirSessionMembre($pdo, $user);
+        supprimerConnexionPersistanteCourante($pdo);
+        if (($_POST['rester_connecte'] ?? '') === '1') { creerConnexionPersistante($pdo, $user); }
         header('Location: ' . $retour);
         exit();
     } else {
+        $_SESSION['identifiant_connexion'] = $pseudo;
         header("Location: login.php?error=1");
         exit();
     }

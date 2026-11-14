@@ -471,7 +471,7 @@ Les autres tris, dont Pertinence par défaut lors d’une recherche texte, ainsi
 
 ### Audit UX/UI et corrections locales — 6 novembre 2026
 
-Travail local non publié, après le commit 0cc932b. Aucun commit, push ou déploiement dans ce lot. Aucun changement de schéma, de base principale, de prix, de stock ou de règles de commande.
+Réalisé localement après le commit 0cc932b, puis publié avec le commit 828529b le 14 novembre 2026. Aucun changement de schéma, de base principale, de prix, de stock ou de règles de commande.
 
 L’audit initial porte sur 45 combinaisons rôle/route à 375, 768 et 1440 px, soit 135 affichages. Les critères graphiques des captures ont été confrontés au projet : conservation des verts, des deux polices locales, des illustrations originales et du relief des couvertures. Les panneaux non interactifs sont stabilisés, sans supprimer les micro-interactions utiles.
 
@@ -482,7 +482,7 @@ Les essais ciblés complètent le relevé visuel : recherche avec et sans JavaSc
 
 ### Audit technique et préparation à la préproduction — 6 et 7 novembre 2026
 
-Travail local non publié sur refonte, après 0cc932b et les corrections UX/UI non commitées. Aucun accès à la production ni écriture sur la base principale. Pas de migration.
+Réalisé localement sur refonte après 0cc932b, sans migration, puis publié avec le lot suivant le 14 novembre 2026 (commit 828529b, branches refonte et main, hébergement IONOS).
 
 CSRF ajouté à la connexion client et à l’inscription ; types et longueurs des champs d’inscription contrôlés côté serveur. Limites persistantes par empreinte d’IP dans un fichier privé verrouillé : inscription 10/heure, newsletter 5/heure, récupération 5/15 minutes, connexion client 30/15 minutes après validation du puzzle. Les compteurs ne dépendent pas du cookie de session ; la fermeture du stockage refuse les nouvelles demandes. Ce mécanisme vise un serveur unique, pas une protection contre une attaque distribuée. Les limites de connexion équipe et de messagerie existantes sont conservées.
 
@@ -499,7 +499,7 @@ Recette : PHP 8.4/MariaDB 11.8, PHP 8.2/MariaDB 10.4 et Apache isolés ; contrô
 
 ### Confirmation des emails et consentement newsletter — 7 novembre 2026
 
-Lot local non publié, après les deux audits. Aucun commit, push, déploiement ou import sur la base principale. Migration préparée : sql/maj_consentement_email.sql, reproduite dans l’installation complète.
+Publié le 14 novembre 2026 : commits 828529b et 2036858 sur refonte et main, mise en ligne IONOS. Migration sql/maj_consentement_email.sql, reproduite dans l’installation complète, appliquée sur la base locale et sur la base de production après sauvegarde.
 
 Validation des comptes : jeton aléatoire de 32 octets, empreinte SHA-256 uniquement en base, expiration à 24 heures, consommation conditionnelle à usage unique. GET affiche une confirmation, POST/CSRF active le compte. Renvoi depuis renvoyer_validation.php : réponse générique, délai de 60 secondes par adresse et limite de 5 demandes par IP/15 minutes. Le nouveau lien révoque le précédent. La migration convertit les anciens jetons valides au format prévu en empreintes, leur laisse 24 heures et efface la colonne historique en clair ; rejouer la migration ne prolonge pas les liens. Sans migration, la création de compte refuse proprement plutôt que de conserver un jeton en clair. Récupération de mot de passe, invitations et Google ne sont pas remplacés par ce mécanisme.
 
@@ -510,3 +510,19 @@ Chaque campagne envoie un email individuel avec un lien de désabonnement aléat
 Les abonnements historiques (source reprise, sans date de confirmation) sont « à reconfirmer » : aucune date ou preuve de consentement n’est inventée, ils sont exclus des campagnes et ne reçoivent aucune relance automatique. Ils restent désabonnables et peuvent reconfirmer depuis le pied de page (lien par email) ou le profil. L’administration distingue abonnés confirmés et à reconfirmer. Les textes personnalisés en base ne sont pas réécrits ; ils devront être relus avant publication.
 
 Recette : 36 contrôles métier par version sur PHP 8.4/MariaDB 11.8 et PHP 8.2/MariaDB 10.4 ; 147 contrôles web, 16 emails capturés localement, vues 375/768/1440 en visiteur et connecté. Deux processus concurrents pour un même lien n’acceptent qu’une confirmation (compte et newsletter). Installation neuve et migration rejouée vérifiées sur les deux versions, données livres/exemplaires/commandes conservées. Les limites RGPD, l’accessibilité exhaustive et l’hébergement de la checklist restent ouverts. Les rapports privés antérieurs constituent des états historiques ; ce lot corrige leurs points newsletter et validation email sans prétendre clore les autres réserves.
+
+### Lot 1 des retours : correctifs et compte — 14 novembre 2026
+
+Onglets de la fiche livre (Livraison, Paiement (démo), Nos engagements, puis résumé, détails et auteur) : panneaux superposés de hauteur constante, plus aucun défilement ni saut au clic (0 décalage sur 54 mesures à 375, 768 et 1440 px).
+
+Mots de passe (inscription lecteur et auteur, changement, réinitialisation) : bouton afficher/masquer avec aria-pressed et libellé, atteignable au clavier ; règle « Au moins 8 caractères » sous le champ avec état et annonce vocale en direct ; contrôle serveur commun dans mot_de_passe_lib.php. La candidature d’auteur utilise désormais le jeton de validation sous empreinte (les candidats ne pouvaient plus valider leur adresse depuis la mise en ligne du 14 novembre).
+
+« Rester connecté » : lecteurs seulement, table connexion_persistante (sql/maj_connexion_persistante.sql), sélecteur et empreinte SHA-256 du validateur, 30 jours, cookie BIBLIOCCAZ_SOUVENIR HttpOnly, SameSite=Lax et Secure en HTTPS. Rotation complète à chaque reconnexion automatique (expiration d’origine conservée) ; un validateur faux supprime tous les jetons du membre. Chaque reconnexion revérifie rôle, statut, email vérifié et empreinte du mot de passe. Jetons supprimés à la déconnexion, au changement et à la réinitialisation du mot de passe, au changement d’email, à la suspension, au changement de rôle et à la fermeture des sessions par l’administration. Sans migration, la case reste sans effet et rien ne casse. Cookie décrit dans la politique de confidentialité.
+
+Connexion : message neutre « Identifiants incorrects » pour une adresse inconnue comme pour un mauvais mot de passe, identifiant conservé, lien « Pas encore de compte ? Créer un compte » qui pré-remplit l’email via la session (jamais depuis l’URL, usage unique), encart de création de compte mis en avant.
+
+Avis : motif de signalement obligatoire avec option vide non sélectionnable ; points réservés aux avis d’au moins 50 caractères (compteur en direct, message clair, règle côté serveur, points en attente annulés si l’avis est raccourci sous le seuil). Les avis existants et leurs points ne sont pas modifiés.
+
+Hébergement : modèle versionné .htaccess.production (page 404 et redirection HTTPS d’IONOS) ; outils/preparer_envoi.php génère la version de production depuis .htaccess et s’arrête si elle ne correspond plus au modèle.
+
+Recette : PHP 8.4/MariaDB 11.8 isolés (62 contrôles HTTP, 4 contrôles sans migration, 153 contrôles navigateur à 375/768/1440 en visiteur et connecté, rôles administrateur, modérateur et gestionnaire), installation neuve et migration rejouée, PHP 8.2/MariaDB 10.4 locaux (syntaxe, migration rejouée, encodage).

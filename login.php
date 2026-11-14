@@ -1,5 +1,6 @@
 <?php
 require_once 'config.php';
+require_once 'mot_de_passe_lib.php';
 
 header("Cache-Control: no-cache, no-store, must-revalidate"); 
 header("Pragma: no-cache"); 
@@ -29,6 +30,15 @@ if (isset($_GET['error'])) {
     elseif ($_GET['error'] == 'google_essais') { $error = "Trop d'essais : la liaison avec Google est annulée. Connectez-vous avec votre mot de passe ou réinitialisez-le."; }
 }
 
+$identifiantSaisi = '';
+$identifiantsIncorrects = ($_GET['error'] ?? '') === '1';
+if ($identifiantsIncorrects && is_string($_SESSION['identifiant_connexion'] ?? null)) {
+    $identifiantSaisi = mb_substr($_SESSION['identifiant_connexion'], 0, 150);
+    if (filter_var($identifiantSaisi, FILTER_VALIDATE_EMAIL)) { $_SESSION['email_inscription'] = $identifiantSaisi; }
+}
+unset($_SESSION['identifiant_connexion']);
+$lienInscription = $identifiantsIncorrects && filter_var($identifiantSaisi, FILTER_VALIDATE_EMAIL) ? 'inscription.php?depuis=connexion' : 'inscription.php';
+
 if (isset($_GET['verif'])) { $success = "Compte validé ! Vous pouvez vous connecter."; }
 if (isset($_GET['mdp'])) { $success = "Mot de passe modifié ! Vous pouvez vous connecter avec le nouveau."; }
 if (isset($_GET['inscription'])) { $success = "Compte créé ! Un mail de validation vient de vous être envoyé : cliquez sur son lien avant de vous connecter."; }
@@ -44,20 +54,31 @@ if (isset($_GET['inscription'])) { $success = "Compte créé ! Un mail de valida
             <div class="alert alert-info small" role="status"><strong>Déconnexion automatique</strong> après 10 minutes d'inactivité.</div>
         <?php endif; ?>
         <?php if ($finSession): ?><div class="alert <?= $compteSuspendu ? 'alert-danger' : 'alert-info' ?> small" role="<?= $compteSuspendu ? 'alert' : 'status' ?>"><?= htmlspecialchars($finSession) ?></div><?php endif; ?>
-        <?php if ($error): ?><div class="alert alert-danger small" role="alert"><?= htmlspecialchars($error) ?></div><?php endif; ?>
+        <?php if ($error): ?>
+            <div class="alert alert-danger small" role="alert">
+                <?= htmlspecialchars($error) ?>
+                <?php if ($identifiantsIncorrects): ?>
+                    <a class="alerte-inscription" href="<?= $lienInscription ?>"><i class="bi bi-person-plus" aria-hidden="true"></i> Pas encore de compte ? Créer un compte</a>
+                <?php endif; ?>
+            </div>
+        <?php endif; ?>
         <?php if ($success): ?><div class="alert alert-success small" role="status"><?= htmlspecialchars($success) ?></div><?php endif; ?>
 
         <form action="traitement_login.php" method="POST">
             <input type="hidden" name="csrf" value="<?= jetonCsrf() ?>">
             <div class="mb-3">
                 <label for="identifiant" class="form-label">Email ou pseudo</label>
-                <input type="text" id="identifiant" name="pseudo" class="form-control" autocomplete="username" required>
+                <input type="text" id="identifiant" name="pseudo" class="form-control" autocomplete="username" value="<?= htmlspecialchars($identifiantSaisi) ?>" required>
             </div>
             <div class="mb-2">
-                <label for="mot-de-passe" class="form-label">Mot de passe</label>
-                <input type="password" id="mot-de-passe" name="mdp" class="form-control" autocomplete="current-password" required>
+                <?= champMotDePasse('mot-de-passe', 'mdp', 'Mot de passe', 'current-password') ?>
             </div>
-            <div class="text-end mb-4">
+            <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-4">
+                <div class="form-check rester-connecte">
+                    <input class="form-check-input" type="checkbox" id="rester-connecte" name="rester_connecte" value="1" aria-describedby="aide-rester-connecte">
+                    <label class="form-check-label" for="rester-connecte">Rester connecté</label>
+                    <div class="form-text" id="aide-rester-connecte">30 jours sur cet appareil, pour les comptes lecteurs. À éviter sur un appareil partagé.</div>
+                </div>
                 <a href="recuparation_mdp.php" class="carte-formulaire__lien-discret">Mot de passe oublié ?</a>
             </div>
 
@@ -72,7 +93,10 @@ if (isset($_GET['inscription'])) { $success = "Compte créé ! Un mail de valida
             <button type="submit" class="bouton bouton-principal">Se connecter</button>
         </form>
         <?php include 'partie_bouton_google.php'; ?>
-        <p class="carte-formulaire__pied">Pas encore de compte ? <a href="inscription.php">Créer un compte</a></p>
+        <div class="carte-formulaire__encart encart-creation-compte">
+            <p><strong>Nouveau sur BIBLIOccaz ?</strong> Créez votre compte pour acheter, donner, emprunter et cumuler des points.</p>
+            <a href="<?= $lienInscription ?>" class="bouton bouton-contour"><i class="bi bi-person-plus" aria-hidden="true"></i> Créer un compte</a>
+        </div>
     </div>
 </div>
 

@@ -170,14 +170,19 @@ function construireInstallation(string $racine, array &$bilan): string
 
 function htaccessProduction(string $racine, string $cheminSite): string
 {
-    $contenu = file_get_contents($racine . '/.htaccess');
-    $contenu = preg_replace('~^ErrorDocument 404 .*$~m', 'ErrorDocument 404 ' . $cheminSite . 'erreur_404.php', $contenu, 1, $erreurDocument);
+    $contenu = str_replace("\r\n", "\n", (string) file_get_contents($racine . '/.htaccess'));
+    $contenu = preg_replace('~^ErrorDocument 404 .*\n~m', '', $contenu);
+    $contenu = 'ErrorDocument 404 ' . $cheminSite . "erreur_404.php\n" . $contenu;
     $redirection = "RewriteEngine On\nRewriteCond %{REQUEST_URI} !^/\\.well-known/acme-challenge/\nRewriteCond %{HTTPS} !=on\nRewriteCond %{HTTP:X-Forwarded-Proto} !=https\nRewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]\n";
-    $contenu = preg_replace('~^RewriteEngine On\R~m', $redirection, $contenu, 1, $moteur);
-    if ($erreurDocument !== 1 || $moteur !== 1) {
+    $contenu = preg_replace('~^RewriteEngine On\n~m', $redirection, $contenu, 1, $moteur);
+    if ($moteur !== 1) {
         arreter('Structure du .htaccess inattendue : adaptation production impossible.');
     }
-    return $contenu;
+    $modele = $racine . '/.htaccess.production';
+    if ($cheminSite === '/' && (!is_file($modele) || str_replace("\r\n", "\n", (string) file_get_contents($modele)) !== $contenu)) {
+        arreter('.htaccess.production ne correspond plus au .htaccess du dépôt : reporter la modification dans les deux fichiers.');
+    }
+    return str_replace("\n", "\r\n", $contenu);
 }
 
 function imagesReferencees(string $racine, string $sql, bool $avecCouverturesEditeur, array &$bilan): array

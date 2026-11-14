@@ -4,12 +4,16 @@ require_once 'config.php';
 require_once 'avis_lib.php';
 require_once 'anti_abus_lib.php';
 require_once 'validation_email_lib.php';
+require_once 'mot_de_passe_lib.php';
 $validationDisponible = validationEmailDisponible($pdo);
 
 use PHPMailer\PHPMailer\Exception;
 
 $erreur = "";
 $saisie = ['prenom' => '', 'nom' => '', 'pseudo' => '', 'email' => ''];
+$emailPropose = ($_GET['depuis'] ?? '') === 'connexion' && is_string($_SESSION['email_inscription'] ?? null) ? $_SESSION['email_inscription'] : '';
+unset($_SESSION['email_inscription']);
+if ($emailPropose !== '' && mb_strlen($emailPropose) <= 150 && filter_var($emailPropose, FILTER_VALIDATE_EMAIL)) { $saisie['email'] = $emailPropose; }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $pseudo = (is_string($_POST['pseudo'] ?? null) ? trim($_POST['pseudo']) : '');
@@ -35,8 +39,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $erreur = 'Indiquez une adresse email valide (150 caractères maximum).';
     } elseif (!preg_match('/\A[\p{L}\p{N}._-]{3,50}\z/u', $pseudo) || mb_strlen($nom) > 100 || mb_strlen($prenom) > 100) {
         $erreur = 'Le pseudo doit contenir 3 à 50 lettres, chiffres, points, tirets ou traits de soulignement. Nom et prénom : 100 caractères maximum.';
-    } elseif (mb_strlen($mdp) < 8 || strlen($mdp) > 72 || str_contains($mdp, "\0")) {
-        $erreur = 'Choisissez un mot de passe de 8 caractères minimum, limité à 72 octets et sans caractère nul.';
+    } elseif ($erreurMotDePasse = erreurMotDePasse($mdp)) {
+        $erreur = $erreurMotDePasse;
     } elseif ($mdp !== $confirmation) {
         $erreur = "Les mots de passe ne correspondent pas.";
     } else {
@@ -108,12 +112,10 @@ include 'header.php';
                     <input type="email" id="email" name="email" class="form-control" autocomplete="email" value="<?= htmlspecialchars($saisie['email']) ?>" required>
                 </div>
                 <div class="col-md-6">
-                    <label for="mot-de-passe" class="form-label">Mot de passe *</label>
-                    <input type="password" id="mot-de-passe" name="mot_de_passe" minlength="8" class="form-control" autocomplete="new-password" required>
+                    <?= champMotDePasse('mot-de-passe', 'mot_de_passe', 'Mot de passe *', 'new-password', true) ?>
                 </div>
                 <div class="col-md-6">
-                    <label for="confirmation" class="form-label">Confirmation *</label>
-                    <input type="password" id="confirmation" name="confirmation" class="form-control" autocomplete="new-password" required>
+                    <?= champMotDePasse('confirmation', 'confirmation', 'Confirmation *', 'new-password') ?>
                 </div>
 
                 <div class="col-12">

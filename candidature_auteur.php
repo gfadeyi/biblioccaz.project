@@ -4,6 +4,8 @@ require_once 'config.php';
 require_once 'avis_lib.php';
 require_once 'notifications_lib.php';
 require_once 'auteurs_lib.php';
+require_once 'validation_email_lib.php';
+require_once 'mot_de_passe_lib.php';
 
 use PHPMailer\PHPMailer\Exception;
 
@@ -48,6 +50,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $disponible && $etat['etat'] === 'o
             array_unshift($erreurs, 'Remplissez tous les champs de votre compte.');
         } elseif (!filter_var($compte['email'], FILTER_VALIDATE_EMAIL)) {
             array_unshift($erreurs, 'L\'adresse email n\'est pas valide.');
+        } elseif ($erreurMotDePasse = erreurMotDePasse($motDePasse)) {
+            array_unshift($erreurs, $erreurMotDePasse);
+        } elseif (!validationEmailDisponible($pdo)) {
+            array_unshift($erreurs, 'La création de compte est momentanément indisponible.');
         } elseif ($motDePasse !== $confirmation) {
             array_unshift($erreurs, 'Les mots de passe ne correspondent pas.');
         } else {
@@ -82,13 +88,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $disponible && $etat['etat'] === 'o
                 $succes = "Votre candidature est envoyée. L'équipe l'étudie et vous répondra par mail. En attendant, votre compte lecteur reste actif.";
                 $etat = etatCandidatureAuteur($pdo, $membre);
             } else {
-                $jeton = bin2hex(random_bytes(32));
                 $pdo->beginTransaction();
                 try {
-                    $pdo->prepare("INSERT INTO user (pseudo, email, mot_de_passe, nom, prenom, role, statut, email_token, email_verifie) VALUES (?, ?, ?, ?, ?, 'client', 'actif', ?, 0)")
-                        ->execute([$compte['pseudo'], $compte['email'], password_hash($motDePasse, PASSWORD_DEFAULT), $compte['nom'], $compte['prenom'], $jeton]);
+                    $pdo->prepare("INSERT INTO user (pseudo, email, mot_de_passe, nom, prenom, role, statut, email_verifie) VALUES (?, ?, ?, ?, ?, 'client', 'actif', 0)")
+                        ->execute([$compte['pseudo'], $compte['email'], password_hash($motDePasse, PASSWORD_DEFAULT), $compte['nom'], $compte['prenom']]);
                     $idCandidat = (int) $pdo->lastInsertId();
                     insererCandidatureAuteur($pdo, $idCandidat, $valeursAuteur, $ouvragesAuteur, $photo);
+                    $jeton = demanderValidationEmail($pdo, $compte['email']);
+                    if ($jeton === null) { throw new DomainException('La création de compte est momentanément indisponible.'); }
                     $pdo->commit();
                 } catch (Throwable $e) {
                     if ($pdo->inTransaction()) {
@@ -204,12 +211,10 @@ include 'header.php';
                                 <input type="email" id="email" name="email" class="form-control" autocomplete="email" value="<?= htmlspecialchars($compte['email']) ?>" required>
                             </div>
                             <div class="col-md-6">
-                                <label for="mot-de-passe" class="form-label fw-bold small">Mot de passe *</label>
-                                <input type="password" id="mot-de-passe" name="mot_de_passe" class="form-control" autocomplete="new-password" required>
+                                <?= champMotDePasse('mot-de-passe', 'mot_de_passe', 'Mot de passe *', 'new-password', true, 'form-label fw-bold small') ?>
                             </div>
                             <div class="col-md-6">
-                                <label for="confirmation" class="form-label fw-bold small">Confirmation *</label>
-                                <input type="password" id="confirmation" name="confirmation" class="form-control" autocomplete="new-password" required>
+                                <?= champMotDePasse('confirmation', 'confirmation', 'Confirmation *', 'new-password', false, 'form-label fw-bold small') ?>
                             </div>
                         </div>
                         <p class="form-text mb-0">Déjà un compte lecteur ? <a href="login.php">Connectez-vous</a> puis candidatez depuis votre compte.</p>

@@ -38,7 +38,9 @@ function consommerJetonRecuperation(PDO $pdo, int $idUser, string $jeton, string
     $stmt = $pdo->prepare('UPDATE user SET mot_de_passe = ?, reset_token_hash = NULL, reset_expire = NULL, email_verifie = 1, est_verifie = 1, email_token = NULL
         WHERE id = ? AND reset_token_hash = ? AND reset_expire > NOW()');
     $stmt->execute([password_hash($motDePasse, PASSWORD_DEFAULT), $idUser, hash('sha256', $jeton)]);
-    return $stmt->rowCount() === 1;
+    if ($stmt->rowCount() !== 1) { return false; }
+    supprimerConnexionsPersistantes($pdo, $idUser);
+    return true;
 }
 
 function preparerInvitation(PDO $pdo, int $idUser): string

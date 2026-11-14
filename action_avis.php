@@ -48,7 +48,11 @@ try {
             $pdo->prepare("UPDATE avis SET note = ?, titre = ?, commentaire = ?, date_modification = NOW() WHERE id_avis = ?")
                 ->execute([$note, $titre ?: null, $commentaire, $existant]);
             insertLog('AVIS', "Avis #$existant modifié (livre #$idLivre)");
-            finir($urlRetour, 'success', "Votre avis a été mis à jour.");
+            $messageModification = "Votre avis a été mis à jour.";
+            if (!avisAssezLongPourPoints($commentaire) && changerStatutMouvement($pdo, $idUser, 'avis', 'livre:' . $idLivre, ['en_attente'], 'annule')) {
+                $messageModification .= " Les points en attente sont annulés : un avis doit compter au moins " . AVIS_LONGUEUR_POINTS . " caractères pour en rapporter.";
+            }
+            finir($urlRetour, 'success', $messageModification);
         }
 
         $pdo->prepare("INSERT INTO avis (id_livre, id_user, note, titre, commentaire) VALUES (?, ?, ?, ?, ?)")
@@ -56,7 +60,9 @@ try {
         insertLog('AVIS', "Nouvel avis ($note/5) sur le livre #$idLivre");
 
         $message = "Merci, votre avis est publié !";
-        if (($_SESSION['role'] ?? '') === 'client') {
+        if (($_SESSION['role'] ?? '') === 'client' && pointsRegle($pdo, 'avis') > 0 && !avisAssezLongPourPoints($commentaire)) {
+            $message .= " Il ne rapporte pas de points : un avis doit compter au moins " . AVIS_LONGUEUR_POINTS . " caractères pour en rapporter.";
+        } elseif (($_SESSION['role'] ?? '') === 'client') {
             $stmt = $pdo->prepare("SELECT titre FROM livre WHERE id_livre = ?");
             $stmt->execute([$idLivre]);
             $message .= match (proposerPointsAvis($pdo, $idUser, $idLivre, (string) $stmt->fetchColumn())) {

@@ -56,9 +56,21 @@
                 <?php if ($nombreEditions > 0): ?><a class="fiche-livre__editions" href="editions_livre.php?id=<?= (int) $id ?>">Découvrir <?= $nombreEditions ?> autre<?= $nombreEditions > 1 ? 's' : '' ?> édition<?= $nombreEditions > 1 ? 's' : '' ?> <i class="bi bi-arrow-right" aria-hidden="true"></i></a><?php endif; ?>
                 <p class="fiche-livre__demo"><i class="bi bi-info-circle" aria-hidden="true"></i> Commande de démonstration : aucun paiement ni envoi réel.</p>
                 <div class="fiche-informations">
-                    <details><summary>Livraison</summary><p>1,99 € de livraison sous 20 € de livres. Offerte à partir de 20 €, avant utilisation d’un bon.</p></details>
-                    <details><summary>Paiement (démo)</summary><p>Paiement simulé : aucune carte n’est demandée et aucun montant n’est débité.</p></details>
-                    <details><summary>Nos engagements</summary><p>Des états et des prix annoncés avant l’ajout, des échanges suivis et une nouvelle vie pour les livres.</p></details>
+                    <?php $informationsAchat = [
+                        'livraison' => ['Livraison', '1,99 € de livraison sous 20 € de livres. Offerte à partir de 20 €, avant utilisation d’un bon.'],
+                        'paiement' => ['Paiement (démo)', 'Paiement simulé : aucune carte n’est demandée et aucun montant n’est débité.'],
+                        'engagements' => ['Nos engagements', 'Des états et des prix annoncés avant l’ajout, des échanges suivis et une nouvelle vie pour les livres.'],
+                    ]; ?>
+                    <div class="fiche-informations__onglets" role="tablist" aria-label="Informations d’achat">
+                        <?php foreach ($informationsAchat as $cle => [$libelle]): ?>
+                            <button class="fiche-informations__onglet<?= $cle === 'livraison' ? ' active' : '' ?>" id="info-onglet-<?= $cle ?>" data-bs-toggle="tab" data-bs-target="#info-<?= $cle ?>" type="button" role="tab" aria-controls="info-<?= $cle ?>" aria-selected="<?= $cle === 'livraison' ? 'true' : 'false' ?>"<?= $cle === 'livraison' ? '' : ' tabindex="-1"' ?>><?= $libelle ?></button>
+                        <?php endforeach; ?>
+                    </div>
+                    <div class="tab-content panneaux-superposes">
+                        <?php foreach ($informationsAchat as $cle => [$libelle, $texte]): ?>
+                            <div class="tab-pane<?= $cle === 'livraison' ? ' active' : '' ?>" id="info-<?= $cle ?>" role="tabpanel" aria-labelledby="info-onglet-<?= $cle ?>" tabindex="0"><p><?= $texte ?></p></div>
+                        <?php endforeach; ?>
+                    </div>
                 </div>
             </section>
             <section class="fiche-livre__onglets" aria-label="En savoir plus sur le livre">
@@ -67,7 +79,7 @@
                         <li class="nav-item" role="presentation"><button class="nav-link <?= $cle === 'resume' ? 'active' : '' ?>" id="onglet-<?= $cle ?>" data-bs-toggle="tab" data-bs-target="#contenu-<?= $cle ?>" type="button" role="tab" aria-controls="contenu-<?= $cle ?>" aria-selected="<?= $cle === 'resume' ? 'true' : 'false' ?>"><?= $libelle ?></button></li>
                     <?php endforeach; ?>
                 </ul>
-                <div class="tab-content">
+                <div class="tab-content panneaux-superposes">
                     <div class="tab-pane show active" id="contenu-resume" role="tabpanel" aria-labelledby="onglet-resume" tabindex="0">
                         <?php if (mb_strlen((string) $livre['description']) > 550): ?>
                             <div class="resume-depliable">

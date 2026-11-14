@@ -27,7 +27,7 @@
 - [ ] Définir et appliquer les durées de conservation, l’anonymisation et la purge des données et sauvegardes.
 - [ ] Organiser et tester les demandes d’accès, export, rectification et effacement.
 - [x] Valider et installer le lot de confirmation newsletter/désabonnement sans compte ; abonnements historiques sans preuve : à reconfirmer, exclus des campagnes, sans relance automatique.
-- [ ] Valider et installer le lot local de jetons de validation email sous empreinte avec expiration ; vérifier les anciens liens après migration et revalider récupération et invitation sur l’hébergement cible.
+- [x] Valider et installer les jetons de validation email sous empreinte avec expiration (14 novembre 2026), y compris pour les candidatures d’auteur.
 - [ ] Valider le parcours des mineurs et les accès aux données de la messagerie d’équipe.
 - [ ] Réaliser les essais avec lecteur d’écran et une alternative accessible au captcha.
 - [ ] Contrôler les versions corrigées des services, les accès de l’équipe, les sauvegardes et la procédure d’incident.

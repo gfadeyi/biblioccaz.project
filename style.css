@@ -2185,3 +2185,23 @@ form[data-selection-collection] legend { float: none; width: auto; }
 .suggestions-recherche .list-group-item > small { max-width: 40%; flex-shrink: 0; }
 :root[data-theme="sombre"] .bg-success, :root[data-theme="sombre"] .bg-primary { background-color: var(--vert-500) !important; color: #fff !important; }
 :root[data-theme="sombre"] .btn-outline-danger { --bs-btn-color: var(--danger); --bs-btn-border-color: var(--danger-trait); }
+.champ-mot-de-passe { position: relative; }
+.champ-mot-de-passe--interactif .form-control { padding-right: 3rem; }
+.champ-mot-de-passe__oeil { position: absolute; top: 50%; right: 2px; transform: translateY(-50%); width: 44px; height: 44px; display: grid; place-items: center; border: 0; border-radius: 8px; background: transparent; color: var(--encre-douce); }
+.champ-mot-de-passe__oeil:hover { color: var(--texte-vert); }
+.champ-mot-de-passe__oeil:focus-visible { outline: 2px solid var(--texte-vif); outline-offset: -4px; }
+.champ-mot-de-passe__oeil[aria-pressed="true"] { color: var(--texte-vert); }
+.regle-mot-de-passe { display: flex; align-items: center; gap: .35rem; margin: .4rem 0 0; font-size: .8rem; color: var(--encre-douce); }
+.regle-mot-de-passe[data-etat="valide"] { color: var(--texte-vert); }
+.regle-mot-de-passe[data-etat="invalide"] { color: var(--danger); }
+.regle-mot-de-passe__compteur { font-variant-numeric: tabular-nums; }
+.encart-creation-compte { margin-top: 1.5rem; }
+.alerte-inscription { display: flex; align-items: center; justify-content: center; gap: .4rem; margin-top: .6rem; padding: .55rem .75rem; min-height: 44px; border-radius: var(--rayon); background: var(--surface); border: 1px solid var(--vert-100); color: var(--texte-vert); font-weight: 700; text-decoration: none; }
+.alerte-inscription:hover, .alerte-inscription:focus-visible { background: var(--vert-50); text-decoration: underline; }
+.rester-connecte { max-width: 22rem; }
+.rester-connecte .form-text { margin-top: .15rem; font-size: .78rem; }
+.regle-avis-points { display: flex; align-items: flex-start; gap: .35rem; margin: 0 0 .6rem; font-size: .8rem; color: var(--encre-douce); }
+.regle-avis-points[data-etat="valide"] { color: var(--texte-vert); }
+.regle-avis-points > span:first-of-type { flex: 1 1 auto; }
+.regle-avis-points > i { margin-top: .1rem; }
+.regle-avis-points__compteur { flex: none; margin-left: auto; font-variant-numeric: tabular-nums; font-weight: 600; }

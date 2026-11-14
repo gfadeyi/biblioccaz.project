@@ -79,6 +79,7 @@ function revoquerSessionsClientsAuteurs(PDO $pdo, int $idAdministrateur, int $co
         $stmt = $pdo->prepare("UPDATE session_utilisateur s INNER JOIN user u ON u.id=s.id_user SET s.date_revocation=NOW(),s.id_revoque_par=? WHERE s.id_suivi=? AND u.role IN ('client','auteur') AND " . conditionSessionValide());
         $fermees = 0; $comptesFermes = [];
         foreach ($cibles as $cible) { $stmt->execute([$idAdministrateur,$cible['id_suivi'],$instant]); if ($stmt->rowCount()) { $fermees++; $comptesFermes[$cible['id_user']] = true; } }
+        foreach ($ids as $idMembre) { supprimerConnexionsPersistantes($pdo, $idMembre); }
         $pdo->commit(); return ['sessions' => $fermees,'utilisateurs' => count($comptesFermes)];
     } catch (Throwable $e) { if ($pdo->inTransaction()) { $pdo->rollBack(); } throw $e; }
 }

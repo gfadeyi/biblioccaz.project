@@ -106,6 +106,7 @@ $lienTri = fn($t) => 'detail_livre.php?' . http_build_query(['id' => $idLivreAvi
                     <?php if ($monAvis && $monAvis['statut'] === 'masque'): ?>
                         <div class="alert alert-warning small py-2">Votre avis a été masqué par la modération et n'est plus visible publiquement.</div>
                     <?php endif; ?>
+                    <?php $reglePointsAvis = !$monAvis && ($_SESSION['role'] ?? '') === 'client' && pointsRegle($pdo, 'avis') > 0; ?>
                     <form action="action_avis.php" method="POST">
                         <input type="hidden" name="csrf" value="<?= $csrf ?>">
                         <input type="hidden" name="action" value="enregistrer">
@@ -120,8 +121,16 @@ $lienTri = fn($t) => 'detail_livre.php?' . http_build_query(['id' => $idLivreAvi
                         <label for="avis-titre" class="form-label small fw-bold mb-1">Titre <span class="fw-normal text-muted">(facultatif)</span></label>
                         <input type="text" id="avis-titre" name="titre" maxlength="120" class="form-control form-control-sm mb-2" placeholder="En quelques mots" value="<?= htmlspecialchars($monAvis['titre'] ?? '') ?>">
                         <label for="avis-commentaire" class="form-label small fw-bold mb-1">Votre avis</label>
-                        <textarea id="avis-commentaire" name="commentaire" rows="4" class="form-control form-control-sm mb-2" minlength="<?= AVIS_COMMENTAIRE_MIN ?>" maxlength="<?= AVIS_COMMENTAIRE_MAX ?>"
+                        <textarea id="avis-commentaire" name="commentaire" rows="4" class="form-control form-control-sm mb-2" minlength="<?= AVIS_COMMENTAIRE_MIN ?>" maxlength="<?= AVIS_COMMENTAIRE_MAX ?>"<?= $reglePointsAvis ? ' aria-describedby="avis-regle-points" data-longueur-points="' . AVIS_LONGUEUR_POINTS . '"' : '' ?>
                                   placeholder="Qu'avez-vous pensé de ce livre ?" required><?= htmlspecialchars($monAvis['commentaire'] ?? '') ?></textarea>
+                        <?php if ($reglePointsAvis): ?>
+                            <p class="regle-avis-points" id="avis-regle-points" data-etat="attente">
+                                <i class="bi bi-info-circle" aria-hidden="true"></i>
+                                <span>Pour rapporter des points, votre avis doit compter au moins <?= AVIS_LONGUEUR_POINTS ?> caractères.</span>
+                                <span class="regle-avis-points__compteur">0/<?= AVIS_LONGUEUR_POINTS ?></span>
+                                <span class="visually-hidden regle-avis-points__annonce" aria-live="polite"></span>
+                            </p>
+                        <?php endif; ?>
                         <button class="bouton bouton-principal bouton-petit w-100"><?= $monAvis ? 'Mettre à jour mon avis' : 'Publier mon avis' ?></button>
                         <?php if (!$monAvis && ($_SESSION['role'] ?? '') === 'client'): ?>
                             <div class="form-text text-center">+<?= pointsRegle($pdo, 'avis') ?> points fidélité pour un avis éligible validé</div>
@@ -188,7 +197,7 @@ $lienTri = fn($t) => 'detail_livre.php?' . http_build_query(['id' => $idLivreAvi
                                         <input type="hidden" name="id_livre" value="<?= $idLivreAvis ?>">
                                         <input type="hidden" name="id_avis" value="<?= $a['id_avis'] ?>">
                                         <select name="motif" class="form-select form-select-sm" aria-label="Motif du signalement" required>
-                                            <option value="">Motif...</option>
+                                            <option value="" disabled selected hidden>Choisir un motif</option>
                                             <?php foreach (AVIS_MOTIFS as $cle => $libelle): ?>
                                                 <option value="<?= $cle ?>"><?= $libelle ?></option>
                                             <?php endforeach; ?>

@@ -67,7 +67,7 @@ Les couvertures visibles sur ces captures sont générées pour l'aperçu : les 
 - **Messagerie liée aux transactions** : une conversation s'ouvre à chaque réservation de don ou d'emprunt et à chaque demande d'achat, sans message libre entre membres ni adresse email dévoilée ; bulles, non lus en gras, compteur dans l'entête, mail de notification (au plus un toutes les 15 minutes), anti-spam, conversation fermée en fin de transaction et gardée en lecture seule, signalement d'un message avec motif
 - **Événements gratuits** (dédicaces, rencontres, ateliers) : calendrier filtrable, inscription dans la limite des places, liste d'attente automatique ou manuelle, billet avec QR code, contrôle des présences le jour J, export PDF des participants, mails en cas d'annulation
 - **Événements proposés par les auteurs**, validés ou refusés par l'équipe avec un message
-- **Avis** : note, titre et commentaire, un avis par livre, badge « achat vérifié », tri, signalement, modération (un avis masqué reste archivé), page « Mes avis »
+- **Avis** : note, titre et commentaire, un avis par livre, badge « achat vérifié », tri, signalement avec motif obligatoire, modération (un avis masqué reste archivé), page « Mes avis » ; un avis rapporte des points à partir de 50 caractères (compteur en direct, règle vérifiée côté serveur, points en attente annulés si l’avis est raccourci)
 - **Newsletter** avec ou sans compte
 
 ### Programme de fidélité
@@ -77,7 +77,7 @@ Les couvertures visibles sur ces captures sont générées pour l'aperçu : les 
 - Page « Mes points et badges » avec la progression et l'historique de chaque mouvement
 
 ### Comptes
-- Inscription avec confirmation par mail, connexion protégée par un **puzzle captcha** maison vérifié côté serveur, mot de passe oublié avec lien à usage unique valable 1 heure
+- Inscription avec confirmation par mail, connexion protégée par un **puzzle captcha** maison vérifié côté serveur, mot de passe oublié avec lien à usage unique valable 1 heure ; champs de mot de passe avec bouton afficher/masquer accessible au clavier et aux lecteurs d’écran et règle de longueur (8 caractères) affichée en direct, toujours revérifiée côté serveur ; identifiants inconnus : message neutre « Identifiants incorrects » et lien « Créer un compte » qui reprend l’adresse saisie
 - Rôles : lecteur, auteur, modérateur, gestionnaire, administrateur ; **candidature à l'équipe** (« Rejoindre l'équipe ») pour devenir modérateur ou gestionnaire : rôle visé, nom, prénom, pseudo souhaité et motivations, depuis un compte ou sans compte ; aucun compte n'est créé avant la décision, une candidature en cours par adresse, 3 par jour et par connexion, nouvelle demande 30 jours après un refus
 - **Candidature auteur** à l'inscription ou depuis le compte : nom de plume, biographie, ouvrages publiés (ISBN vérifié par sa clé), liens et photo ; le compte reste lecteur jusqu'à la validation par l'équipe, qui répond par mail (refus motivé, nouvelle demande possible après 7 jours)
 - **Pages auteur publiques** et page « Nos auteurs » avec recherche : biographie, ouvrages, livres disponibles sur le site et rencontres ; l'auteur modifie sa page à tout moment (modifications publiées et inscrites au journal), l'équipe peut la masquer
@@ -85,7 +85,7 @@ Les couvertures visibles sur ces captures sont générées pour l'aperçu : les 
 - **Changement d’adresse email confirmé** : mot de passe actuel, lien à usage unique valable une heure sur la nouvelle adresse, ancienne adresse conservée avant confirmation, annulation possible, limitation des tentatives et notifications ; reconnexion après confirmation. Migration : `sql/maj_changement_email.sql`.
 - **Historique de consultation** respectueux de la vie privée : 20 dernières fiches au plus, gardées 90 jours, visibles du seul lecteur, effaçables et suspendables à tout moment
 - **Connexion avec Google** (OpenID Connect avec state, nonce et PKCE) sur les pages de connexion et d'inscription des lecteurs : création d'un compte lecteur à la première connexion, ou liaison à un compte existant de même adresse après confirmation du mot de passe BIBLIOccaz ; réservée aux lecteurs et auteurs, jamais au back-office. Le bouton reste masqué tant que `GOOGLE_CLIENT_ID` et `GOOGLE_CLIENT_SECRET` sont vides dans `secrets.php`. Migration : `sql/maj_connexion_google.sql`.
-- Déconnexion automatique après 10 minutes d'inactivité
+- Déconnexion automatique après 10 minutes d'inactivité, sauf **« Rester connecté »** (lecteurs seulement, 30 jours) : jeton sélecteur + validateur conservé sous empreinte, cookie HttpOnly, Secure en HTTPS et SameSite=Lax, renouvelé à chaque reconnexion, supprimé à la déconnexion, au changement ou à la réinitialisation du mot de passe et à la suspension du compte. Migration : `sql/maj_connexion_persistante.sql`
 
 - **Profil actif** : badge informatif pour les lecteurs et auteurs, calculé sur une connexion et au moins une action validée dans les 30 derniers jours ; période et minimum d’actions réglables dans les règles de récompenses. Achats annulés et contenus non validés exclus, sans points supplémentaires ; le profil actif donne la priorité sur les listes d'attente des emprunts, évaluée au moment de l'inscription sur la liste.
 
@@ -116,7 +116,7 @@ Les couvertures visibles sur ces captures sont générées pour l'aperçu : les 
 - **Mode production** réglé dans `secrets.php` : erreurs masquées et journalisées dans un fichier privé, redirection vers HTTPS, cookies de session `Secure`, `HttpOnly` et `SameSite`, en-têtes de sécurité
 - **Dossier privé réglable** (`DOSSIER_PRIVE` dans `secrets.php`) : journaux, erreurs PHP et sessions de production peuvent être placés hors de la racine web
 - **Relances d'emprunt automatiques** : script `cron/relances_emprunts.php` lancé par une tâche planifiée (rappel avant échéance, le jour même, relance hebdomadaire en cas de retard, expiration des réservations), refusé s'il est appelé depuis le web
-- **Préparation de la mise en ligne** : `outils/preparer_envoi.php` crée hors du dépôt un dossier propre à envoyer, organisé comme l'hébergement (racine web et dossier privé séparés, sans documentation, scripts SQL ni fichiers privés), un modèle de `secrets.php` de production sans mot de passe et un script SQL d'installation sans compte utilisable
+- **Préparation de la mise en ligne** : `outils/preparer_envoi.php` crée hors du dépôt un dossier propre à envoyer, organisé comme l'hébergement (racine web et dossier privé séparés, sans documentation, scripts SQL ni fichiers privés), un modèle de `secrets.php` de production sans mot de passe, un script SQL d’installation sans compte utilisable et le `.htaccess` de production (redirection HTTPS, page 404), comparé au modèle versionné `.htaccess.production` pour éviter tout écart entre Git et l’hébergement
 
 ## Technologies
 

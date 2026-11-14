@@ -3,6 +3,7 @@
 const AVIS_POINTS = 5;
 const AVIS_COMMENTAIRE_MIN = 10;
 const AVIS_COMMENTAIRE_MAX = 2000;
+const AVIS_LONGUEUR_POINTS = 50;
 const AVIS_MOTIFS = [
     'offensant' => 'Contenu offensant',
     'spam'      => 'Spam ou publicité',
@@ -10,6 +11,16 @@ const AVIS_MOTIFS = [
     'spoiler'   => 'Révèle l\'intrigue (spoiler)',
     'autre'     => 'Autre',
 ];
+
+function longueurAvis(string $commentaire): int
+{
+    return mb_strlen(trim(str_replace(["\r\n", "\r"], "\n", $commentaire)));
+}
+
+function avisAssezLongPourPoints(string $commentaire): bool
+{
+    return longueurAvis($commentaire) >= AVIS_LONGUEUR_POINTS;
+}
 
 function noteDuLivre(PDO $pdo, int $idLivre): array
 {

@@ -81,6 +81,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 rediriger($retour, 'info', "Ce compte est déjà suspendu.");
             }
             $pdo->prepare("UPDATE `user` SET statut = 'refuse_temporaire' WHERE id = ?")->execute([$idMembre]);
+            supprimerConnexionsPersistantes($pdo, $idMembre);
             insertLog('MODERATION', "Compte de @{$membre['pseudo']} suspendu depuis la conversation #$idConversation");
             rediriger($retour, 'success', "Le compte de @{$membre['pseudo']} est suspendu : il ne peut plus se connecter ni écrire. Un administrateur peut le réactiver depuis Membres.");
     }

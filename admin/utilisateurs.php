@@ -41,11 +41,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 rediriger($retourMembres, 'danger', "Rôle inconnu.");
             }
             $pdo->prepare("UPDATE user SET role = ? WHERE id = ?")->execute([$role, $idUser]);
+            supprimerConnexionsPersistantes($pdo, $idUser);
             insertLog('ADMIN', "Rôle de @$pseudo changé en $role");
             rediriger($retourMembres, 'success', "@$pseudo est maintenant " . mb_strtolower(ROLES_LIBELLES[$role]) . ".");
 
         case 'suspendre':
             $pdo->prepare("UPDATE user SET statut = 'refuse_definitif' WHERE id = ?")->execute([$idUser]);
+            supprimerConnexionsPersistantes($pdo, $idUser);
             insertLog('ADMIN', "Compte de @$pseudo suspendu");
             rediriger($retourMembres, 'success', "Le compte de @$pseudo est suspendu : il ne peut plus se connecter.");
 
