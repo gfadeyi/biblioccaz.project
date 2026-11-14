@@ -72,7 +72,7 @@ include 'header.php';
                     <span><?= EVT_MOIS_COURTS[(int) date('n', $debut) - 1] ?> <?= date('Y', $debut) ?></span>
                 </div>
                 <div class="evt-fiche__titres">
-                    <div class="d-flex flex-wrap gap-2 mb-2"><?= badgeTypeEvenement($evt['type']) ?> <?= $estPublic ? badgeEvenement($evt) : libelleStatutEvenement($evt) ?></div>
+                    <div class="d-flex flex-wrap gap-2 mb-2"><?= badgeTypeEvenement($evt['type']) ?> <?= $estPublic ? badgeEvenement($evt) : libelleStatutEvenement($evt) ?> <?= badgePrixEvenement($evt) ?></div>
                     <h1 class="evt-fiche__titre"><?= htmlspecialchars($evt['titre']) ?></h1>
                 </div>
             </div>
@@ -84,7 +84,7 @@ include 'header.php';
             <?php endif; ?>
 
             <ul class="evt-infos">
-                <li><span class="evt-infos__icone"><i class="bi bi-gift" aria-hidden="true"></i></span><span><strong>Tarif</strong>Gratuit, sur inscription.</span></li>
+                <li><span class="evt-infos__icone"><i class="bi bi-<?= evenementGratuit($evt) ? 'gift' : 'ticket-perforated' ?>" aria-hidden="true"></i></span><span><strong>Tarif</strong><span data-tarif-evenement><?= htmlspecialchars(texteTarifEvenement($evt)) ?></span></span></li>
                 <li><span class="evt-infos__icone"><i class="bi bi-calendar3" aria-hidden="true"></i></span><span><strong>Quand</strong><?= ucfirst(horaireEvenement($evt)) ?></span></li>
                 <li><span class="evt-infos__icone"><i class="bi bi-geo-alt" aria-hidden="true"></i></span><span><strong>Où</strong><?= htmlspecialchars($evt['lieu']) ?></span></li>
                 <?php if ($evt['auteurs']): ?>
@@ -122,7 +122,7 @@ include 'header.php';
                         <?php elseif ($inscriptionsOuvertes && $restantes === 0): ?>
                             <i class="bi bi-hourglass-split" aria-hidden="true"></i> <?= (int) $evt['nb_attente'] ?> personne<?= $evt['nb_attente'] > 1 ? 's' : '' ?> en liste d'attente.
                         <?php elseif ($inscriptionsOuvertes): ?>
-                            <i class="bi bi-gift" aria-hidden="true"></i> Gratuit, sur inscription.
+                            <i class="bi bi-<?= evenementGratuit($evt) ? 'gift' : 'ticket-perforated' ?>" aria-hidden="true"></i> <?= htmlspecialchars(texteTarifEvenement($evt)) ?>
                         <?php endif; ?>
                     </p>
                 </section>

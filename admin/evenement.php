@@ -45,13 +45,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'annul
 }
 
 $erreur = '';
-$valeurs = $evt ?: ['type' => 'rencontre', 'places_max' => 20, 'attente_auto' => 1];
+$valeurs = $evt ?: ['type' => 'rencontre', 'places_max' => 20, 'attente_auto' => 1, 'prix' => 0];
+$avecPrix = colonnePrixEvenement($pdo);
 $livresCoches = $evt ? array_map('intval', array_column(livresEvenement($pdo, $id), 'id_livre')) : [];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? 'enregistrer') === 'enregistrer') {
     exigerPost($retour);
     foreach (['titre', 'description', 'type', 'auteurs', 'lieu', 'date_debut', 'date_fin', 'places_max'] as $c) {
         $valeurs[$c] = trim($_POST[$c] ?? '');
+    }
+    if ($avecPrix) {
+        $valeurs['prix'] = trim((string) ($_POST['prix'] ?? ''));
     }
     $valeurs['attente_auto'] = isset($_POST['attente_auto']) ? 1 : 0;
     $debut = strtotime($valeurs['date_debut']);
@@ -71,9 +75,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? 'enregistrer')
             $valeurs['titre'], $valeurs['description'], $valeurs['type'], $valeurs['auteurs'] ?: null, $valeurs['lieu'],
             date('Y-m-d H:i:s', $debut), date('Y-m-d H:i:s', $fin), $places, $valeurs['attente_auto'],
         ];
+        $prixSaisi = $avecPrix ? (float) lirePrixEvenement((string) $valeurs['prix']) : 0.0;
         if ($evt) {
             $sql = "UPDATE evenement SET titre = ?, description = ?, type = ?, auteurs = ?, lieu = ?, date_debut = ?, date_fin = ?,
-                    places_max = ?, attente_auto = ?" . ($image ? ", image = ?" : "") . " WHERE id_evenement = ?";
+                    places_max = ?, attente_auto = ?" . ($avecPrix ? ", prix = ?" : "") . ($image ? ", image = ?" : "") . " WHERE id_evenement = ?";
+            if ($avecPrix) {
+                $donnees[] = $prixSaisi;
+            }
             if ($image) {
                 $donnees[] = $image;
             }
@@ -87,10 +95,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? 'enregistrer')
             $nouveau = chargerEvenement($pdo, $id);
             prevenirPromus($promus, $nouveau, $pdo);
             $message = $estProposition ? "Modifications enregistrées. Vous pouvez maintenant valider la proposition." : "Modifications enregistrées.";
-            if ($nouveau['date_debut'] !== $evt['date_debut'] || $nouveau['date_fin'] !== $evt['date_fin'] || $nouveau['lieu'] !== $evt['lieu']) {
+            if ($nouveau['date_debut'] !== $evt['date_debut'] || $nouveau['date_fin'] !== $evt['date_fin'] || $nouveau['lieu'] !== $evt['lieu'] || prixEvenement($nouveau) !== prixEvenement($evt)) {
                 $nb = notifierParticipants($pdo, $id, "Changement pour « {$nouveau['titre']} »",
                     "L'événement « {$nouveau['titre']} » auquel vous êtes inscrit a changé :\n\n"
-                    . "Quand : " . horaireEvenement($nouveau) . "\nOù : {$nouveau['lieu']}\n\n"
+                    . "Quand : " . horaireEvenement($nouveau) . "\nOù : {$nouveau['lieu']}\nTarif : " . texteTarifEvenement($nouveau) . "\n\n"
                     . "Si vous ne pouvez plus venir, désinscrivez-vous depuis votre espace pour libérer votre place : " . SITE_URL . "/mes_evenements.php");
                 $message .= " $nb participant" . ($nb > 1 ? 's ont' : ' a') . " été prévenu" . ($nb > 1 ? 's' : '') . " du changement.";
             }
@@ -103,8 +111,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? 'enregistrer')
 
         $donnees[] = $image;
         $donnees[] = $_SESSION['user_id'];
-        $pdo->prepare("INSERT INTO evenement (titre, description, type, auteurs, lieu, date_debut, date_fin, places_max, attente_auto, image, id_createur)
-                       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")->execute($donnees);
+        if ($avecPrix) {
+            $donnees[] = $prixSaisi;
+        }
+        $pdo->prepare("INSERT INTO evenement (titre, description, type, auteurs, lieu, date_debut, date_fin, places_max, attente_auto, image, id_createur" . ($avecPrix ? ", prix" : "") . ")
+                       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?" . ($avecPrix ? ", ?" : "") . ")")->execute($donnees);
         $nouvelId = (int) $pdo->lastInsertId();
         enregistrerLivresEvenement($pdo, $nouvelId, $livresCoches);
         insertLog('EVENEMENT', "Création de l'événement #$nouvelId : {$valeurs['titre']}");
@@ -146,7 +157,7 @@ include __DIR__ . '/_haut.php';
 <?php endif; ?>
 
 <div class="row g-4">
-    <p class="text-muted">Tous les événements sont gratuits. N’indiquez pas de participation payante dans la description.</p>
+    <p class="text-muted">Indiquez un prix de 0 pour un événement gratuit. Un événement payant se règle sur place : le prix est affiché aux lecteurs avant leur inscription.</p>
     <div class="col-xl-8">
         <form method="POST" enctype="multipart/form-data" class="carte p-4">
             <?= champCsrf() ?>
@@ -183,6 +194,13 @@ include __DIR__ . '/_haut.php';
                     <label class="form-label small fw-bold" for="places_max">Places *</label>
                     <input type="number" id="places_max" name="places_max" class="form-control" min="1" value="<?= $v('places_max') ?>" required>
                 </div>
+                <?php if ($avecPrix): ?>
+                    <div class="col-md-4">
+                        <label class="form-label small fw-bold" for="prix">Prix par personne (€) *</label>
+                        <input type="text" id="prix" name="prix" class="form-control" inputmode="decimal" pattern="\d{1,3}([.,]\d{1,2})?" maxlength="6" value="<?= e(valeurChampPrixEvenement($valeurs['prix'] ?? 0)) ?>" required aria-describedby="aide-prix">
+                        <div id="aide-prix" class="form-text">0 = gratuit. Maximum <?= EVT_PRIX_MAX ?> €, réglé sur place.</div>
+                    </div>
+                <?php endif; ?>
                 <div class="col-12">
                     <div class="form-check form-switch">
                         <input class="form-check-input" type="checkbox" role="switch" id="attente_auto" name="attente_auto" <?= !empty($valeurs['attente_auto']) ? 'checked' : '' ?>>

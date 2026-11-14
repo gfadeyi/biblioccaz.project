@@ -44,16 +44,22 @@ $monNom = trim(($moi['prenom'] ?? '') . ' ' . ($moi['nom'] ?? '')) ?: $moi['pseu
 $erreur = '';
 $valeurs = $evt ? [
     'titre' => $evt['titre'], 'type' => $evt['type'], 'lieu' => $evt['lieu'], 'auteurs' => $evt['auteurs'],
-    'places_max' => $evt['places_max'], 'description' => $evt['description'],
+    'places_max' => $evt['places_max'], 'description' => $evt['description'], 'prix' => $evt['prix'] ?? 0,
     'jour' => date('Y-m-d', strtotime($evt['date_debut'])),
     'heure_debut' => date('H:i', strtotime($evt['date_debut'])),
     'heure_fin' => date('H:i', strtotime($evt['date_fin'])),
-] : ['type' => 'dedicace', 'places_max' => 30, 'auteurs' => $monNom];
+] : ['type' => 'dedicace', 'places_max' => 30, 'auteurs' => $monNom, 'prix' => 0];
+$avecPrix = colonnePrixEvenement($pdo);
 $livresCoches = $evt ? array_map('intval', array_column(livresEvenement($pdo, $id), 'id_livre')) : [];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     foreach (['titre', 'type', 'lieu', 'auteurs', 'places_max', 'description', 'jour', 'heure_debut', 'heure_fin'] as $champ) {
         $valeurs[$champ] = trim((string) ($_POST[$champ] ?? ''));
+    }
+    if ($avecPrix) {
+        $valeurs['prix'] = trim((string) ($_POST['prix'] ?? ''));
+    } else {
+        unset($valeurs['prix']);
     }
     $valeurs['date_debut'] = $valeurs['jour'] . ' ' . $valeurs['heure_debut'];
     $valeurs['date_fin'] = $valeurs['jour'] . ' ' . $valeurs['heure_fin'];
@@ -75,18 +81,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $valeurs['titre'], $valeurs['description'], $valeurs['type'], $valeurs['auteurs'] ?: null, $valeurs['lieu'],
             date('Y-m-d H:i:s', strtotime($valeurs['date_debut'])), date('Y-m-d H:i:s', strtotime($valeurs['date_fin'])), (int) $valeurs['places_max'],
         ];
+        $prixSaisi = $avecPrix ? (float) lirePrixEvenement((string) $valeurs['prix']) : 0.0;
         $pdo->beginTransaction();
         try {
             if ($evt) {
                 $donnees[] = $image ?? $evt['image'];
+                if ($avecPrix) {
+                    $donnees[] = $prixSaisi;
+                }
                 array_push($donnees, $id, $idAuteur);
-                $pdo->prepare("UPDATE evenement SET titre = ?, description = ?, type = ?, auteurs = ?, lieu = ?, date_debut = ?, date_fin = ?, places_max = ?, image = ?
+                $pdo->prepare("UPDATE evenement SET titre = ?, description = ?, type = ?, auteurs = ?, lieu = ?, date_debut = ?, date_fin = ?, places_max = ?, image = ?" . ($avecPrix ? ", prix = ?" : "") . "
                                WHERE id_evenement = ? AND id_createur = ? AND statut = 'en_attente'")->execute($donnees);
                 $idEvenement = $id;
             } else {
                 array_push($donnees, $image, $idAuteur);
-                $pdo->prepare("INSERT INTO evenement (titre, description, type, auteurs, lieu, date_debut, date_fin, places_max, attente_auto, image, id_createur, statut)
-                               VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?, 'en_attente')")->execute($donnees);
+                if ($avecPrix) {
+                    $donnees[] = $prixSaisi;
+                }
+                $pdo->prepare("INSERT INTO evenement (titre, description, type, auteurs, lieu, date_debut, date_fin, places_max, attente_auto, image, id_createur, statut" . ($avecPrix ? ", prix" : "") . ")
+                               VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?, 'en_attente'" . ($avecPrix ? ", ?" : "") . ")")->execute($donnees);
                 $idEvenement = (int) $pdo->lastInsertId();
             }
             enregistrerLivresEvenement($pdo, $idEvenement, $livresCoches);
@@ -123,7 +136,7 @@ include 'header.php';
         <span aria-current="page"><?= $evt ? 'Modifier ma proposition' : 'Proposer un événement' ?></span>
     </nav>
     <h1 class="titre-page-compte"><?= $evt ? 'Modifier ma proposition' : 'Proposer un événement' ?></h1>
-    <p class="text-muted">Les événements sont gratuits pour tous les participants. Merci de ne pas indiquer de tarif dans votre proposition.</p>
+    <p class="text-muted">Votre événement peut être gratuit ou payant : indiquez le prix par personne (0 = gratuit). Il est réglé sur place et affiché aux lecteurs avant leur inscription.</p>
 
     <?php if ($flash): ?>
         <div class="alert alert-<?= htmlspecialchars($flash[0]) ?> rounded-3"><?= htmlspecialchars($flash[1]) ?></div>
@@ -171,7 +184,14 @@ include 'header.php';
                     <label class="form-label small fw-bold" for="places_max">Nombre de places *</label>
                     <input type="number" id="places_max" name="places_max" class="form-control" min="1" max="<?= EVT_PLACES_MAX ?>" value="<?= $v('places_max') ?>" required>
                 </div>
-                <div class="col-12">
+                <?php if ($avecPrix): ?>
+                    <div class="col-md-4">
+                        <label class="form-label small fw-bold" for="prix">Prix par personne (€) *</label>
+                        <input type="text" id="prix" name="prix" class="form-control" inputmode="decimal" pattern="\d{1,3}([.,]\d{1,2})?" maxlength="6" value="<?= htmlspecialchars(valeurChampPrixEvenement($valeurs['prix'] ?? 0)) ?>" required aria-describedby="aide-prix">
+                        <div id="aide-prix" class="form-text">0 = gratuit. Maximum <?= EVT_PRIX_MAX ?> €, réglé sur place.</div>
+                    </div>
+                <?php endif; ?>
+                <div class="col-<?= $avecPrix ? 'md-8' : '12' ?>">
                     <label class="form-label small fw-bold" for="auteurs">Intervenant(s)</label>
                     <input type="text" id="auteurs" name="auteurs" class="form-control" maxlength="255" value="<?= $v('auteurs') ?>" placeholder="Séparez les noms par des virgules">
                 </div>

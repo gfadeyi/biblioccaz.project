@@ -1323,6 +1323,8 @@ fieldset legend.form-label { float: none; width: auto; }
 .pastille-evt.complet { background: var(--surface); border-color: var(--vert-fonce); color: var(--texte-vert); }
 .pastille-evt.termine { background: var(--papier); border-color: var(--trait); color: var(--encre-douce); }
 .pastille-evt.annule { background: var(--danger-fond); border-color: var(--danger-trait); color: var(--danger); }
+.pastille-evt.gratuit { background: var(--surface); border-color: var(--vert-200); }
+.pastille-evt.payant { background: var(--surface); border-color: var(--vert-fonce); color: var(--texte-vert); }
 
 .grille-evenement { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 1.5rem; align-items: start; }
 .evt-fiche { padding: 0; overflow: hidden; }

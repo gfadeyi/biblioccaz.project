@@ -95,7 +95,7 @@ include __DIR__ . '/_haut.php';
                         </td>
                         <td>
                             <div class="fw-bold"><?= e($e['titre']) ?></div>
-                            <div class="small text-muted"><?= EVT_TYPES[$e['type']][0] ?? e($e['type']) ?> · <?= e($e['lieu']) ?></div>
+                            <div class="small text-muted"><?= EVT_TYPES[$e['type']][0] ?? e($e['type']) ?> · <?= e($e['lieu']) ?> · <?= e(libellePrixEvenement($e)) ?></div>
                             <?php if ($e['propose_par']): ?>
                                 <div class="small"><i class="bi bi-pen text-success"></i> Proposé par <?= e($e['propose_par']) ?></div>
                             <?php endif; ?>

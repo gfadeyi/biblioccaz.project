@@ -79,6 +79,85 @@ function imageEvenement(?string $image, string $racine = ''): string
     return urlImage($image, $racine);
 }
 
+const EVT_PRIX_MAX = 500;
+const EVT_FILTRES_TARIF = ['gratuit' => 'Gratuits', 'payant' => 'Payants'];
+
+function colonnePrixEvenement(PDO $pdo): bool
+{
+    static $presence = [];
+    $cle = spl_object_id($pdo);
+    if (!isset($presence[$cle])) {
+        try {
+            $presence[$cle] = (bool) $pdo->query("SHOW COLUMNS FROM evenement LIKE 'prix'")->fetch();
+        } catch (PDOException $e) {
+            $presence[$cle] = false;
+        }
+    }
+    return $presence[$cle];
+}
+
+function prixEvenement(array $evt): float
+{
+    return round(max(0, (float) ($evt['prix'] ?? 0)), 2);
+}
+
+function evenementGratuit(array $evt): bool
+{
+    return prixEvenement($evt) <= 0;
+}
+
+function libellePrixEvenement(array $evt): string
+{
+    return evenementGratuit($evt) ? 'Gratuit' : formaterPrix(prixEvenement($evt));
+}
+
+function badgePrixEvenement(array $evt): string
+{
+    if (evenementGratuit($evt)) {
+        return '<span class="pastille-evt gratuit" data-tarif="gratuit"><i class="bi bi-gift" aria-hidden="true"></i> Gratuit</span>';
+    }
+    return '<span class="pastille-evt payant" data-tarif="payant"><i class="bi bi-ticket-perforated" aria-hidden="true"></i> ' . htmlspecialchars(formaterPrix(prixEvenement($evt))) . '</span>';
+}
+
+function texteTarifEvenement(array $evt): string
+{
+    return evenementGratuit($evt) ? 'Gratuit, sur inscription.' : formaterPrix(prixEvenement($evt)) . ' par personne, à régler sur place, sur inscription.';
+}
+
+function lirePrixEvenement(string $saisie): ?float
+{
+    $saisie = str_replace([' ', "\u{00A0}", '€'], '', trim($saisie));
+    if ($saisie === '') {
+        return 0.0;
+    }
+    $saisie = str_replace(',', '.', $saisie);
+    if (!preg_match('/^\d{1,3}(\.\d{1,2})?$/', $saisie)) {
+        return null;
+    }
+    $prix = round((float) $saisie, 2);
+    return $prix <= EVT_PRIX_MAX ? $prix : null;
+}
+
+function valeurChampPrixEvenement(mixed $prix): string
+{
+    if ($prix === null || $prix === '') {
+        return '0';
+    }
+    if (is_string($prix) && !is_numeric($prix)) {
+        return $prix;
+    }
+    $prix = round((float) $prix, 2);
+    return $prix == floor($prix) ? (string) (int) $prix : number_format($prix, 2, ',', '');
+}
+
+function conditionTarifEvenement(PDO $pdo, string $tarif, string $alias = 'e'): string
+{
+    if (!colonnePrixEvenement($pdo) || !isset(EVT_FILTRES_TARIF[$tarif])) {
+        return $tarif === 'payant' && !colonnePrixEvenement($pdo) ? '0 = 1' : '1 = 1';
+    }
+    return $tarif === 'gratuit' ? "$alias.prix <= 0" : "$alias.prix > 0";
+}
+
 function urlPresence(array $inscription): string
 {
     return SITE_URL . '/admin/presence.php?code=' . $inscription['code'];
@@ -302,6 +381,9 @@ function erreurEvenement(array $valeurs, ?array $evt): string
     }
     if ($places < 1 || $places > EVT_PLACES_MAX) {
         return "Le nombre de places doit être compris entre 1 et " . EVT_PLACES_MAX . ".";
+    }
+    if (array_key_exists('prix', $valeurs) && lirePrixEvenement((string) $valeurs['prix']) === null) {
+        return "Le prix doit être un montant entre 0 et " . EVT_PRIX_MAX . " € (0 = gratuit), avec deux décimales au plus.";
     }
     if ($evt && $places < (int) $evt['nb_inscrits']) {
         return "Il y a déjà {$evt['nb_inscrits']} inscrits : impossible de descendre à $places places. Retirez d'abord des participants.";

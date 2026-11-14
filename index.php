@@ -318,7 +318,7 @@ include 'header.php';
                         </span>
                         <span class="ligne-communaute__texte">
                             <strong><?= htmlspecialchars($evt['titre']) ?></strong>
-                            <small><?= ucfirst(EVT_JOURS[(int) date('w', $debutEvt)]) ?> · <?= date('G\hi', $debutEvt) ?> · <?= htmlspecialchars($evt['lieu']) ?></small>
+                            <small><?= ucfirst(EVT_JOURS[(int) date('w', $debutEvt)]) ?> · <?= date('G\hi', $debutEvt) ?> · <?= htmlspecialchars($evt['lieu']) ?> · <span data-tarif-accueil><?= htmlspecialchars(libellePrixEvenement($evt)) ?></span></small>
                             <span class="jauge-places<?= $placesEvt === 0 ? ' complet' : '' ?>" style="--remplissage: <?= round($remplissageEvt, 3) ?>;"><span></span></span>
                             <small class="places-restantes"><?= $placesEvt > 0 ? $placesEvt . ' place' . ($placesEvt > 1 ? 's' : '') . ' libre' . ($placesEvt > 1 ? 's' : '') . ' sur ' . (int) $evt['places_max'] : "Complet · liste d'attente" ?></small>
                             <span class="bouton-inscription"><?= $placesEvt > 0 ? "Je m'inscris" : "Rejoindre la liste d'attente" ?> <i class="bi bi-arrow-right"></i></span>

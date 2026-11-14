@@ -10,7 +10,7 @@ $colonnesTexte = $pdo->query("
     SELECT table_name, column_name FROM information_schema.columns
     WHERE table_schema = DATABASE() AND data_type IN ('char', 'varchar', 'tinytext', 'text', 'mediumtext', 'longtext')")->fetchAll(PDO::FETCH_NUM);
 
-$marqueursCasses = ['├', '┬', 'Ã', 'Â', 'â€', '╗', '®'];
+$marqueursCasses = array_merge(['├', '┬', 'Ã', 'â€', '╗'], array_map(fn($code) => 'Â' . mb_chr($code, 'UTF-8'), range(0xA0, 0xBF)));
 $conditions = implode(' OR ', array_fill(0, count($marqueursCasses), 'BINARY `%s` LIKE ?'));
 $motifs = array_map(fn($marqueur) => '%' . $marqueur . '%', $marqueursCasses);
 $problemes = 0;

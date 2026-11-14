@@ -7,6 +7,7 @@ $type = isset(EVT_TYPES[$_GET['type'] ?? '']) ? $_GET['type'] : '';
 $lieu = trim($_GET['lieu'] ?? '');
 $auteur = trim($_GET['auteur'] ?? '');
 $mois = preg_match('/^\d{4}-\d{2}$/', $_GET['mois'] ?? '') ? $_GET['mois'] : '';
+$tarif = isset(EVT_FILTRES_TARIF[$_GET['tarif'] ?? '']) ? $_GET['tarif'] : '';
 
 $where = ["e.statut = 'publie'", $periode === 'passes' ? "e.date_fin < NOW()" : "e.date_fin >= NOW()"];
 $params = [];
@@ -21,6 +22,9 @@ if ($lieu !== '') {
 if ($auteur !== '') {
     $where[] = "(e.auteurs LIKE ? OR e.titre LIKE ?)";
     array_push($params, "%$auteur%", "%$auteur%");
+}
+if ($tarif !== '') {
+    $where[] = conditionTarifEvenement($pdo, $tarif);
 }
 if ($mois !== '') {
     $where[] = "e.date_debut >= ? AND e.date_debut < ?";
@@ -49,7 +53,7 @@ foreach ($evenements as $e) {
     $t = strtotime($e['date_debut']);
     $parMois[ucfirst(EVT_MOIS[(int) date('n', $t) - 1]) . ' ' . date('Y', $t)][] = $e;
 }
-$filtresActifs = $type !== '' || $lieu !== '' || $auteur !== '' || $mois !== '';
+$filtresActifs = $type !== '' || $lieu !== '' || $auteur !== '' || $mois !== '' || $tarif !== '';
 
 include 'header.php';
 ?>
@@ -58,7 +62,7 @@ include 'header.php';
     <div class="d-flex flex-wrap justify-content-between align-items-end gap-2 mb-4">
         <div>
             <h1 class="fw-bold mb-1" style="color:#274e13;"><i class="bi bi-calendar-event"></i> Événements</h1>
-            <p class="text-muted mb-0">Dédicaces, rencontres et ateliers autour du livre d'occasion. Tous nos événements sont gratuits, sur inscription.</p>
+            <p class="text-muted mb-0">Dédicaces, rencontres et ateliers autour du livre d'occasion. Événements gratuits ou payants, sur inscription.</p>
         </div>
         <?php if (isset($_SESSION['user_id'])): ?>
             <a href="mes_evenements.php" class="btn btn-outline-success rounded-pill fw-bold"><i class="bi bi-ticket-perforated"></i> Mes inscriptions</a>
@@ -72,8 +76,16 @@ include 'header.php';
 
     <form method="GET" class="row g-2 mb-4">
         <?php if ($periode === 'passes'): ?><input type="hidden" name="periode" value="passes"><?php endif; ?>
-        <div class="col-md-3">
+        <div class="col-md-2">
             <input type="text" name="auteur" class="form-control" placeholder="Auteur ou titre" value="<?= htmlspecialchars($auteur) ?>" aria-label="Auteur ou titre">
+        </div>
+        <div class="col-6 col-md-2">
+            <select name="tarif" class="form-select" aria-label="Tarif" data-filtre-tarif>
+                <option value="">Tous les tarifs</option>
+                <?php foreach (EVT_FILTRES_TARIF as $cle => $libelle): ?>
+                    <option value="<?= $cle ?>" <?= $tarif === $cle ? 'selected' : '' ?>><?= $libelle ?></option>
+                <?php endforeach; ?>
+            </select>
         </div>
         <div class="col-6 col-md-2">
             <select name="type" class="form-select" aria-label="Type d'événement">
@@ -83,7 +95,7 @@ include 'header.php';
                 <?php endforeach; ?>
             </select>
         </div>
-        <div class="col-6 col-md-3">
+        <div class="col-6 col-md-2">
             <select name="lieu" class="form-select" aria-label="Lieu">
                 <option value="">Tous les lieux</option>
                 <?php foreach ($lieux as $l): ?>
@@ -129,7 +141,7 @@ include 'header.php';
                             <div class="small"><?= EVT_MOIS_COURTS[(int) date('n', $t) - 1] ?></div>
                         </div>
                         <div class="flex-grow-1 min-w-0">
-                            <div class="d-flex flex-wrap gap-2 mb-1"><?= badgeTypeEvenement($e['type']) ?> <?= badgeEvenement($e) ?> <span class="pastille-evt type">Gratuit</span></div>
+                            <div class="d-flex flex-wrap gap-2 mb-1"><?= badgeTypeEvenement($e['type']) ?> <?= badgeEvenement($e) ?> <?= badgePrixEvenement($e) ?></div>
                             <h3 class="h6 fw-bold mb-1"><?= htmlspecialchars($e['titre']) ?></h3>
                             <div class="small text-muted">
                                 <i class="bi bi-clock"></i> <?= date('G\hi', $t) ?> – <?= date('G\hi', strtotime($e['date_fin'])) ?>
