@@ -19,12 +19,19 @@ const SERVICE_STATUTS = [
     'resolue' => ['Résolue', 'termine'],
 ];
 const SERVICE_SUJET_MAX = 150;
-const SERVICE_MESSAGE_MIN = 10;
+const SERVICE_MESSAGE_MIN = 1;
 const SERVICE_MESSAGE_MAX = 2000;
 const SERVICE_DEMANDES_OUVERTES_MAX = 5;
 const SERVICE_DEMANDES_PAR_JOUR = 5;
 const SERVICE_MESSAGES_PAR_HEURE = 20;
 const SERVICE_REOUVERTURE_JOURS = 14;
+const SERVICE_CATEGORIES_COMMANDE = ['commande', 'livraison', 'retour'];
+const SERVICE_REPONSES_TYPES = [
+    'prise_en_compte' => ['Confirmation de prise en compte', "Bonjour,\n\nMerci pour votre message : votre demande est bien prise en compte. Nous revenons vers vous très rapidement.\n\nBelle journée,\nL’équipe BIBLIOccaz"],
+    'informations' => ['Demande d’informations complémentaires', "Bonjour,\n\nPour traiter votre demande, pourriez-vous nous préciser : \n- \n\nMerci d’avance,\nL’équipe BIBLIOccaz"],
+    'commande' => ['Vérification de la commande', "Bonjour,\n\nNous avons vérifié votre commande : \n\nN’hésitez pas à nous répondre ici si besoin.\nL’équipe BIBLIOccaz"],
+    'cloture' => ['Clôture de la demande', "Bonjour,\n\nVotre demande est résolue, nous la clôturons. Si besoin, vous pouvez la rouvrir en répondant dans les 14 jours.\n\nMerci pour votre confiance,\nL’équipe BIBLIOccaz"],
+];
 
 function serviceClientDisponible(PDO $pdo): bool
 {
@@ -36,6 +43,15 @@ function serviceClientDisponible(PDO $pdo): bool
     }
 }
 
+function demandeTropAnciennePourReouverture(array $demande): bool
+{
+    if ($demande['statut'] !== 'resolue') {
+        return false;
+    }
+    $fermeLe = strtotime((string) ($demande['date_cloture'] ?: $demande['date_maj']));
+    return $fermeLe === false || $fermeLe + SERVICE_REOUVERTURE_JOURS * 86400 < time();
+}
+
 function libelleStatutDemande(string $statut): string
 {
     return SERVICE_STATUTS[$statut][0] ?? ucfirst($statut);
@@ -45,7 +61,7 @@ function normaliserMessageService(string $contenu): string
 {
     $contenu = trim(preg_replace("/\n{3,}/", "\n\n", str_replace(["\r\n", "\r"], "\n", $contenu)));
     if (!mb_check_encoding($contenu, 'UTF-8') || mb_strlen($contenu) < SERVICE_MESSAGE_MIN) {
-        throw new DomainException('Votre message doit compter au moins ' . SERVICE_MESSAGE_MIN . ' caractères.');
+        throw new DomainException('Votre message est vide.');
     }
     if (mb_strlen($contenu) > SERVICE_MESSAGE_MAX) {
         throw new DomainException('Votre message dépasse ' . SERVICE_MESSAGE_MAX . ' caractères.');
@@ -95,6 +111,9 @@ function creerDemandeClient(PDO $pdo, int $idUser, string $categorie, string $su
         }
         verifierCadenceService($pdo, $idUser);
         $commande = null;
+        if (!in_array($categorie, SERVICE_CATEGORIES_COMMANDE, true)) {
+            $idCommande = 0;
+        }
         if ($idCommande > 0) {
             $stmt = $pdo->prepare("SELECT id_commande FROM commande WHERE id_commande = ? AND id_user = ?");
             $stmt->execute([$idCommande, $idUser]);
@@ -172,7 +191,7 @@ function repondreDemandeClient(PDO $pdo, int $idDemande, int $idUser, string $me
         if (!$demande) {
             throw new DomainException('Cette demande ne vous concerne pas.');
         }
-        if ($demande['statut'] === 'resolue' && strtotime((string) $demande['date_cloture'] . ' +' . SERVICE_REOUVERTURE_JOURS . ' days') < time()) {
+        if (demandeTropAnciennePourReouverture($demande)) {
             throw new DomainException('Cette demande est close depuis plus de ' . SERVICE_REOUVERTURE_JOURS . ' jours : ouvrez une nouvelle demande.');
         }
         verifierCadenceService($pdo, $idUser);

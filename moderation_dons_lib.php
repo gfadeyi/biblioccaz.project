@@ -13,7 +13,8 @@ function modifierContenuDonEquipe(PDO $pdo, int $idDon, int $idActeur, array $sa
         $maximum = $champ === 'description' ? 1000 : ($champ === 'motif' ? 500 : 255);
         if (mb_strlen($valeurs[$champ]) > $maximum) { return ['warning', 'Un champ dépasse la longueur autorisée.']; }
     }
-    if ($valeurs['titre'] === '' || $valeurs['lieu_retrait'] === '' || mb_strlen($valeurs['motif']) < 10) { return ['warning', 'Titre, lieu et motif de dix caractères minimum requis.']; }
+    if ($valeurs['titre'] === '' || $valeurs['lieu_retrait'] === '') { return ['warning', 'Le titre et le lieu de retrait sont obligatoires.']; }
+    if ($valeurs['motif'] === '') { $valeurs['motif'] = 'Correction par l’équipe.'; }
     try {
         $pdo->beginTransaction();
         $requete = $pdo->prepare('SELECT role, statut, email_verifie FROM `user` WHERE id = ? FOR UPDATE');
@@ -57,8 +58,17 @@ function suiviModerationDonsDisponible(PDO $pdo): bool
 function modererDon(PDO $pdo, int $idDon, int $idModerateur, string $action, string $motif, string $statutAttendu, ?int $beneficiaireAttendu, string $reservationAttendue): array
 {
     $motif = trim($motif);
-    if (!in_array($action, ['annuler', 'liberer', 'valider', 'refuser'], true) || mb_strlen($motif) < 10 || mb_strlen($motif) > 500) {
-        return ['danger', 'Choisissez une action et indiquez un motif de 10 à 500 caractères.'];
+    if (!in_array($action, ['annuler', 'liberer', 'valider', 'refuser'], true)) {
+        return ['danger', 'Choisissez une action.'];
+    }
+    if (mb_strlen($motif) > 500) {
+        return ['danger', 'Le motif ne doit pas dépasser 500 caractères.'];
+    }
+    if ($motif === '') {
+        if ($action !== 'valider') {
+            return ['danger', 'Indiquez un motif (un mot suffit) : il est envoyé aux membres concernés.'];
+        }
+        $motif = 'Don conforme.';
     }
     try {
         $pdo->beginTransaction();

@@ -73,8 +73,14 @@ if ($f['q'] !== '') {
         $where[] = "REPLACE(REPLACE(UPPER(l.isbn), '-', ''), ' ', '') LIKE :isbn_prefixe ESCAPE '!'";
         $params['isbn_prefixe'] = $rechercheIsbn . '%';
     } else {
-        $where[] = "(l.titre LIKE :q1 ESCAPE '!' OR l.auteur LIKE :q2 ESCAPE '!' OR l.isbn LIKE :q3 ESCAPE '!' OR l.editeur LIKE :q4 ESCAPE '!')";
+        $motifCompact = motifCompactRecherche($f['q']);
+        $where[] = "(l.titre LIKE :q1 ESCAPE '!' OR l.auteur LIKE :q2 ESCAPE '!' OR l.isbn LIKE :q3 ESCAPE '!' OR l.editeur LIKE :q4 ESCAPE '!'"
+            . ($motifCompact !== '' ? " OR " . colonneCompacteSql('l.titre') . " LIKE :qc1 ESCAPE '!' OR " . colonneCompacteSql('l.auteur') . " LIKE :qc2 ESCAPE '!'" : '') . ")";
         foreach (['q1', 'q2', 'q3', 'q4'] as $k) { $params[$k] = motifRecherche($f['q']); }
+        if ($motifCompact !== '') {
+            $params['qc1'] = $motifCompact;
+            $params['qc2'] = $motifCompact;
+        }
     }
 }
 if ($f['categorie'] !== '') {
@@ -120,8 +126,14 @@ if ($triActif === 'pertinence') {
         "2 * COALESCE(av.moyenne, 0)",
     ];
     if ($f['q'] !== '' && isbnRecherche($f['q']) === '') {
-        $termesPertinence[] = "CASE WHEN l.titre LIKE :pertinence_debut ESCAPE '!' THEN 40 WHEN l.titre LIKE :pertinence_titre ESCAPE '!' THEN 30
-                                    WHEN l.auteur LIKE :pertinence_auteur ESCAPE '!' THEN 20 ELSE 0 END";
+        $motifCompactPertinence = motifCompactRecherche($f['q']);
+        $termesPertinence[] = "CASE WHEN l.titre LIKE :pertinence_debut ESCAPE '!' THEN 40 WHEN l.titre LIKE :pertinence_titre ESCAPE '!' THEN 30"
+            . ($motifCompactPertinence !== '' ? " WHEN " . colonneCompacteSql('l.titre') . " LIKE :pertinence_compact_debut ESCAPE '!' THEN 38 WHEN " . colonneCompacteSql('l.titre') . " LIKE :pertinence_compact ESCAPE '!' THEN 28" : '')
+            . " WHEN l.auteur LIKE :pertinence_auteur ESCAPE '!' THEN 20 ELSE 0 END";
+        if ($motifCompactPertinence !== '') {
+            $paramsTri['pertinence_compact_debut'] = substr($motifCompactPertinence, 1);
+            $paramsTri['pertinence_compact'] = $motifCompactPertinence;
+        }
         $paramsTri['pertinence_debut'] = substr(motifRecherche($f['q']), 1);
         $paramsTri['pertinence_titre'] = motifRecherche($f['q']);
         $paramsTri['pertinence_auteur'] = motifRecherche($f['q']);

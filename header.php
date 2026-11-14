@@ -29,6 +29,8 @@ if ($connected) {
     require_once __DIR__ . '/emprunts_lib.php';
     verifierEmpruntsSiBesoin($pdo);
 }
+require_once __DIR__ . '/livraison_lib.php';
+avancerSuiviCommandesSiBesoin($pdo);
 $resumeCompte = ($connected && $userRole === 'client') ? resumeCompte($pdo, (int) $_SESSION['user_id']) : null;
 $nbMessagesNonLus = ($connected && in_array($userRole, ['client', 'auteur'], true)) ? nombreMessagesNonLus($pdo, (int) $_SESSION['user_id']) : 0;
 require_once __DIR__ . '/notifications_membre_lib.php';
@@ -62,33 +64,43 @@ if ($resumeCompte) {
     $liensMenuCompte = [
         ['points_badges.php', 'medaille', 'Mes points et badges', 0],
         ['suggestions.php', 'lunettes', 'Suggestions pour vous', 0],
+        null,
         ['commandes.php', 'colis', 'Mes achats', $resumeCompte['commandes']],
         ['retours.php', 'carton', 'Mes retours', 0],
+        null,
         ['wishlist.php', 'marque-page', 'Mes favoris', $nb_favoris],
         ['alertes.php', 'clochette', 'Mes alertes', $resumeCompte['alertes']],
         ['adresses.php', 'enveloppe', 'Mes adresses', 0],
-        ['avis.php', 'plume', 'Mes avis', $resumeCompte['avis']],
-        ['messages.php', 'bulle', 'Mes messages', $nbMessagesNonLus],
-        ['notifications.php', 'clochette', 'Mes notifications', $nbNotificationsNonLues],
-        ['service_client.php', 'enveloppe', 'Service client', $nbReponsesService],
-        ['mes_dons.php', 'carton', 'Mes dons', $resumeCompte['dons']],
+        null,
+        ['mes_dons.php', 'seconde-vie', 'Mes dons', $resumeCompte['dons']],
         ['mes_annonces.php', 'etiquette', 'Mes annonces', $resumeCompte['annonces'] ?? 0],
         ['mes_transactions.php', 'cabas', 'Mes ventes et achats', $resumeCompte['transactions'] ?? 0],
         ['mes_emprunts.php', 'livre-ouvert', 'Mes emprunts', $resumeCompte['emprunts'] ?? 0],
         ['mes_evenements.php', 'ticket', 'Mes événements', $resumeCompte['evenements']],
+        ['ma_collection.php', 'pile', 'Mes collections', 0],
+        null,
+        ['avis.php', 'plume', 'Mes avis', $resumeCompte['avis']],
+        ['messages.php', 'bulle', 'Mes messages', $nbMessagesNonLus],
+        ['notifications.php', 'clochette', 'Mes notifications', $nbNotificationsNonLues],
+        null,
+        ['service_client.php', 'tasse', 'Service client', $nbReponsesService],
     ];
 } elseif ($connected && $userRole === 'auteur') {
     $liensMenuCompte = [
         ['dashboard_auteur.php', 'plume', 'Espace créateur', 0],
         ['suggestions.php', 'lunettes', 'Suggestions pour vous', 0],
-        ['proposer_evenement.php', 'ticket', 'Proposer un événement', 0],
         ['proposer_ouvrage.php', 'livre-ouvert', 'Proposer un livre', 0],
+        ['proposer_evenement.php', 'ticket', 'Proposer un événement', 0],
+        null,
         ['mes_annonces.php', 'etiquette', 'Mes annonces', 0],
         ['mes_transactions.php', 'cabas', 'Mes ventes et achats', 0],
         ['mes_emprunts.php', 'pile', 'Mes emprunts', 0],
+        ['ma_collection.php', 'pile', 'Mes collections', 0],
+        null,
         ['messages.php', 'bulle', 'Mes messages', $nbMessagesNonLus],
         ['notifications.php', 'clochette', 'Mes notifications', $nbNotificationsNonLues],
-        ['service_client.php', 'enveloppe', 'Service client', $nbReponsesService],
+        null,
+        ['service_client.php', 'tasse', 'Service client', $nbReponsesService],
     ];
 } elseif ($connected) {
     $liensMenuCompte = [
@@ -96,10 +108,6 @@ if ($resumeCompte) {
         ['admin/moderation_livres.php', 'tampon', 'Fiches à valider', $nb_notif_livres],
         ['admin/moderation_avis.php', 'bulle', 'Avis signalés', $nb_notif_avis],
     ];
-}
-
-if ($connected && in_array($userRole, ['client', 'auteur'], true)) {
-    $liensMenuCompte[] = ['ma_collection.php', 'pile', 'Mes collections', 0];
 }
 
 $livreAjoute = $_SESSION['panier_ajout'] ?? null;
@@ -257,7 +265,16 @@ $nomOnglet = trim((string) ($titreDocument ?? $titrePage ?? $titresOnglets[$page
                         <?php if ($nbNotificationsNonLues > 0): ?><span class="pastille" data-compteur-notifications><?= $nbNotificationsNonLues > 99 ? '99+' : $nbNotificationsNonLues ?></span><?php endif; ?>
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end p-2 shadow border-0 menu-notifications">
-                        <li class="menu-notifications__titre">Notifications<?= $nbNotificationsNonLues ? ' (' . $nbNotificationsNonLues . ' non lue' . ($nbNotificationsNonLues > 1 ? 's' : '') . ')' : '' ?></li>
+                        <li class="menu-notifications__titre">
+                            <span data-titre-notifications>Notifications<?= $nbNotificationsNonLues ? ' (' . $nbNotificationsNonLues . ' non lue' . ($nbNotificationsNonLues > 1 ? 's' : '') . ')' : '' ?></span>
+                            <?php if ($nbNotificationsNonLues > 0): ?>
+                                <form method="POST" action="notification_action.php" class="menu-notifications__tout-lire" data-tout-lire>
+                                    <input type="hidden" name="csrf" value="<?= htmlspecialchars(jetonCsrf(), ENT_QUOTES, 'UTF-8') ?>">
+                                    <input type="hidden" name="action" value="tout_lire">
+                                    <button type="submit">Tout marquer comme lu</button>
+                                </form>
+                            <?php endif; ?>
+                        </li>
                         <?php if (!$apercuNotifications): ?>
                             <li class="menu-notifications__vide">Aucune notification pour le moment.</li>
                         <?php endif; ?>
@@ -312,7 +329,12 @@ $nomOnglet = trim((string) ($titreDocument ?? $titrePage ?? $titresOnglets[$page
                             </li>
                         <?php endif; ?>
                         <li><a class="lien-menu-compte" href="profil.php"><?= iconeDessin('lecteur') ?><span>Mon profil</span></a></li>
-                        <?php foreach ($liensMenuCompte as [$lienMenu, $iconeMenu, $libelleMenu, $compteurMenu]): ?>
+                        <?php foreach ($liensMenuCompte as $entreeMenu): ?>
+                            <?php if ($entreeMenu === null): ?>
+                                <li class="menu-entete__separateur" role="separator"><hr class="dropdown-divider"></li>
+                                <?php continue; ?>
+                            <?php endif; ?>
+                            <?php [$lienMenu, $iconeMenu, $libelleMenu, $compteurMenu] = $entreeMenu; ?>
                             <li>
                                 <a class="lien-menu-compte" href="<?= $lienMenu ?>">
                                     <?= iconeDessin($iconeMenu) ?><span><?= $libelleMenu ?></span>

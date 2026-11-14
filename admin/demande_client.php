@@ -60,6 +60,7 @@ $sousTitrePage = $demande['reference'] . ' · ' . (SERVICE_CATEGORIES[$demande['
 $pageActive = 'service_client';
 $filAriane = [[null, 'Ventes'], ['service_client.php', 'Service client']];
 $actionsPage = [['service_client.php', 'arrow-left', 'Toutes les demandes', 'btn-outline-secondary'], actionDemandeAvisEquipe('demande_client', $idDemande)];
+$scriptsPage = '<script src="' . e(urlStatique('javascript/reponses_types.js', '../')) . '" defer></script>';
 include __DIR__ . '/_haut.php';
 ?>
 
@@ -92,12 +93,23 @@ include __DIR__ . '/_haut.php';
                     <?= champCsrf() ?>
                     <input type="hidden" name="action" value="repondre">
                     <input type="hidden" name="date_maj" value="<?= e((string) $demande['date_maj']) ?>">
-                    <label for="reponse-equipe" class="form-label fw-bold small">Répondre au client</label>
-                    <textarea id="reponse-equipe" name="message" class="form-control mb-2" rows="5" minlength="<?= SERVICE_MESSAGE_MIN ?>" maxlength="<?= SERVICE_MESSAGE_MAX ?>" required><?= e($brouillon) ?></textarea>
+                    <div class="d-flex flex-wrap justify-content-between align-items-end gap-2 mb-1">
+                        <label for="reponse-equipe" class="form-label fw-bold small mb-0">Répondre au client</label>
+                        <div class="reponses-types">
+                            <label for="reponse-type" class="visually-hidden">Insérer une réponse type</label>
+                            <select id="reponse-type" class="form-select form-select-sm" data-reponses-types>
+                                <option value="">Réponse type…</option>
+                                <?php foreach (SERVICE_REPONSES_TYPES as $cle => [$libelle, $texte]): ?>
+                                    <option value="<?= e($cle) ?>" data-texte="<?= e($texte) ?>"<?= $cle === 'cloture' ? ' data-resoudre="1"' : '' ?>><?= e($libelle) ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                    </div>
+                    <textarea id="reponse-equipe" name="message" class="form-control mb-2" rows="5" maxlength="<?= SERVICE_MESSAGE_MAX ?>" required><?= e($brouillon) ?></textarea>
                     <div class="d-flex flex-wrap gap-3 justify-content-between align-items-center">
                         <div class="form-check mb-0">
                             <input type="checkbox" class="form-check-input" id="reponse-resoudre" name="resoudre" value="1">
-                            <label class="form-check-label small" for="reponse-resoudre">Marquer la demande comme résolue</label>
+                            <label class="form-check-label small" for="reponse-resoudre">Résoudre et fermer la demande</label>
                         </div>
                         <button type="submit" class="btn btn-vert btn-sm"><i class="bi bi-send" aria-hidden="true"></i> Envoyer la réponse</button>
                     </div>

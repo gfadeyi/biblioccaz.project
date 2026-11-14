@@ -168,3 +168,34 @@ function emailMembreDon(PDO $pdo, int $idUser): string
     $stmt->execute([$idUser]);
     return (string) $stmt->fetchColumn();
 }
+
+const DON_PHOTOS_MAX = 3;
+
+function photosDonDisponibles(PDO $pdo): bool
+{
+    static $disponible = null;
+    if ($disponible === null) {
+        try {
+            $pdo->query('SELECT id_photo FROM don_photo LIMIT 0');
+            $disponible = true;
+        } catch (PDOException $e) {
+            $disponible = false;
+        }
+    }
+    return $disponible;
+}
+
+function photosSupplementairesDon(PDO $pdo, int $idDon): array
+{
+    if (!photosDonDisponibles($pdo)) {
+        return [];
+    }
+    $stmt = $pdo->prepare('SELECT id_photo, fichier FROM don_photo WHERE id_don = ? ORDER BY ordre, id_photo');
+    $stmt->execute([$idDon]);
+    return array_values(array_filter($stmt->fetchAll(), fn($photo) => is_file(__DIR__ . '/img/dons/' . basename($photo['fichier']))));
+}
+
+function cheminPhotoDon(string $fichier): string
+{
+    return 'img/dons/' . rawurlencode(basename($fichier));
+}

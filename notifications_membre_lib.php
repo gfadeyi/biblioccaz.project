@@ -11,6 +11,7 @@ const NOTIFICATIONS_TYPES = [
     'evenement_place' => 'ticket',
     'evenement_proposition' => 'ticket',
     'retour' => 'colis',
+    'commande' => 'camion',
     'service_client' => 'enveloppe',
     'information' => 'clochette',
 ];

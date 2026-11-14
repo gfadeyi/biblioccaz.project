@@ -56,6 +56,14 @@ include __DIR__ . '/_haut.php';
                     <?= badgeStatutDon($don) ?>
                 </div>
             </div>
+            <?php $photosSupplementaires = photosSupplementairesDon($pdo, $idDon); ?>
+            <?php if ($photosSupplementaires): ?>
+                <ul class="galerie-don mb-3" aria-label="Autres photos du don">
+                    <?php foreach ($photosSupplementaires as $numeroPhoto => $photoSupplementaire): ?>
+                        <li><a href="../<?= e(cheminPhotoDon($photoSupplementaire['fichier'])) ?>" target="_blank" rel="noopener"><img src="../<?= e(cheminPhotoDon($photoSupplementaire['fichier'])) ?>" alt="Photo <?= $numeroPhoto + 2 ?>" loading="lazy"></a></li>
+                    <?php endforeach; ?>
+                </ul>
+            <?php endif; ?>
             <dl class="row mb-0" style="overflow-wrap:anywhere;">
                 <dt class="col-sm-4">Donneur</dt><dd class="col-sm-8">@<?= e($don['donneur_pseudo']) ?></dd>
                 <dt class="col-sm-4">Bénéficiaire</dt><dd class="col-sm-8"><?= $don['beneficiaire_pseudo'] ? '@' . e($don['beneficiaire_pseudo']) : 'Aucune réservation' ?></dd>
@@ -124,8 +132,8 @@ include __DIR__ . '/_haut.php';
                         <option value="annuler">Annuler le don</option>
                     </select>
                     <label for="motif" class="form-label">Motif communiqué aux membres</label>
-                    <textarea id="motif" name="motif" class="form-control" rows="4" required minlength="10" maxlength="500" aria-describedby="aide-motif"></textarea>
-                    <p id="aide-motif" class="form-text">10 à 500 caractères. Expliquez simplement la raison de votre intervention.</p>
+                    <textarea id="motif" name="motif" class="form-control" rows="4" maxlength="500" aria-describedby="aide-motif"></textarea>
+                    <p id="aide-motif" class="form-text">500 caractères au plus. Facultatif pour une validation ; un mot suffit pour les autres actions (« Ok », « Doublon »…).</p>
                     <button class="btn btn-success w-100">Enregistrer l’intervention</button>
                 </form>
             <?php endif; ?>
@@ -145,7 +153,7 @@ include __DIR__ . '/_haut.php';
             <textarea class="form-control" id="modifier-<?= e($champ) ?>" name="<?= e($champ) ?>" rows="<?= $champ === 'description' ? 3 : 1 ?>" maxlength="<?= $champ === 'description' ? 1000 : 255 ?>" <?= in_array($champ, ['titre', 'lieu_retrait'], true) ? 'required' : '' ?>><?= e($don[$champ]) ?></textarea>
         <?php endforeach; ?>
         <label class="form-label mt-3" for="modifier-motif">Motif communiqué au donneur</label>
-        <textarea class="form-control" id="modifier-motif" name="motif" minlength="10" maxlength="500" required></textarea>
+        <textarea class="form-control" id="modifier-motif" name="motif" maxlength="500"></textarea>
         <button class="btn btn-outline-success mt-3">Enregistrer et remettre en validation</button>
     </form>
 </section>

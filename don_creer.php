@@ -22,6 +22,8 @@ if ($idDon) {
         header('Location: mes_dons.php'); exit();
     }
 }
+$photosDisponibles = photosDonDisponibles($pdo);
+$photosExistantes = $donAModifier ? photosSupplementairesDon($pdo, (int) $donAModifier['id_don']) : [];
 $erreurs = [];
 $v = array_merge([
     'id_livre' => '', 'titre' => '', 'auteur' => '', 'id_categorie' => '', 'etat' => 'bon',
@@ -63,12 +65,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     $photo = null;
+    $nouvellesPhotos = [];
+    $photosRetirees = [];
+    if ($photosDisponibles) {
+        $idsARetirer = array_map('intval', is_array($_POST['retirer_photos'] ?? null) ? $_POST['retirer_photos'] : []);
+        $photosRetirees = array_values(array_filter($photosExistantes, fn($p) => in_array((int) $p['id_photo'], $idsARetirer, true)));
+        $envois = fichiersEnvoyes('photos');
+        if (count($photosExistantes) - count($photosRetirees) + count($envois) > DON_PHOTOS_MAX - 1) {
+            $erreurs[] = 'Vous pouvez ajouter ' . (DON_PHOTOS_MAX - 1) . ' photos en plus de la photo principale, soit ' . DON_PHOTOS_MAX . ' au total.';
+        }
+    }
     if (!$erreurs) {
         [$photo, $erreurPhoto] = enregistrerCouverture('photo', 'dons/');
         if ($erreurPhoto !== '') {
             $erreurs[] = $erreurPhoto;
         } elseif ($photo === null && empty($donAModifier['photo'])) {
             $erreurs[] = "Ajoutez une photo du livre que vous donnez pour montrer son état.";
+        }
+    }
+    if (!$erreurs && $photosDisponibles) {
+        foreach ($envois as $envoi) {
+            [$fichierPhoto, $erreurPhoto] = enregistrerImageEnvoyee($envoi, 'dons/');
+            if ($erreurPhoto !== '') {
+                $erreurs[] = $erreurPhoto;
+                break;
+            }
+            $nouvellesPhotos[] = $fichierPhoto;
+        }
+        if ($erreurs) {
+            foreach (array_filter([$photo, ...$nouvellesPhotos]) as $fichierPhoto) {
+                @unlink(__DIR__ . '/img/dons/' . $fichierPhoto);
+            }
+            $photo = null;
+            $nouvellesPhotos = [];
         }
     }
 
@@ -105,7 +134,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     ->execute([...$donnees, (int) $_SESSION['user_id'], bin2hex(random_bytes(16)), genererCodeCourt($pdo)]);
                 $idDon = (int) $pdo->lastInsertId();
             }
+            if ($photosDisponibles) {
+                foreach ($photosRetirees as $photoRetiree) {
+                    $pdo->prepare('DELETE FROM don_photo WHERE id_photo = ? AND id_don = ?')->execute([(int) $photoRetiree['id_photo'], $idDon]);
+                }
+                $ordre = count($photosExistantes) - count($photosRetirees);
+                foreach ($nouvellesPhotos as $fichierPhoto) {
+                    $pdo->prepare('INSERT INTO don_photo (id_don, fichier, ordre) VALUES (?, ?, ?)')->execute([$idDon, $fichierPhoto, ++$ordre]);
+                }
+            }
             $pdo->commit();
+            foreach ($photosRetirees as $photoRetiree) {
+                @unlink(__DIR__ . '/img/dons/' . basename($photoRetiree['fichier']));
+            }
             $anciennePhoto = basename((string) ($donAModifier['photo'] ?? ''));
             if ($photo && $anciennePhoto !== '' && $anciennePhoto !== $photo && is_file(__DIR__ . '/img/dons/' . $anciennePhoto)) {
                 unlink(__DIR__ . '/img/dons/' . $anciennePhoto);
@@ -115,7 +156,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             header('Location: don_detail.php?id=' . $idDon); exit();
         } catch (Throwable $erreur) {
             if ($pdo->inTransaction()) { $pdo->rollBack(); }
-            if ($photo && is_file(__DIR__ . '/img/dons/' . $photo)) { unlink(__DIR__ . '/img/dons/' . $photo); }
+            foreach (array_filter([$photo, ...$nouvellesPhotos]) as $fichierPhoto) {
+                if (is_file(__DIR__ . '/img/dons/' . $fichierPhoto)) { unlink(__DIR__ . '/img/dons/' . $fichierPhoto); }
+            }
             $erreurs[] = $erreur instanceof DomainException ? $erreur->getMessage() : 'Le don n’a pas pu être enregistré. Merci de réessayer.';
         }
     }
@@ -180,6 +223,27 @@ include 'header.php';
                 <p id="don-photo-erreur" class="small text-danger mt-2" role="status" hidden></p>
                 <img id="don-photo-apercu" alt="Aperçu de la photo de votre livre" class="mt-3 rounded" style="max-width: 100%; max-height: 180px; object-fit: contain;" hidden>
             </div>
+            <?php if ($photosDisponibles): ?>
+                <div class="col-12">
+                    <label for="don-photos" class="form-label fw-bold small">Autres photos (facultatif)</label>
+                    <input id="don-photos" type="file" name="photos[]" accept="image/jpeg,image/png,image/webp" class="form-control" multiple data-photos-max="<?= DON_PHOTOS_MAX - 1 ?>" data-photos-existantes="<?= count($photosExistantes) ?>" aria-describedby="don-photos-aide don-photos-erreur">
+                    <div id="don-photos-aide" class="form-text">Dos, tranche, page intérieure… <?= DON_PHOTOS_MAX ?> photos au total avec la principale, 2 Mo chacune.</div>
+                    <p id="don-photos-erreur" class="small text-danger mt-2" role="status" hidden></p>
+                    <div class="apercu-photos-don" id="don-photos-apercu"></div>
+                    <?php if ($photosExistantes): ?>
+                        <fieldset class="photos-don-existantes mt-2">
+                            <legend class="small fw-bold mb-1">Photos déjà ajoutées : cochez celles à retirer</legend>
+                            <?php foreach ($photosExistantes as $photoExistante): ?>
+                                <label class="photo-don-existante">
+                                    <input type="checkbox" name="retirer_photos[]" value="<?= (int) $photoExistante['id_photo'] ?>">
+                                    <img src="<?= htmlspecialchars(cheminPhotoDon($photoExistante['fichier'])) ?>" alt="Photo supplémentaire" loading="lazy">
+                                    <span>Retirer</span>
+                                </label>
+                            <?php endforeach; ?>
+                        </fieldset>
+                    <?php endif; ?>
+                </div>
+            <?php endif; ?>
             <div class="col-12">
                 <label for="don-description" class="form-label fw-bold small">Description</label>
                 <textarea id="don-description" name="description" rows="3" class="form-control" maxlength="1000" placeholder="Annotations, pages cornées, édition..."><?= htmlspecialchars($v['description']) ?></textarea>

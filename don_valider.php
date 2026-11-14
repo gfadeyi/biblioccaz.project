@@ -95,8 +95,15 @@ include 'header.php';
             <?php if ($don && !$erreur): ?>
                 <div class="alert alert-secondary">Ce don est <?= strtolower(DON_STATUTS[statutDon($don)][0]) ?>.</div>
             <?php endif; ?>
-            <p class="text-muted small">Pas de QR code sous la main ? Saisissez le code à 6 caractères affiché sur la page du donneur.</p>
-            <form method="POST" class="d-flex gap-2">
+            <div class="scanner-don" data-scanner-don hidden>
+                <button type="button" class="btn btn-outline-success rounded-pill w-100" data-scanner-ouvrir aria-expanded="false"><i class="bi bi-camera" aria-hidden="true"></i> <span>Scanner le QR code avec la caméra</span></button>
+                <div data-scanner-cadre hidden class="mt-2">
+                    <video playsinline muted class="scanner-don__video" aria-label="Aperçu de la caméra"></video>
+                </div>
+                <p class="small mt-2 mb-3" data-scanner-etat role="status" aria-live="polite"></p>
+            </div>
+            <p class="text-muted small">Pas de caméra ? Saisissez le code à 6 caractères affiché sur la page du donneur.</p>
+            <form method="POST" class="d-flex gap-2" data-formulaire-code-don>
                 <input type="text" name="code_court" maxlength="6" required class="form-control text-center text-uppercase font-monospace fs-4"
                        style="letter-spacing: 6px;" placeholder="ABC234" autocomplete="off" value="<?= htmlspecialchars($codeCourt) ?>">
                 <button class="btn btn-success rounded-pill px-4">Valider</button>
@@ -105,4 +112,4 @@ include 'header.php';
     </div>
 </div>
 
-<?php include 'footer.php'; ?>
+<?php $scriptsPage = ['scanner_don.js']; include 'footer.php'; ?>

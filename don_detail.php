@@ -80,6 +80,14 @@ function boutonActionDon(string $action, int $idDon, string $csrf, string $libel
                 <img src="<?= htmlspecialchars(photoDon($don['photo'], $don['couverture_don'])) ?>" alt="<?= htmlspecialchars(legendePhotoDon($don['photo'], $don['couverture_don']) . ' : ' . $don['titre']) ?>" style="max-height: 100%; max-width: 100%; object-fit: contain;">
             </div>
             <p class="small text-muted mt-2 mb-0"><?= htmlspecialchars(legendePhotoDon($don['photo'], $don['couverture_don'])) ?></p>
+            <?php $photosSupplementaires = photosSupplementairesDon($pdo, (int) $don['id_don']); ?>
+            <?php if ($photosSupplementaires): ?>
+                <ul class="galerie-don" aria-label="Autres photos du livre">
+                    <?php foreach ($photosSupplementaires as $numeroPhoto => $photoSupplementaire): ?>
+                        <li><a href="<?= htmlspecialchars(cheminPhotoDon($photoSupplementaire['fichier'])) ?>" target="_blank" rel="noopener"><img src="<?= htmlspecialchars(cheminPhotoDon($photoSupplementaire['fichier'])) ?>" alt="Photo <?= $numeroPhoto + 2 ?> de « <?= htmlspecialchars($don['titre']) ?> »" loading="lazy"></a></li>
+                    <?php endforeach; ?>
+                </ul>
+            <?php endif; ?>
         </div>
 
         <div class="col-md-5">
@@ -144,7 +152,7 @@ function boutonActionDon(string $action, int $idDon, string $csrf, string $libel
                     <h6 class="fw-bold"><i class="bi bi-bookmark-check text-success"></i> Vous avez réservé ce livre</h6>
                     <p class="small">Convenez du jour et du lieu de retrait avec <strong>@<?= htmlspecialchars($don['donneur_pseudo']) ?></strong> <a href="#conversation">dans la conversation ci-dessous</a>.</p>
                     <p class="small text-muted">Sur place, scannez le QR code du donneur avec votre téléphone, ou saisissez le code qu'il vous donnera :</p>
-                    <a href="don_valider.php" class="btn btn-success rounded-pill w-100 mb-2"><i class="bi bi-qr-code-scan"></i> Saisir le code</a>
+                    <a href="don_valider.php" class="btn btn-success rounded-pill w-100 mb-2"><i class="bi bi-qr-code-scan"></i> Scanner ou saisir le code</a>
                     <?= boutonActionDon('annuler_reservation', (int) $don['id_don'], $csrf, 'Annuler ma réservation', 'btn-link btn-sm text-danger', 'Annuler votre réservation ?') ?>
 
                 <?php elseif ($estBeneficiaire && $statut === 'recupere'): ?>

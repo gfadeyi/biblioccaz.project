@@ -111,16 +111,19 @@ include 'header.php';
             <?php endforeach; ?>
         </ol>
 
-        <?php $close = $demande['statut'] === 'resolue'; $tropAncienne = $close && strtotime((string) $demande['date_cloture'] . ' +' . SERVICE_REOUVERTURE_JOURS . ' days') < time(); ?>
+        <?php $close = $demande['statut'] === 'resolue'; $tropAncienne = demandeTropAnciennePourReouverture($demande); ?>
         <?php if ($tropAncienne): ?>
-            <p class="text-muted">Demande close. <a href="service_client.php#nouvelle">Ouvrir une nouvelle demande</a></p>
+            <p class="demande-fermee"><i class="bi bi-lock" aria-hidden="true"></i> Demande fermée depuis plus de <?= SERVICE_REOUVERTURE_JOURS ?> jours : elle ne peut plus être rouverte. <a href="service_client.php#nouvelle">Ouvrir une nouvelle demande</a></p>
         <?php else: ?>
+            <?php if ($close): ?>
+                <p class="demande-fermee"><i class="bi bi-lock" aria-hidden="true"></i> Demande résolue et fermée le <?= date('d/m/Y', strtotime((string) ($demande['date_cloture'] ?: $demande['date_maj']))) ?>. Vous pouvez encore la rouvrir en écrivant jusqu’au <?= date('d/m/Y', strtotime((string) ($demande['date_cloture'] ?: $demande['date_maj'])) + SERVICE_REOUVERTURE_JOURS * 86400) ?>.</p>
+            <?php endif; ?>
             <form method="POST" class="carte-compte mt-3">
                 <input type="hidden" name="csrf" value="<?= htmlspecialchars($csrf, ENT_QUOTES, 'UTF-8') ?>">
                 <input type="hidden" name="action" value="repondre">
                 <input type="hidden" name="id_demande" value="<?= (int) $demande['id_demande'] ?>">
                 <label for="service-reponse" class="form-label fw-bold"><?= $close ? 'Écrire pour rouvrir la demande' : 'Votre message' ?></label>
-                <textarea id="service-reponse" name="message" class="form-control mb-2" rows="4" minlength="<?= SERVICE_MESSAGE_MIN ?>" maxlength="<?= SERVICE_MESSAGE_MAX ?>" required><?= htmlspecialchars($brouillon) ?></textarea>
+                <textarea id="service-reponse" name="message" class="form-control mb-2" rows="4" maxlength="<?= SERVICE_MESSAGE_MAX ?>" required><?= htmlspecialchars($brouillon) ?></textarea>
                 <div class="d-flex flex-wrap gap-2 justify-content-between align-items-center">
                     <button type="submit" class="btn btn-success rounded-pill fw-bold px-4">Envoyer</button>
                     <small class="text-muted">Vos coordonnées ne sont jamais affichées dans ce fil.</small>
@@ -166,7 +169,7 @@ include 'header.php';
                         <?php foreach (SERVICE_CATEGORIES as $cle => $libelle): ?><option value="<?= $cle ?>"<?= $saisie['categorie'] === $cle ? ' selected' : '' ?>><?= htmlspecialchars($libelle) ?></option><?php endforeach; ?>
                     </select>
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-6" id="zone-commande-service" data-categories-commande="<?= htmlspecialchars(implode(' ', SERVICE_CATEGORIES_COMMANDE)) ?>">
                     <label for="service-commande" class="form-label fw-bold">Commande concernée</label>
                     <select id="service-commande" name="id_commande" class="form-select">
                         <option value="0">Aucune</option>
@@ -179,7 +182,7 @@ include 'header.php';
                 </div>
                 <div class="col-12">
                     <label for="service-message" class="form-label fw-bold">Message *</label>
-                    <textarea id="service-message" name="message" class="form-control" rows="5" minlength="<?= SERVICE_MESSAGE_MIN ?>" maxlength="<?= SERVICE_MESSAGE_MAX ?>" required><?= htmlspecialchars($saisie['message']) ?></textarea>
+                    <textarea id="service-message" name="message" class="form-control" rows="5" maxlength="<?= SERVICE_MESSAGE_MAX ?>" required><?= htmlspecialchars($saisie['message']) ?></textarea>
                 </div>
             </div>
             <button type="submit" class="btn btn-success rounded-pill fw-bold px-4 mt-3">Envoyer ma demande</button>
@@ -187,4 +190,4 @@ include 'header.php';
     <?php endif; ?>
 </div>
 
-<?php include 'footer.php'; ?>
+<?php $scriptsPage = ['service_client.js']; include 'footer.php'; ?>
