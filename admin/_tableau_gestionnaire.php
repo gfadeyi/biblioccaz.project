@@ -7,6 +7,8 @@ $moi = (int) $_SESSION['user_id'];
 $catalogue = aLeDroit('catalogue');
 $evenements = aLeDroit('evenements');
 $moderation = aLeDroit('moderation');
+$gestionDons = aLeDroit('dons');
+$ventesLecteurs = aLeDroit('ventes');
 if ($catalogue) {
     require_once __DIR__ . '/../emprunts_lib.php';
     verifierEmprunts($pdo);
@@ -85,23 +87,30 @@ if ($evenements) {
 }
 
 $filesModeration = [];
+if ($catalogue) {
+    $filesModeration[] = ['shield-check', 'Fiches livres à valider', $compteurs['livres'], 'moderation_livres.php'];
+    $filesModeration[] = ['arrow-return-left', 'Retours à traiter', $compteurs['retours'] ?? 0, 'retours.php'];
+}
+if ($gestionDons) {
+    $filesModeration[] = ['gift', 'Dons à valider', $compteurs['dons'] ?? 0, 'dons.php?statut=en_validation'];
+    $filesModeration[] = ['hourglass-split', 'Retraits de dons en retard', (int) compter($pdo, "SELECT COUNT(*) FROM don WHERE statut = 'reserve' AND date_limite < CURDATE()"), 'dons.php?statut=reserve'];
+}
+$filesModeration[] = ['headset', 'Service client de mon pôle', $compteurs['service_client'] ?? 0, 'service_client.php'];
 if ($moderation) {
-    $filesModeration = [
-        ['shield-check', 'Fiches livres à valider', $compteurs['livres'], 'moderation_livres.php'],
-        ['shop', 'Annonces à valider', $compteurs['annonces'] ?? 0, 'annonces.php'],
-        ['gift', 'Dons à valider', $compteurs['dons'] ?? 0, 'dons.php?statut=en_validation'],
-        ['patch-check', 'Avis à valider', $compteurs['avis_a_valider'] ?? 0, 'avis_a_valider.php'],
-        ['flag', 'Avis signalés', $compteurs['avis'], 'moderation_avis.php'],
-        ['chat-dots', 'Messages signalés', $compteurs['messages'] ?? 0, 'messages.php'],
-        ['people', 'Ventes entre lecteurs à surveiller', $compteurs['ventes'] ?? 0, 'ventes.php'],
-    ];
+    $filesModeration[] = ['shop', 'Annonces à valider', $compteurs['annonces'] ?? 0, 'annonces.php'];
+    $filesModeration[] = ['patch-check', 'Avis à valider', $compteurs['avis_a_valider'] ?? 0, 'avis_a_valider.php'];
+    $filesModeration[] = ['flag', 'Avis signalés', $compteurs['avis'], 'moderation_avis.php'];
+    $filesModeration[] = ['chat-dots', 'Messages signalés', $compteurs['messages'] ?? 0, 'messages.php'];
+}
+if ($ventesLecteurs) {
+    $filesModeration[] = ['people', 'Ventes entre lecteurs à surveiller', $compteurs['ventes'] ?? 0, 'ventes.php'];
 }
 if ($evenements) {
     $filesModeration[] = ['calendar-plus', 'Propositions d’événements', $compteurs['evenements_proposes'] ?? 0, 'evenements.php?onglet=proposes'];
 }
 
 $titrePage = 'Tableau de bord';
-$sousTitrePage = 'Bonjour ' . (($_SESSION['prenom'] ?? '') ?: ($_SESSION['pseudo'] ?? '')) . ', voici la boutique, le stock, les emprunts et les événements au ' . date('d/m/Y') . '.';
+$sousTitrePage = 'Bonjour ' . (($_SESSION['prenom'] ?? '') ?: ($_SESSION['pseudo'] ?? '')) . ', voici la boutique, le stock, les dons, les emprunts et les événements au ' . date('d/m/Y') . '.';
 $pageActive = 'index';
 $actionsPage = [];
 if ($catalogue) {
@@ -210,7 +219,7 @@ include __DIR__ . '/_haut.php';
             <section class="carte h-100" aria-labelledby="titreModeration">
                 <?php $totalModeration = array_sum(array_column($filesModeration, 2)); ?>
                 <div class="carte-entete">
-                    <h2 id="titreModeration">Mes files de modération</h2>
+                    <h2 id="titreModeration">Mes files à traiter</h2>
                     <span class="etiquette <?= $totalModeration > 0 ? 'etiquette-alerte' : '' ?>"><?= $totalModeration > 0 ? $totalModeration . ' en attente' : 'Tout est à jour' ?></span>
                 </div>
                 <ul class="liste-a-traiter">

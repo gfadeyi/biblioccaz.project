@@ -20,7 +20,7 @@ function modifierContenuDonEquipe(PDO $pdo, int $idDon, int $idActeur, array $sa
         $requete = $pdo->prepare('SELECT role, statut, email_verifie FROM `user` WHERE id = ? FOR UPDATE');
         $requete->execute([$idActeur]);
         $acteur = $requete->fetch();
-        if (!$acteur || !in_array($acteur['role'], ['admin', 'gestionnaire', 'moderateur'], true) || !in_array($acteur['statut'], ['actif', 'valide_moderateur'], true) || !(int) $acteur['email_verifie']) { throw new DomainException('Accès refusé.'); }
+        if (!$acteur || !in_array($acteur['role'], ['admin', 'gestionnaire', 'moderateur'], true) || !in_array($acteur['statut'], ['actif', 'valide_moderateur'], true) || !(int) $acteur['email_verifie'] || !rolePossedeDroit($pdo, $acteur['role'], 'dons', DROITS_EQUIPE_DEFAUT)) { throw new DomainException('Accès refusé.'); }
         $requete = $pdo->prepare('SELECT * FROM don WHERE id_don = ? FOR UPDATE');
         $requete->execute([$idDon]);
         $don = $requete->fetch();
@@ -75,7 +75,7 @@ function modererDon(PDO $pdo, int $idDon, int $idModerateur, string $action, str
         $requete = $pdo->prepare('SELECT role, statut, email_verifie FROM `user` WHERE id = ? FOR UPDATE');
         $requete->execute([$idModerateur]);
         $membre = $requete->fetch();
-        if (!$membre || !in_array($membre['role'], ['admin', 'gestionnaire', 'moderateur'], true) || !in_array($membre['statut'], ['actif', 'valide_moderateur'], true) || !(int) $membre['email_verifie']) {
+        if (!$membre || !in_array($membre['role'], ['admin', 'gestionnaire', 'moderateur'], true) || !in_array($membre['statut'], ['actif', 'valide_moderateur'], true) || !(int) $membre['email_verifie'] || !rolePossedeDroit($pdo, $membre['role'], 'dons', DROITS_EQUIPE_DEFAUT)) {
             throw new DomainException('Votre compte ne permet pas de modérer les dons.');
         }
         $requete = $pdo->prepare('SELECT * FROM don WHERE id_don = ? FOR UPDATE');

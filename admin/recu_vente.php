@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/_init.php';
 require_once __DIR__ . '/../ventes_lib.php';
-exigerDroit('moderation');
+exigerDroit('ventes');
 
 $idDemande = (int) ($_GET['id'] ?? 0);
 try {

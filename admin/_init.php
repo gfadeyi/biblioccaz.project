@@ -53,12 +53,20 @@ function exigerDroit(string $droit, bool $json = false): void
         header('Location: login.php');
         exit();
     }
+    refuserAcces('Votre rôle ne donne pas accès à cette page.');
+}
+
+function refuserAcces(string $message, string $retour = ''): never
+{
     global $pdo;
     http_response_code(403);
     $titrePage = 'Accès refusé';
     $pageActive = '';
     include __DIR__ . '/_haut.php';
-    echo '<div class="alert alert-warning"><i class="bi bi-lock me-2"></i>Votre rôle ne donne pas accès à cette page.</div>';
+    echo '<div class="alert alert-warning"><i class="bi bi-lock me-2"></i>' . e($message) . '</div>';
+    if ($retour !== '') {
+        echo '<a class="btn btn-outline-secondary" href="' . e($retour) . '">Retour</a>';
+    }
     include __DIR__ . '/_bas.php';
     exit();
 }
@@ -112,7 +120,11 @@ function compteursEquipe(PDO $pdo): array
     } catch (PDOException $e) {
     }
     try {
-        $c['service_client'] = (int) $pdo->query("SELECT COUNT(*) FROM demande_client WHERE statut = 'nouvelle' OR (statut <> 'resolue' AND non_lu_equipe = 1)")->fetchColumn();
+        require_once __DIR__ . '/../service_client_lib.php';
+        [$conditionPerimetre, $paramsPerimetre] = conditionPerimetreService($pdo, (string) ($_SESSION['role'] ?? ''), (int) ($_SESSION['user_id'] ?? 0));
+        $stmt = $pdo->prepare("SELECT COUNT(*) FROM demande_client d WHERE (d.statut = 'nouvelle' OR (d.statut <> 'resolue' AND d.non_lu_equipe = 1)) AND $conditionPerimetre");
+        $stmt->execute($paramsPerimetre);
+        $c['service_client'] = (int) $stmt->fetchColumn();
     } catch (PDOException $e) {
     }
     try {

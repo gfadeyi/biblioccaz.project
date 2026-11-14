@@ -2,12 +2,16 @@
 require_once __DIR__ . '/_init.php';
 require_once __DIR__ . '/../moderation_dons_lib.php';
 require_once __DIR__ . '/../messagerie_equipe_lib.php';
-exigerDroit('moderation');
+exigerDroit('dons_lecture');
 
 $idDon = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT) ?: 0;
 $retour = 'don.php?id=' . $idDon;
 $suiviDisponible = suiviModerationDonsDisponible($pdo);
+$gestionDons = aLeDroit('dons');
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!$gestionDons) {
+        refuserAcces('La gestion des dons est réservée aux membres de l’équipe qui en ont le droit. Utilisez « Demander l’avis de l’équipe » pour signaler ce don.', $retour);
+    }
     exigerPost($retour);
     if (!$suiviDisponible) {
         rediriger($retour, 'warning', 'Le suivi des interventions doit être installé avant toute modification.');
@@ -100,7 +104,11 @@ include __DIR__ . '/_haut.php';
                 <h2 class="h5">Échanges liés au don</h2>
                 <div class="d-flex flex-wrap gap-2">
                     <?php foreach ($conversations as $conversation): ?>
-                        <a class="btn btn-outline-secondary" href="conversation.php?id=<?= (int) $conversation['id_conversation'] ?>">Conversation #<?= (int) $conversation['id_conversation'] ?> · <?= e(STATUTS_CONVERSATION[$conversation['statut']][0] ?? $conversation['statut']) ?></a>
+                        <?php if (aLeDroit('moderation')): ?>
+                            <a class="btn btn-outline-secondary" href="conversation.php?id=<?= (int) $conversation['id_conversation'] ?>">Conversation #<?= (int) $conversation['id_conversation'] ?> · <?= e(STATUTS_CONVERSATION[$conversation['statut']][0] ?? $conversation['statut']) ?></a>
+                        <?php else: ?>
+                            <span class="etiquette etiquette-neutre">Conversation #<?= (int) $conversation['id_conversation'] ?> · <?= e(STATUTS_CONVERSATION[$conversation['statut']][0] ?? $conversation['statut']) ?></span>
+                        <?php endif; ?>
                     <?php endforeach; ?>
                 </div>
             </section>
@@ -109,7 +117,9 @@ include __DIR__ . '/_haut.php';
     <div class="col-lg-5">
         <section class="carte p-4">
             <h2 class="h5">Intervenir sur ce don</h2>
-            <?php if (!$suiviDisponible): ?>
+            <?php if (!$gestionDons): ?>
+                <div class="alert alert-info mb-0" data-dons-lecture-seule><i class="bi bi-eye me-1" aria-hidden="true"></i> Consultation seule : la validation, la correction, l’annulation et les réservations relèvent de la gestion des dons. Un problème ? Utilisez « Demander l’avis de l’équipe » pour le signaler.</div>
+            <?php elseif (!$suiviDisponible): ?>
                 <div class="alert alert-warning mb-0">Installez <code>sql/maj_moderation_dons.sql</code> pour activer les interventions avec historique.</div>
             <?php elseif (!in_array($don['statut'], ['disponible', 'reserve', 'en_validation', 'refuse'], true)): ?>
                 <p class="mb-0 text-muted">Ce don est terminé. Son historique et ses points sont conservés.</p>
@@ -141,7 +151,7 @@ include __DIR__ . '/_haut.php';
     </div>
 </div>
 
-<?php if (in_array($don['statut'], ['en_validation', 'refuse', 'disponible'], true) && $suiviDisponible): ?>
+<?php if ($gestionDons && in_array($don['statut'], ['en_validation', 'refuse', 'disponible'], true) && $suiviDisponible): ?>
 <section class="carte p-4 mt-4">
     <h2 class="h5">Corriger le contenu</h2>
     <p class="text-muted small">Une correction remet le don en validation et le masque jusqu’à son acceptation. Un don réservé ou terminé ne peut pas être modifié.</p>

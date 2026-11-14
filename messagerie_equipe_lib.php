@@ -5,12 +5,12 @@ const LONGUEUR_MESSAGE_EQUIPE = 2000;
 const ENVOIS_EQUIPE_PAR_HEURE = 60;
 const MEMBRES_GROUPE_EQUIPE_MAX = 12;
 const DEMANDES_AVIS_EQUIPE = [
-    'livre'        => ['moderation_livres.php', 'la fiche livre', 'moderation'],
+    'livre'        => ['moderation_livres.php', 'la fiche livre', 'catalogue'],
     'annonce'      => ['annonce.php?id=', "l'annonce", 'moderation'],
-    'don'          => ['don.php?id=', 'le don', 'moderation'],
+    'don'          => ['don.php?id=', 'le don', 'dons_lecture'],
     'avis'         => ['moderation_avis.php', "l'avis signalé", 'moderation'],
     'conversation' => ['conversation.php?id=', 'la conversation', 'moderation'],
-    'vente'        => ['ventes.php', 'la vente entre lecteurs', 'moderation'],
+    'vente'        => ['ventes.php', 'la vente entre lecteurs', 'ventes'],
     'evenement'    => ['evenement.php?id=', "la proposition d'événement", 'evenements'],
     'demande_client' => ['demande_client.php?id=', 'la demande client', 'equipe'],
     'retour'       => ['retour.php?id=', 'la demande de retour', 'catalogue'],

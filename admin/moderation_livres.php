@@ -3,7 +3,7 @@ require_once __DIR__ . '/_init.php';
 require_once __DIR__ . '/../archivage_catalogue_lib.php';
 require_once __DIR__ . '/../messagerie_equipe_lib.php';
 require_once __DIR__ . '/../decisions_equipe_lib.php';
-exigerDroit('moderation');
+exigerDroit('catalogue');
 $exclureArchives = archivageCatalogueDisponible($pdo) ? ' AND NOT EXISTS (SELECT 1 FROM livre_archive ar WHERE ar.id_livre = l.id_livre AND ar.actif = 1)' : '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {

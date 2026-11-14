@@ -1,12 +1,15 @@
 <?php
 require_once __DIR__ . '/notifications_lib.php';
 require_once __DIR__ . '/notifications_membre_lib.php';
+require_once __DIR__ . '/droits_equipe_lib.php';
 
 const SERVICE_CATEGORIES = [
     'commande' => 'Commande ou paiement',
     'livraison' => 'Livraison',
     'retour' => 'Retour ou remboursement',
     'compte' => 'Mon compte',
+    'avis' => 'Avis et commentaires',
+    'messages' => 'Messages entre membres',
     'don' => 'Dons et échanges',
     'evenement' => 'Événements',
     'technique' => 'Problème sur le site',
@@ -26,12 +29,59 @@ const SERVICE_DEMANDES_PAR_JOUR = 5;
 const SERVICE_MESSAGES_PAR_HEURE = 20;
 const SERVICE_REOUVERTURE_JOURS = 14;
 const SERVICE_CATEGORIES_COMMANDE = ['commande', 'livraison', 'retour'];
+const SERVICE_CATEGORIES_DROITS = [
+    'commande' => 'catalogue',
+    'livraison' => 'catalogue',
+    'retour' => 'catalogue',
+    'don' => 'dons',
+    'evenement' => 'evenements',
+    'compte' => 'moderation',
+    'avis' => 'moderation',
+    'messages' => 'moderation',
+    'technique' => 'equipe',
+    'autre' => 'equipe',
+];
 const SERVICE_REPONSES_TYPES = [
     'prise_en_compte' => ['Confirmation de prise en compte', "Bonjour,\n\nMerci pour votre message : votre demande est bien prise en compte. Nous revenons vers vous très rapidement.\n\nBelle journée,\nL’équipe BIBLIOccaz"],
     'informations' => ['Demande d’informations complémentaires', "Bonjour,\n\nPour traiter votre demande, pourriez-vous nous préciser : \n- \n\nMerci d’avance,\nL’équipe BIBLIOccaz"],
     'commande' => ['Vérification de la commande', "Bonjour,\n\nNous avons vérifié votre commande : \n\nN’hésitez pas à nous répondre ici si besoin.\nL’équipe BIBLIOccaz"],
     'cloture' => ['Clôture de la demande', "Bonjour,\n\nVotre demande est résolue, nous la clôturons. Si besoin, vous pouvez la rouvrir en répondant dans les 14 jours.\n\nMerci pour votre confiance,\nL’équipe BIBLIOccaz"],
 ];
+
+function droitCategorieService(string $categorie): string
+{
+    return SERVICE_CATEGORIES_DROITS[$categorie] ?? 'equipe';
+}
+
+function categoriesServicePourRole(PDO $pdo, string $role): array
+{
+    return array_keys(array_filter(SERVICE_CATEGORIES_DROITS, fn($droit) => rolePossedeDroit($pdo, $role, $droit, DROITS_EQUIPE_DEFAUT)));
+}
+
+function peutTraiterDemandeClient(PDO $pdo, array $demande, int $idMembre, string $role): bool
+{
+    return (int) ($demande['id_assigne'] ?? 0) === $idMembre
+        || rolePossedeDroit($pdo, $role, droitCategorieService((string) $demande['categorie']), DROITS_EQUIPE_DEFAUT);
+}
+
+function roleMembreEquipe(PDO $pdo, int $idMembre): string
+{
+    $stmt = $pdo->prepare("SELECT role FROM `user` WHERE id = ?");
+    $stmt->execute([$idMembre]);
+    return (string) $stmt->fetchColumn();
+}
+
+function conditionPerimetreService(PDO $pdo, string $role, int $idMembre, string $alias = 'd'): array
+{
+    if ($role === 'admin') {
+        return ['1 = 1', []];
+    }
+    $categories = categoriesServicePourRole($pdo, $role);
+    if (!$categories) {
+        return ["$alias.id_assigne = ?", [$idMembre]];
+    }
+    return ["($alias.categorie IN (" . implode(', ', array_fill(0, count($categories), '?')) . ") OR $alias.id_assigne = ?)", [...$categories, $idMembre]];
+}
 
 function serviceClientDisponible(PDO $pdo): bool
 {
@@ -231,6 +281,9 @@ function repondreDemandeEquipe(PDO $pdo, int $idDemande, int $idActeur, string $
         if (!$demande) {
             throw new DomainException('Cette demande n’existe pas.');
         }
+        if (!peutTraiterDemandeClient($pdo, $demande, $idActeur, roleMembreEquipe($pdo, $idActeur))) {
+            throw new DomainException('Cette catégorie relève d’un autre pôle : confiez la demande à un collègue.');
+        }
         if ($dateMajAttendue !== '' && $demande['date_maj'] !== $dateMajAttendue) {
             throw new DomainException('Le client ou un collègue vient d’écrire : relisez le fil avant de répondre.');
         }
@@ -268,6 +321,9 @@ function attribuerDemandeClient(PDO $pdo, int $idDemande, int $idActeur, int $id
     if (!$demande) {
         return ['warning', 'Cette demande n’existe pas.'];
     }
+    if ($idAssigne === $idActeur && !peutTraiterDemandeClient($pdo, $demande, $idActeur, roleMembreEquipe($pdo, $idActeur))) {
+        return ['warning', 'Cette catégorie relève d’un autre pôle : confiez la demande à un collègue.'];
+    }
     $pdo->prepare("UPDATE demande_client SET id_assigne = ?, statut = IF(statut = 'nouvelle', 'en_cours', statut) WHERE id_demande = ?")->execute([$idAssigne, $idDemande]);
     $stmt = $pdo->prepare("SELECT pseudo FROM user WHERE id = ?");
     $stmt->execute([$idAssigne]);
@@ -290,6 +346,13 @@ function changerStatutDemandeEquipe(PDO $pdo, int $idDemande, int $idActeur, str
 {
     if (!in_array($statut, ['resolue', 'en_cours'], true)) {
         return ['warning', 'Statut inconnu.'];
+    }
+    $demandeActuelle = demandeClient($pdo, $idDemande);
+    if (!$demandeActuelle) {
+        return ['warning', 'Cette demande n’existe pas.'];
+    }
+    if (!peutTraiterDemandeClient($pdo, $demandeActuelle, $idActeur, roleMembreEquipe($pdo, $idActeur))) {
+        return ['warning', 'Cette catégorie relève d’un autre pôle : confiez la demande à un collègue.'];
     }
     $stmt = $pdo->prepare("UPDATE demande_client SET statut = ?, date_cloture = ?, non_lu_equipe = 0, date_maj = NOW() WHERE id_demande = ? AND statut <> ?");
     $stmt->execute([$statut, $statut === 'resolue' ? date('Y-m-d H:i:s') : null, $idDemande, $statut]);

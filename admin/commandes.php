@@ -145,7 +145,7 @@ $filtresActifs = $recherche !== '' || $statutFiltre !== '' || $periode !== '';
                         </td>
                         <td data-libelle="Statut">
                             <?php if ($annulee): ?>
-                                <span class="etiquette etiquette-alerte" title="Le <?= date('d/m/Y', strtotime($commande['date_annulation'])) ?>"><i class="bi bi-x-circle" aria-hidden="true"></i> Annulée</span>
+                                <span class="etiquette etiquette-alerte"<?= $commande['date_annulation'] ? ' title="Le ' . date('d/m/Y', strtotime($commande['date_annulation'])) . '"' : '' ?>><i class="bi bi-x-circle" aria-hidden="true"></i> Annulée</span>
                             <?php else: ?>
                                 <span class="etiquette"><i class="bi bi-check2" aria-hidden="true"></i> Validée</span>
                             <?php endif; ?>

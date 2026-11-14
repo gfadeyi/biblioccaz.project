@@ -11,10 +11,15 @@ if (!serviceClientDisponible($pdo)) {
     rediriger('service_client.php', 'warning', 'Le service client n’est pas installé.');
 }
 
+$roleMoi = (string) $_SESSION['role'];
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     exigerPost($lienDemande);
     $texte = fn(string $cle) => is_string($_POST[$cle] ?? null) ? $_POST[$cle] : '';
     $action = $texte('action');
+    $demandeVisee = demandeClient($pdo, $idDemande);
+    if ($demandeVisee && in_array($action, ['repondre', 'prendre', 'resolue', 'en_cours'], true) && !peutTraiterDemandeClient($pdo, $demandeVisee, $idMoi, $roleMoi)) {
+        refuserAcces('La catégorie « ' . (SERVICE_CATEGORIES[$demandeVisee['categorie']] ?? 'Autre') . ' » relève d’un autre pôle de l’équipe. Vous pouvez lire la demande et la confier à un collègue.', $lienDemande);
+    }
     if ($action === 'repondre') {
         [$type, $message] = repondreDemandeEquipe($pdo, $idDemande, $idMoi, $texte('message'), isset($_POST['resoudre']), $texte('date_maj'));
         if ($type !== 'success') {
@@ -54,6 +59,7 @@ $stmt = $pdo->prepare("SELECT COUNT(*) FROM demande_client WHERE id_user = ? AND
 $stmt->execute([(int) $demande['id_user'], $idDemande]);
 $autresDemandes = (int) $stmt->fetchColumn();
 $close = $demande['statut'] === 'resolue';
+$peutTraiter = peutTraiterDemandeClient($pdo, $demande, $idMoi, $roleMoi);
 
 $titrePage = $demande['sujet'];
 $sousTitrePage = $demande['reference'] . ' · ' . (SERVICE_CATEGORIES[$demande['categorie']] ?? 'Autre') . ' · @' . $demande['pseudo'];
@@ -89,6 +95,9 @@ include __DIR__ . '/_haut.php';
                     <?php endforeach; ?>
                 </ol>
 
+                <?php if (!$peutTraiter): ?>
+                    <div class="alert alert-info mt-3 mb-0" data-sav-lecture-seule><i class="bi bi-eye me-1" aria-hidden="true"></i> Lecture seule : la catégorie « <?= e(SERVICE_CATEGORIES[$demande['categorie']] ?? 'Autre') ?> » est traitée par un autre pôle de l’équipe. Confiez la demande au collègue concerné ou demandez l’avis de l’équipe.</div>
+                <?php else: ?>
                 <form method="POST" class="mt-3 pt-3 border-top">
                     <?= champCsrf() ?>
                     <input type="hidden" name="action" value="repondre">
@@ -115,6 +124,7 @@ include __DIR__ . '/_haut.php';
                     </div>
                     <p class="small text-muted mt-2 mb-0">Le client reçoit une notification et un mail. Pour une question à un collègue, utilisez plutôt « Demander l’avis de l’équipe » ou « Confier ».</p>
                 </form>
+                <?php endif; ?>
             </div>
         </section>
     </div>
@@ -124,7 +134,7 @@ include __DIR__ . '/_haut.php';
             <div class="carte-entete"><h2 class="h6 fw-bold mb-0">Traitement</h2></div>
             <div class="carte-corps">
                 <p class="small mb-3">Responsable : <strong><?= $demande['pseudo_assigne'] ? '@' . e($demande['pseudo_assigne']) : 'personne' ?></strong></p>
-                <?php if ((int) $demande['id_assigne'] !== $idMoi): ?>
+                <?php if ((int) $demande['id_assigne'] !== $idMoi && $peutTraiter): ?>
                     <form method="POST" class="mb-3">
                         <?= champCsrf() ?>
                         <input type="hidden" name="action" value="prendre">
@@ -139,7 +149,8 @@ include __DIR__ . '/_haut.php';
                         <select id="attribuer-collegue" name="id_assigne" class="form-select form-select-sm mb-2" required>
                             <option value="" disabled selected>Choisir</option>
                             <?php foreach ($collegues as $collegue): ?>
-                                <option value="<?= (int) $collegue['id'] ?>"<?= (int) $collegue['id'] === (int) $demande['id_assigne'] ? ' disabled' : '' ?>>@<?= e($collegue['pseudo']) ?> (<?= e($collegue['role']) ?>)</option>
+                                <?php $colleguePeutTraiter = rolePossedeDroit($pdo, (string) $collegue['role'], droitCategorieService((string) $demande['categorie']), DROITS); ?>
+                                <option value="<?= (int) $collegue['id'] ?>"<?= (int) $collegue['id'] === (int) $demande['id_assigne'] ? ' disabled' : '' ?>>@<?= e($collegue['pseudo']) ?> (<?= e(ROLES_LIBELLES[$collegue['role']] ?? $collegue['role']) ?><?= $colleguePeutTraiter ? ', pôle concerné' : '' ?>)</option>
                             <?php endforeach; ?>
                         </select>
                         <label for="attribuer-note" class="visually-hidden">Note pour le collègue</label>
@@ -147,11 +158,13 @@ include __DIR__ . '/_haut.php';
                         <button type="submit" class="btn btn-outline-secondary btn-sm w-100"><i class="bi bi-chat-left-text" aria-hidden="true"></i> Confier et prévenir dans la messagerie</button>
                     </form>
                 <?php endif; ?>
+                <?php if ($peutTraiter): ?>
                 <form method="POST"<?= $close ? '' : ' data-confirmer="Marquer cette demande comme résolue ? Le client sera prévenu par notification." data-bouton-confirmer="Résoudre"' ?>>
                     <?= champCsrf() ?>
                     <input type="hidden" name="action" value="<?= $close ? 'en_cours' : 'resolue' ?>">
                     <button type="submit" class="btn <?= $close ? 'btn-outline-secondary' : 'btn-vert' ?> btn-sm w-100"><i class="bi bi-<?= $close ? 'arrow-counterclockwise' : 'check2-circle' ?>" aria-hidden="true"></i> <?= $close ? 'Rouvrir la demande' : 'Résoudre sans répondre' ?></button>
                 </form>
+                <?php endif; ?>
             </div>
         </section>
         <section class="carte">

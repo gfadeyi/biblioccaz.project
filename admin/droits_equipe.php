@@ -2,7 +2,7 @@
 require_once __DIR__ . '/_init.php';
 exigerDroit('admin');
 $defaut = droitsEquipeParDefaut(DROITS);
-$etat = chargerParametreSite($pdo, 'droits_equipe', $defaut);
+$etat = configurationDroitsEquipe($pdo, DROITS);
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     exigerPost('droits_equipe.php');
     try {
@@ -26,7 +26,7 @@ $pageActive = 'droits_equipe';
 include __DIR__ . '/_haut.php';
 ?>
 <p class="text-muted">Attribuez les familles de fonctionnalités aux gestionnaires et aux modérateurs. Les comptes clients et auteurs ne peuvent pas accéder au back-office.</p>
-<div class="alert alert-info">L’administration des comptes, des paramètres, des sessions et du journal reste réservée aux administrateurs. Les droits des administrateurs ne peuvent pas être retirés ici.</div>
+<div class="alert alert-info">L’administration des comptes, des paramètres, des sessions et du journal reste réservée aux administrateurs. Les droits des administrateurs ne peuvent pas être retirés ici. La gestion complète des dons inclut leur consultation. Au service client, chacun répond aux demandes des catégories de ses familles (commande, livraison et retour : catalogue ; dons : gestion des dons ; compte, avis et messages : modération ; événements : événements) et à celles qu’on lui confie ; toute l’équipe lit les demandes, les confie à un collègue et traite « Problème sur le site » et « Autre question ».</div>
 <?php if (!$etat['disponible']): ?><div class="alert alert-warning">Installez <code>sql/maj_parametres_site.sql</code> pour activer les réglages. Les droits habituels sont conservés.</div><?php endif; ?>
 <form method="POST" class="carte p-4 mb-4">
     <?= champCsrf() ?>

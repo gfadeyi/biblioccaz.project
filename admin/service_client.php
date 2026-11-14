@@ -12,6 +12,9 @@ $filtre = array_key_exists($_GET['statut'] ?? '', FILTRES_DEMANDES) ? $_GET['sta
 $categorie = array_key_exists($_GET['categorie'] ?? '', SERVICE_CATEGORIES) ? $_GET['categorie'] : '';
 $attribution = in_array($_GET['attribution'] ?? '', ['moi', 'personne'], true) ? $_GET['attribution'] : '';
 $recherche = is_string($_GET['q'] ?? null) ? mb_substr(trim($_GET['q']), 0, 60) : '';
+$roleMoi = (string) $_SESSION['role'];
+$perimetre = $roleMoi !== 'admin' && ($_GET['perimetre'] ?? '') !== 'equipe' ? 'mes' : 'equipe';
+$categoriesMiennes = categoriesServicePourRole($pdo, $roleMoi);
 $page = max(1, (int) ($_GET['page'] ?? 1));
 $demandes = [];
 $total = 0;
@@ -21,6 +24,11 @@ $compteursDemandes = ['a_traiter' => 0, 'nouvelle' => 0, 'moi' => 0, 'resolue_se
 if ($disponible) {
     $where = [];
     $params = [];
+    [$conditionPerimetre, $paramsPerimetre] = conditionPerimetreService($pdo, $roleMoi, $idMoi);
+    if ($perimetre === 'mes') {
+        $where[] = $conditionPerimetre;
+        array_push($params, ...$paramsPerimetre);
+    }
     if ($filtre === 'a_traiter') {
         $where[] = "(d.statut = 'nouvelle' OR (d.statut <> 'resolue' AND d.non_lu_equipe = 1))";
     } elseif ($filtre === 'ouvertes') {
@@ -68,19 +76,20 @@ if ($disponible) {
             COALESCE(SUM(statut = 'nouvelle'), 0),
             COALESCE(SUM(statut <> 'resolue' AND id_assigne = ?), 0),
             COALESCE(SUM(statut = 'resolue' AND date_cloture > NOW() - INTERVAL 7 DAY), 0)
-        FROM demande_client");
-    $stmt->execute([$idMoi]);
+        FROM demande_client d WHERE " . ($perimetre === 'mes' ? $conditionPerimetre : '1 = 1'));
+    $stmt->execute($perimetre === 'mes' ? [$idMoi, ...$paramsPerimetre] : [$idMoi]);
     $compteursDemandes = array_combine(array_keys($compteursDemandes), array_map('intval', $stmt->fetch(PDO::FETCH_NUM)));
 }
 
 function lienDemandes(array $changements): string
 {
-    $parametres = array_filter(array_merge(['statut' => $_GET['statut'] ?? '', 'categorie' => $_GET['categorie'] ?? '', 'attribution' => $_GET['attribution'] ?? '', 'q' => $_GET['q'] ?? ''], $changements), fn($valeur) => $valeur !== '' && $valeur !== null);
+    $parametres = array_filter(array_merge(['statut' => $_GET['statut'] ?? '', 'categorie' => $_GET['categorie'] ?? '', 'attribution' => $_GET['attribution'] ?? '', 'perimetre' => $_GET['perimetre'] ?? '', 'q' => $_GET['q'] ?? ''], $changements), fn($valeur) => $valeur !== '' && $valeur !== null);
     return 'service_client.php' . ($parametres ? '?' . http_build_query($parametres) : '');
 }
 
 $titrePage = 'Service client';
 $sousTitrePage = 'Questions des clients : prenez une demande en charge, répondez ou confiez-la à un collègue.';
+$libellesCategoriesMiennes = array_map(fn($cle) => SERVICE_CATEGORIES[$cle], array_values(array_intersect(array_keys(SERVICE_CATEGORIES), $categoriesMiennes)));
 $pageActive = 'service_client';
 $filAriane = [[null, 'Ventes']];
 include __DIR__ . '/_haut.php';
@@ -89,6 +98,15 @@ include __DIR__ . '/_haut.php';
 <?php if (!$disponible): ?>
     <div class="alert alert-warning">Importez <code>sql/maj_service_client.sql</code> pour activer le service client.</div>
 <?php else: ?>
+    <?php if ($roleMoi !== 'admin'): ?>
+        <div class="perimetre-service mb-3" data-perimetre-service>
+            <p class="small mb-2"><strong>Votre pôle traite :</strong> <?= e($libellesCategoriesMiennes ? implode(', ', $libellesCategoriesMiennes) : 'aucune catégorie') ?>, ainsi que les demandes qui vous sont confiées. Vous pouvez lire toutes les autres et les confier à un collègue.</p>
+            <div class="btn-group btn-group-sm" role="group" aria-label="Périmètre des demandes">
+                <a class="btn <?= $perimetre === 'mes' ? 'btn-vert' : 'btn-outline-secondary' ?>" href="<?= e(lienDemandes(['perimetre' => '', 'page' => ''])) ?>"<?= $perimetre === 'mes' ? ' aria-current="page"' : '' ?>>Mon pôle</a>
+                <a class="btn <?= $perimetre === 'equipe' ? 'btn-vert' : 'btn-outline-secondary' ?>" href="<?= e(lienDemandes(['perimetre' => 'equipe', 'page' => ''])) ?>"<?= $perimetre === 'equipe' ? ' aria-current="page"' : '' ?>>Toute l’équipe</a>
+            </div>
+        </div>
+    <?php endif; ?>
     <div class="grille-indicateurs mb-4">
         <a class="stat" href="<?= e(lienDemandes(['statut' => '', 'attribution' => '', 'page' => ''])) ?>"><div class="stat-haut"><span>À traiter</span><span class="stat-icone"><i class="bi bi-inbox" aria-hidden="true"></i></span></div><div class="stat-valeur"><?= $compteursDemandes['a_traiter'] ?></div></a>
         <a class="stat" href="<?= e(lienDemandes(['statut' => 'nouvelle', 'attribution' => '', 'page' => ''])) ?>"><div class="stat-haut"><span>Nouvelles</span><span class="stat-icone"><i class="bi bi-envelope" aria-hidden="true"></i></span></div><div class="stat-valeur"><?= $compteursDemandes['nouvelle'] ?></div></a>
@@ -97,6 +115,7 @@ include __DIR__ . '/_haut.php';
     </div>
 
     <form method="GET" class="barre-filtres-admin mb-3">
+        <?php if ($perimetre === 'equipe' && $roleMoi !== 'admin'): ?><input type="hidden" name="perimetre" value="equipe"><?php endif; ?>
         <div class="champ-recherche">
             <i class="bi bi-search" aria-hidden="true"></i>
             <input type="search" name="q" class="form-control form-control-sm" placeholder="Référence, sujet, client, n° de commande…" value="<?= e($recherche) ?>" aria-label="Rechercher une demande">
@@ -113,7 +132,7 @@ include __DIR__ . '/_haut.php';
             <?php endforeach; ?>
         </select>
         <select name="attribution" class="form-select form-select-sm" aria-label="Attribution" onchange="this.form.submit()">
-            <option value="">Toute l’équipe</option>
+            <option value="">Tous les responsables</option>
             <option value="moi" <?= $attribution === 'moi' ? 'selected' : '' ?>>Confiées à moi</option>
             <option value="personne" <?= $attribution === 'personne' ? 'selected' : '' ?>>Sans responsable</option>
         </select>
@@ -149,7 +168,7 @@ include __DIR__ . '/_haut.php';
                                 <br><small class="text-muted"><?= e((string) $demande['reference']) ?> · <?= (int) $demande['nb_messages'] ?> message<?= (int) $demande['nb_messages'] > 1 ? 's' : '' ?> · <?= date('d/m/Y H:i', strtotime($demande['date_maj'])) ?><?= $demande['id_commande'] ? ' · commande n° ' . (int) $demande['id_commande'] : '' ?></small>
                             </td>
                             <td data-libelle="Client">@<?= e($demande['pseudo']) ?></td>
-                            <td data-libelle="Catégorie"><?= e(SERVICE_CATEGORIES[$demande['categorie']] ?? 'Autre') ?></td>
+                            <td data-libelle="Catégorie"><?= e(SERVICE_CATEGORIES[$demande['categorie']] ?? 'Autre') ?><?php if ($roleMoi !== 'admin' && !in_array($demande['categorie'], $categoriesMiennes, true) && (int) $demande['id_assigne'] !== $idMoi): ?><br><small class="text-muted">autre pôle · lecture</small><?php endif; ?></td>
                             <td data-libelle="Responsable"><?= $demande['pseudo_assigne'] ? '@' . e($demande['pseudo_assigne']) : '<span class="text-muted">Personne</span>' ?></td>
                             <td data-libelle="Statut"><span class="etiquette<?= $demande['statut'] === 'resolue' ? ' etiquette-neutre' : ($demande['statut'] === 'nouvelle' ? ' etiquette-alerte' : '') ?>"><?= e(libelleStatutDemande($demande['statut'])) ?></span></td>
                             <td class="text-end"><a href="demande_client.php?id=<?= (int) $demande['id_demande'] ?>" class="btn btn-outline-success btn-sm">Ouvrir</a></td>

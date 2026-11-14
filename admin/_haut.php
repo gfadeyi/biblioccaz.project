@@ -13,7 +13,7 @@ $menu = [
         ['historique_decisions', 'historique_decisions.php', 'clock-history', 'Historique des décisions', 'equipe', 0],
     ],
     'Catalogue' => [
-        ['moderation_livres', 'moderation_livres.php', 'shield-check', 'Fiches à valider', 'moderation', $compteurs['livres']],
+        ['moderation_livres', 'moderation_livres.php', 'shield-check', 'Fiches à valider', 'catalogue', $compteurs['livres']],
         ['annonces', 'annonces.php', 'shop', 'Annonces', 'moderation', $compteurs['annonces'] ?? 0],
         ['inventaire', 'inventaire.php', 'box-seam', 'Inventaire & stock', 'catalogue', 0],
         ['livre', 'livre.php', 'plus-circle', 'Ajouter un livre', 'catalogue', 0],
@@ -23,7 +23,7 @@ $menu = [
         ['commandes', 'commandes.php', 'bag-check', 'Commandes', 'catalogue', 0],
         ['service_client', 'service_client.php', 'headset', 'Service client', 'equipe', $compteurs['service_client'] ?? 0],
         ['retours', 'retours.php', 'arrow-return-left', 'Retours', 'catalogue', $compteurs['retours'] ?? 0],
-        ['ventes', 'ventes.php', 'people', 'Entre lecteurs', 'moderation', $compteurs['ventes'] ?? 0],
+        ['ventes', 'ventes.php', 'people', 'Entre lecteurs', 'ventes', $compteurs['ventes'] ?? 0],
         ['emprunts', 'emprunts.php', 'book', 'Emprunts', 'catalogue', $compteurs['emprunts'] ?? 0],
     ],
     'Communauté' => [
@@ -31,7 +31,7 @@ $menu = [
         ['moderation_avis', 'moderation_avis.php', 'chat-square-text', 'Avis signalés', 'moderation', $compteurs['avis']],
         ['messages', 'messages.php', 'chat-dots', 'Messages', 'moderation', $compteurs['messages'] ?? 0],
         ['membres_points', 'membres_points.php', 'award', 'Niveaux & badges', 'equipe', 0],
-        ['dons', 'dons.php', 'gift', 'Dons', 'moderation', $compteurs['dons'] ?? 0],
+        ['dons', 'dons.php', 'gift', 'Dons', 'dons_lecture', aLeDroit('dons') ? ($compteurs['dons'] ?? 0) : 0],
         ['evenements', 'evenements.php', 'calendar-event', 'Événements', 'evenements', $compteurs['evenements_proposes'] ?? 0],
         ['utilisateurs', 'utilisateurs.php', 'people', 'Membres', 'admin', 0],
         ['candidatures', 'candidatures.php', 'person-plus', 'Candidatures équipe', 'admin', $compteurs['candidatures']],

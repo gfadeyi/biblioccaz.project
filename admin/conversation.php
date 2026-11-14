@@ -4,7 +4,9 @@ require_once __DIR__ . '/../messagerie_lib.php';
 require_once __DIR__ . '/../compte_lib.php';
 require_once __DIR__ . '/../livres_lib.php';
 require_once __DIR__ . '/../messagerie_equipe_lib.php';
-exigerDroit('moderation');
+exigerDroit('equipe');
+
+const DROITS_LECTURE_CONVERSATION = ['emprunt' => 'catalogue', 'vente' => 'ventes', 'don' => 'dons_lecture'];
 
 $idConversation = (int) ($_GET['id'] ?? 0);
 try {
@@ -13,14 +15,23 @@ try {
     $conversation = null;
 }
 if (!$conversation) {
-    rediriger('messages.php?onglet=conversations', 'warning', "Cette conversation n'existe pas.");
+    rediriger(aLeDroit('moderation') ? 'messages.php?onglet=conversations' : 'index.php', 'warning', "Cette conversation n'existe pas.");
 }
 $retour = "conversation.php?id=$idConversation";
+$moderation = aLeDroit('moderation');
+$droitLecture = DROITS_LECTURE_CONVERSATION[$conversation['type_objet']] ?? 'moderation';
+if (!$moderation && !aLeDroit($droitLecture)) {
+    refuserAcces('Cette conversation relève de la modération.');
+}
+$peutRepondre = $conversation['type_objet'] === 'emprunt' && ($moderation || aLeDroit('catalogue'));
 $idModerateur = (int) $_SESSION['user_id'];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    exigerPost($retour);
     $action = $_POST['action'] ?? '';
+    if (!$moderation && !($action === 'repondre' && $peutRepondre)) {
+        refuserAcces('Masquer un message, clore une conversation ou suspendre un membre relève de la modération. Utilisez « Demander l’avis de l’équipe ».', $retour);
+    }
+    exigerPost($retour);
     $idMessage = (int) ($_POST['id_message'] ?? 0);
     $messageVise = null;
     if ($idMessage) {
@@ -110,12 +121,16 @@ insertLog('MODERATION', "Lecture de la conversation #$idConversation par l'équi
 
 $titrePage = 'Conversation';
 $actionsPage = [actionDemandeAvisEquipe('conversation', $idConversation)];
-$pageActive = 'messages';
+$pageActive = $moderation ? 'messages' : ($conversation['type_objet'] === 'emprunt' ? 'emprunts' : ($conversation['type_objet'] === 'vente' ? 'ventes' : 'dons'));
 $sousTitrePage = (TYPES_CONVERSATION[$conversation['type_objet']][0] ?? '') . ' · ' . $conversation['objet']['titre'];
 include __DIR__ . '/_haut.php';
 ?>
 
-<a href="messages.php" class="d-inline-flex align-items-center gap-1 mb-3 text-success fw-semibold text-decoration-none"><i class="bi bi-arrow-left" aria-hidden="true"></i> Retour aux messages</a>
+<?php if ($moderation): ?>
+    <a href="messages.php" class="d-inline-flex align-items-center gap-1 mb-3 text-success fw-semibold text-decoration-none"><i class="bi bi-arrow-left" aria-hidden="true"></i> Retour aux messages</a>
+<?php else: ?>
+    <div class="alert alert-info" data-conversation-lecture-seule><i class="bi bi-eye me-1" aria-hidden="true"></i> Lecture des échanges liés à votre pôle. Masquer un message, clore la conversation ou suspendre un membre relève de la modération.</div>
+<?php endif; ?>
 
 <div class="row g-4">
     <div class="col-lg-8">
@@ -142,6 +157,7 @@ include __DIR__ . '/_haut.php';
                                     <i class="bi bi-flag" aria-hidden="true"></i> @<?= e($s['pseudo']) ?> : <?= e(MOTIFS_SIGNALEMENT_MESSAGE[$s['motif']] ?? $s['motif']) ?><?= $s['commentaire'] ? ' — « ' . e($s['commentaire']) . ' »' : '' ?><?= $s['traite'] ? ' (traité)' : '' ?>
                                 </p>
                             <?php endforeach; ?>
+                            <?php if ($moderation): ?>
                             <div class="d-flex flex-wrap gap-2 mt-2">
                                 <form method="POST">
                                     <?= champCsrf() ?>
@@ -160,11 +176,12 @@ include __DIR__ . '/_haut.php';
                                     </form>
                                 <?php endif; ?>
                             </div>
+                            <?php endif; ?>
                         </div>
                     <?php endif; ?>
                 <?php endforeach; ?>
             </div>
-            <?php if ($conversation['type_objet'] === 'emprunt' && $conversation['statut'] === 'ouverte'): ?>
+            <?php if ($peutRepondre && $conversation['statut'] === 'ouverte'): ?>
                 <form method="POST" class="carte-corps border-top" id="reponse-equipe">
                     <?= champCsrf() ?>
                     <input type="hidden" name="action" value="repondre">
@@ -187,7 +204,7 @@ include __DIR__ . '/_haut.php';
                         <div class="fw-bold">@<?= e($participant['pseudo']) ?></div>
                         <div class="text-muted"><?= e(ROLES_PARTICIPANT[$participant['role_participant']] ?? $participant['role_participant']) ?><?= $suspendu ? ' · <span class="text-danger">suspendu</span>' : '' ?></div>
                     </div>
-                    <?php if (!$suspendu && in_array($compte['role'], ['client', 'auteur'], true)): ?>
+                    <?php if ($moderation && !$suspendu && in_array($compte['role'], ['client', 'auteur'], true)): ?>
                         <form method="POST" data-confirmer="Suspendre le compte de @<?= e($participant['pseudo']) ?> ? La personne ne pourra plus se connecter ; ses annonces disparaissent du site." data-titre-confirmer="Suspendre le compte" data-bouton-confirmer="Suspendre">
                             <?= champCsrf() ?>
                             <input type="hidden" name="action" value="suspendre">
@@ -206,7 +223,7 @@ include __DIR__ . '/_haut.php';
             <?php endif; ?>
         </div>
 
-        <?php if ($conversation['statut'] === 'ouverte'): ?>
+        <?php if ($moderation && $conversation['statut'] === 'ouverte'): ?>
             <form method="POST" class="carte p-4">
                 <?= champCsrf() ?>
                 <input type="hidden" name="action" value="clore">

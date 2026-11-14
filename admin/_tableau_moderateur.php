@@ -4,6 +4,7 @@ require_once __DIR__ . '/../messagerie_equipe_lib.php';
 
 $moi = (int) $_SESSION['user_id'];
 $moderation = aLeDroit('moderation');
+$gestionDons = aLeDroit('dons');
 $compteurs = compteursEquipe($pdo);
 $nonLusEquipe = nombreNonLusEquipe($pdo, $moi);
 
@@ -35,17 +36,23 @@ if ($moderation) {
     } catch (PDOException $e) {
     }
     $exclureArchives = archivageCatalogueDisponible($pdo) ? ' AND NOT EXISTS (SELECT 1 FROM livre_archive ar WHERE ar.id_livre = l.id_livre AND ar.actif = 1)' : '';
-    $files = [
-        ['shield-check', 'Fiches livres à valider', titresEnAttente($pdo, "SELECT l.titre FROM livre l WHERE l.is_valide = 0 $exclureArchives AND NOT EXISTS (SELECT 1 FROM exemplaire e WHERE e.id_livre = l.id_livre AND e.id_proprietaire IS NOT NULL) ORDER BY l.id_livre LIMIT 3") ?: 'Proposées par les auteurs', $compteurs['livres'], 'moderation_livres.php'],
-        ['shop', 'Annonces à valider', titresEnAttente($pdo, "SELECT l.titre FROM exemplaire e INNER JOIN livre l ON l.id_livre = e.id_livre WHERE e.statut_annonce = 'en_validation' ORDER BY e.id_exemplaire LIMIT 3") ?: 'Ventes entre particuliers', $compteurs['annonces'] ?? 0, 'annonces.php'],
-        ['gift', 'Dons à valider', titresEnAttente($pdo, "SELECT titre FROM don WHERE statut = 'en_validation' ORDER BY date_creation LIMIT 3") ?: 'Dons proposés par les membres', $compteurs['dons'] ?? 0, 'dons.php?statut=en_validation'],
-        ['patch-check', 'Avis à valider', 'Avis publiés en attente de relecture', $compteurs['avis_a_valider'] ?? 0, 'avis_a_valider.php'],
-        ['flag', 'Avis signalés', titresEnAttente($pdo, "SELECT DISTINCT l.titre FROM avis_signalement s INNER JOIN avis a ON a.id_avis = s.id_avis INNER JOIN livre l ON l.id_livre = a.id_livre WHERE s.traite = 0 LIMIT 3") ?: 'Signalements des lecteurs', $compteurs['avis'], 'moderation_avis.php'],
-        ['chat-dots', 'Messages signalés', 'Conversations entre membres', $compteurs['messages'] ?? 0, 'messages.php'],
-        ['person-exclamation', 'Membres signalés', 'Auteurs d’avis ou de messages signalés', count($membresSignales), '#membres-signales'],
-        ['people', 'Ventes à surveiller', 'Litiges et ventes en retard entre lecteurs', $compteurs['ventes'] ?? 0, 'ventes.php'],
-    ];
+    $files = [];
+    if (aLeDroit('catalogue')) {
+        $files[] = ['shield-check', 'Fiches livres à valider', titresEnAttente($pdo, "SELECT l.titre FROM livre l WHERE l.is_valide = 0 $exclureArchives AND NOT EXISTS (SELECT 1 FROM exemplaire e WHERE e.id_livre = l.id_livre AND e.id_proprietaire IS NOT NULL) ORDER BY l.id_livre LIMIT 3") ?: 'Proposées par les auteurs', $compteurs['livres'], 'moderation_livres.php'];
+    }
+    $files[] = ['shop', 'Annonces à valider', titresEnAttente($pdo, "SELECT l.titre FROM exemplaire e INNER JOIN livre l ON l.id_livre = e.id_livre WHERE e.statut_annonce = 'en_validation' ORDER BY e.id_exemplaire LIMIT 3") ?: 'Ventes entre particuliers', $compteurs['annonces'] ?? 0, 'annonces.php'];
+    if ($gestionDons) {
+        $files[] = ['gift', 'Dons à valider', titresEnAttente($pdo, "SELECT titre FROM don WHERE statut = 'en_validation' ORDER BY date_creation LIMIT 3") ?: 'Dons proposés par les membres', $compteurs['dons'] ?? 0, 'dons.php?statut=en_validation'];
+    }
+    $files[] = ['patch-check', 'Avis à valider', 'Avis publiés en attente de relecture', $compteurs['avis_a_valider'] ?? 0, 'avis_a_valider.php'];
+    $files[] = ['flag', 'Avis signalés', titresEnAttente($pdo, "SELECT DISTINCT l.titre FROM avis_signalement s INNER JOIN avis a ON a.id_avis = s.id_avis INNER JOIN livre l ON l.id_livre = a.id_livre WHERE s.traite = 0 LIMIT 3") ?: 'Signalements des lecteurs', $compteurs['avis'], 'moderation_avis.php'];
+    $files[] = ['chat-dots', 'Messages signalés', 'Conversations entre membres', $compteurs['messages'] ?? 0, 'messages.php'];
+    $files[] = ['person-exclamation', 'Membres signalés', 'Auteurs d’avis ou de messages signalés', count($membresSignales), '#membres-signales'];
 }
+if (aLeDroit('ventes')) {
+    $files[] = ['people', 'Ventes à surveiller', 'Litiges et ventes en retard entre lecteurs', $compteurs['ventes'] ?? 0, 'ventes.php'];
+}
+$files[] = ['headset', 'Service client de mon pôle', 'Comptes, avis, messages et demandes confiées', $compteurs['service_client'] ?? 0, 'service_client.php'];
 $propositionsEvenements = [];
 try {
     $propositionsEvenements = $pdo->query("
@@ -96,9 +103,9 @@ function decrireActionModeration(array $action): array
     $id = (int) $action['id_objet'];
     return match ($action['type']) {
         'avis' => ['patch-check', 'Avis : ' . $statut . $titre, 'moderation_avis.php', 'moderation'],
-        'livre' => ['book', 'Fiche : ' . $statut . $titre, 'moderation_livres.php', 'moderation'],
+        'livre' => ['book', 'Fiche : ' . $statut . $titre, 'moderation_livres.php', 'catalogue'],
         'annonce' => ['shop', 'Annonce ' . $statut . $titre, 'annonce.php?id=' . $id, 'moderation'],
-        'don' => ['gift', 'Don : ' . $statut . $titre, 'don.php?id=' . $id, 'moderation'],
+        'don' => ['gift', 'Don : ' . $statut . $titre, 'don.php?id=' . $id, 'dons_lecture'],
         'message' => ['chat-dots', 'Signalement de message traité', 'conversation.php?id=' . $id, 'moderation'],
         'evenement' => ['calendar-check', 'Événement ' . $statut . $titre, 'evenement.php?id=' . $id, 'evenements'],
         default => ['dot', 'Action de modération', '', 'moderation'],
@@ -116,6 +123,9 @@ $titrePage = 'Tableau de bord';
 $sousTitrePage = 'Bonjour ' . (($_SESSION['prenom'] ?? '') ?: ($_SESSION['pseudo'] ?? '')) . ', voici les contenus et la communauté à modérer au ' . date('d/m/Y') . '.';
 $pageActive = 'index';
 $actionsPage = [['messagerie_equipe.php?nouveau=1', 'chat-left-text', 'Écrire à l’équipe', 'btn-outline-secondary']];
+if (aLeDroit('dons_lecture') && !$gestionDons) {
+    $actionsPage[] = ['dons.php', 'gift', 'Consulter les dons', 'btn-outline-secondary'];
+}
 include __DIR__ . '/_haut.php';
 ?>
 

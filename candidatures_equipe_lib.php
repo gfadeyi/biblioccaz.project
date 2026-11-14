@@ -2,8 +2,8 @@
 require_once __DIR__ . '/decisions_equipe_lib.php';
 const ROLES_CANDIDATURE_EQUIPE = ['moderateur' => 'Modérateur', 'gestionnaire' => 'Gestionnaire'];
 const MISSIONS_CANDIDATURE_EQUIPE = [
-    'moderateur' => 'Valider les fiches de livres, les avis, les annonces et les dons, et veiller au respect des échanges entre lecteurs.',
-    'gestionnaire' => 'Suivre le stock et les commandes, préparer les emprunts au comptoir et organiser les événements.',
+    'moderateur' => 'Valider les avis et les annonces entre particuliers, veiller au respect des échanges entre lecteurs et répondre aux questions sur les comptes et les messages.',
+    'gestionnaire' => 'Suivre le stock, les fiches proposées, les commandes et les retours, gérer les dons, préparer les emprunts au comptoir et organiser les événements.',
 ];
 const ROLES_CANDIDATS_EQUIPE = ['client', 'auteur'];
 const ROLES_DEJA_EQUIPE = ['admin', 'gestionnaire', 'moderateur'];

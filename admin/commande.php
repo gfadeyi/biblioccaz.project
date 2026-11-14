@@ -130,7 +130,7 @@ include __DIR__ . '/_haut.php';
                     <?php endforeach; ?>
                     <?php if ($annulee): ?>
                         <li class="historique-commande__annulation">
-                            <span class="historique-commande__date"><?= date('d/m/Y H:i', strtotime($commande['date_annulation'])) ?></span>
+                            <span class="historique-commande__date"><?= date('d/m/Y H:i', strtotime((string) ($commande['date_annulation'] ?? $commande['date_commande']))) ?></span>
                             <span>
                                 <i class="bi bi-x-circle" aria-hidden="true"></i> Annulée<?= $commande['pseudo_annulateur'] ? ' par @' . e($commande['pseudo_annulateur']) : '' ?>, stock remis
                                 <?php if ($commande['motif_annulation']): ?><small class="d-block text-muted">Motif : <?= e($commande['motif_annulation']) ?></small><?php endif; ?>

@@ -2,10 +2,10 @@
 require_once __DIR__ . '/droits_equipe_lib.php';
 
 const OBJETS_DECISIONS_EQUIPE = [
-    'livre' => ['Fiche livre', 'moderation', 'moderation_livres.php'],
+    'livre' => ['Fiche livre', 'catalogue', 'moderation_livres.php'],
     'archive' => ['Archive du catalogue', 'catalogue', 'livres.php'],
     'annonce' => ['Annonce', 'moderation', 'annonces.php'],
-    'don' => ['Don', 'moderation', 'dons.php'],
+    'don' => ['Don', 'dons', 'dons.php'],
     'avis' => ['Avis', 'moderation', 'moderation_avis.php'],
     'evenement' => ['Événement', 'evenements', 'evenements.php'],
     'candidature_equipe' => ['Candidature équipe', 'admin', 'candidatures.php'],
@@ -50,7 +50,7 @@ function enregistrerDecisionEquipe(PDO $pdo, int $idActeur, string $type, int $i
 
 function typesDecisionsAutorises(PDO $pdo, string $role, array $droits): array
 {
-    return array_keys(array_filter(OBJETS_DECISIONS_EQUIPE, fn($objet) => rolePossedeDroit($pdo, $role, $objet[1], $droits)));
+    return array_keys(array_filter(OBJETS_DECISIONS_EQUIPE, fn($objet) => rolePossedeDroit($pdo, $role, droitLectureEquipe($objet[1]), $droits)));
 }
 
 function libelleStatutDecision(?string $statut): string

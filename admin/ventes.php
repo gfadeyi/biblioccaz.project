@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/_init.php';
 require_once __DIR__ . '/../ventes_lib.php';
-exigerDroit('moderation');
+exigerDroit('ventes');
 
 $onglets = [
     'surveiller' => ['À surveiller', "d.en_litige = 1 OR (d.statut = 'acceptee' AND d.date_acceptation < NOW() - INTERVAL " . VENTE_RETARD_JOURS . " DAY)"],

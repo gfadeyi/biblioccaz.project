@@ -2,7 +2,7 @@
 require_once __DIR__ . '/_init.php';
 require_once __DIR__ . '/../dons_lib.php';
 require_once __DIR__ . '/../messagerie_lib.php';
-exigerDroit('moderation');
+exigerDroit('dons_lecture');
 
 $filtre = is_string($_GET['statut'] ?? null) ? $_GET['statut'] : 'en_cours';
 $q = is_string($_GET['q'] ?? null) ? mb_substr(trim($_GET['q']), 0, 100) : '';
@@ -12,6 +12,7 @@ $nombrePages = 1;
 $retour = 'dons.php?' . http_build_query(['statut' => $filtre, 'q' => $q]);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    exigerDroit('dons');
     exigerPost($retour);
     rediriger('don.php?id=' . max(0, (int) ($_POST['id_don'] ?? 0)), 'info', 'Consultez le don puis indiquez le motif de votre intervention.');
 }
@@ -60,6 +61,9 @@ try {
 }
 
 $titrePage = 'Dons';
+if (!aLeDroit('dons')) {
+    $sousTitrePage = 'Consultation seule : la gestion des dons relève d’un autre pôle. Signalez un problème avec « Demander l’avis de l’équipe » depuis la fiche du don.';
+}
 $pageActive = 'dons';
 include __DIR__ . '/_haut.php';
 
