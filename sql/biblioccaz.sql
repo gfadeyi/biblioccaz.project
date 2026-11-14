@@ -803,6 +803,7 @@ CREATE TABLE IF NOT EXISTS conversation_participant (
   role_participant      VARCHAR(20) NOT NULL,
   date_derniere_lecture DATETIME    NULL,
   date_dernier_mail     DATETIME    NULL,
+  date_ecriture         DATETIME    NULL,
   PRIMARY KEY (id_conversation, id_user),
   INDEX idx_participant_user (id_user),
   CONSTRAINT fk_participant_conversation FOREIGN KEY (id_conversation) REFERENCES conversation(id_conversation) ON DELETE CASCADE,

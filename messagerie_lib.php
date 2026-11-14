@@ -4,6 +4,8 @@ require_once __DIR__ . '/notifications_lib.php';
 const MESSAGE_LONGUEUR_MAX = 1000;
 const MESSAGES_PAR_HEURE_MAX = 30;
 const MAIL_MESSAGE_INTERVALLE_MINUTES = 15;
+const MESSAGE_ECRITURE_SECONDES = 6;
+const MESSAGES_ACTUALISATION_MAX = 50;
 const TYPES_CONVERSATION = [
     'vente'   => ['Vente', 'etiquette'],
     'don'     => ['Don', 'carton'],
@@ -244,10 +246,12 @@ function envoyerMessage(PDO $pdo, int $idConversation, int $idAuteur, string $te
     }
 
     $pdo->prepare("INSERT INTO conversation_message (id_conversation, id_auteur, contenu) VALUES (?, ?, ?)")->execute([$idConversation, $idAuteur, $texte]);
+    $idMessage = (int) $pdo->lastInsertId();
     $pdo->prepare("UPDATE conversation SET date_dernier_message = NOW() WHERE id_conversation = ?")->execute([$idConversation]);
     marquerConversationLue($pdo, $idConversation, $idAuteur);
+    signalerEcriture($pdo, $idConversation, $idAuteur, false);
     prevenirParticipants($pdo, $conversation, $idAuteur, $texte);
-    return ['success', "Message envoyé."];
+    return ['success', "Message envoyé.", $idMessage];
 }
 
 function envoyerMessageEquipe(PDO $pdo, int $idConversation, int $idEquipe, string $texte): array
@@ -364,4 +368,90 @@ function pastilleStatutConversation(string $statut): string
 {
     [$libelle, $classe] = STATUTS_CONVERSATION[$statut] ?? [$statut, 'neutre'];
     return '<span class="pastille-etat ' . $classe . '">' . htmlspecialchars($libelle) . '</span>';
+}
+
+function messagesConversationApres(PDO $pdo, int $idConversation, int $idDernier): array
+{
+    $stmt = $pdo->prepare("
+        SELECT m.*, u.pseudo AS auteur_pseudo, u.photo AS auteur_photo
+        FROM conversation_message m LEFT JOIN `user` u ON u.id = m.id_auteur
+        WHERE m.id_conversation = ? AND m.id_message > ? ORDER BY m.id_message LIMIT " . MESSAGES_ACTUALISATION_MAX);
+    $stmt->execute([$idConversation, $idDernier]);
+    return $stmt->fetchAll();
+}
+
+function nonLusParConversation(PDO $pdo, int $idUser): array
+{
+    $stmt = $pdo->prepare("
+        SELECT p.id_conversation, COUNT(m.id_message) FROM conversation_participant p
+        LEFT JOIN conversation_message m ON m.id_conversation = p.id_conversation AND " . conditionNonLu() . "
+        WHERE p.id_user = ? GROUP BY p.id_conversation");
+    $stmt->execute([$idUser]);
+    return array_map('intval', $stmt->fetchAll(PDO::FETCH_KEY_PAIR));
+}
+
+function signalerEcriture(PDO $pdo, int $idConversation, int $idUser, bool $ecrit): bool
+{
+    try {
+        $pdo->prepare("UPDATE conversation_participant SET date_ecriture = " . ($ecrit ? 'NOW()' : 'NULL') . " WHERE id_conversation = ? AND id_user = ?")
+            ->execute([$idConversation, $idUser]);
+        return true;
+    } catch (PDOException $e) {
+        return false;
+    }
+}
+
+function autreParticipantEcrit(PDO $pdo, int $idConversation, int $idUser): bool
+{
+    try {
+        $stmt = $pdo->prepare("SELECT 1 FROM conversation_participant WHERE id_conversation = ? AND id_user <> ? AND date_ecriture > NOW() - INTERVAL " . MESSAGE_ECRITURE_SECONDES . " SECOND LIMIT 1");
+        $stmt->execute([$idConversation, $idUser]);
+        return (bool) $stmt->fetchColumn();
+    } catch (PDOException $e) {
+        return false;
+    }
+}
+
+function libelleJourMessage(string $date): string
+{
+    $jour = date('Y-m-d', strtotime($date));
+    return $jour === date('Y-m-d') ? "Aujourd'hui" : ($jour === date('Y-m-d', strtotime('-1 day')) ? 'Hier' : date('d/m/Y', strtotime($jour)));
+}
+
+function htmlMessageConversation(array $message, array $conversation, int $idUser, string $csrf, string $retourConversation): string
+{
+    $id = (int) $message['id_message'];
+    $heure = '<time datetime="' . date('c', strtotime($message['date_envoi'])) . '">' . date('H:i', strtotime($message['date_envoi'])) . '</time>';
+    if ($message['est_systeme']) {
+        return '<p class="message-systeme" id="message-' . $id . '">' . iconeDessin('clochette') . ' ' . htmlspecialchars($message['contenu']) . ' ' . $heure . '</p>';
+    }
+    $estMoi = (int) $message['id_auteur'] === $idUser;
+    $estEquipe = !isset($conversation['participants'][(int) $message['id_auteur']]);
+    $html = '<div class="message' . ($estMoi ? ' message--moi' : '') . ($message['est_masque'] ? ' message--masque' : '') . '" id="message-' . $id . '">';
+    if (!$estMoi) {
+        $html .= $estEquipe ? avatarMembre('Équipe', null, 'message__avatar') : avatarMembre($message['auteur_pseudo'] ?? '?', $message['auteur_photo'] ?? null, 'message__avatar');
+    }
+    $html .= '<div class="message__corps"><div class="message__bulle">';
+    $html .= $message['est_masque'] ? '<i class="bi bi-eye-slash" aria-hidden="true"></i> Message masqué par l’équipe de modération.' : nl2br(htmlspecialchars($message['contenu']));
+    $html .= '</div><div class="message__pied">' . $heure;
+    if (!$estMoi && !$estEquipe && !$message['est_masque'] && $message['id_auteur']) {
+        $options = '';
+        foreach (MOTIFS_SIGNALEMENT_MESSAGE as $cle => $libelle) {
+            $options .= '<option value="' . $cle . '">' . htmlspecialchars($libelle) . '</option>';
+        }
+        $html .= '<details class="message__signaler"><summary>Signaler</summary>'
+            . '<form action="message_action.php" method="POST" class="signalement-message">'
+            . '<input type="hidden" name="csrf" value="' . htmlspecialchars($csrf) . '">'
+            . '<input type="hidden" name="action" value="signaler">'
+            . '<input type="hidden" name="id_conversation" value="' . (int) $conversation['id_conversation'] . '">'
+            . '<input type="hidden" name="id_message" value="' . $id . '">'
+            . '<input type="hidden" name="retour" value="' . htmlspecialchars($retourConversation) . '">'
+            . '<label for="motif-' . $id . '" class="form-label">Pourquoi signalez-vous ce message ?</label>'
+            . '<select id="motif-' . $id . '" name="motif" class="form-select form-select-sm" required><option value="">Choisir un motif</option>' . $options . '</select>'
+            . '<label for="commentaire-' . $id . '" class="visually-hidden">Précisions</label>'
+            . '<textarea id="commentaire-' . $id . '" name="commentaire" class="form-control form-control-sm" rows="2" maxlength="500" placeholder="Précisions (facultatif)"></textarea>'
+            . '<button class="bouton bouton-danger bouton-petit">Envoyer le signalement</button>'
+            . '</form></details>';
+    }
+    return $html . '</div></div></div>';
 }
