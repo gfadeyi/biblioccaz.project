@@ -2301,3 +2301,17 @@ form[data-selection-collection] legend { float: none; width: auto; }
 .statut-retour--termine { background: var(--vert-500); border-color: var(--vert-500); color: #fff; }
 .statut-retour--refuse { background: var(--surface); border-color: var(--trait); color: var(--encre-douce); }
 .liens-retour-commande { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; margin-top: .6rem; }
+.pastille-reponse { display: inline-block; margin-left: .35rem; padding: .05rem .5rem; border-radius: var(--rayon-pilule); background: var(--vert-500); color: #fff; font-size: .72rem; font-weight: 700; vertical-align: middle; }
+.liste-retours__lien--nouveau { border-color: var(--vert-400); }
+.fil-service { list-style: none; margin: 0 0 1rem; padding: 0; display: flex; flex-direction: column; gap: .75rem; }
+.fil-service__message { max-width: min(42rem, 88%); padding: .8rem 1rem; border-radius: var(--rayon-grand); border: 1px solid var(--trait); background: var(--surface); overflow-wrap: anywhere; }
+.fil-service__message p { margin: .3rem 0 0; }
+.fil-service__message--moi { align-self: flex-end; border-color: var(--vert-100); background: var(--vert-50); }
+.fil-service__message--equipe { align-self: flex-start; border-left: 3px solid var(--vert-500); }
+.fil-service__auteur { font-size: .8rem; font-weight: 600; color: var(--encre-douce); }
+.fil-service__systeme { align-self: center; font-size: .82rem; color: var(--encre-douce); text-align: center; }
+.fil-service__systeme time { margin-left: .3rem; }
+@media (max-width: 575.98px) {
+    .fil-service__message { max-width: 100%; }
+    .page-service .liste-retours__lien { flex-direction: column; align-items: flex-start; gap: .5rem; }
+}

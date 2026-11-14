@@ -34,6 +34,8 @@ $nbMessagesNonLus = ($connected && in_array($userRole, ['client', 'auteur'], tru
 require_once __DIR__ . '/notifications_membre_lib.php';
 $avecCloche = $connected && in_array($userRole, ['client', 'auteur'], true);
 $nbNotificationsNonLues = $avecCloche ? nombreNotificationsNonLues($pdo, (int) $_SESSION['user_id']) : 0;
+require_once __DIR__ . '/service_client_lib.php';
+$nbReponsesService = $avecCloche ? nombreReponsesServiceNonLues($pdo, (int) $_SESSION['user_id']) : 0;
 $apercuNotifications = $avecCloche ? notificationsMembre($pdo, (int) $_SESSION['user_id'], NOTIFICATIONS_APERCU) : [];
 $libellesRoles = ['admin' => 'Administrateur', 'gestionnaire' => 'Gestionnaire', 'moderateur' => 'Modérateur', 'auteur' => 'Auteur'];
 
@@ -68,6 +70,7 @@ if ($resumeCompte) {
         ['avis.php', 'plume', 'Mes avis', $resumeCompte['avis']],
         ['messages.php', 'bulle', 'Mes messages', $nbMessagesNonLus],
         ['notifications.php', 'clochette', 'Mes notifications', $nbNotificationsNonLues],
+        ['service_client.php', 'enveloppe', 'Service client', $nbReponsesService],
         ['mes_dons.php', 'carton', 'Mes dons', $resumeCompte['dons']],
         ['mes_annonces.php', 'etiquette', 'Mes annonces', $resumeCompte['annonces'] ?? 0],
         ['mes_transactions.php', 'cabas', 'Mes ventes et achats', $resumeCompte['transactions'] ?? 0],
@@ -85,6 +88,7 @@ if ($resumeCompte) {
         ['mes_emprunts.php', 'pile', 'Mes emprunts', 0],
         ['messages.php', 'bulle', 'Mes messages', $nbMessagesNonLus],
         ['notifications.php', 'clochette', 'Mes notifications', $nbNotificationsNonLues],
+        ['service_client.php', 'enveloppe', 'Service client', $nbReponsesService],
     ];
 } elseif ($connected) {
     $liensMenuCompte = [

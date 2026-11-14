@@ -565,3 +565,13 @@ a.stat:hover, a.stat:focus-visible { translate: 0 -3px; box-shadow: var(--ombre-
 #contenu-admin { scroll-margin-top: 5rem; }
 .form-control:not(:disabled), .form-select:not(:disabled) { border-color: var(--bord-champ); }
 .form-control:focus-visible, .form-select:focus-visible { border-color: var(--vert); outline: 2px solid var(--vert); outline-offset: 2px; }
+.fil-demande { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: .7rem; }
+.fil-demande__message { max-width: 88%; padding: .7rem .9rem; border: 1px solid var(--trait); border-radius: var(--rayon-grand); background: var(--surface); overflow-wrap: anywhere; }
+.fil-demande__message--client { align-self: flex-start; }
+.fil-demande__message--equipe { align-self: flex-end; background: var(--vert-50); border-color: var(--vert-100); }
+.fil-demande__message--interne { align-self: stretch; max-width: 100%; background: var(--papier); border-style: dashed; }
+.fil-demande__auteur { display: block; font-size: .78rem; font-weight: 600; color: var(--encre-douce); margin-bottom: .2rem; }
+.fil-demande__systeme { align-self: center; font-size: .8rem; color: var(--encre-douce); text-align: center; }
+@media (max-width: 575.98px) {
+    .fil-demande__message { max-width: 100%; }
+}

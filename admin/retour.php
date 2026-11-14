@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/_init.php';
 require_once __DIR__ . '/../retours_lib.php';
+require_once __DIR__ . '/../messagerie_equipe_lib.php';
 exigerDroit('catalogue');
 
 $idRetour = (int) ($_GET['id'] ?? 0);
@@ -32,7 +33,7 @@ $titrePage = 'Demande ' . $retour['reference'];
 $sousTitrePage = ($retour['type'] === 'retour' ? 'Retour' : 'Remboursement') . ' · commande n° ' . (int) $retour['id_commande'] . ' · @' . $retour['pseudo'];
 $pageActive = 'retours';
 $filAriane = [[null, 'Ventes'], ['retours.php', 'Retours']];
-$actionsPage = [['retours.php', 'arrow-left', 'Toutes les demandes', 'btn-outline-secondary'], ['commande.php?id=' . (int) $retour['id_commande'], 'bag-check', 'Voir la commande', 'btn-outline-success']];
+$actionsPage = [['retours.php', 'arrow-left', 'Toutes les demandes', 'btn-outline-secondary'], ['commande.php?id=' . (int) $retour['id_commande'], 'bag-check', 'Voir la commande', 'btn-outline-success'], actionDemandeAvisEquipe('retour', $idRetour)];
 include __DIR__ . '/_haut.php';
 ?>
 

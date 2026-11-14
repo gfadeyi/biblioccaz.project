@@ -60,6 +60,7 @@ $messageNewsletter = $messagesNewsletter[$cleNewsletter] ?? null;
                     <li><a href="profil.php">Mon profil</a></li>
                     <li><a href="commandes.php">Mes achats</a></li>
                     <li><a href="wishlist.php">Mes favoris</a></li>
+                    <li><a href="service_client.php">Service client</a></li>
                 </ul>
             </div>
             <div class="col-6 col-lg-2">

@@ -112,6 +112,10 @@ function compteursEquipe(PDO $pdo): array
     } catch (PDOException $e) {
     }
     try {
+        $c['service_client'] = (int) $pdo->query("SELECT COUNT(*) FROM demande_client WHERE statut = 'nouvelle' OR (statut <> 'resolue' AND non_lu_equipe = 1)")->fetchColumn();
+    } catch (PDOException $e) {
+    }
+    try {
         $c['retours'] = (int) $pdo->query("SELECT COUNT(*) FROM retour_commande WHERE statut IN ('demande', 'recu') OR (statut = 'accepte' AND type = 'remboursement')")->fetchColumn();
     } catch (PDOException $e) {
     }

@@ -12,8 +12,10 @@ const DEMANDES_AVIS_EQUIPE = [
     'conversation' => ['conversation.php?id=', 'la conversation', 'moderation'],
     'vente'        => ['ventes.php', 'la vente entre lecteurs', 'moderation'],
     'evenement'    => ['evenement.php?id=', "la proposition d'événement", 'evenements'],
+    'demande_client' => ['demande_client.php?id=', 'la demande client', 'equipe'],
+    'retour'       => ['retour.php?id=', 'la demande de retour', 'catalogue'],
 ];
-const PAGES_LIENS_EQUIPE = ['moderation_livres.php', 'annonce.php', 'don.php', 'moderation_avis.php', 'conversation.php', 'ventes.php', 'evenement.php', 'commande.php', 'emprunts.php', 'livre.php'];
+const PAGES_LIENS_EQUIPE = ['moderation_livres.php', 'annonce.php', 'don.php', 'moderation_avis.php', 'conversation.php', 'ventes.php', 'evenement.php', 'commande.php', 'emprunts.php', 'livre.php', 'demande_client.php', 'retour.php'];
 
 function messagerieEquipeDisponible(PDO $pdo): bool
 {
