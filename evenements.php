@@ -43,6 +43,27 @@ $stmt = $pdo->prepare("
 $stmt->execute($params);
 $evenements = $stmt->fetchAll();
 
+$evenementsPasses = [];
+$nbEvenementsPasses = 0;
+if ($periode === 'a_venir') {
+    $wherePasses = $where;
+    $paramsPasses = $params;
+    $wherePasses[1] = "e.date_fin < NOW()";
+    if ($mois !== '') {
+        array_pop($wherePasses);
+        array_splice($paramsPasses, -2);
+    }
+    $stmt = $pdo->prepare("
+        SELECT e.*, COUNT(*) OVER () AS nb_total
+        FROM evenement e
+        WHERE " . implode(' AND ', $wherePasses) . "
+        ORDER BY e.date_debut DESC
+        LIMIT 6");
+    $stmt->execute($paramsPasses);
+    $evenementsPasses = $stmt->fetchAll();
+    $nbEvenementsPasses = (int) ($evenementsPasses[0]['nb_total'] ?? 0);
+}
+
 $lieux = $pdo->query("SELECT DISTINCT lieu FROM evenement WHERE statut = 'publie' ORDER BY lieu")->fetchAll(PDO::FETCH_COLUMN);
 $moisDispos = $pdo->query("
     SELECT DISTINCT DATE_FORMAT(date_debut, '%Y-%m') FROM evenement
@@ -165,6 +186,30 @@ include 'header.php';
             <?php endforeach; ?>
         </div>
     <?php endforeach; ?>
+
+<?php if ($evenementsPasses): ?>
+    <details class="evenements-passes mt-5" data-evenements-passes>
+        <summary>
+            <span><i class="bi bi-clock-history" aria-hidden="true"></i> Événements passés</span>
+            <span class="evenements-passes__nombre"><?= $nbEvenementsPasses ?></span>
+        </summary>
+        <ul class="list-unstyled mb-0">
+            <?php foreach ($evenementsPasses as $passe): ?>
+                <?php $debutPasse = strtotime($passe['date_debut']); ?>
+                <li>
+                    <a href="evenement.php?id=<?= (int) $passe['id_evenement'] ?>">
+                        <span class="evenements-passes__date"><?= date('j', $debutPasse) ?> <?= EVT_MOIS_COURTS[(int) date('n', $debutPasse) - 1] ?> <?= date('Y', $debutPasse) ?></span>
+                        <span class="evenements-passes__titre"><?= htmlspecialchars($passe['titre']) ?></span>
+                        <span class="evenements-passes__lieu"><?= htmlspecialchars($passe['lieu']) ?> · <?= htmlspecialchars(libellePrixEvenement($passe)) ?></span>
+                    </a>
+                </li>
+            <?php endforeach; ?>
+        </ul>
+        <?php if ($nbEvenementsPasses > count($evenementsPasses)): ?>
+            <a href="evenements.php?periode=passes" class="lien-voir-tout mt-2">Voir les <?= $nbEvenementsPasses ?> événements passés <i class="bi bi-arrow-right" aria-hidden="true"></i></a>
+        <?php endif; ?>
+    </details>
+<?php endif; ?>
 </div>
 
 <style>
@@ -172,6 +217,19 @@ include 'header.php';
     .carte-evenement { transition: transform .15s; }
     .carte-evenement:hover { transform: translateY(-2px); }
     .min-w-0 { min-width: 0; }
+    .evenements-passes { border-top: 1px solid var(--trait); padding-top: 1rem; }
+    .evenements-passes summary { display: flex; align-items: center; justify-content: space-between; gap: .75rem; min-height: 44px; cursor: pointer; font-weight: 700; color: var(--encre-douce); list-style: none; }
+    .evenements-passes summary::-webkit-details-marker { display: none; }
+    .evenements-passes summary::after { content: "\F282"; font-family: "bootstrap-icons"; transition: transform var(--transition); }
+    .evenements-passes[open] summary::after { transform: rotate(180deg); }
+    .evenements-passes__nombre { margin-left: auto; padding: .1rem .6rem; border-radius: var(--rayon-pilule); background: var(--papier); border: 1px solid var(--trait); font-size: .8rem; }
+    .evenements-passes ul { display: grid; gap: .25rem; margin-top: .5rem; }
+    .evenements-passes li a { display: grid; grid-template-columns: 7rem minmax(0, 1fr); gap: .1rem 1rem; padding: .6rem .25rem; border-bottom: 1px dashed var(--trait); color: var(--encre-douce); text-decoration: none; }
+    .evenements-passes li a:hover { color: var(--texte-vert); }
+    .evenements-passes__date { grid-row: span 2; font-size: .85rem; }
+    .evenements-passes__titre { font-weight: 600; overflow-wrap: anywhere; }
+    .evenements-passes__lieu { font-size: .8rem; }
+    @media (max-width: 575px) { .evenements-passes li a { grid-template-columns: minmax(0, 1fr); } .evenements-passes__date { grid-row: auto; } }
 </style>
 
 <?php include 'footer.php'; ?>

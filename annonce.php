@@ -150,7 +150,7 @@ include 'header.php';
                     <div class="annonce-achat__demande"><?= pastilleStatutDemande($maDemande) ?></div>
                     <a href="transaction.php?id=<?= (int) $maDemande['id_demande'] ?>" class="bouton bouton-principal w-100"><i class="bi bi-chat-dots" aria-hidden="true"></i> Suivre ma demande</a>
                 <?php elseif (!$idUser): ?>
-                    <a href="login.php" class="bouton bouton-principal w-100">Se connecter pour acheter</a>
+                    <a href="<?= htmlspecialchars(lienConnexion()) ?>" class="bouton bouton-principal w-100">Se connecter pour acheter</a>
                     <p class="annonce-achat__lien">Une conversation s'ouvre avec le vendeur ; votre email reste privé.</p>
                 <?php elseif ($raisonAchat !== ''): ?>
                     <button type="button" class="bouton bouton-principal w-100" disabled aria-describedby="annonce-raison">Demander à acheter</button>

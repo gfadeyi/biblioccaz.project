@@ -124,9 +124,9 @@ h1, h2, h3, .titre { font-family: var(--police-titre); font-weight: 700; letter-
                          scroll-snap-type: x proximity; scroll-behavior: smooth; scroll-padding-inline: 4px; padding: 3px 2px; }
 .defilement-raccourcis::-webkit-scrollbar { display: none; }
 .defilement-raccourcis > .puce { scroll-snap-align: start; padding: .36rem .8rem; font-size: .95rem; }
-.defilement-raccourcis.fondu-droite { mask-image: linear-gradient(90deg, #000 calc(100% - 56px), transparent); }
-.defilement-raccourcis.fondu-gauche { mask-image: linear-gradient(90deg, transparent, #000 56px); }
-.defilement-raccourcis.fondu-gauche.fondu-droite { mask-image: linear-gradient(90deg, transparent, #000 56px, #000 calc(100% - 56px), transparent); }
+.defilement-raccourcis.fondu-droite { mask-image: linear-gradient(90deg, #000 calc(100% - 18px), rgba(0, 0, 0, .4)); }
+.defilement-raccourcis.fondu-gauche { mask-image: linear-gradient(90deg, rgba(0, 0, 0, .4), #000 18px); }
+.defilement-raccourcis.fondu-gauche.fondu-droite { mask-image: linear-gradient(90deg, rgba(0, 0, 0, .4), #000 18px, #000 calc(100% - 18px), rgba(0, 0, 0, .4)); }
 .bouton-categories { display: inline-flex; align-items: center; gap: .4rem; flex-shrink: 0; background: var(--vert); color: #fff; border: 0; border-radius: var(--rayon-pilule);
                      padding: .45rem 1rem; font-weight: 700; white-space: nowrap; transition: background var(--transition), transform var(--duree-rapide) var(--courbe); }
 .bouton-categories:hover { background: var(--vert-fonce); }
@@ -559,7 +559,12 @@ h1, h2, h3, .titre { font-family: var(--police-titre); font-weight: 700; letter-
     .ligne-evenement:hover .bouton-inscription, .ligne-evenement:focus-visible .bouton-inscription { opacity: 1; transform: none; }
 }
 
-.carrousel-avis { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; border-top: 1px solid var(--trait); }
+.carrousel-avis { display: flex; align-items: flex-start; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; border-top: 1px solid var(--trait); }
+.carrousel-avis.un-par-un { display: block; overflow: hidden; scroll-snap-type: none; touch-action: pan-y; }
+.carrousel-avis.un-par-un > .avis-lecteur[hidden] { display: none; }
+.carrousel-avis.un-par-un > .avis-lecteur.entre { animation: avis-entre var(--duree-normale) var(--courbe); }
+@keyframes avis-entre { from { opacity: 0; transform: translateX(var(--decalage-avis, 12px)); } }
+.points-avis[hidden] { display: none; }
 .carrousel-avis::-webkit-scrollbar { display: none; }
 .avis-lecteur { flex: 0 0 100%; scroll-snap-align: start; display: flex; gap: .9rem; align-items: flex-start; padding: .9rem .2rem .4rem; color: var(--encre); text-decoration: none; }
 .avis-lecteur:hover { color: var(--encre); }

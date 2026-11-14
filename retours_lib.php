@@ -287,7 +287,7 @@ function changerStatutRetour(PDO $pdo, int $idRetour, int $idActeur, string $nou
             foreach ($stmt->fetchAll() as $ligne) {
                 if (!empty($ligne['id_livre']) && $retour['motif'] !== 'abime') {
                     $remettre->execute([(int) $ligne['quantite_retour'], exemplairePourRetour($pdo, $ligne)]);
-                    $remisEnStock[(int) $ligne['id_livre']] = true;
+                    $remisEnStock[(int) $ligne['id_livre']] = ($remisEnStock[(int) $ligne['id_livre']] ?? 0) + (int) $ligne['quantite_retour'];
                 }
             }
         }
@@ -312,8 +312,8 @@ function changerStatutRetour(PDO $pdo, int $idRetour, int $idActeur, string $nou
         insertLog('ERREUR', 'Retour #' . $idRetour . ' : ' . $e->getMessage());
         return ['danger', 'Le statut n’a pas pu être modifié. Merci de réessayer.'];
     }
-    foreach (array_keys($remisEnStock) as $idLivre) {
-        notifierRetourEnStock($pdo, $idLivre);
+    foreach ($remisEnStock as $idLivre => $quantiteRemise) {
+        notifierRetourEnStock($pdo, $idLivre, $quantiteRemise);
     }
     insertLog('RETOUR', "Retour {$retour['reference']} : {$retour['statut']} -> $nouveauStatut");
     $messages = [

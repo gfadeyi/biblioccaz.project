@@ -35,7 +35,7 @@ $empruntSeulement = $sansPrix && !$donSeulement;
                 <i class="bi bi-heart<?= $favori ? '-fill' : '' ?>"></i>
             </button>
         <?php else: ?>
-            <a href="login.php" class="bouton-coeur" title="Connectez-vous pour ajouter ce livre à vos favoris" aria-label="Se connecter pour ajouter ce livre à vos favoris"><i class="bi bi-heart"></i></a>
+            <a href="<?= htmlspecialchars(lienConnexion()) ?>" class="bouton-coeur" data-favori-connexion data-livre="<?= (int) $l['id_livre'] ?>" title="Connectez-vous pour ajouter ce livre à vos favoris" aria-label="Se connecter pour ajouter ce livre à vos favoris"><i class="bi bi-heart"></i></a>
         <?php endif; ?>
         <div class="carte-livre__outils">
             <button type="button" class="bouton-apercu" data-apercu="<?= (int) $l['id_livre'] ?>" aria-label="Aperçu de <?= htmlspecialchars($l['titre']) ?>" title="Aperçu"><i class="bi bi-eye" aria-hidden="true"></i></button>

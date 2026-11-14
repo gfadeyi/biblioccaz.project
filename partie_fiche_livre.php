@@ -51,7 +51,7 @@
                     <noscript><?php if ($selectionMagasin): ?><p>Choisissez un état puis ajoutez-le au panier. Le prix total sera confirmé dans le panier.</p><?php endif; ?></noscript>
                 </form>
                 <div class="fiche-livre__boutons">
-                    <?php if ($idUserConnecte): ?><?= $enFavori ? formulaireCompte('favori_retirer', (int) $id, '<i class="bi bi-heart-fill"></i> Retirer des favoris', 'btn btn-outline-success', 'Retirer de mes favoris') : formulaireCompte('favori_ajouter', (int) $id, '<i class="bi bi-heart"></i> Ajouter aux favoris', 'btn btn-outline-success', 'Ajouter à mes favoris') ?><?php else: ?><a href="login.php" class="btn btn-outline-success"><i class="bi bi-heart" aria-hidden="true"></i> Ajouter aux favoris</a><?php endif; ?>
+                    <?php if ($idUserConnecte): ?><?= $enFavori ? formulaireCompte('favori_retirer', (int) $id, '<i class="bi bi-heart-fill"></i> Retirer des favoris', 'btn btn-outline-success', 'Retirer de mes favoris') : formulaireCompte('favori_ajouter', (int) $id, '<i class="bi bi-heart"></i> Ajouter aux favoris', 'btn btn-outline-success', 'Ajouter à mes favoris') ?><?php else: ?><a href="<?= htmlspecialchars(lienConnexion()) ?>" class="btn btn-outline-success" data-favori-connexion data-livre="<?= (int) $id ?>"><i class="bi bi-heart" aria-hidden="true"></i> Ajouter aux favoris</a><?php endif; ?>
                 </div>
                 <?php if ($nombreEditions > 0): ?><a class="fiche-livre__editions" href="editions_livre.php?id=<?= (int) $id ?>">Découvrir <?= $nombreEditions ?> autre<?= $nombreEditions > 1 ? 's' : '' ?> édition<?= $nombreEditions > 1 ? 's' : '' ?> <i class="bi bi-arrow-right" aria-hidden="true"></i></a><?php endif; ?>
                 <p class="fiche-livre__demo"><i class="bi bi-info-circle" aria-hidden="true"></i> Commande de démonstration : aucun paiement ni envoi réel.</p>
@@ -88,8 +88,8 @@
                             </div>
                         <?php else: ?><p class="fiche-livre__resume"><?= nl2br(htmlspecialchars($livre['description'] ?: 'Le résumé de cette édition sera complété prochainement.')) ?></p><?php endif; ?>
                         <div class="fiche-livre__tags">
-                            <?php foreach (array_slice($tagsLivre, 0, 4) as $tagLivre): ?><a href="catalogue.php?tag=<?= rawurlencode($tagLivre['slug']) ?>">#<?= htmlspecialchars($tagLivre['nom']) ?></a><?php endforeach; ?>
-                            <?php if (count($tagsLivre) > 4): ?><details><summary>+<?= count($tagsLivre) - 4 ?></summary><?php foreach (array_slice($tagsLivre, 4) as $tagLivre): ?><a href="catalogue.php?tag=<?= rawurlencode($tagLivre['slug']) ?>">#<?= htmlspecialchars($tagLivre['nom']) ?></a><?php endforeach; ?></details><?php endif; ?>
+                            <?php foreach (array_slice($tagsLivre, 0, 4) as $tagLivre): ?><a class="tag-livre" href="catalogue.php?tag=<?= rawurlencode($tagLivre['slug']) ?>">#<?= htmlspecialchars($tagLivre['nom']) ?></a><?php endforeach; ?>
+                            <?php if (count($tagsLivre) > 4): ?><details><summary>+<?= count($tagsLivre) - 4 ?></summary><?php foreach (array_slice($tagsLivre, 4) as $tagLivre): ?><a class="tag-livre" href="catalogue.php?tag=<?= rawurlencode($tagLivre['slug']) ?>">#<?= htmlspecialchars($tagLivre['nom']) ?></a><?php endforeach; ?></details><?php endif; ?>
                         </div>
                     </div>
                     <div class="tab-pane" id="contenu-details" role="tabpanel" aria-labelledby="onglet-details" tabindex="0">
@@ -106,9 +106,29 @@
                 </div>
             </section>
             <section class="fiche-livre__communaute">
+                <?php if ($alertesSerieOuvertes): ?>
+                    <div class="alerte-serie" data-alerte-serie>
+                        <span class="alerte-serie__icone" aria-hidden="true"><i class="bi bi-bell<?= $suitSerie ? '-fill' : '' ?>"></i></span>
+                        <div class="alerte-serie__texte">
+                            <?php if ($suitSerie): ?>
+                                <strong>Vous suivez « <?= htmlspecialchars($serieLivre['nom']) ?> »</strong>
+                                <span>Notification et mail dès qu’un tome arrive ou revient en stock.</span>
+                                <?= formulaireCompte('serie_ne_plus_suivre', (int) $id, 'Ne plus suivre', 'btn btn-link btn-sm p-0') ?>
+                            <?php else: ?>
+                                <strong>Ne ratez pas la suite de « <?= htmlspecialchars($serieLivre['nom']) ?> »</strong>
+                                <span>Soyez prévenu dès qu’un nouveau tome arrive ou qu’un tome revient en stock.</span>
+                                <?php if ($idUserConnecte): ?>
+                                    <?= formulaireCompte('serie_suivre', (int) $id, '<i class="bi bi-bell" aria-hidden="true"></i> M’alerter des prochains tomes', 'btn btn-outline-success btn-sm') ?>
+                                <?php else: ?>
+                                    <a href="<?= htmlspecialchars(lienConnexion()) ?>" class="btn btn-outline-success btn-sm"><i class="bi bi-bell" aria-hidden="true"></i> M’alerter des prochains tomes</a>
+                                <?php endif; ?>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                <?php endif; ?>
                 <?php if ($etatEmprunt['total'] > 0): ?><?php include __DIR__ . '/partie_emprunt_livre.php'; ?><hr><?php endif; ?>
                 <?php if (!$selectionMagasin): ?>
-                    <?php if (!$idUserConnecte): ?><a class="btn btn-outline-success mb-3" href="login.php">Être averti du retour en stock</a><?php elseif ($alerteActive): ?><p>Vous serez averti du retour en stock.</p><?= formulaireCompte('alerte_retirer', (int) $id, 'Annuler l’alerte', 'btn btn-link') ?><?php else: ?><?= formulaireCompte('alerte_ajouter', (int) $id, 'M’avertir du retour en stock', 'btn btn-outline-success') ?><?php endif; ?>
+                    <?php if (!$idUserConnecte): ?><a class="btn btn-outline-success mb-3" href="<?= htmlspecialchars(lienConnexion()) ?>">Être averti du retour en stock</a><?php elseif ($alerteActive): ?><p>Vous serez averti du retour en stock.</p><?= formulaireCompte('alerte_retirer', (int) $id, 'Annuler l’alerte', 'btn btn-link') ?><?php else: ?><?= formulaireCompte('alerte_ajouter', (int) $id, 'M’avertir du retour en stock', 'btn btn-outline-success') ?><?php endif; ?>
                 <?php endif; ?>
                 <p class="mb-2">Vous avez ce livre ? <a href="annonce_creer.php?livre=<?= (int) $id ?>">Vendez-le</a> ou <a href="don_creer.php?livre=<?= (int) $id ?>">donnez-le</a>.</p>
                 <a class="small" href="#offres">Voir toutes les offres : magasin, lecteurs, dons et emprunts</a>

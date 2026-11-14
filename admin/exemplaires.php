@@ -40,7 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ->execute([$idLivre, $etat, $prix, $quantite, $_SESSION['user_id']]);
         }
         insertLog('STOCK', "Ajout de $quantite ex. ($etat, $prix €) pour le livre #$idLivre");
-        $prevenus = notifierRetourEnStock($pdo, $idLivre);
+        $prevenus = notifierRetourEnStock($pdo, $idLivre, $quantite);
         rediriger($retour, 'success', "$quantite exemplaire" . ($quantite > 1 ? 's ajoutés' : ' ajouté') . " au stock."
             . ($prevenus ? " $prevenus client" . ($prevenus > 1 ? 's qui attendaient ce livre ont été prévenus' : ' qui attendait ce livre a été prévenu') . " par mail." : ''));
     }
@@ -81,7 +81,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($action === 'plus') {
         $pdo->prepare("UPDATE exemplaire SET quantite = quantite + 1 WHERE id_exemplaire = ? AND id_livre = ? AND id_proprietaire IS NULL AND type_offre = 'vente'")->execute([$idEx, $idLivre]);
         insertLog('STOCK', "Stock +1 pour l'exemplaire #$idEx");
-        notifierRetourEnStock($pdo, $idLivre);
+        notifierRetourEnStock($pdo, $idLivre, 1);
     } elseif ($action === 'moins') {
         $pdo->prepare("UPDATE exemplaire SET quantite = quantite - 1 WHERE id_exemplaire = ? AND id_livre = ? AND quantite > 0 AND id_proprietaire IS NULL AND type_offre = 'vente'")->execute([$idEx, $idLivre]);
         insertLog('STOCK', "Stock -1 pour l'exemplaire #$idEx");

@@ -1,13 +1,21 @@
 document.addEventListener('click', function (e) {
-    const bouton = e.target.closest('button.bouton-coeur');
-    if (!bouton) return;
+    const bouton = e.target.closest('button.bouton-coeur, a[data-favori-connexion]');
+    if (!bouton || !bouton.dataset.livre) return;
     e.preventDefault();
+    if (bouton.dataset.envoi === '1') return;
     const jeton = document.querySelector('meta[name="csrf"]');
-    const corps = new URLSearchParams({ action: 'favori_basculer', id_livre: bouton.dataset.livre, csrf: jeton ? jeton.content : '' });
-    bouton.disabled = true;
+    const pageActuelle = (decodeURIComponent(window.location.pathname.split('/').pop()) || 'index.php') + window.location.search;
+    const corps = new URLSearchParams({ action: 'favori_basculer', id_livre: bouton.dataset.livre, csrf: jeton ? jeton.content : '', retour_page: pageActuelle });
+    bouton.dataset.envoi = '1';
+    if (bouton.tagName === 'BUTTON') bouton.disabled = true;
     fetch('compte_action.php', { method: 'POST', body: corps, credentials: 'same-origin' })
         .then(reponse => {
-            if (reponse.status === 401) { window.location.href = 'login.php'; return null; }
+            if (reponse.status === 401) {
+                return reponse.json().catch(() => ({})).then(data => {
+                    window.location.href = data.connexion || bouton.getAttribute('href') || 'login.php';
+                    return null;
+                });
+            }
             return reponse.ok ? reponse.json() : null;
         })
         .then(data => {
@@ -34,5 +42,5 @@ document.addEventListener('click', function (e) {
                 compteur.style.display = data.nb > 0 ? '' : 'none';
             }
         })
-        .finally(() => { bouton.disabled = false; });
+        .finally(() => { delete bouton.dataset.envoi; if (bouton.tagName === 'BUTTON') bouton.disabled = false; });
 });

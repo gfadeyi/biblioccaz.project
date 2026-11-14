@@ -179,7 +179,7 @@ include 'header.php';
                     <h2 class="evt-panneau__titre"><?= $etat === 'ouvert' ? 'Je participe' : 'Événement complet' ?></h2>
                     <?php if (!$idUser): ?>
                         <p class="small text-muted">Connectez-vous pour réserver votre place<?= $etat === 'complet' ? " ou rejoindre la liste d'attente" : '' ?>.</p>
-                        <a href="login.php" class="bouton bouton-principal w-100"><i class="bi bi-box-arrow-in-right" aria-hidden="true"></i> Se connecter pour s'inscrire</a>
+                        <a href="<?= htmlspecialchars(lienConnexion()) ?>" class="bouton bouton-principal w-100"><i class="bi bi-box-arrow-in-right" aria-hidden="true"></i> Se connecter pour s'inscrire</a>
                     <?php elseif ($etat === 'ouvert'): ?>
                         <?= boutonEvenement('inscrire', (int) $evt['id_evenement'], $csrf, '<i class="bi bi-check2-circle" aria-hidden="true"></i> Réserver ma place', 'bouton-principal') ?>
                         <p class="small text-muted mt-2 mb-0">Vous recevrez votre billet par mail et dans votre espace.</p>

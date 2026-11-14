@@ -137,6 +137,9 @@ if (!empty($livre['id_categorie'])) {
 $slugAuteur = slugFichePublique($pdo, isset($livre['id_user_auteur']) ? (int) $livre['id_user_auteur'] : null);
 $serieLivre = serieDuLivre($pdo, (int) $id);
 $selectionSerie = $serieLivre ? selectionSerieDisponible($pdo, (int) $serieLivre['id_serie']) : null;
+require_once 'alertes_serie_lib.php';
+$alertesSerieOuvertes = $serieLivre && alertesSerieDisponibles($pdo);
+$suitSerie = $alertesSerieOuvertes && isset($_SESSION['user_id']) && alerteSerieActive($pdo, (int) $_SESSION['user_id'], (int) $serieLivre['id_serie']);
 $etatsMagasin = etatsMagasinDuLivre($pdo, (int) $id);
 $selectionMagasin = $offre_selectionnee ?: ($offres[0] ?? null);
 $prixNeufLivre = prixNeufReference($pdo, $livre);

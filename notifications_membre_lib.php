@@ -12,6 +12,7 @@ const NOTIFICATIONS_TYPES = [
     'evenement_proposition' => 'ticket',
     'retour' => 'colis',
     'commande' => 'camion',
+    'serie' => 'pile',
     'service_client' => 'enveloppe',
     'information' => 'clochette',
 ];

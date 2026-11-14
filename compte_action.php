@@ -3,12 +3,18 @@ require_once 'config.php';
 require_once 'compte_lib.php';
 require_once 'avis_lib.php';
 require_once 'recommandations_lib.php';
+require_once 'series_lib.php';
+require_once 'alertes_serie_lib.php';
 
 if (($_POST['action'] ?? '') === 'favori_basculer') {
     header('Content-Type: application/json; charset=utf-8');
     if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !isset($_SESSION['user_id'])) {
+        $retourPage = retourConnexionValide((string) ($_POST['retour_page'] ?? ''));
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && verifierCsrf()) {
+            memoriserFavoriApresConnexion((int) ($_POST['id_livre'] ?? 0), $retourPage);
+        }
         http_response_code(401);
-        echo json_encode(['erreur' => 'connexion']);
+        echo json_encode(['erreur' => 'connexion', 'connexion' => lienConnexion($retourPage ?? 'index.php')]);
         exit();
     }
     if (!verifierCsrf()) {
@@ -86,6 +92,25 @@ switch ($action) {
         }
         creerAlerte($pdo, $idUser, $idLivre);
         finir($retour, 'success', "C'est noté : vous recevrez un mail dès que « $titre » sera de nouveau en stock.");
+
+    case 'serie_suivre':
+    case 'serie_ne_plus_suivre':
+        $serie = serieDuLivre($pdo, $idLivre);
+        if (!$serie) {
+            finir($retour, 'warning', "Ce livre ne fait partie d'aucune série.");
+        }
+        if ($action === 'serie_ne_plus_suivre') {
+            desabonnerAlerteSerie($pdo, $idUser, (int) $serie['id_serie']);
+            finir($retour, 'success', "Vous ne recevrez plus d'alerte pour la série « {$serie['nom']} ».");
+        }
+        $resultat = abonnerAlerteSerie($pdo, $idUser, (int) $serie['id_serie']);
+        if ($resultat === 'limite') {
+            finir($retour, 'warning', "Vous suivez déjà " . ALERTES_SERIE_MAX . " séries : retirez-en une dans « Mes alertes » avant d'en ajouter une autre.");
+        }
+        if ($resultat !== 'ok') {
+            finir($retour, 'warning', "Les alertes de série ne sont pas encore disponibles.");
+        }
+        finir($retour, 'success', "C'est noté : vous serez prévenu (notification et mail) dès qu'un tome de « {$serie['nom']} » arrive ou revient en stock.");
 
     case 'alerte_retirer':
         $pdo->prepare("DELETE FROM alerte_stock WHERE id_user = ? AND id_livre = ?")->execute([$idUser, $idLivre]);

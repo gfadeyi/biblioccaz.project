@@ -2,6 +2,7 @@
 require_once 'config.php';
 require_once 'compte_lib.php';
 require_once 'avis_lib.php';
+require_once 'alertes_serie_lib.php';
 
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
@@ -20,6 +21,7 @@ $stmt->execute([$idUser]);
 $alertes = $stmt->fetchAll();
 $enAttente = array_filter($alertes, fn($a) => $a['date_envoi'] === null);
 $csrf = jetonCsrf();
+$alertesSerie = alertesSerieDe($pdo, $idUser);
 
 $flash = $_SESSION['flash_compte'] ?? null;
 unset($_SESSION['flash_compte']);
@@ -32,10 +34,35 @@ include 'header.php';
         <h1 class="h3 fw-bold mb-0" style="color:#274e13;"><i class="bi bi-bell"></i> Mes alertes</h1>
         <a href="wishlist.php" class="btn btn-outline-success rounded-pill"><i class="bi bi-heart"></i> Mes favoris</a>
     </div>
-    <p class="text-muted mb-4">Quand un livre épuisé revient en stock, vous recevez un mail. Pour créer une alerte, ouvrez la page d'un livre épuisé et cliquez sur « M'avertir ».</p>
+    <p class="text-muted mb-4">Quand un livre épuisé revient en stock, vous recevez un mail. Pour créer une alerte, ouvrez la page d'un livre épuisé et cliquez sur « M'avertir », ou suivez une série depuis la page d'un de ses tomes.</p>
 
     <?php if ($flash): ?>
         <div class="alert alert-<?= htmlspecialchars($flash[0]) ?> rounded-3"><?= htmlspecialchars($flash[1]) ?></div>
+    <?php endif; ?>
+
+    <?php if ($alertesSerie): ?>
+        <h2 class="h5 fw-bold mb-2" id="series-suivies"><i class="bi bi-collection" aria-hidden="true"></i> Séries suivies</h2>
+        <p class="small text-muted">Vous êtes prévenu (notification et mail) quand un tome arrive ou revient en stock.</p>
+        <div class="list-group shadow-sm mb-4" style="border-radius: 15px; overflow: hidden;" data-series-suivies>
+            <?php foreach ($alertesSerie as $serieSuivie): ?>
+                <div class="list-group-item d-flex flex-wrap align-items-center gap-3 py-3">
+                    <div class="flex-grow-1" style="min-width: 180px;">
+                        <a href="serie.php?id=<?= (int) $serieSuivie['id_serie'] ?>" class="fw-bold text-dark text-decoration-none"><?= htmlspecialchars($serieSuivie['nom']) ?></a>
+                        <div class="small text-muted"><?= htmlspecialchars($serieSuivie['auteur']) ?> · suivie depuis le <?= date('d/m/Y', strtotime($serieSuivie['date_creation'])) ?></div>
+                    </div>
+                    <?php if ($serieSuivie['id_livre_exemple']): ?>
+                        <form action="compte_action.php" method="POST">
+                            <input type="hidden" name="csrf" value="<?= $csrf ?>">
+                            <input type="hidden" name="action" value="serie_ne_plus_suivre">
+                            <input type="hidden" name="id_livre" value="<?= (int) $serieSuivie['id_livre_exemple'] ?>">
+                            <input type="hidden" name="retour" value="alertes">
+                            <button class="btn btn-sm btn-outline-secondary rounded-pill" title="Ne plus suivre cette série" aria-label="Ne plus suivre <?= htmlspecialchars($serieSuivie['nom']) ?>"><i class="bi bi-bell-slash" aria-hidden="true"></i></button>
+                        </form>
+                    <?php endif; ?>
+                </div>
+            <?php endforeach; ?>
+        </div>
+        <h2 class="h5 fw-bold mb-2"><i class="bi bi-box-seam" aria-hidden="true"></i> Livres attendus</h2>
     <?php endif; ?>
 
     <?php if (!$alertes): ?>

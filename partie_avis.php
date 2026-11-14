@@ -99,7 +99,7 @@ $lienTri = fn($t) => 'detail_livre.php?' . http_build_query(['id' => $idLivreAvi
             <div class="card border-0 shadow-sm p-4 mt-3" style="border-radius: 15px;">
                 <?php if (!$idUserCourant): ?>
                     <p class="mb-2 small text-muted">Connectez-vous pour donner votre avis sur ce livre.</p>
-                    <a href="login.php" class="btn btn-success rounded-pill btn-sm">Se connecter</a>
+                    <a href="<?= htmlspecialchars(lienConnexion()) ?>" class="btn btn-success rounded-pill btn-sm">Se connecter</a>
                 <?php else: ?>
                     <h6 class="fw-bold mb-3"><?= $monAvis ? 'Modifier mon avis' : 'Donner mon avis' ?></h6>
                     <?php if ($monAvis && $monAvis['statut'] === 'masque'): ?>

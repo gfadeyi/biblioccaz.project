@@ -5,6 +5,14 @@ require_once 'mot_de_passe_lib.php';
 header("Cache-Control: no-cache, no-store, must-revalidate"); 
 header("Pragma: no-cache"); 
 header("Expires: 0");
+if (isset($_GET['retour'])) {
+    if (!memoriserRetourConnexion((string) $_GET['retour'])) {
+        oublierRetourConnexion();
+    }
+} elseif (!isset($_GET['error']) && !isset($_SESSION['retour_apres_connexion'])) {
+    unset($_SESSION['action_apres_connexion']);
+}
+$livreEnAttente = titreLivreEnAttente($pdo);
 include 'header.php';
 
 $error = "";
@@ -49,6 +57,11 @@ if (isset($_GET['inscription'])) { $success = "Compte créé ! Un mail de valida
         <div class="carte-formulaire__icone"><?= iconeDessin('lecteur') ?></div>
         <h1>Se connecter</h1>
         <p class="carte-formulaire__intro">Retrouvez vos favoris, vos points et vos commandes.</p>
+        <?php if ($livreEnAttente !== null): ?>
+            <div class="alert alert-success small" role="status" data-action-en-attente><i class="bi bi-heart" aria-hidden="true"></i> Connectez-vous : « <?= htmlspecialchars($livreEnAttente) ?> » sera ajouté à vos favoris et vous reviendrez sur la page que vous consultiez.</div>
+        <?php elseif (isset($_SESSION['retour_apres_connexion']) && $_SESSION['retour_apres_connexion'] !== 'achat.php'): ?>
+            <div class="alert alert-info small" role="status" data-retour-connexion>Une fois connecté, vous reviendrez sur la page que vous consultiez.</div>
+        <?php endif; ?>
 
         <?php if (isset($_GET['timeout']) || (isset($_GET['msg']) && $_GET['msg'] === 'inactive')): ?>
             <div class="alert alert-info small" role="status"><strong>Déconnexion automatique</strong> après 10 minutes d'inactivité.</div>

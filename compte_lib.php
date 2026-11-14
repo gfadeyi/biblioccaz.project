@@ -212,10 +212,15 @@ function creerAlerte(PDO $pdo, int $idUser, int $idLivre): void
     }
 }
 
-function notifierRetourEnStock(PDO $pdo, int $idLivre): int
+function notifierRetourEnStock(PDO $pdo, int $idLivre, ?int $quantiteAjoutee = null): int
 {
-    if (stockDuLivre($pdo, $idLivre) <= 0) {
+    $stock = stockDuLivre($pdo, $idLivre);
+    if ($stock <= 0) {
         return 0;
+    }
+    if ($quantiteAjoutee !== null && $quantiteAjoutee > 0 && $stock - $quantiteAjoutee <= 0) {
+        require_once __DIR__ . '/alertes_serie_lib.php';
+        notifierAlertesSerie($pdo, $idLivre);
     }
     try {
         $stmt = $pdo->prepare("

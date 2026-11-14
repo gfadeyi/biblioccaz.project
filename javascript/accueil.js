@@ -3,26 +3,56 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const carrouselAvis = document.querySelector('[data-carrousel-avis]');
     const pointsAvis = document.querySelectorAll('[data-points-avis] button');
-    if (carrouselAvis && pointsAvis.length > 1) {
-        const avis = carrouselAvis.children;
-        let indexActuel = 0;
+    if (carrouselAvis) {
+        const avis = Array.from(carrouselAvis.querySelectorAll(':scope > .avis-lecteur'));
+        const zonePoints = document.querySelector('[data-points-avis]');
+        if (!avis.length) {
+            const bloc = carrouselAvis.closest('.bloc-communaute');
+            if (bloc) bloc.hidden = true;
+        } else if (avis.length > 1 && pointsAvis.length === avis.length) {
+            let indexActuel = 0;
+            carrouselAvis.classList.add('un-par-un');
 
-        const afficherAvis = (index) => {
-            indexActuel = (index + avis.length) % avis.length;
-            carrouselAvis.scrollTo({ left: indexActuel * carrouselAvis.clientWidth, behavior: mouvementReduit ? 'auto' : 'smooth' });
-        };
+            const afficherAvis = (index, sens) => {
+                indexActuel = (index + avis.length) % avis.length;
+                avis.forEach((element, i) => {
+                    const visible = i === indexActuel;
+                    element.hidden = !visible;
+                    element.classList.remove('entre');
+                    if (visible && !mouvementReduit) {
+                        element.style.setProperty('--decalage-avis', (sens < 0 ? -12 : 12) + 'px');
+                        void element.offsetWidth;
+                        element.classList.add('entre');
+                    }
+                });
+                pointsAvis.forEach((point, i) => {
+                    point.classList.toggle('actif', i === indexActuel);
+                    point.setAttribute('aria-pressed', i === indexActuel ? 'true' : 'false');
+                });
+            };
 
-        pointsAvis.forEach((point, index) => point.addEventListener('click', () => afficherAvis(index)));
+            pointsAvis.forEach((point, index) => point.addEventListener('click', () => afficherAvis(index, index < indexActuel ? -1 : 1)));
 
-        carrouselAvis.addEventListener('scroll', () => {
-            const index = Math.round(carrouselAvis.scrollLeft / carrouselAvis.clientWidth);
-            pointsAvis.forEach((point, i) => {
-                point.classList.toggle('actif', i === index);
-                point.setAttribute('aria-pressed', i === index ? 'true' : 'false');
-            });
-            indexActuel = index;
-        }, { passive: true });
+            let departX = null;
+            let departY = null;
+            carrouselAvis.addEventListener('touchstart', (evenement) => {
+                departX = evenement.touches[0].clientX;
+                departY = evenement.touches[0].clientY;
+            }, { passive: true });
+            carrouselAvis.addEventListener('touchend', (evenement) => {
+                if (departX === null) return;
+                const ecartX = evenement.changedTouches[0].clientX - departX;
+                const ecartY = evenement.changedTouches[0].clientY - departY;
+                departX = null;
+                if (Math.abs(ecartX) > 40 && Math.abs(ecartX) > Math.abs(ecartY)) {
+                    afficherAvis(indexActuel + (ecartX < 0 ? 1 : -1), ecartX < 0 ? 1 : -1);
+                }
+            }, { passive: true });
 
+            afficherAvis(0, 1);
+            avis[0].classList.remove('entre');
+            if (zonePoints) zonePoints.hidden = false;
+        }
     }
 
     document.querySelectorAll('.carrousel, .grille-univers').forEach((carrousel) => {

@@ -120,7 +120,7 @@ include 'header.php';
                     </dl>
                     <?php if ($pointsPanier > 0): ?>
                         <p class="recap-panier__points"><i class="bi bi-coin" aria-hidden="true"></i>
-                            <?= $idUserPanier ? 'Environ ' . $pointsPanier . ' points à gagner' : '<a href="login.php">Connectez-vous</a> pour gagner environ ' . $pointsPanier . ' points' ?>
+                            <?= $idUserPanier ? 'Environ ' . $pointsPanier . ' points à gagner' : '<a href="' . htmlspecialchars(lienConnexion()) . '">Connectez-vous</a> pour gagner environ ' . $pointsPanier . ' points' ?>
                             <?php if ($niveauPanier && $niveauPanier['bonus'] > 0): ?><small class="d-block">dont +<?= $niveauPanier['bonus'] ?> % de bonus <?= htmlspecialchars($niveauPanier['nom']) ?></small><?php endif; ?>
                         </p>
                     <?php endif; ?>

@@ -26,7 +26,7 @@ $exemplaireReference = $etatEmprunt['exemplaires'][0];
     </p>
 
     <?php if (!$idUserConnecte): ?>
-        <a href="login.php" class="bouton bouton-contour w-100">Se connecter pour emprunter</a>
+        <a href="<?= htmlspecialchars(lienConnexion()) ?>" class="bouton bouton-contour w-100">Se connecter pour emprunter</a>
     <?php elseif ($monEmprunt): ?>
         <p class="bloc-emprunt__info">
             <?php if ($monEmprunt['statut'] === 'reserve'): ?>

@@ -297,7 +297,7 @@ $nomOnglet = trim((string) ($titreDocument ?? $titrePage ?? $titresOnglets[$page
             <?php endif; ?>
 
             <div class="dropdown dropdown-hover zone-menu-compte" data-menu-compte>
-                <a href="<?= $connected ? 'profil.php' : 'login.php' ?>" class="icone-entete" aria-label="<?= $connected ? 'Mon compte' : 'Connexion' ?>" aria-haspopup="true" aria-expanded="false" aria-controls="menu-compte">
+                <a href="<?= $connected ? 'profil.php' : htmlspecialchars(lienConnexion()) ?>" class="icone-entete" aria-label="<?= $connected ? 'Mon compte' : 'Connexion' ?>" aria-haspopup="true" aria-expanded="false" aria-controls="menu-compte">
                     <?= $connected && cheminPhotoMembre($photoMembre) ? avatarMembre($_SESSION['pseudo'], $photoMembre, 'entete') : iconeDessin('lecteur') ?>
                     <span class="text-truncate" style="max-width: 90px;"><?= $connected ? htmlspecialchars(pseudoAffiche($_SESSION['pseudo'])) : 'Connexion' ?></span>
                     <?php if ($total_notif_admin > 0): ?>
@@ -346,7 +346,7 @@ $nomOnglet = trim((string) ($titreDocument ?? $titrePage ?? $titresOnglets[$page
                         <li><form method="POST" action="logout.php"><input type="hidden" name="csrf" value="<?= htmlspecialchars(jetonCsrf(), ENT_QUOTES, 'UTF-8') ?>"><button type="submit" class="lien-menu-compte deconnexion border-0 bg-transparent w-100 text-start"><?= iconeDessin('porte') ?><span>Déconnexion</span></button></form></li>
                     <?php else: ?>
                         <li class="menu-entete__accueil">Bienvenue ! Retrouvez vos favoris, vos points et vos commandes.</li>
-                        <li><a class="lien-menu-compte" href="login.php"><?= iconeDessin('porte') ?><span>Se connecter</span></a></li>
+                        <li><a class="lien-menu-compte" href="<?= htmlspecialchars(lienConnexion()) ?>"><?= iconeDessin('porte') ?><span>Se connecter</span></a></li>
                         <li><a class="lien-menu-compte" href="inscription.php"><?= iconeDessin('lecteur') ?><span>Créer un compte</span></a></li>
                     <?php endif; ?>
                 </ul>
@@ -473,10 +473,18 @@ $nomOnglet = trim((string) ($titreDocument ?? $titrePage ?? $titresOnglets[$page
             <?php if ($connected): ?>
                 <li><a href="profil.php" class="lien-lateral-secondaire"><i class="bi bi-person"></i> Mon compte</a></li>
             <?php else: ?>
-                <li><a href="login.php" class="lien-lateral-secondaire"><i class="bi bi-box-arrow-in-right"></i> Se connecter</a></li>
+                <li><a href="<?= htmlspecialchars(lienConnexion()) ?>" class="lien-lateral-secondaire"><i class="bi bi-box-arrow-in-right"></i> Se connecter</a></li>
             <?php endif; ?>
         </ul>
     </div>
 </div>
 
 <main id="contenu" tabindex="-1">
+<?php $messageConnexion = messageApresConnexion(); if ($messageConnexion !== null): ?>
+    <div class="container-xxl pt-3">
+        <div class="alert alert-success alert-dismissible fade show mb-0" role="status" data-message-apres-connexion>
+            <i class="bi bi-heart-fill me-1" aria-hidden="true"></i> <?= htmlspecialchars($messageConnexion) ?> <a href="wishlist.php" class="alert-link">Voir mes favoris</a>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fermer"></button>
+        </div>
+    </div>
+<?php endif; ?>

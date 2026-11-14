@@ -72,7 +72,7 @@ function annulerCommande(PDO $pdo, int $idCommande, int $idAnnulateur, string $m
                 continue;
             }
             $remettreEnStock->execute([(int) $ligne['quantite'], exemplairePourRetour($pdo, $ligne)]);
-            $livresRemis[(int) $ligne['id_livre']] = true;
+            $livresRemis[(int) $ligne['id_livre']] = ($livresRemis[(int) $ligne['id_livre']] ?? 0) + (int) $ligne['quantite'];
         }
 
         $bilanPoints = annulerPointsCommande($pdo, $commande);
@@ -87,8 +87,8 @@ function annulerCommande(PDO $pdo, int $idCommande, int $idAnnulateur, string $m
     }
 
     $clientsPrevenus = 0;
-    foreach (array_keys($livresRemis) as $idLivre) {
-        $clientsPrevenus += notifierRetourEnStock($pdo, $idLivre);
+    foreach ($livresRemis as $idLivre => $quantiteRemise) {
+        $clientsPrevenus += notifierRetourEnStock($pdo, $idLivre, $quantiteRemise);
     }
     insertLog('COMMANDE', "Commande #$idCommande annulée" . ($motif !== '' ? " : $motif" : ''));
 

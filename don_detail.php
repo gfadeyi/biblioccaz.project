@@ -161,7 +161,7 @@ function boutonActionDon(string $action, int $idDon, string $csrf, string $libel
                 <?php elseif ($statut === 'disponible'): ?>
                     <h5 class="fw-bold text-success mb-3">Gratuit</h5>
                     <?php if (!$idUser): ?>
-                        <a href="login.php" class="btn btn-success rounded-pill w-100">Se connecter pour réserver</a>
+                        <a href="<?= htmlspecialchars(lienConnexion()) ?>" class="btn btn-success rounded-pill w-100">Se connecter pour réserver</a>
                     <?php else: ?>
                         <?= boutonActionDon('reserver', (int) $don['id_don'], $csrf, '<i class="bi bi-bookmark-plus"></i> Réserver ce livre', 'btn-success fw-bold') ?>
                         <p class="small text-muted mt-2 mb-0">Une conversation s'ouvrira avec le donneur pour organiser le retrait. Vos adresses email restent privées.</p>

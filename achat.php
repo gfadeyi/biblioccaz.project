@@ -4,7 +4,7 @@ require_once 'demonstration_lib.php';
 if (session_status() === PHP_SESSION_NONE) { session_start(); }
 
 if (!isset($_SESSION['user_id'])) {
-    $_SESSION['retour_apres_connexion'] = 'achat.php';
+    memoriserRetourConnexion('achat.php');
     header('Location: login.php'); exit();
 }
 if (empty($_SESSION['panier'])) {

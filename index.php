@@ -353,7 +353,7 @@ include 'header.php';
                         <?php endforeach; ?>
                     </div>
                     <?php if (count($derniersAvis) > 1): ?>
-                        <div class="points-avis" data-points-avis>
+                        <div class="points-avis" data-points-avis hidden>
                             <?php foreach ($derniersAvis as $indexAvis => $avis): ?>
                                 <button type="button" class="<?= $indexAvis === 0 ? 'actif' : '' ?>" aria-label="Voir l'avis <?= $indexAvis + 1 ?>" aria-pressed="<?= $indexAvis === 0 ? 'true' : 'false' ?>"></button>
                             <?php endforeach; ?>

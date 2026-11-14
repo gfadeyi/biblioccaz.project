@@ -9,6 +9,7 @@ require_once __DIR__ . '/secrets.php';
 require_once __DIR__ . '/sessions_lib.php';
 require_once __DIR__ . '/erreurs_lib.php';
 require_once __DIR__ . '/seo_lib.php';
+require_once __DIR__ . '/retour_connexion_lib.php';
 installerGestionErreurs();
 if (PHP_SAPI !== 'cli') {
     header('X-Content-Type-Options: nosniff');
