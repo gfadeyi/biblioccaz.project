@@ -8,7 +8,7 @@ $tagsActuels = $tagsActuels ?? [];
 ?>
 <div class="col-md-6">
     <label for="champ-categorie" class="form-label fw-bold small">Catégorie</label>
-    <select id="champ-categorie" name="id_categorie" class="form-select bg-light border-0">
+    <select id="champ-categorie" name="id_categorie" class="form-select">
         <option value="">— Aucune —</option>
         <?= optionsCategories($arbreCategoriesLivre, $categorieActuelle ?? '') ?>
     </select>

@@ -1,6 +1,6 @@
 # BIBLIOccaz
 
-Librairie en ligne de livres d'occasion, pensée comme une vraie boutique de quartier : on y achète des livres vérifiés à petit prix, on donne ceux qu'on a lus, on se retrouve à des dédicaces et des ateliers, et chaque action rapporte des points.
+Librairie en ligne de livres d'occasion, pensée comme une vraie boutique de quartier : on y découvre des livres d’occasion à petit prix, on donne ceux qu'on a lus, on se retrouve à des dédicaces et des ateliers, et chaque action rapporte des points.
 
 Site complet en PHP et MySQL, sans framework : catalogue rangé par univers, panier et commandes, dons avec QR code, événements avec billets, avis modérés, programme de fidélité, et un back-office séparé pour l'équipe.
 
@@ -31,6 +31,10 @@ Les couvertures visibles sur ces captures sont générées pour l'aperçu : les 
 ## Fonctionnalités
 
 ### Boutique
+- **Emails et abonnements confirmés** : validation du compte par lien valable 24 heures, renvoi possible, confirmation de la newsletter et désabonnement sans compte depuis chaque lettre ; ouvrir un lien ne modifie aucune préférence. Les jetons sont conservés sous empreinte.
+- **Préparation au référencement** : titres, descriptions et partage social pour les pages publiques ; exclusion des espaces privés et de l’environnement de développement, sitemap des livres publiés. La validation avant publication est suivie dans [la checklist de préproduction](docs/checklist-preproduction.md).
+- **Navigation au clavier** : lien direct vers le contenu, titres d’onglets explicites, focus renforcés et suggestions de recherche parcourables avec les flèches, Entrée et Échap ; recherche classique disponible sans JavaScript.
+- **Interface sobre** : panneaux stables, avis de l’accueil parcourus manuellement, provenance de démonstration signalée pour les avis du jeu identifié et paiement fictif clairement annoncé.
 - **Site de démonstration signalé** : bandeau discret et refermable sur tout le site, rappel sur la page de paiement, dans le mail de confirmation de commande et dans les CGU (commandes et paiements fictifs, aucun livre expédié)
 - **Catalogue en 6 univers** (BD, Manga & Jeunesse, Littérature, Art & Culture, Scolaire & Études, Savoirs & Pro, Vie pratique) et un rayon Bons plans, avec méga-menu, fil d'Ariane, catégories, tags en trois familles (thèmes, public, particularités), filtres (type d'offre : magasin, entre particuliers ou don, prix, état, note), tris (dont la **pertinence**, par défaut lors d'une recherche, et **Découverte**, par défaut ailleurs : ordre mélangé stable pendant la visite, au plus deux tomes par série) et pagination ; filtres repliés dans un volet sur téléphone
 - **Fiche livre** : caractéristiques complètes, choix de l'état (neuf, très bon, bon, usé) avec le prix de chacun, badge « Stock bas » de 1 à 4 exemplaires (jamais de quantité exacte côté client, chiffres réservés au back-office), liste « Toutes les offres » (magasin, annonces de particuliers et dons) triable par prix, état ou type, avis des lecteurs, bloc « Vous aimerez aussi » (même auteur, même série, même catégorie, même univers ou thèmes communs, chaque livre avec sa raison)

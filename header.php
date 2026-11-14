@@ -120,6 +120,30 @@ $bonsPlansMenu = [
     ['dons.php', 'bi-gift', 'Livres à donner'],
 ];
 $classeRaccourci = fn(array $pages) => in_array($pageActuelle, $pages, true) ? 'puce actif' : 'puce';
+$titresOnglets = [
+    'index.php' => 'Livres d’occasion, dons et emprunts',
+    'newsletter_confirmer.php' => 'Mon abonnement à la newsletter', 'verification_mail.php' => 'Valider mon adresse email', 'renvoyer_validation.php' => 'Recevoir un lien de validation',
+    'login.php' => 'Se connecter', 'inscription.php' => 'Créer un compte',
+    'profil.php' => 'Mon compte', 'points_badges.php' => 'Mes points et badges',
+    'commandes.php' => 'Mes commandes', 'wishlist.php' => 'Mes favoris',
+    'alertes.php' => 'Mes alertes de disponibilité', 'adresses.php' => 'Mes adresses',
+    'avis.php' => 'Mes avis', 'mes_dons.php' => 'Mes dons',
+    'mes_evenements.php' => 'Mes événements', 'suggestions.php' => 'Suggestions de lecture',
+    'trouver_lecture.php' => 'Trouver ma prochaine lecture',
+    'evenements.php' => 'Les événements', 'evenement.php' => 'Détail de l’événement',
+    'dons.php' => 'Livres à donner', 'don_creer.php' => 'Proposer un don',
+    'don_detail.php' => 'Détail du don', 'vendre.php' => 'Donner ou revendre un livre',
+    'auteurs.php' => 'Nos auteurs', 'dashboard_auteur.php' => 'Espace auteur',
+    'proposer_evenement.php' => 'Proposer un événement', 'proposer_ouvrage.php' => 'Proposer un livre',
+    'candidature_auteur.php' => 'Devenir auteur', 'rejoindre_equipe.php' => 'Rejoindre l’équipe',
+    'modifier_profil.php' => 'Modifier mon profil', 'modifier_email.php' => 'Modifier mon adresse email',
+    'recuparation_mdp.php' => 'Retrouver mon accès', 'modifier_mdp.php' => 'Choisir un mot de passe',
+    'achat.php' => 'Paiement de démonstration', 'confirmation_achat.php' => 'Confirmation de commande',
+];
+$pageReferencement = cheminPageReferencement();
+$indexable = indexationPermise($pageReferencement);
+if (!$indexable && !headers_sent()) { header('X-Robots-Tag: noindex, nofollow'); }
+$nomOnglet = trim((string) ($titreDocument ?? $titrePage ?? $titresOnglets[$pageActuelle] ?? 'Bibliothèque d’occasion'));
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -127,7 +151,23 @@ $classeRaccourci = fn(array $pages) => in_array($pageActuelle, $pages, true) ? '
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php if (!empty($adresseBase)): ?><base href="<?= htmlspecialchars($adresseBase) ?>"><?php endif; ?>
-    <title><?= htmlspecialchars(isset($titreDocument) ? $titreDocument . ' - BIBLIOccaz' : 'BIBLIOccaz') ?></title>
+    <title><?= htmlspecialchars($nomOnglet . ' - BIBLIOccaz', ENT_QUOTES, 'UTF-8') ?></title>
+    <meta name="description" content="<?= htmlspecialchars(descriptionReferencement($pageReferencement, $nomOnglet), ENT_QUOTES, 'UTF-8') ?>">
+    <meta name="robots" content="<?= $indexable ? 'index, follow' : 'noindex, nofollow' ?>">
+    <?php if ($indexable): ?>
+    <link rel="canonical" href="<?= htmlspecialchars(adresseCanonique($pageReferencement), ENT_QUOTES, 'UTF-8') ?>">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="BIBLIOccaz">
+    <meta property="og:locale" content="fr_FR">
+    <meta property="og:title" content="<?= htmlspecialchars($nomOnglet, ENT_QUOTES, 'UTF-8') ?>">
+    <meta property="og:description" content="<?= htmlspecialchars(descriptionReferencement($pageReferencement, $nomOnglet), ENT_QUOTES, 'UTF-8') ?>">
+    <meta property="og:url" content="<?= htmlspecialchars(adresseCanonique($pageReferencement), ENT_QUOTES, 'UTF-8') ?>">
+    <meta property="og:image" content="<?= htmlspecialchars(rtrim(SITE_URL, '/') . '/ressources/partage-biblioccaz.png', ENT_QUOTES, 'UTF-8') ?>">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="BIBLIOccaz — Livres d’occasion et communauté de lecteurs. Démonstration.">
+    <meta name="twitter:card" content="summary_large_image">
+    <?php endif; ?>
     <link rel="icon" type="image/svg+xml" href="<?= urlStatique('favicon.svg') ?>">
     <link rel="stylesheet" href="<?= urlStatique('ressources/polices/polices.css') ?>">
     <link rel="stylesheet" href="<?= urlStatique('ressources/bootstrap-5.3.0/bootstrap.min.css') ?>">
@@ -145,6 +185,7 @@ $classeRaccourci = fn(array $pages) => in_array($pageActuelle, $pages, true) ? '
     <script src="<?= urlStatique('javascript/bandeau_demo.js') ?>" defer></script>
 </head>
 <body>
+<a class="lien-evitement" href="#contenu">Aller au contenu</a>
 <?php if (bandeauDemonstrationVisible()): ?>
     <div class="bandeau-demo" role="note" data-bandeau-demo="<?= COOKIE_BANDEAU_DEMONSTRATION ?>">
         <div class="container-xxl bandeau-demo__contenu">
@@ -165,9 +206,11 @@ $classeRaccourci = fn(array $pages) => in_array($pageActuelle, $pages, true) ? '
         <form action="catalogue.php" method="GET" class="recherche-entete flex-grow-1 position-relative" role="search">
             <label for="barre-recherche" class="visually-hidden">Rechercher un livre</label>
             <input type="search" id="barre-recherche" name="q" autocomplete="off" class="champ-recherche"
-                   maxlength="200" placeholder="Titre, auteur, ISBN…" value="<?= htmlspecialchars(is_string($_GET['q'] ?? null) ? mb_substr($_GET['q'], 0, 200) : '') ?>" aria-controls="suggestions-recherche" aria-expanded="false">
+                   maxlength="200" placeholder="Titre, auteur, ISBN…" value="<?= htmlspecialchars(is_string($_GET['q'] ?? null) ? mb_substr($_GET['q'], 0, 200) : '') ?>" role="combobox" aria-autocomplete="list" aria-haspopup="listbox" aria-controls="suggestions-recherche" aria-expanded="false" aria-describedby="aide-recherche">
             <button type="submit" class="bouton-loupe" aria-label="Rechercher"><?= iconeDessin('loupe') ?></button>
-            <div id="suggestions-recherche" class="suggestions-recherche list-group position-absolute w-100 mt-1 shadow d-none"></div>
+            <div id="suggestions-recherche" class="suggestions-recherche list-group position-absolute w-100 mt-1 shadow d-none" role="listbox" aria-label="Livres suggérés"></div>
+            <p id="statut-recherche" class="recherche-statut position-absolute w-100 mt-1 d-none" role="status" aria-live="polite" aria-atomic="true"></p>
+            <span id="aide-recherche" class="visually-hidden">Saisissez un titre, un auteur ou un ISBN. Utilisez les flèches pour parcourir les suggestions, Entrée pour ouvrir un livre ou lancer la recherche, Échap pour fermer.</span>
         </form>
 
         <?php if ($userRole === 'auteur'): ?>
@@ -375,4 +418,4 @@ $classeRaccourci = fn(array $pages) => in_array($pageActuelle, $pages, true) ? '
     </div>
 </div>
 
-<main id="contenu">
+<main id="contenu" tabindex="-1">

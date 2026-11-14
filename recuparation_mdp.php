@@ -3,6 +3,7 @@ require_once 'mailer.php';
 require_once 'config.php';
 require_once 'avis_lib.php';
 require_once 'recuperation_mdp_lib.php';
+require_once 'anti_abus_lib.php';
 
 header('Cache-Control: no-store');
 header('Referrer-Policy: no-referrer');
@@ -26,7 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $mail = null;
         $user = null;
         try {
-            $user = autoriserDemandeRecuperation() ? preparerRecuperation($pdo, $email) : null;
+            $user = autoriserActionPublique('recuperation', 5, 900) && autoriserDemandeRecuperation() ? preparerRecuperation($pdo, $email) : null;
             if ($user) {
                 $url = SITE_URL . "/modifier_mdp.php?token=" . $user['jeton'];
                 $mail = creerMailer();

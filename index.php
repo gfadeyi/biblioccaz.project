@@ -83,14 +83,16 @@ try {
         WHERE e.statut = 'publie' AND e.date_fin >= NOW()
         ORDER BY e.date_debut ASC
         LIMIT 3")->fetchAll();
-    $derniersAvis = $pdo->query("
-        SELECT a.note, a.commentaire, u.pseudo, u.photo, l.id_livre, l.titre AS titre_livre, l.couverture
+    $requeteAvisAccueil = $pdo->prepare("
+        SELECT a.note, a.commentaire, u.pseudo, u.photo, l.id_livre, l.titre AS titre_livre, l.couverture, (u.email LIKE ?) AS est_demo
         FROM avis a
         INNER JOIN user u ON u.id = a.id_user
         INNER JOIN livre l ON l.id_livre = a.id_livre
         WHERE a.statut = 'visible'
         ORDER BY a.date_creation DESC
-        LIMIT 6")->fetchAll();
+        LIMIT 6");
+    $requeteAvisAccueil->execute(['demo-lecteur-%@example.com']);
+    $derniersAvis = $requeteAvisAccueil->fetchAll();
 } catch (PDOException $e) {
 }
 
@@ -106,7 +108,7 @@ include 'header.php';
             <div class="col-lg-6">
                 <span class="surtitre"><?= iconeDessin('seconde-vie') ?> Livres d'occasion &amp; communauté de lecteurs</span>
                 <h1>Chaque livre mérite une <em>seconde lecture</em>.</h1>
-                <p class="chapo fs-5 mb-4">Romans, mangas, BD, manuels scolaires : des livres vérifiés à petits prix, et une communauté qui donne, échange et se retrouve.</p>
+                <p class="chapo fs-5 mb-4">Romans, mangas, BD, manuels scolaires : des lectures à petits prix, et une communauté qui donne, échange et se retrouve.</p>
                 <div class="d-flex flex-wrap gap-2">
                     <a href="catalogue.php" class="bouton bouton-action"><?= iconeDessin('cabas') ?> Acheter des livres</a>
                     <a href="vendre.php" class="bouton bouton-contour"><?= iconeDessin('carton') ?> Donner ou revendre mes livres</a>
@@ -124,7 +126,7 @@ include 'header.php';
                         <?php foreach ($couverturesBandeau as $livreBandeau): ?>
                             <img src="<?= htmlspecialchars(urlImage($livreBandeau['couverture'])) ?>" alt="">
                         <?php endforeach; ?>
-                        <div class="pastille-verifie">Vérifié<br>à la main<br>✓</div>
+                        <div class="pastille-partage">À lire<br>et à partager</div>
                     </div>
                 </div>
             <?php endif; ?>
@@ -341,6 +343,7 @@ include 'header.php';
                                         <?= avatarMembre($avis['pseudo'], $avis['photo'], 'petit') ?>
                                         <strong><?= htmlspecialchars(pseudoAffiche($avis['pseudo'])) ?></strong>
                                         <?= etoiles((float) $avis['note']) ?>
+                                        <?php if (!empty($avis['est_demo'])): ?><span class="avis-demo">Avis de démonstration</span><?php endif; ?>
                                     </span>
                                     <q><?= htmlspecialchars(mb_strimwidth($avis['commentaire'], 0, 110, '…')) ?></q>
                                     <small>sur <strong><?= htmlspecialchars($avis['titre_livre']) ?></strong></small>
@@ -351,7 +354,7 @@ include 'header.php';
                     <?php if (count($derniersAvis) > 1): ?>
                         <div class="points-avis" data-points-avis>
                             <?php foreach ($derniersAvis as $indexAvis => $avis): ?>
-                                <button type="button" class="<?= $indexAvis === 0 ? 'actif' : '' ?>" aria-label="Voir l'avis <?= $indexAvis + 1 ?>"></button>
+                                <button type="button" class="<?= $indexAvis === 0 ? 'actif' : '' ?>" aria-label="Voir l'avis <?= $indexAvis + 1 ?>" aria-pressed="<?= $indexAvis === 0 ? 'true' : 'false' ?>"></button>
                             <?php endforeach; ?>
                         </div>
                     <?php endif; ?>
@@ -366,7 +369,7 @@ include 'header.php';
 <section class="reassurance">
     <div class="container-xxl">
         <div class="row">
-            <div class="col-6 col-lg-3"><div class="atout"><?= iconeDessin('tampon') ?><div><strong>Livres vérifiés</strong><span>État contrôlé à la main</span></div></div></div>
+            <div class="col-6 col-lg-3"><div class="atout"><?= iconeDessin('tampon') ?><div><strong>État annoncé</strong><span>Consultez le détail de chaque offre</span></div></div></div>
             <div class="col-6 col-lg-3"><div class="atout"><?= iconeDessin('camion') ?><div><strong>Livraison offerte</strong><span>Dès 20 € d'achat</span></div></div></div>
             <div class="col-6 col-lg-3"><div class="atout"><?= iconeDessin('medaille') ?><div><strong>Points fidélité</strong><span>1 point par euro</span></div></div></div>
             <div class="col-6 col-lg-3"><div class="atout"><?= iconeDessin('seconde-vie') ?><div><strong>Seconde vie</strong><span>Moins de livres au pilon</span></div></div></div>

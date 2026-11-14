@@ -14,7 +14,7 @@ if (!$livre) {
     http_response_code(404);
     $titreDocument='Livre introuvable';
     include 'header.php';
-    echo '<main class="container-xxl py-5"><h1>Ce livre n’est plus sur cette étagère</h1><p>Cette fiche est introuvable ou n’est plus publiée. Une autre lecture vous attend peut-être dans le catalogue.</p><a class="bouton bouton-action" href="catalogue.php">Retrouver un livre</a></main>';
+    echo '<section class="container-xxl py-5"><h1>Ce livre n’est plus sur cette étagère</h1><p>Cette fiche est introuvable ou n’est plus publiée. Une autre lecture vous attend peut-être dans le catalogue.</p><a class="bouton bouton-action" href="catalogue.php">Retrouver un livre</a></section>';
     include 'footer.php'; exit;
 }
 
@@ -124,9 +124,6 @@ usort($toutesOffres, fn($a, $b) => match ($triOffres) {
     default => [$a['prix'], RANG_ETATS[$a['etat']] ?? 9] <=> [$b['prix'], RANG_ETATS[$b['etat']] ?? 9],
 });
 $peutAcheterEnMagasin = !isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') === 'client';
-?>
-
-<?php
 require_once 'categories_lib.php';
 $noteEntete = noteDuLivre($pdo, (int) $id);
 $tagsLivre = tagsDuLivre($pdo, (int) $id);

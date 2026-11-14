@@ -15,7 +15,7 @@ if (isset($_GET['niveau']) || isset($_GET['matiere'])) {
 $titreDocument = 'Trouver un manuel scolaire';
 include __DIR__ . '/header.php';
 ?>
-<main class="container-xxl py-5 parcours-scolaire">
+<section class="container-xxl py-5 parcours-scolaire">
     <span class="surtitre">Un coup de pouce pour apprendre</span>
     <h1>Le bon livre pour vos études</h1>
     <p class="chapo">Choisissez votre niveau, puis votre matière. Retrouvez les exemplaires disponibles et leur année d’édition.</p>
@@ -53,5 +53,5 @@ include __DIR__ . '/header.php';
         </section>
     <?php endif; ?>
     <p class="mt-4"><a href="catalogue.php?categorie=scolaire-etudes">Explorer tout le rayon Scolaire &amp; Études</a></p>
-</main>
+</section>
 <?php include __DIR__.'/footer.php'; ?>

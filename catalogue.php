@@ -368,12 +368,7 @@ require_once 'avis_lib.php';
 echo etoilesStyle();
 ?>
 
-<style>
-    .catalogue-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 20px; }
-    .catalogue-grid .book-card { transition: transform 0.3s ease; }
-    .catalogue-grid .book-card:hover { transform: translateY(-5px); }
-    .filtres-box { background: white; border-radius: 15px; border: 1px solid #eee; }
-    .filtres-box .form-label { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; color: #274e13; letter-spacing: .03em; }</style>
+
 
 <div class="container mt-4 mb-5">
     <?php if ($universCourant): ?>
@@ -391,7 +386,7 @@ echo etoilesStyle();
     <?php endif; ?>
     <div class="d-flex flex-wrap justify-content-between align-items-end mb-3 gap-2">
         <div>
-            <h1 class="fw-bold mb-1" style="color:#274e13;"><?= htmlspecialchars($titrePage) ?></h1>
+            <h1 class="fw-bold mb-1 titre-catalogue"><?= htmlspecialchars($titrePage) ?></h1>
             <p class="text-muted mb-0">
                 <?= $sousTitre ? htmlspecialchars($sousTitre) . ' · ' : '' ?>
                 <?= $total ?> livre<?= $total > 1 ? 's' : '' ?> disponible<?= $total > 1 ? 's' : '' ?>

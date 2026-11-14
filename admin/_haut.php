@@ -78,6 +78,7 @@ $iconesFlash = ['success' => 'check-circle-fill', 'danger' => 'x-octagon-fill', 
     <script src="<?= urlStatique('javascript/couvertures.js', '../') ?>" data-defaut="../img/default.png"></script>
 </head>
 <body class="admin">
+<a class="lien-evitement" href="#contenu-admin">Aller au contenu</a>
 
 <aside class="offcanvas-lg offcanvas-start admin-menu" tabindex="-1" id="menuAdmin" aria-labelledby="menuAdminTitre">
     <div class="offcanvas-header">
@@ -147,7 +148,7 @@ $iconesFlash = ['success' => 'check-circle-fill', 'danger' => 'x-octagon-fill', 
         <?php endif; ?>
     </header>
 
-    <main class="admin-contenu">
+    <main class="admin-contenu" id="contenu-admin" tabindex="-1">
         <div class="entete-page">
             <div>
                 <h1><?= e($titrePage) ?></h1>

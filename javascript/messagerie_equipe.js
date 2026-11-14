@@ -104,7 +104,8 @@
         }
         enCours = true;
         const parametres = new URLSearchParams({ c: idConversation, dernier: dernier, lu: document.hidden ? '0' : '1' });
-        fetch(messagerie.dataset.actualisation + '?' + parametres.toString(), { credentials: 'same-origin', cache: 'no-store', headers: { 'Accept': 'application/json' } })
+        parametres.set('csrf', messagerie.querySelector('input[name="csrf"]')?.value || '');
+        fetch(messagerie.dataset.actualisation, { method: 'POST', body: parametres, credentials: 'same-origin', cache: 'no-store', headers: { 'Accept': 'application/json' } })
             .then(function (reponse) {
                 if (reponse.status === 401) {
                     window.location.assign('login.php');

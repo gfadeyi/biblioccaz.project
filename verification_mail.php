@@ -1,57 +1,39 @@
 <?php
 require_once 'config.php';
-
-$status = "error";
-$message = "";
-
-$token = $_GET['token'] ?? '';
-$email = $_GET['email'] ?? '';
-
-if (!empty($token)) {
-    $stmt = $pdo->prepare("SELECT id FROM user WHERE email_token = ?");
-    $stmt->execute([$token]);
-    $user = $stmt->fetch();
-
-    if ($user) {
-        $update = $pdo->prepare("UPDATE user SET est_verifie = 1, email_verifie = 1, email_token = NULL WHERE id = ?");
-        $update->execute([$user['id']]);
-        $status = "success";
-        $message = "Votre adresse email a bien été validée ! Vous faites maintenant partie de l'aventure BIBLIOccaz.";
-    } else {
-        $message = "Le lien de validation est invalide ou a expiré.";
-    }
-} elseif (!empty($email)) {
-    $stmt = $pdo->prepare("SELECT id, est_verifie, email_verifie FROM user WHERE email = ?");
-    $stmt->execute([$email]);
-    $user = $stmt->fetch();
-
-    if ($user && ($user['est_verifie'] == 1 || $user['email_verifie'] == 1)) {
-        $status = "already_verified";
-        $message = "Votre adresse email a déjà été validée auparavant. Vous pouvez vous connecter directement.";
-    } else {
-        $message = "Aucun jeton de vérification valide n'a été fourni.";
-    }
-} else {
-    $message = "Aucun paramètre de vérification n'a été fourni.";
+require_once 'avis_lib.php';
+require_once 'validation_email_lib.php';
+header('Referrer-Policy: no-referrer');
+header('Cache-Control: no-store');
+$saisie = $_POST['token'] ?? $_GET['token'] ?? '';
+$token = is_string($saisie) ? $saisie : '';
+$valide = validationEmailValide($pdo, $token);
+$reussite = false;
+$erreur = '';
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!verifierCsrf()) { http_response_code(403); $erreur = 'La session du formulaire a expiré. Rechargez la page.'; }
+    elseif ($valide) { $reussite = confirmerValidationEmail($pdo, $token); $valide = $reussite; }
 }
-
-$etats = [
-    "success" => ["bi-check-circle", "", "Compte activé", "login.php", "Se connecter", "bouton-principal"],
-    "already_verified" => ["bi-info-circle", "", "Adresse déjà validée", "login.php", "Aller à la connexion", "bouton-principal"],
-    "error" => ["bi-exclamation-triangle", " alerte", "Lien de validation invalide", "inscription.php", "Retour à l'inscription", "bouton-contour"],
-];
-[$icone, $classeIcone, $titre, $lien, $libelleLien, $classeBouton] = $etats[$status];
-
+$titreDocument = 'Valider mon adresse email';
 include 'header.php';
 ?>
-
 <div class="page-formulaire">
-    <div class="carte-formulaire text-center">
-        <div class="carte-formulaire__icone<?= $classeIcone ?>"><i class="bi <?= $icone ?>" aria-hidden="true"></i></div>
-        <h1><?= $titre ?></h1>
-        <p class="carte-formulaire__intro"><?= htmlspecialchars($message) ?></p>
-        <a href="<?= $lien ?>" class="bouton <?= $classeBouton ?>"><?= $libelleLien ?></a>
-    </div>
+    <section class="carte-formulaire">
+        <h1><?= $reussite ? 'Compte activé' : 'Valider mon adresse email' ?></h1>
+        <?php if ($erreur): ?><p class="alert alert-danger" role="alert"><?= htmlspecialchars($erreur) ?></p><?php endif; ?>
+        <?php if ($reussite): ?>
+            <p role="status">Votre adresse email est validée. Vous pouvez maintenant vous connecter.</p>
+            <a href="login.php" class="bouton bouton-principal">Se connecter</a>
+        <?php elseif ($valide): ?>
+            <p>Confirmez que cette adresse email vous appartient pour activer votre compte.</p>
+            <form method="POST">
+                <input type="hidden" name="csrf" value="<?= jetonCsrf() ?>">
+                <input type="hidden" name="token" value="<?= htmlspecialchars($token) ?>">
+                <button type="submit" class="bouton bouton-principal">Confirmer mon adresse email</button>
+            </form>
+        <?php else: ?>
+            <p>Ce lien est invalide, a expiré ou a déjà été utilisé. Demandez un nouveau lien si nécessaire.</p>
+            <a href="renvoyer_validation.php" class="bouton bouton-principal">Recevoir un nouveau lien</a>
+        <?php endif; ?>
+    </section>
 </div>
-
 <?php include 'footer.php'; ?>

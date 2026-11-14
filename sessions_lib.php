@@ -11,7 +11,9 @@ function connexionHttps(): bool
 {
     return (!empty($_SERVER['HTTPS']) && strtolower((string) $_SERVER['HTTPS']) !== 'off')
         || (string) ($_SERVER['SERVER_PORT'] ?? '') === '443'
-        || strtolower((string) ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '')) === 'https';
+        || (defined('PROXY_HTTPS_FIABLES') && is_array(PROXY_HTTPS_FIABLES)
+            && in_array($_SERVER['REMOTE_ADDR'] ?? '', PROXY_HTTPS_FIABLES, true)
+            && strtolower((string) ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '')) === 'https');
 }
 
 function dossierPrive(string $chemin = ''): string

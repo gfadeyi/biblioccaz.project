@@ -1,9 +1,21 @@
 <?php
 if (!file_exists(__DIR__ . '/secrets.php')) {
-    die("Configuration manquante : copie secrets.example.php en secrets.php et remplis-le.");
+    require_once __DIR__ . '/erreurs_lib.php';
+    if (PHP_SAPI === 'cli') { fwrite(STDERR, "Configuration indisponible.\n"); exit(1); }
+    repondreErreurTechnique(503);
+    exit;
 }
 require_once __DIR__ . '/secrets.php';
 require_once __DIR__ . '/sessions_lib.php';
+require_once __DIR__ . '/erreurs_lib.php';
+require_once __DIR__ . '/seo_lib.php';
+installerGestionErreurs();
+if (PHP_SAPI !== 'cli') {
+    header('X-Content-Type-Options: nosniff');
+    header('X-Frame-Options: SAMEORIGIN');
+    header('Referrer-Policy: strict-origin-when-cross-origin');
+    if (!indexationPermise(cheminPageReferencement())) { header('X-Robots-Tag: noindex, nofollow'); }
+}
 
 $modeProduction = modeProduction();
 $enLigneDeCommande = PHP_SAPI === 'cli';
@@ -49,7 +61,8 @@ try {
     if ($modeProduction) {
         error_log('Connexion à la base impossible : ' . $e->getMessage());
         http_response_code(503);
-        die("Le site est momentanément indisponible. Merci de réessayer dans quelques minutes.");
+        repondreErreurTechnique(503);
+        exit;
     }
     die("Erreur de connexion : " . $e->getMessage());
 }
@@ -82,8 +95,13 @@ function insertLog($type, $message) {
         $userString = 'ANONYME';
     }
     
+    $nettoyerJournal = fn($valeur) => preg_replace('/[\x00-\x1F\x7F]/u', ' ', (string) $valeur);
+    $type = $nettoyerJournal($type);
+    $ip = $nettoyerJournal($ip);
+    $userString = $nettoyerJournal($userString);
+    $message = $nettoyerJournal($message);
     $logLine = '[' . $date . '] [' . $type . '] [IP: ' . $ip . '] [USER_ID: ' . $userString . '] - ' . $message . PHP_EOL;
-    file_put_contents($logFile, $logLine, FILE_APPEND);
+    file_put_contents($logFile, $logLine, FILE_APPEND | LOCK_EX);
 }
 
 function urlImage(?string $fichier, string $racine = ''): string

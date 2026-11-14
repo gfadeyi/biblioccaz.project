@@ -44,12 +44,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($action === 'newsletter') {
         $abonner = ($_POST['abonner'] ?? '') === '1';
-        $pdo->prepare("UPDATE user SET is_newsletter = ?, date_newsletter = NOW() WHERE id = ?")->execute([$abonner ? 1 : 0, $idUser]);
-        insertLog('NEWSLETTER', $abonner ? "Abonnement à la newsletter depuis le profil" : "Désabonnement de la newsletter depuis le profil");
+
+
         $stmtMail = $pdo->prepare("SELECT email FROM user WHERE id = ?");
         $stmtMail->execute([$idUser]);
         $emailMembre = (string) $stmtMail->fetchColumn();
-        journalNewsletter($pdo, $emailMembre, $idUser, $abonner, 'profil');
+        require_once 'newsletter_consentement_lib.php';
+        try { enregistrerPreferenceNewsletter($pdo, $emailMembre, $abonner, 'profil'); }
+        catch (DomainException $e) {
+            $_SESSION['flash_profil'] = ['warning', $e->getMessage()];
+            header('Location: profil.php'); exit;
+        }
+        insertLog('NEWSLETTER', $abonner ? "Abonnement à la newsletter depuis le profil" : "Désabonnement de la newsletter depuis le profil");
         notifierParMail($emailMembre,
             $abonner ? "Inscription à la newsletter confirmée" : "Désinscription de la newsletter confirmée",
             $abonner ? "Merci ! Vous recevrez désormais les nouveautés et pépites d'occasion de BIBLIOccaz.\nVous pouvez vous désabonner à tout moment depuis votre espace : " . SITE_URL . "/profil.php"
@@ -68,6 +74,13 @@ $stmt->execute([$idUser]);
 $user = $stmt->fetch();
 if (!$user) {
     die("Utilisateur introuvable.");
+}
+
+require_once 'newsletter_consentement_lib.php';
+if (consentementNewsletterDisponible($pdo)) {
+    $preferenceNewsletter = $pdo->prepare('SELECT actif FROM newsletter_consentement WHERE email = ?');
+    $preferenceNewsletter->execute([$user['email']]);
+    $user['is_newsletter'] = (int) $preferenceNewsletter->fetchColumn();
 }
 
 $role = $user['role'];
@@ -422,7 +435,7 @@ include 'header.php';
         <section class="carte-compte">
             <h2 class="carte-compte__titre"><?= iconeDessin('enveloppe') ?> Newsletter</h2>
             <p class="texte-profil">
-                <?= $user['is_newsletter'] ? 'Vous êtes abonné : une lettre par mois avec nos pépites, dons et événements.' : 'Une lettre par mois avec nos pépites d\'occasion, les dons et les événements.' ?>
+                <?= $user['is_newsletter'] ? 'Vous êtes abonné : une lettre par mois avec nos pépites, dons et événements.' : htmlspecialchars(NOTICE_NEWSLETTER) ?>
             </p>
             <form method="POST">
                 <input type="hidden" name="csrf" value="<?= $csrf ?>">

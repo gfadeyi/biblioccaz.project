@@ -64,7 +64,7 @@ $titreDocument='Mes collections';
 $scriptsPage=['collection_personnelle.js'];
 include __DIR__.'/header.php';
 ?>
-<main class="container-xxl py-4">
+<section class="container-xxl py-4">
     <span class="surtitre">Votre bibliothèque, volume par volume</span>
     <h1>Mes collections</h1>
     <p class="chapo">Cochez ce que vous possédez. Retrouvez les volumes manquants parmi les références du catalogue.</p>
@@ -151,5 +151,5 @@ include __DIR__.'/header.php';
             <?php endforeach; ?></div>
         </section>
     <?php endif; ?>
-</main>
+</section>
 <?php include __DIR__.'/footer.php'; ?>

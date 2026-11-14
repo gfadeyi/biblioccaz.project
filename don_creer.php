@@ -127,7 +127,7 @@ include 'header.php';
                        value="<?= htmlspecialchars($v['titre']) ?>" placeholder="Commencez à taper : les livres du catalogue sont proposés" autocomplete="off">
                 <datalist id="livres_catalogue">
                     <?php foreach ($livresCatalogue as $l): ?>
-                        <option value="<?= htmlspecialchars($l['titre']) ?>"><?= htmlspecialchars($l['auteur']) ?></option>
+                        <option value="<?= htmlspecialchars($l['titre']) ?>"><?= htmlspecialchars((string) ($l['auteur'] ?? '')) ?></option>
                     <?php endforeach; ?>
                 </datalist>
                 <input type="hidden" name="id_livre" id="don_id_livre" value="<?= htmlspecialchars($v['id_livre']) ?>">

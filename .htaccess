@@ -1,8 +1,8 @@
-ErrorDocument 404 /projet_web/biblioccaz/erreur_404.php
 Options -Indexes
 DirectoryIndex index.php
 
 RewriteEngine On
+RewriteRule ^robots\.txt$ robots.php [END]
 RewriteRule ^\.well-known/acme-challenge/[A-Za-z0-9_-]+$ - [END]
 RewriteRule (^|/)(\.[^/]+|secure_data|sauvegardes|sql|docs|vendor|nbproject|cron|outils)(/|$) - [F,END,NC]
 
@@ -18,3 +18,7 @@ RewriteRule (^|/)(\.[^/]+|secure_data|sauvegardes|sql|docs|vendor|nbproject|cron
         Header always set Referrer-Policy "no-referrer"
     </FilesMatch>
 </IfModule>
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ erreur_404.php [END]

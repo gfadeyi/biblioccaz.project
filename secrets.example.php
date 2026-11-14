@@ -2,6 +2,8 @@
 
 define('MODE_PRODUCTION', false);
 
+define('PROXY_HTTPS_FIABLES', []);
+
 define('DOSSIER_PRIVE', __DIR__ . '/secure_data');
 
 define('SITE_URL', 'http://localhost/projet_web/biblioccaz');

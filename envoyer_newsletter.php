@@ -13,37 +13,32 @@ if (!verifierCsrf()) {
     exit();
 }
 
-$email = trim($_POST['email_newsletter'] ?? '');
+$email = is_string($_POST['email_newsletter'] ?? null) ? trim($_POST['email_newsletter']) : '';
 if (!filter_var($email, FILTER_VALIDATE_EMAIL) || mb_strlen($email) > 150) {
     header('Location: index.php?newsletter=error_email#newsletter');
     exit();
 }
 
-require_once 'notifications_lib.php';
-$stmt = $pdo->prepare("SELECT id FROM user WHERE email = ?");
-$stmt->execute([$email]);
-$idMembre = $stmt->fetchColumn();
-journalNewsletter($pdo, $email, $idMembre ? (int) $idMembre : null, true, 'site');
-if ($idMembre) {
-    $pdo->prepare("UPDATE user SET is_newsletter = 1, date_newsletter = NOW() WHERE email = ?")->execute([$email]);
-} else {
-    $pdo->prepare("
-        INSERT INTO newsletter_abonne (email) VALUES (?)
-        ON DUPLICATE KEY UPDATE actif = 1, date_inscription = NOW(), date_desinscription = NULL")->execute([$email]);
+require_once 'anti_abus_lib.php';
+if (!autoriserActionPublique('newsletter', 5, 3600)) {
+    http_response_code(429);
+    exit('Trop de demandes. Merci de réessayer plus tard.');
 }
-insertLog('NEWSLETTER', "Inscription à la newsletter");
 
+require_once 'newsletter_consentement_lib.php';
 try {
-    $mail = creerMailer();
-    $mail->addAddress($email);
-    habillerMail($mail, "Bienvenue dans la newsletter BIBLIOccaz !",
-        "Bonjour,\n\nMerci pour votre inscription ! Vous recevrez désormais nos dernières pépites d'occasion, les dons à récupérer et les événements, une fois par mois, directement dans votre boîte mail.\n\nÀ très bientôt sur BIBLIOccaz !",
-        SITE_URL . "/catalogue.php", "Parcourir le catalogue",
-        "Vous pouvez vous désabonner à tout moment depuis votre espace profil.");
-    $mail->send();
-} catch (\Throwable $e) {
-    insertLog('ERREUR', "Mail de bienvenue newsletter non envoyé : " . $e->getMessage());
+    $jeton = demanderConfirmationNewsletter($pdo, $email);
+    if ($jeton !== null) {
+        $mail = creerMailer();
+        $mail->Timeout = 5;
+        $mail->addAddress($email);
+        habillerMail($mail, 'Confirmez votre abonnement à BibliOccaz',
+            "Vous avez demandé à recevoir la newsletter BibliOccaz.\n\n" . NOTICE_NEWSLETTER . "\n\nConfirmez votre choix sur la page ouverte par ce bouton, dans les 24 heures. Si vous n’êtes pas à l’origine de cette demande, ignorez ce message : aucun abonnement ne sera activé.",
+            SITE_URL . '/newsletter_confirmer.php?token=' . $jeton, 'Vérifier ma demande');
+        $mail->send();
+    }
+} catch (Throwable $e) {
+    insertLog('ERREUR', 'Confirmation de newsletter temporairement indisponible.');
 }
-
-header('Location: index.php?newsletter=success#newsletter');
+header('Location: index.php?newsletter=confirmation#newsletter');
 exit();

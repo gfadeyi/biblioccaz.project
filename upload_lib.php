@@ -18,8 +18,8 @@ function enregistrerImageEnvoyee(array $f, string $sousDossier = ''): array
     }
     $types = [IMAGETYPE_JPEG => 'jpg', IMAGETYPE_PNG => 'png', IMAGETYPE_WEBP => 'webp'];
     $info = @getimagesize($f['tmp_name']);
-    if (!$info || !isset($types[$info[2]])) {
-        return [null, "Format d'image non supporté (JPG, PNG ou WEBP)."];
+    if (!$info || !isset($types[$info[2]]) || $info[0] * $info[1] > 20000000) {
+        return [null, "Image non supportée : JPG, PNG ou WEBP, 20 millions de pixels maximum."];
     }
     $nom = time() . '_' . bin2hex(random_bytes(4)) . '.' . $types[$info[2]];
     $dossier = __DIR__ . '/img/' . $sousDossier;

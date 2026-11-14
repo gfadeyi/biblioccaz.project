@@ -15,6 +15,7 @@
     --encre-douce: #56634f;
     --encre-pale: #66715f;
     --trait: #dce5d6;
+    --bord-champ: #7a8873;
     --trait-fort: #c9d6c1;
     --rouge: #b42335;
     --rouge-fond: #fbe9eb;
@@ -79,7 +80,7 @@ body.admin {
 .admin-menu-lien .badge { background: var(--rouge) !important; }
 .admin-menu-site { margin-top: auto; border-top: 1px solid rgba(255, 255, 255, .1); border-radius: 0; padding-top: 1rem; }
 
-.admin-barre { position: sticky; top: 0; z-index: 20; display: flex; align-items: center; gap: .75rem; background: rgba(255, 255, 255, .92); backdrop-filter: blur(8px);
+.admin-barre { position: sticky; top: 0; z-index: 20; display: flex; align-items: center; gap: .75rem; background: var(--surface);
                border-bottom: 1px solid var(--trait); padding: .6rem 1.5rem; min-height: 56px; }
 .fil-ariane-admin { display: flex; align-items: center; flex-wrap: wrap; gap: .35rem; font-size: .9rem; color: var(--encre-pale); margin: 0; padding: 0; list-style: none; }
 .fil-ariane-admin a { color: var(--encre-douce); text-decoration: none; }
@@ -106,7 +107,7 @@ body.admin {
 h2, .h5, .h6 { color: var(--vert-nuit); }
 .text-muted { color: var(--encre-pale) !important; }
 
-.carte { background: var(--surface); border: 1px solid var(--trait); border-radius: var(--rayon-grand); box-shadow: var(--ombre); }
+.carte { background: var(--surface); border: 1px solid var(--trait); border-radius: var(--rayon-grand); box-shadow: none; }
 .carte-entete { display: flex; align-items: center; justify-content: space-between; gap: .5rem; padding: .9rem 1.15rem; border-bottom: 1px solid var(--trait); font-weight: 700; }
 .carte-entete h2 { font-family: var(--police-titre); font-size: 1.1rem; margin: 0; }
 .carte-entete .lien-carte { font-size: .9rem; font-weight: 600; text-decoration: none; }
@@ -558,3 +559,9 @@ a.stat:hover, a.stat:focus-visible { translate: 0 -3px; box-shadow: var(--ombre-
     .message-equipe { max-width: 100%; }
     .fil-equipe, .liste-conversations-equipe { max-height: none; }
 }
+
+.lien-evitement { position: fixed; top: 12px; left: 12px; z-index: 3000; transform: translateY(-200%); background: var(--surface); color: var(--vert); padding: .7rem 1rem; border: 2px solid currentColor; border-radius: 6px; font-weight: 700; }
+.lien-evitement:focus { transform: none; }
+#contenu-admin { scroll-margin-top: 5rem; }
+.form-control:not(:disabled), .form-select:not(:disabled) { border-color: var(--bord-champ); }
+.form-control:focus-visible, .form-select:focus-visible { border-color: var(--vert); outline: 2px solid var(--vert); outline-offset: 2px; }

@@ -1,16 +1,32 @@
 <?php
 require_once 'config.php';
 require_once 'connexion_lib.php';
+require_once 'avis_lib.php';
+
+if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST' || !verifierCsrf()) {
+    header('Location: login.php?error=csrf');
+    exit();
+}
 if (session_status() === PHP_SESSION_NONE) { session_start(); }
 
-$pseudo = trim($_POST['pseudo'] ?? '');
-$mdp = $_POST['mdp'] ?? '';
+$pseudo = is_string($_POST['pseudo'] ?? null) ? trim($_POST['pseudo']) : '';
+$mdp = is_string($_POST['mdp'] ?? null) ? $_POST['mdp'] : '';
+if ($pseudo === '' || mb_strlen($pseudo) > 150 || strlen($mdp) > 72 || str_contains($mdp, "\0")) {
+    header('Location: login.php?error=1');
+    exit();
+}
 
 $captcha = $_SESSION['captcha'] ?? null;
 unset($_SESSION['captcha']);
 
 if (!$captcha || empty($captcha['valide']) || time() - $captcha['valide_le'] > 300) {
     header("Location: login.php?error=captcha");
+    exit();
+}
+
+require_once 'anti_abus_lib.php';
+if (!autoriserActionPublique('connexion_client', 30, 900)) {
+    header('Location: login.php?error=limite');
     exit();
 }
 

@@ -1,4 +1,4 @@
-<main class="fiche-livre" id="fiche-livre">
+<section class="fiche-livre" id="fiche-livre">
     <nav class="fiche-livre__chemin" aria-label="Fil d’Ariane">
         <a href="index.php">Accueil</a><span aria-hidden="true">›</span><a href="catalogue.php">Livres</a>
         <?php if ($catLivre): ?><span aria-hidden="true">›</span><a href="catalogue.php?categorie=<?= rawurlencode($catLivre['slug']) ?>"><?= htmlspecialchars($catLivre['nom']) ?></a><?php endif; ?>
@@ -103,7 +103,7 @@
                 <?php if (in_array($_SESSION['role'] ?? '', ['admin', 'gestionnaire'], true)): ?><div class="d-flex flex-wrap gap-2 mt-3"><a href="admin/livre.php?id=<?= (int) $id ?>" class="btn btn-sm btn-outline-secondary">Modifier la fiche</a><a href="admin/exemplaires.php?id=<?= (int) $id ?>" class="btn btn-sm btn-outline-success">Gérer le stock</a></div><?php endif; ?>
             </section>
     </div>
-</main>
+</section>
 <?php if ($serieLivre && $selectionSerie['tomes']): ?>
 <section class="serie-complete" aria-labelledby="titre-serie-complete">
     <div>

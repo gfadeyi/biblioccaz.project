@@ -1,11 +1,13 @@
 <?php require_once __DIR__ . '/parametres_techniques_lib.php'; ?>
 <?php
 $messagesNewsletter = [
-    'success'     => ['succes', 'Inscription réussie ! Un mail de bienvenue vous a été envoyé.'],
+    'success'     => ['succes', 'Votre demande a été reçue.'],
+    'confirmation' => ['succes', 'Si cette adresse peut recevoir une confirmation, un email vient de partir. Confirmez votre choix dans les 24 heures.'],
     'error_email' => ['erreur', 'Adresse email invalide.'],
     'error_csrf'  => ['erreur', 'Votre session a expiré, merci de réessayer.'],
 ];
-$messageNewsletter = $messagesNewsletter[$_GET['newsletter'] ?? ''] ?? null;
+$cleNewsletter = is_string($_GET['newsletter'] ?? null) ? $_GET['newsletter'] : '';
+$messageNewsletter = $messagesNewsletter[$cleNewsletter] ?? null;
 ?>
 <section class="container-xxl">
     <div class="newsletter" id="newsletter">
@@ -61,11 +63,11 @@ $messageNewsletter = $messagesNewsletter[$_GET['newsletter'] ?? ''] ?? null;
                 </ul>
             </div>
             <div class="col-6 col-lg-2">
-                <h3>Suivez-nous</h3>
-                <div class="reseaux">
-                    <a href="#" aria-label="Instagram"><i class="bi bi-instagram"></i></a>
-                    <a href="#" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
-                </div>
+                <h3>Contribuer</h3>
+                <ul>
+                    <li><a href="rejoindre_equipe.php">Rejoindre l’équipe</a></li>
+                    <li><a href="#newsletter">Recevoir la lettre</a></li>
+                </ul>
             </div>
         </div>
         <div class="pied-bas">
@@ -75,16 +77,7 @@ $messageNewsletter = $messagesNewsletter[$_GET['newsletter'] ?? ''] ?? null;
                 <?php if (texteLegalPersonnalise('texte_cgu') !== ''): ?><a href="cgu.php">Conditions d’utilisation</a><?php endif; ?>
                 <a href="confidentialite.php">Confidentialité</a>
             </nav>
-            <div class="d-flex align-items-center gap-2">
-                <span>Paiement (démo) : simulé, rien n’est débité</span>
-                <div class="moyens-paiement">
-                    <img src="img/cb.jpg" alt="Carte bancaire" width="31" height="22" loading="lazy">
-                    <img src="img/visa.jpg" alt="Visa" width="22" height="22" loading="lazy">
-                    <img src="img/mastercard.png" alt="Mastercard" width="28" height="22" loading="lazy">
-                    <img src="img/ApplePay.png" alt="Apple Pay" width="33" height="22" loading="lazy">
-                    <img src="img/googlepay.jpg" alt="Google Pay" width="39" height="22" loading="lazy">
-                </div>
-            </div>
+            <span class="message-paiement-demo"><i class="bi bi-receipt" aria-hidden="true"></i> Paiement simulé · aucun débit, aucune expédition</span>
         </div>
     </div>
 </footer>

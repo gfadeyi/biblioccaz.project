@@ -16,9 +16,15 @@ if (!messagerieEquipeDisponible($pdo)) {
     exit();
 }
 
+if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST' && !verifierCsrf()) {
+    http_response_code(403);
+    echo json_encode(['erreur' => 'csrf']);
+    exit();
+}
+$parametres = ($_SERVER['REQUEST_METHOD'] ?? '') === 'POST' ? $_POST : $_GET;
 $moi = (int) $_SESSION['user_id'];
-$idConversation = max(0, (int) ($_GET['c'] ?? 0));
-$dernier = max(0, (int) ($_GET['dernier'] ?? 0));
+$idConversation = max(0, (int) ($parametres['c'] ?? 0));
+$dernier = max(0, (int) ($parametres['dernier'] ?? 0));
 $reponse = ['messages' => [], 'dernier' => $dernier];
 
 if ($idConversation) {
@@ -36,7 +42,7 @@ if ($idConversation) {
         $reponse['messages'][] = ['id' => (int) $message['id_message'], 'moi' => (int) $message['id_auteur'] === $moi, 'html' => vueMessageEquipe($message, $moi)];
         $reponse['dernier'] = (int) $message['id_message'];
     }
-    if ($reponse['messages'] && ($_GET['lu'] ?? '') === '1') {
+    if ($reponse['messages'] && ($_SERVER['REQUEST_METHOD'] ?? '') === 'POST' && ($parametres['lu'] ?? '') === '1') {
         marquerConversationEquipeLue($pdo, $idConversation, $moi);
     }
 }

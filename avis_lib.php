@@ -21,14 +21,15 @@ function noteDuLivre(PDO $pdo, int $idLivre): array
 
 function etoiles(float $note, string $classe = ''): string
 {
-    $html = '<span class="etoiles ' . $classe . '" title="' . number_format($note, 1, ',', '') . ' / 5">';
+    $libelle = number_format($note, 1, ',', '') . ' sur 5';
+    $html = '<span class="etoiles ' . htmlspecialchars($classe, ENT_QUOTES, 'UTF-8') . '" role="img" aria-label="' . $libelle . '" title="' . $libelle . '">';
     for ($i = 1; $i <= 5; $i++) {
         if ($note >= $i) {
-            $html .= '<i class="bi bi-star-fill"></i>';
+            $html .= '<i class="bi bi-star-fill" aria-hidden="true"></i>';
         } elseif ($note >= $i - 0.5) {
-            $html .= '<i class="bi bi-star-half"></i>';
+            $html .= '<i class="bi bi-star-half" aria-hidden="true"></i>';
         } else {
-            $html .= '<i class="bi bi-star"></i>';
+            $html .= '<i class="bi bi-star" aria-hidden="true"></i>';
         }
     }
     return $html . '</span>';

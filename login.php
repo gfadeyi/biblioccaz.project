@@ -13,6 +13,8 @@ $finSession = messageFinSession();
 
 if (isset($_GET['error'])) {
     if ($_GET['error'] == '1') { $error = "Identifiants incorrects."; }
+    elseif ($_GET['error'] == 'limite') { $error = 'Trop de tentatives. Merci de réessayer dans 15 minutes.'; }
+    elseif ($_GET['error'] == 'csrf') { $error = 'La session du formulaire a expiré. Rechargez la page.'; }
     elseif ($_GET['error'] == 'captcha') { $error = "Veuillez compléter le puzzle."; }
     elseif ($_GET['error'] == 'not_verified') { $error = "Veuillez confirmer votre email avant de vous connecter."; }
     elseif ($_GET['error'] == 'en_attente_moderateur') { $error = "Votre demande d'inscription en tant que modérateur est en cours d'examen."; }
@@ -46,6 +48,7 @@ if (isset($_GET['inscription'])) { $success = "Compte créé ! Un mail de valida
         <?php if ($success): ?><div class="alert alert-success small" role="status"><?= htmlspecialchars($success) ?></div><?php endif; ?>
 
         <form action="traitement_login.php" method="POST">
+            <input type="hidden" name="csrf" value="<?= jetonCsrf() ?>">
             <div class="mb-3">
                 <label for="identifiant" class="form-label">Email ou pseudo</label>
                 <input type="text" id="identifiant" name="pseudo" class="form-control" autocomplete="username" required>

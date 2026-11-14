@@ -16,7 +16,7 @@ try {
 $titrePage = 'Trouver ma prochaine lecture';
 include __DIR__ . '/header.php';
 ?>
-<main class="container-xxl py-5">
+<section class="container-xxl py-5">
     <div class="entete-section mb-4">
         <div>
             <span class="surtitre">Une envie, quelques livres</span>
@@ -70,5 +70,5 @@ include __DIR__ . '/header.php';
     <?php else: ?>
         <p>Envie de flâner ? <a href="catalogue.php">Parcourez tout le catalogue</a>. Pour donner ou emprunter, retrouvez les offres dans le catalogue.</p>
     <?php endif; ?>
-</main>
+</section>
 <?php include __DIR__ . '/footer.php'; ?>

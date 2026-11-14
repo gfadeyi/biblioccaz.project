@@ -13,7 +13,8 @@ $trisAvis = [
     'mieux'  => ['Mieux notés', 'a.note DESC, a.date_creation DESC'],
     'moins'  => ['Moins bien notés', 'a.note ASC, a.date_creation DESC'],
 ];
-$triAvis = isset($trisAvis[$_GET['tri_avis'] ?? '']) ? $_GET['tri_avis'] : 'recent';
+$choixTriAvis = is_string($_GET['tri_avis'] ?? null) ? $_GET['tri_avis'] : '';
+$triAvis = isset($trisAvis[$choixTriAvis]) ? $choixTriAvis : 'recent';
 
 $resume = noteDuLivre($pdo, $idLivreAvis);
 
@@ -23,13 +24,13 @@ $stmt->execute([$idLivreAvis]);
 foreach ($stmt->fetchAll() as $r) { $repartition[(int) $r['note']] = (int) $r['nb']; }
 
 $stmt = $pdo->prepare("
-    SELECT a.*, u.pseudo, u.photo,
+    SELECT a.*, u.pseudo, u.photo, (u.email LIKE ?) AS est_demo,
            EXISTS (SELECT 1 FROM commande_ligne cl INNER JOIN commande c ON c.id_commande = cl.id_commande
-                   WHERE cl.id_livre = a.id_livre AND c.id_user = a.id_user) AS achat_verifie
+                   WHERE cl.id_livre = a.id_livre AND c.id_user = a.id_user AND c.statut = 'validee') AS achat_verifie
     FROM avis a INNER JOIN user u ON u.id = a.id_user
     WHERE a.id_livre = ? AND a.statut = 'visible'
     ORDER BY {$trisAvis[$triAvis][1]}");
-$stmt->execute([$idLivreAvis]);
+$stmt->execute(['demo-lecteur-%@example.com', $idLivreAvis]);
 $listeAvis = $stmt->fetchAll();
 
 $monAvis = null;
@@ -77,7 +78,7 @@ $lienTri = fn($t) => 'detail_livre.php?' . http_build_query(['id' => $idLivreAvi
             <div class="card border-0 shadow-sm p-4" style="border-radius: 15px;">
                 <?php if ($resume['nb']): ?>
                     <div class="d-flex align-items-center gap-3 mb-3">
-                        <span class="display-5 fw-bold" style="color:#274e13;"><?= number_format($resume['moyenne'], 1, ',', '') ?></span>
+                        <span class="display-5 fw-bold" style="color:var(--texte-vert);"><?= number_format($resume['moyenne'], 1, ',', '') ?></span>
                         <div>
                             <?= etoiles($resume['moyenne'], 'fs-5') ?>
                             <div class="text-muted small"><?= $resume['nb'] ?> avis</div>
@@ -167,8 +168,10 @@ $lienTri = fn($t) => 'detail_livre.php?' . http_build_query(['id' => $idLivreAvi
                         <div class="auteur-avis small text-muted mt-2">
                             <?= avatarMembre($a['pseudo'], $a['photo'], 'petit') ?>
                             <strong><?= htmlspecialchars(pseudoAffiche($a['pseudo'])) ?></strong>
-                            <?php if ($a['achat_verifie']): ?>
-                                <span class="badge bg-success-subtle text-success border border-success-subtle ms-1"><i class="bi bi-patch-check-fill"></i> Achat vérifié</span>
+                            <?php if (!empty($a['est_demo'])): ?>
+                                <span class="avis-demo">Avis de démonstration</span>
+                            <?php elseif ($a['achat_verifie']): ?>
+                                <span class="badge bg-success-subtle text-success border border-success-subtle ms-1"><i class="bi bi-receipt" aria-hidden="true"></i> Commande sur le site</span>
                             <?php endif; ?>
                         </div>
                         <p class="mt-2 mb-1" style="white-space: pre-line;"><?= htmlspecialchars($a['commentaire']) ?></p>

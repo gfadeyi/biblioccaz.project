@@ -6,7 +6,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (carrouselAvis && pointsAvis.length > 1) {
         const avis = carrouselAvis.children;
         let indexActuel = 0;
-        let enPause = false;
 
         const afficherAvis = (index) => {
             indexActuel = (index + avis.length) % avis.length;
@@ -17,24 +16,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
         carrouselAvis.addEventListener('scroll', () => {
             const index = Math.round(carrouselAvis.scrollLeft / carrouselAvis.clientWidth);
-            pointsAvis.forEach((point, i) => point.classList.toggle('actif', i === index));
+            pointsAvis.forEach((point, i) => {
+                point.classList.toggle('actif', i === index);
+                point.setAttribute('aria-pressed', i === index ? 'true' : 'false');
+            });
             indexActuel = index;
         }, { passive: true });
 
-        const bloc = carrouselAvis.closest('.bloc-communaute');
-        bloc.addEventListener('mouseenter', () => { enPause = true; });
-        bloc.addEventListener('mouseleave', () => { enPause = false; });
-        bloc.addEventListener('focusin', () => { enPause = true; });
-        bloc.addEventListener('focusout', () => { enPause = false; });
-        bloc.addEventListener('touchstart', () => { enPause = true; }, { passive: true });
-
-        if (!mouvementReduit) {
-            setInterval(() => {
-                if (!enPause && !document.hidden) {
-                    afficherAvis(indexActuel + 1);
-                }
-            }, 6000);
-        }
     }
 
     document.querySelectorAll('.carrousel, .grille-univers').forEach((carrousel) => {

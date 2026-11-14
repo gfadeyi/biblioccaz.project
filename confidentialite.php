@@ -29,7 +29,7 @@ if ($textePersonnalise !== '') {
             </thead>
             <tbody>
                 <tr>
-                    <td data-libelle="Données">Compte : pseudo, adresse email, nom, prénom, mot de passe chiffré, ville, code postal, photo de profil</td>
+                    <td data-libelle="Données">Compte : pseudo, adresse email, nom, prénom, empreinte du mot de passe (hachage), ville, code postal, photo de profil</td>
                     <td data-libelle="Pourquoi">Créer et sécuriser votre compte, vous identifier auprès des autres membres par votre pseudo</td>
                     <td data-libelle="Base légale">Exécution du service</td>
                 </tr>
@@ -54,7 +54,7 @@ if ($textePersonnalise !== '') {
                     <td data-libelle="Base légale">Exécution du service et intérêt légitime</td>
                 </tr>
                 <tr>
-                    <td data-libelle="Données">Adresse email d'abonnement à la newsletter</td>
+                    <td data-libelle="Données">Adresse email d’abonnement, date et texte du choix confirmé, historique des préférences et empreintes des liens de confirmation et de désabonnement</td>
                     <td data-libelle="Pourquoi">Envoyer la lettre d'information mensuelle</td>
                     <td data-libelle="Base légale">Consentement</td>
                 </tr>
@@ -73,42 +73,36 @@ if ($textePersonnalise !== '') {
             <li>Les autres membres voient votre pseudo, votre photo de profil et ce que vous publiez (avis, annonces, dons, messages dans une transaction). Votre adresse email n'est jamais affichée.</li>
             <li>L'équipe BIBLIOccaz y accède selon son rôle (administration, gestion, modération).</li>
             <li>L'hébergeur du site les stocke pour notre compte : <?= infoLegale('hebergeur_nom', "nom de l'hébergeur") ?>.</li>
-            <li>Les polices, feuilles de style, scripts et couvertures du catalogue sont hébergés sur le site lui-même : leur chargement ne nécessite pas de service tiers.</li>
+            <li>Les polices, feuilles de style et scripts sont hébergés sur le site. Les couvertures sont généralement locales ; certaines images peuvent être chargées depuis Open Library. Si la connexion Google est activée et utilisée, elle communique avec Google pour vérifier votre identité.</li>
         </ul>
     </section>
 
     <section class="carte-compte mb-4" aria-labelledby="titre-durees">
         <h2 id="titre-durees">Durées de conservation</h2>
-        <ul class="mb-0">
-            <li>Compte et contenus associés : tant que le compte existe. Un compte inactif depuis 3 ans est supprimé ou anonymisé, après un mail de prévenance.</li>
-            <li>Commandes, emprunts, dons et ventes : 3 ans après leur clôture, puis anonymisation.</li>
-            <li>Messages entre membres : 1 an après la clôture de la transaction.</li>
-            <li>Newsletter : jusqu'au désabonnement, possible à tout moment depuis votre profil ou le lien présent dans chaque lettre.</li>
-            <li>Journaux de sécurité et adresses IP : 12 mois.</li>
-            <li>Cookie de session : il expire à la fermeture du navigateur ou après 10 minutes d'inactivité.</li>
-        </ul>
+        <p>Les durées de conservation doivent encore être validées pour ce site de démonstration avant une ouverture à de vrais utilisateurs. La purge automatique des comptes inactifs et l’anonymisation programmée des transactions ne sont pas encore implémentées.</p>
+        <p class="mb-0">Les sessions sont invalidées après 10 minutes d’inactivité. La réservation de panier dure 15 minutes ; le cookie correspondant expire avec elle. Les durées de conservation des comptes, contributions, transactions, messages, candidatures, journaux et sauvegardes doivent être définies et appliquées par le responsable du site.</p>
     </section>
 
     <section class="carte-compte mb-4" aria-labelledby="titre-cookies">
         <h2 id="titre-cookies">Cookies</h2>
-        <p class="mb-0">BIBLIOccaz n'utilise qu'un cookie de session, indispensable pour rester connecté, garder votre panier et protéger les formulaires. Il ne sert ni à la publicité ni à la mesure d'audience : aucun consentement n'est donc demandé.</p>
+        <p class="mb-0">Les cookies de session PHPSESSID (site) et BIBLIOCCAZ_ADMIN (équipe) assurent l’authentification et la protection des formulaires. Ils sont conservés pour la session du navigateur ; l’authentification est invalidée après 10 minutes d’inactivité. BIBLIOCCAZ_PANIER conserve un identifiant aléatoire de réservation, jusqu’à l’expiration des 15 minutes de panier. bandeau_demo_ferme mémorise pendant 30 jours votre fermeture du bandeau de démonstration. Les brouillons de messages peuvent être conservés dans le stockage de l’onglet, jusqu’à l’envoi ou la fermeture de cet onglet. Aucun outil publicitaire ou de mesure d’audience externe n’est activé par le code du site.</p>
     </section>
 
     <section class="carte-compte mb-4" aria-labelledby="titre-droits">
         <h2 id="titre-droits">Vos droits</h2>
-        <p>Vous pouvez accéder à vos données, les rectifier, les effacer, en limiter l'usage, vous opposer à leur traitement, les récupérer dans un format lisible et donner des directives pour après votre décès. Vous pouvez aussi retirer votre consentement à la newsletter à tout moment.</p>
+        <p>Vous pouvez accéder à vos données, les rectifier, les effacer, en limiter l'usage, vous opposer à leur traitement, les récupérer dans un format lisible et donner des directives pour après votre décès. Vous pouvez aussi retirer votre consentement à la newsletter à tout moment depuis votre profil ou le lien de désabonnement de chaque lettre, sans compte. Les nouveaux abonnements demandés par adresse email nécessitent une confirmation ; le profil d’un membre déjà authentifié avec une adresse vérifiée permet un choix direct.</p>
         <p>Votre profil permet déjà de modifier la plupart de vos informations. Pour toute autre demande, dont la suppression du compte, écrivez à <?= emailContactLegal() ?> depuis l'adresse de votre compte. Nous répondons sous un mois.</p>
         <p class="mb-0">Si vous estimez que vos droits ne sont pas respectés, vous pouvez saisir la <a href="https://www.cnil.fr/fr/plaintes" rel="noopener">CNIL</a>.</p>
     </section>
 
     <section class="carte-compte mb-4" aria-labelledby="titre-securite">
         <h2 id="titre-securite">Sécurité</h2>
-        <p class="mb-0">Les échanges sont chiffrés (HTTPS), les mots de passe sont stockés sous forme chiffrée et irréversible, et l'accès à l'administration est limité aux membres habilités de l'équipe.</p>
+        <p class="mb-0">Les échanges sont chiffrés (HTTPS), les mots de passe sont stockés sous forme d’empreintes de hachage non réversibles, et l'accès à l'administration est limité aux membres habilités de l'équipe.</p>
     </section>
 
     <section class="carte-compte" aria-labelledby="titre-mineurs">
         <h2 id="titre-mineurs">Mineurs</h2>
-        <p class="mb-0">Avant 15 ans, la création d'un compte nécessite l'accord d'un parent ou d'un tuteur légal.</p>
+        <p class="mb-0">Le site de démonstration ne dispose pas encore d’un parcours de vérification du consentement parental. Les conditions d’accès des mineurs doivent être précisées et validées avant une ouverture réelle.</p>
     </section>
 </div>
 

@@ -1,7 +1,9 @@
 <?php
 require_once __DIR__ . '/_init.php';
 require_once __DIR__ . '/../notifications_lib.php';
+require_once __DIR__ . '/../newsletter_consentement_lib.php';
 exigerDroit('admin');
+$consentementDisponible = consentementNewsletterDisponible($pdo);
 
 $onglet = in_array($_GET['onglet'] ?? '', ['desinscrits', 'historique'], true) ? $_GET['onglet'] : 'inscrits';
 
@@ -11,64 +13,48 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($action === 'desabonner') {
         $id = (int) ($_POST['id'] ?? 0);
-        if (($_POST['origine'] ?? '') === 'membre') {
-            $stmt = $pdo->prepare("SELECT email FROM user WHERE id = ?");
-            $stmt->execute([$id]);
-            $pdo->prepare("UPDATE user SET is_newsletter = 0, date_newsletter = NOW() WHERE id = ?")->execute([$id]);
-            journalNewsletter($pdo, (string) $stmt->fetchColumn(), $id, false, 'admin');
-            insertLog('ADMIN', "Désinscription newsletter forcée pour le compte #$id");
-        } else {
-            $stmt = $pdo->prepare("SELECT email FROM newsletter_abonne WHERE id_abonne = ?");
-            $stmt->execute([$id]);
-            $pdo->prepare("UPDATE newsletter_abonne SET actif = 0, date_desinscription = NOW() WHERE id_abonne = ?")->execute([$id]);
-            journalNewsletter($pdo, (string) $stmt->fetchColumn(), null, false, 'admin');
-            insertLog('ADMIN', "Désinscription newsletter forcée pour l'abonné sans compte #$id");
-        }
+        $table = ($_POST['origine'] ?? '') === 'membre' ? 'user' : 'newsletter_abonne';
+        $colonne = $table === 'user' ? 'id' : 'id_abonne';
+        $q = $pdo->prepare("SELECT email FROM $table WHERE $colonne = ?");
+        $q->execute([$id]);
+        $email = $q->fetchColumn();
+        if (!$email) { rediriger('newsletter.php', 'warning', 'Abonné introuvable.'); }
+        try { enregistrerPreferenceNewsletter($pdo, $email, false, 'admin'); }
+        catch (DomainException $e) { rediriger('newsletter.php', 'warning', $e->getMessage()); }
+        insertLog('ADMIN', 'Désinscription newsletter effectuée.');
         rediriger('newsletter.php?onglet=' . $onglet, 'success', "Abonné retiré de la newsletter.");
     }
 
     if ($action === 'envoyer') {
-        $sujet = trim($_POST['sujet'] ?? '');
-        $message = trim($_POST['message'] ?? '');
-        if ($sujet === '' || $message === '') {
-            rediriger('newsletter.php', 'danger', "Le sujet et le message sont obligatoires.");
+        $sujet = is_string($_POST['sujet'] ?? null) ? trim($_POST['sujet']) : '';
+        $message = is_string($_POST['message'] ?? null) ? trim($_POST['message']) : '';
+        if ($sujet === '' || $message === '' || mb_strlen($sujet) > 150 || mb_strlen($message) > 20000) {
+            rediriger('newsletter.php', 'danger', "Le sujet doit contenir 1 à 150 caractères et le message 1 à 20 000 caractères.");
         }
-        $abonnes = array_values(array_unique(array_merge(
-            $pdo->query("SELECT email FROM user WHERE is_newsletter = 1")->fetchAll(PDO::FETCH_COLUMN),
-            $pdo->query("SELECT email FROM newsletter_abonne WHERE actif = 1")->fetchAll(PDO::FETCH_COLUMN)
-        )));
+        if (!$consentementDisponible) { rediriger('newsletter.php', 'warning', 'L’envoi est momentanément indisponible.'); }
+        $q = $pdo->prepare('SELECT email FROM newsletter_consentement WHERE actif = 1 ORDER BY email');
+        $q->execute();
+        $abonnes = $q->fetchAll(PDO::FETCH_COLUMN);
         if (!$abonnes) {
             rediriger('newsletter.php', 'warning', "Aucun abonné actif.");
         }
 
-        require_once __DIR__ . '/../mailer.php';
-        try {
-            $mail = creerMailer();
-            $mail->addAddress(MAIL_FROM, 'Abonnés ' . MAIL_FROM_NAME);
-            foreach ($abonnes as $email) {
-                $mail->addBCC($email);
-            }
-            habillerMail($mail, $sujet, $message, SITE_URL, "Découvrir les nouveautés",
-                "Vous recevez ce message car vous êtes inscrit à la newsletter " . MAIL_FROM_NAME . ". Pour vous désabonner, rendez-vous dans votre espace profil.");
-            $mail->send();
-
-            insertLog('ADMIN', "Newsletter « $sujet » envoyée à " . count($abonnes) . " abonnés");
-            rediriger('newsletter.php', 'success', "Newsletter envoyée à " . count($abonnes) . " abonné" . (count($abonnes) > 1 ? 's' : '') . ".");
-        } catch (Exception $e) {
-            rediriger('newsletter.php', 'danger', "Échec de l'envoi : " . $e->getMessage());
-        }
+        $resultat = envoyerEditionNewsletter($pdo, $abonnes, $sujet, $message);
+        insertLog('ADMIN', 'Campagne newsletter : ' . $resultat['envoyes'] . ' envois, ' . $resultat['echecs'] . ' échecs.');
+        rediriger('newsletter.php', $resultat['echecs'] ? 'warning' : 'success', $resultat['envoyes'] . ' message(s) envoyé(s), ' . $resultat['echecs'] . ' échec(s). Les envois réussis ne sont pas relancés automatiquement.');
     }
     rediriger('newsletter.php');
 }
 
 $abonnes = $pdo->query("
     SELECT 'membre' AS origine, id, pseudo, role, email, is_newsletter AS actif, date_newsletter AS depuis
-    FROM user WHERE date_newsletter IS NOT NULL
+    FROM user WHERE date_newsletter IS NOT NULL OR is_newsletter = 1
     UNION ALL
     SELECT 'externe', id_abonne, NULL, NULL, email, actif, COALESCE(date_desinscription, date_inscription)
     FROM newsletter_abonne
     ORDER BY depuis DESC")->fetchAll();
 $actifs = array_filter($abonnes, fn($a) => (int) $a['actif'] === 1);
+$nombreDestinataires = count(array_unique(array_map('mb_strtolower', array_column($actifs, 'email'))));
 $desinscrits = array_filter($abonnes, fn($a) => (int) $a['actif'] === 0);
 $liste = $onglet === 'desinscrits' ? $desinscrits : $actifs;
 
@@ -83,7 +69,13 @@ try {
         WHERE action = 'inscription' AND source <> 'reprise' AND date_action >= NOW() - INTERVAL 30 DAY")->fetchColumn();
 } catch (PDOException $e) {
 }
-$sources = ['site' => 'Pied de page du site', 'profil' => 'Profil du membre', 'admin' => 'Back-office', 'reprise' => 'Avant historique'];
+$preuves = [];
+if ($consentementDisponible) {
+    $q = $pdo->prepare('SELECT email, date_confirmation, source FROM newsletter_consentement');
+    $q->execute();
+    foreach ($q->fetchAll(PDO::FETCH_ASSOC) as $preuve) { $preuves[mb_strtolower($preuve['email'])] = $preuve; }
+}
+$sources = ['site' => 'Pied de page du site', 'profil' => 'Profil vérifié', 'admin' => 'Back-office', 'reprise' => 'Historique, non reconfirmé', 'confirmation' => 'Confirmation par email', 'lien_email' => 'Lien de désabonnement'];
 
 $titrePage = 'Newsletter';
 $pageActive = 'newsletter';
@@ -92,18 +84,18 @@ include __DIR__ . '/_haut.php';
 
 <div class="row g-4">
     <div class="col-xl-5">
-        <form method="POST" class="carte p-4" data-confirmer="Envoyer cette newsletter à <?= count($actifs) ?> abonné(s) ?">
+        <form method="POST" class="carte p-4" data-confirmer="Envoyer cette newsletter à <?= $nombreDestinataires ?> abonné(s) ?">
             <?= champCsrf() ?>
             <input type="hidden" name="action" value="envoyer">
             <h2 class="h6 fw-bold"><i class="bi bi-send me-2 text-success"></i>Nouvelle campagne</h2>
-            <p class="small text-muted">Envoyée en copie cachée aux <strong><?= count($actifs) ?></strong> abonnés actifs.</p>
+            <p class="small text-muted">Un email individuel avec son lien de désabonnement est envoyé aux <strong><?= $nombreDestinataires ?></strong> abonnés actifs.</p>
             <div class="mb-3">
                 <label class="form-label small fw-bold" for="sujet">Sujet</label>
                 <input type="text" id="sujet" name="sujet" class="form-control" maxlength="150" value="Des nouvelles fraîches de BIBLIOccaz ! 📚" required>
             </div>
             <div class="mb-3">
                 <label class="form-label small fw-bold" for="message">Message</label>
-                <textarea id="message" name="message" class="form-control" rows="8" required>Bonjour cher lecteur !
+                <textarea id="message" name="message" class="form-control" rows="8" maxlength="20000" required>Bonjour cher lecteur !
 
 De nouveaux ouvrages viennent d'être ajoutés au catalogue par nos auteurs et notre communauté. N'attendez plus pour venir les découvrir !
 
@@ -116,7 +108,7 @@ L'équipe BIBLIOccaz</textarea>
     <div class="col-xl-7">
         <div class="row g-3 mb-3">
             <?php foreach ([
-                ['envelope-check', 'Abonnés actifs', count($actifs)],
+                ['envelope-check', 'Abonnés actifs', $nombreDestinataires],
                 ['person-plus', 'Nouveaux (30 jours)', $nouveaux30],
                 ['envelope-x', 'Désinscrits', count($desinscrits)],
             ] as [$icone, $libelle, $valeur]): ?>
@@ -130,7 +122,7 @@ L'équipe BIBLIOccaz</textarea>
         </div>
 
         <ul class="nav nav-pills mb-3">
-            <?php foreach (['inscrits' => 'Inscrits (' . count($actifs) . ')', 'desinscrits' => 'Désinscrits (' . count($desinscrits) . ')', 'historique' => 'Historique'] as $cle => $libelle): ?>
+            <?php foreach (['inscrits' => 'Inscrits (' . $nombreDestinataires . ')', 'desinscrits' => 'Désinscrits (' . count($desinscrits) . ')', 'historique' => 'Historique'] as $cle => $libelle): ?>
                 <li class="nav-item"><a class="nav-link <?= $onglet === $cle ? 'active bg-success' : 'text-success' ?>" href="?onglet=<?= $cle ?>"><?= $libelle ?></a></li>
             <?php endforeach; ?>
         </ul>
@@ -173,8 +165,10 @@ L'équipe BIBLIOccaz</textarea>
                                             <div class="fw-bold text-muted">Sans compte</div>
                                         <?php endif; ?>
                                         <div class="text-muted"><?= e($a['email']) ?></div>
+                                        <?php $preuve = $preuves[mb_strtolower($a['email'])] ?? null; ?>
+                                        <small class="text-muted"><?= !empty($preuve['date_confirmation']) ? 'Choix confirmé le ' . e(date('d/m/Y H:i', strtotime($preuve['date_confirmation']))) : 'Abonnement historique, sans nouvelle confirmation' ?></small>
                                     </td>
-                                    <td class="text-muted"><?= date('d/m/Y H:i', strtotime($a['depuis'])) ?></td>
+                                    <td class="text-muted"><?= !empty($a['depuis']) ? e(date('d/m/Y H:i', strtotime($a['depuis']))) : 'Date non renseignée' ?></td>
                                     <td class="text-end">
                                         <?php if ($a['actif']): ?>
                                             <form method="POST" data-confirmer="Désabonner <?= e($a['email']) ?> ?">
