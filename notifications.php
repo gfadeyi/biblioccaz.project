@@ -68,6 +68,7 @@ include 'header.php';
             <?php endforeach; ?>
         </ul>
     <?php endif; ?>
+    <p class="note-conservation-notifications"><i class="bi bi-clock-history" aria-hidden="true"></i> Les notifications lues sont automatiquement supprimées au bout de <?= NOTIFICATIONS_LUES_CONSERVATION_JOURS ?> jours, les autres au bout de <?= NOTIFICATIONS_CONSERVATION_JOURS ?> jours.</p>
 </div>
 
 <?php include 'footer.php'; ?>

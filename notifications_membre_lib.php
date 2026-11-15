@@ -16,7 +16,9 @@ const NOTIFICATIONS_TYPES = [
     'service_client' => 'enveloppe',
     'information' => 'clochette',
 ];
+const NOTIFICATIONS_LUES_CONSERVATION_JOURS = 30;
 const NOTIFICATIONS_CONSERVATION_JOURS = 90;
+const NOTIFICATIONS_PURGE_INTERVALLE = 3600;
 const NOTIFICATIONS_APERCU = 5;
 
 function lienNotificationValide(?string $lien): ?string
@@ -36,11 +38,59 @@ function notifierMembre(PDO $pdo, int $idUser, string $type, string $message, ?s
     try {
         $pdo->prepare("INSERT INTO notification (id_user, type, message, lien) VALUES (?, ?, ?, ?)")
             ->execute([$idUser, $type, mb_substr(trim($message), 0, 255), lienNotificationValide($lien)]);
-        $pdo->prepare("DELETE FROM notification WHERE id_user = ? AND lu = 1 AND date_creation < DATE_SUB(NOW(), INTERVAL " . NOTIFICATIONS_CONSERVATION_JOURS . " DAY)")
+        $pdo->prepare("DELETE FROM notification WHERE id_user = ? AND lu = 1 AND date_creation < DATE_SUB(NOW(), INTERVAL " . NOTIFICATIONS_LUES_CONSERVATION_JOURS . " DAY)")
             ->execute([$idUser]);
         return true;
     } catch (PDOException $e) {
         return false;
+    }
+}
+
+function purgerNotifications(PDO $pdo): array
+{
+    $lues = $pdo->prepare("DELETE FROM notification WHERE lu = 1 AND date_creation < DATE_SUB(NOW(), INTERVAL " . NOTIFICATIONS_LUES_CONSERVATION_JOURS . " DAY)");
+    $lues->execute();
+    $anciennes = $pdo->prepare("DELETE FROM notification WHERE date_creation < DATE_SUB(NOW(), INTERVAL " . NOTIFICATIONS_CONSERVATION_JOURS . " DAY)");
+    $anciennes->execute();
+    return ['lues' => $lues->rowCount(), 'anciennes' => $anciennes->rowCount()];
+}
+
+function purgerNotificationsSiNecessaire(PDO $pdo): ?array
+{
+    $repere = dossierPrive('purge_notifications.txt');
+    clearstatcache(true, $repere);
+    if (is_file($repere) && time() - (int) @filemtime($repere) < NOTIFICATIONS_PURGE_INTERVALLE) {
+        return null;
+    }
+    $fichier = @fopen($repere, 'c+');
+    if (!$fichier) {
+        return null;
+    }
+    try {
+        if (!flock($fichier, LOCK_EX | LOCK_NB)) {
+            return null;
+        }
+        $derniere = (int) trim((string) stream_get_contents($fichier));
+        if ($derniere > 0 && time() - $derniere < NOTIFICATIONS_PURGE_INTERVALLE) {
+            return null;
+        }
+        rewind($fichier);
+        ftruncate($fichier, 0);
+        fwrite($fichier, (string) time());
+        fflush($fichier);
+        try {
+            $supprimees = purgerNotifications($pdo);
+        } catch (PDOException $e) {
+            insertLog('ERREUR', 'Purge des notifications impossible : ' . $e->getMessage());
+            return null;
+        }
+        if ($supprimees['lues'] + $supprimees['anciennes'] > 0) {
+            insertLog('NOTIFICATION', "Purge automatique : {$supprimees['lues']} notification(s) lue(s) de plus de " . NOTIFICATIONS_LUES_CONSERVATION_JOURS . " jours et {$supprimees['anciennes']} de plus de " . NOTIFICATIONS_CONSERVATION_JOURS . " jours supprimées");
+        }
+        return $supprimees;
+    } finally {
+        flock($fichier, LOCK_UN);
+        fclose($fichier);
     }
 }
 
