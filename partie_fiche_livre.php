@@ -1,6 +1,6 @@
 <section class="fiche-livre" id="fiche-livre">
     <nav class="fiche-livre__chemin" aria-label="Fil d’Ariane">
-        <a href="index.php">Accueil</a><span aria-hidden="true">›</span><a href="catalogue.php">Livres</a>
+        <a href="./">Accueil</a><span aria-hidden="true">›</span><a href="catalogue.php">Livres</a>
         <?php if ($catLivre): ?><span aria-hidden="true">›</span><a href="catalogue.php?categorie=<?= rawurlencode($catLivre['slug']) ?>"><?= htmlspecialchars($catLivre['nom']) ?></a><?php endif; ?>
     </nav>
     <div class="fiche-livre__grille">

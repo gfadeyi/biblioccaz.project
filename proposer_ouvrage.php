@@ -125,7 +125,9 @@ include 'header.php';
                 </div>
                 <div class="col-md-6">
                     <label class="form-label fw-bold small" for="isbn">ISBN</label>
-                    <input type="text" id="isbn" name="isbn" class="form-control" maxlength="20" value="<?= $v('isbn') ?>" placeholder="978…">
+                    <input type="text" id="isbn" name="isbn" class="form-control" maxlength="20" inputmode="numeric" value="<?= $v('isbn') ?>" placeholder="978…" aria-describedby="isbn-scanner-info">
+                    <button type="button" class="bouton-scanner-isbn" data-scanner-isbn data-scanner-mode="champ" data-scanner-cible="isbn" data-scanner-recherche="don_recherche_livre.php" data-scanner-info="isbn-scanner-info" data-scanner-lien="detail_livre.php?id=" hidden><i class="bi bi-upc-scan" aria-hidden="true"></i><span>Scanner un ISBN</span></button>
+                    <div class="form-text" id="isbn-scanner-info" aria-live="polite"></div>
                 </div>
                 <div class="col-md-6">
                     <label class="form-label fw-bold small" for="editeur">Éditeur</label>

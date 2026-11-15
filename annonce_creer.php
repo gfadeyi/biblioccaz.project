@@ -208,6 +208,7 @@ include 'header.php';
                                     <option value="<?= htmlspecialchars($livre['titre']) ?>"><?= htmlspecialchars((string) $livre['auteur']) ?></option>
                                 <?php endforeach; ?>
                             </datalist>
+                            <button type="button" class="bouton-scanner-isbn" data-scanner-isbn data-scanner-mode="catalogue" data-scanner-cible="annonce-titre" data-scanner-recherche="don_recherche_livre.php" data-scanner-info="annonce-lien-info" data-scanner-id="annonce-id-livre" hidden><i class="bi bi-upc-scan" aria-hidden="true"></i><span>Scanner un ISBN</span></button>
                             <input type="hidden" name="id_livre" id="annonce-id-livre" value="<?= htmlspecialchars($v['id_livre']) ?>">
                             <div class="form-text" id="annonce-lien-info" aria-live="polite">
                                 <?= $v['id_livre'] !== '' ? '✓ Livre du catalogue : votre annonce sera rattachée à sa fiche.' : "Livre absent du catalogue ? Saisissez-le : l'équipe créera sa fiche." ?>

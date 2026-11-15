@@ -1,6 +1,6 @@
 <?php
 
-const PAGES_PUBLIQUES_INDEXABLES = ['index.php', 'catalogue.php', 'bd_mangas.php', 'jeunesse.php', 'roman.php', 'scolaire.php', 'petits_prix.php', 'nouveautÃ©.php', 'derniÃ¨re_chance.php', 'meilleures_ventes.php', 'plus_dons.php', 'plus_emprunts.php', 'dons.php', 'evenements.php', 'auteurs.php', 'mentions_legales.php', 'confidentialite.php', 'cgu.php', 'detail_livre.php', 'serie.php', 'editions_livre.php', 'auteur.php', 'evenement.php'];
+const PAGES_PUBLIQUES_INDEXABLES = ['index.php', 'catalogue.php', 'bd_mangas.php', 'jeunesse.php', 'roman.php', 'scolaire.php', 'petits_prix.php', 'nouveauté.php', 'dernière_chance.php', 'meilleures_ventes.php', 'plus_dons.php', 'plus_emprunts.php', 'dons.php', 'evenements.php', 'auteurs.php', 'mentions_legales.php', 'confidentialite.php', 'cgu.php', 'detail_livre.php', 'serie.php', 'editions_livre.php', 'auteur.php', 'evenement.php', 'qui_sommes_nous.php'];
 
 function cheminPageReferencement(): string
 {
@@ -11,6 +11,12 @@ function cheminPageReferencement(): string
 
 function adresseCanonique(string $page): string
 {
+    if ($page === 'index.php') {
+        return rtrim(SITE_URL, '/') . '/';
+    }
+    if ($page === 'qui_sommes_nous.php') {
+        return rtrim(SITE_URL, '/') . '/qui-sommes-nous';
+    }
     $url = rtrim(SITE_URL, '/') . '/' . rawurlencode($page);
     if (in_array($page, ['detail_livre.php', 'serie.php', 'editions_livre.php', 'evenement.php'], true)) {
         $id = filter_var($_GET['id'] ?? null, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
@@ -32,6 +38,6 @@ function indexationPermise(string $page): bool
 
 function descriptionReferencement(string $page, string $titre): string
 {
-    if ($page === 'index.php') { return 'BibliOccaz : livres dâ€™occasion, dons, emprunts et rencontres entre lecteurs. Site de dÃ©monstration, commandes et paiements fictifs.'; }
-    return mb_substr(trim($titre) . ' sur BibliOccaz, la librairie communautaire de dÃ©monstration. Commandes et paiements fictifs.', 0, 180);
+    if ($page === 'index.php') { return 'BibliOccaz : livres d’occasion, dons, emprunts et rencontres entre lecteurs. Site de démonstration, commandes et paiements fictifs.'; }
+    return mb_substr(trim($titre) . ' sur BibliOccaz, la librairie communautaire de démonstration. Commandes et paiements fictifs.', 0, 180);
 }

@@ -9,5 +9,5 @@ terminerSuiviSession($pdo);
 supprimerConnexionPersistanteCourante($pdo);
 insertLog('DECONNEXION', 'Déconnexion volontaire du site');
 detruireSessionCourante();
-header("Location: index.php");
+header("Location: ./");
 exit();

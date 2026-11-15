@@ -3,19 +3,19 @@ require_once 'config.php';
 require_once 'mailer.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    header('Location: index.php');
+    header('Location: ./');
     exit();
 }
 
 require_once 'avis_lib.php';
 if (!verifierCsrf()) {
-    header('Location: index.php?newsletter=error_csrf#newsletter');
+    header('Location: ./?newsletter=error_csrf#newsletter');
     exit();
 }
 
 $email = is_string($_POST['email_newsletter'] ?? null) ? trim($_POST['email_newsletter']) : '';
 if (!filter_var($email, FILTER_VALIDATE_EMAIL) || mb_strlen($email) > 150) {
-    header('Location: index.php?newsletter=error_email#newsletter');
+    header('Location: ./?newsletter=error_email#newsletter');
     exit();
 }
 
@@ -40,5 +40,5 @@ try {
 } catch (Throwable $e) {
     insertLog('ERREUR', 'Confirmation de newsletter temporairement indisponible.');
 }
-header('Location: index.php?newsletter=confirmation#newsletter');
+header('Location: ./?newsletter=confirmation#newsletter');
 exit();

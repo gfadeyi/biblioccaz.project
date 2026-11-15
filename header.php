@@ -74,7 +74,7 @@ if ($resumeCompte) {
         null,
         ['mes_dons.php', 'seconde-vie', 'Mes dons', $resumeCompte['dons']],
         ['mes_annonces.php', 'etiquette', 'Mes annonces', $resumeCompte['annonces'] ?? 0],
-        ['mes_transactions.php', 'cabas', 'Mes ventes et achats', $resumeCompte['transactions'] ?? 0],
+        ['mes_transactions.php', 'cabas', 'Mes ventes entre lecteurs', $resumeCompte['transactions'] ?? 0],
         ['mes_emprunts.php', 'livre-ouvert', 'Mes emprunts', $resumeCompte['emprunts'] ?? 0],
         ['mes_evenements.php', 'ticket', 'Mes événements', $resumeCompte['evenements']],
         ['ma_collection.php', 'pile', 'Mes collections', 0],
@@ -93,7 +93,7 @@ if ($resumeCompte) {
         ['proposer_evenement.php', 'ticket', 'Proposer un événement', 0],
         null,
         ['mes_annonces.php', 'etiquette', 'Mes annonces', 0],
-        ['mes_transactions.php', 'cabas', 'Mes ventes et achats', 0],
+        ['mes_transactions.php', 'cabas', 'Mes ventes entre lecteurs', 0],
         ['mes_emprunts.php', 'pile', 'Mes emprunts', 0],
         ['ma_collection.php', 'pile', 'Mes collections', 0],
         null,
@@ -196,12 +196,14 @@ $nomOnglet = trim((string) ($titreDocument ?? $titrePage ?? $titresOnglets[$page
     <meta name="panier-expiration" content="<?= (int) ($_SESSION['panier_expiration'] ?? 0) ?>">
     <meta name="heure-serveur" content="<?= time() ?>">
     <link rel="stylesheet" href="<?= urlStatique('boutique.css') ?>">
+    <link rel="stylesheet" href="<?= urlStatique('scanner_isbn.css') ?>">
     <script src="javascript/recherche.js?v=<?= filemtime(__DIR__ . '/javascript/recherche.js') ?>" defer></script>
     <script src="javascript/raccourcis.js?v=<?= filemtime(__DIR__ . '/javascript/raccourcis.js') ?>" defer></script>
     <script src="javascript/menu_univers.js?v=<?= filemtime(__DIR__ . '/javascript/menu_univers.js') ?>" defer></script>
     <script src="javascript/menu_compte.js?v=<?= filemtime(__DIR__ . '/javascript/menu_compte.js') ?>" defer></script>
     <script src="<?= urlStatique('javascript/couvertures.js') ?>" data-defaut="img/default.png"></script>
     <script src="<?= urlStatique('javascript/bandeau_demo.js') ?>" defer></script>
+    <script src="<?= urlStatique('javascript/scanner_isbn.js') ?>" defer></script>
 </head>
 <body>
 <a class="lien-evitement" href="#contenu">Aller au contenu</a>
@@ -217,7 +219,7 @@ $nomOnglet = trim((string) ($titreDocument ?? $titrePage ?? $titresOnglets[$page
 
 <header class="entete">
     <div class="container-xxl ligne-entete d-flex align-items-center gap-3 pt-2">
-        <a class="logo-bibli" href="index.php">
+        <a class="logo-bibli" href="./">
             <span class="logo-nom">BIBLIOccaz</span>
             <span class="logo-slogan">Donnez une seconde vie à vos lectures</span>
         </a>
@@ -226,6 +228,7 @@ $nomOnglet = trim((string) ($titreDocument ?? $titrePage ?? $titresOnglets[$page
             <label for="barre-recherche" class="visually-hidden">Rechercher un livre</label>
             <input type="search" id="barre-recherche" name="q" autocomplete="off" class="champ-recherche"
                    maxlength="200" placeholder="Titre, auteur, ISBN…" value="<?= htmlspecialchars(is_string($_GET['q'] ?? null) ? mb_substr($_GET['q'], 0, 200) : '') ?>" role="combobox" aria-autocomplete="list" aria-haspopup="listbox" aria-controls="suggestions-recherche" aria-expanded="false" aria-describedby="aide-recherche">
+            <button type="button" class="bouton-scanner-entete" data-scanner-isbn data-scanner-mode="recherche" data-scanner-cible="barre-recherche" aria-label="Scanner un ISBN" title="Scanner un ISBN" hidden><i class="bi bi-upc-scan" aria-hidden="true"></i></button>
             <button type="submit" class="bouton-loupe" aria-label="Rechercher"><?= iconeDessin('loupe') ?></button>
             <div id="suggestions-recherche" class="suggestions-recherche list-group position-absolute w-100 mt-1 shadow d-none" role="listbox" aria-label="Livres suggérés"></div>
             <p id="statut-recherche" class="recherche-statut position-absolute w-100 mt-1 d-none" role="status" aria-live="polite" aria-atomic="true"></p>

@@ -26,7 +26,7 @@ include __DIR__ . '/header.php';
         <?php if ($erreur): ?><p class="alert alert-danger" role="alert"><?= htmlspecialchars($erreur) ?></p><?php endif; ?>
         <?php if ($reussite): ?>
             <p role="status"><?= $mode === 'desinscription' ? 'Vous ne recevrez plus la newsletter. Vous pourrez vous réabonner quand vous le souhaiterez.' : 'Votre abonnement est confirmé. À bientôt pour de nouvelles lectures !' ?></p>
-            <a href="index.php" class="bouton bouton-principal">Retour à l’accueil</a>
+            <a href="./" class="bouton bouton-principal">Retour à l’accueil</a>
         <?php elseif ($valide): ?>
             <p><?= $mode === 'desinscription' ? 'Confirmez votre choix pour arrêter les emails de la newsletter. Aucun compte ni mot de passe n’est nécessaire.' : htmlspecialchars(NOTICE_NEWSLETTER) ?></p>
             <form method="POST">
@@ -36,7 +36,7 @@ include __DIR__ . '/header.php';
             </form>
         <?php else: ?>
             <p>Ce lien est invalide, expiré ou a déjà été utilisé. Les liens d’un ancien abonnement ne modifient pas un réabonnement récent.</p>
-            <a href="index.php#newsletter" class="bouton bouton-principal">Retour à la newsletter</a>
+            <a href="./#newsletter" class="bouton bouton-principal">Retour à la newsletter</a>
         <?php endif; ?>
     </section>
 </div>

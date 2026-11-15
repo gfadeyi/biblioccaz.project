@@ -54,7 +54,7 @@ $onglet = in_array($ongletDemande, ['achats', 'ventes'], true) ? $ongletDemande
 $liste = $transactions[$onglet];
 $estVendeur = $onglet === 'ventes';
 
-$titreDocument = 'Mes ventes et achats';
+$titreDocument = 'Mes ventes entre lecteurs';
 include 'header.php';
 ?>
 
@@ -62,12 +62,12 @@ include 'header.php';
     <nav aria-label="Fil d'Ariane" class="fil-ariane">
         <a href="profil.php">Mon compte</a>
         <span aria-hidden="true">›</span>
-        <span aria-current="page">Mes ventes et achats</span>
+        <span aria-current="page">Mes ventes entre lecteurs</span>
     </nav>
 
     <div class="entete-mes-annonces">
         <div>
-            <h1 class="titre-page-compte mb-1">Mes ventes et achats</h1>
+            <h1 class="titre-page-compte mb-1">Mes ventes entre lecteurs</h1>
             <p class="text-muted mb-0">Vos échanges de livres avec les autres lecteurs, de la demande au reçu.</p>
         </div>
         <a href="mes_annonces.php" class="bouton bouton-contour bouton-petit"><i class="bi bi-tag" aria-hidden="true"></i> Mes annonces</a>

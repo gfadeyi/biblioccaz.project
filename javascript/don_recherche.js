@@ -42,7 +42,23 @@
         fermer();
     };
 
-    const afficher = livres => {
+    const isbnDe = texte => String(texte || '').replace(/[^0-9X]/gi, '').toUpperCase();
+
+    const afficher = (livres, texte) => {
+        const scanne = champ.dataset.isbnScanne || '';
+        delete champ.dataset.isbnScanne;
+        if (scanne && scanne === texte) {
+            const livreScanne = livres.find(livre => isbnDe(livre.isbn) === scanne);
+            if (livreScanne) {
+                choisir(livreScanne);
+                return;
+            }
+            champ.value = '';
+            derniereRecherche = '';
+            fermer();
+            info.textContent = 'ISBN ' + scanne + ' absent du catalogue : saisissez le titre du livre.';
+            return;
+        }
         resultats = livres;
         liste.replaceChildren();
         if (!livres.length) {
@@ -91,7 +107,7 @@
         fetch('don_recherche_livre.php?q=' + encodeURIComponent(texte), { signal: controleur.signal, headers: { 'Accept': 'application/json' } })
             .then(reponse => reponse.ok ? reponse.json() : { livres: [] })
             .then(donnees => {
-                if (champ.value.trim() === texte && document.activeElement === champ) afficher(donnees.livres || []);
+                if (champ.value.trim() === texte && document.activeElement === champ) afficher(donnees.livres || [], texte);
             })
             .catch(() => {});
     };

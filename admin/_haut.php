@@ -77,6 +77,7 @@ $iconesFlash = ['success' => 'check-circle-fill', 'danger' => 'x-octagon-fill', 
     <link rel="stylesheet" href="<?= urlStatique('ressources/bootstrap-5.3.0/bootstrap.min.css', '../') ?>">
     <link rel="stylesheet" href="<?= urlStatique('ressources/bootstrap-icons-1.11.0/bootstrap-icons.min.css', '../') ?>">
     <link rel="stylesheet" href="admin.css?v=<?= filemtime(__DIR__ . '/admin.css') ?>">
+<?php if (!empty($stylesPage)) echo $stylesPage; ?>
     <script src="<?= urlStatique('javascript/couvertures.js', '../') ?>" data-defaut="../img/default.png"></script>
 </head>
 <body class="admin">
@@ -110,7 +111,7 @@ $iconesFlash = ['success' => 'check-circle-fill', 'danger' => 'x-octagon-fill', 
             </nav>
         <?php endif; ?>
 
-        <a href="../index.php" class="admin-menu-lien admin-menu-site">
+        <a href="../" class="admin-menu-lien admin-menu-site">
             <i class="bi bi-shop"></i><span>Voir le site client</span><i class="bi bi-box-arrow-up-right ms-auto small"></i>
         </a>
     </div>

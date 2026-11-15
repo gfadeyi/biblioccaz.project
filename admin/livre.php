@@ -90,6 +90,8 @@ $tagsActuels = $_POST['tags'] ?? ($livre ? array_column(tagsDuLivre($pdo, $id), 
 $titrePage = $livre ? 'Modifier la fiche' : 'Ajouter un livre';
 $pageActive = $livre ? 'inventaire' : 'livre';
 $filAriane = $livre ? [[null, 'Catalogue'], ['inventaire.php', 'Inventaire & stock']] : null;
+$stylesPage = '<link rel="stylesheet" href="' . e(urlStatique('scanner_isbn.css', '../')) . '">';
+$scriptsPage = '<script src="' . e(urlStatique('javascript/scanner_isbn.js', '../')) . '" defer></script>';
 include __DIR__ . '/_haut.php';
 $v = fn(string $c) => e((string) ($valeurs[$c] ?? ''));
 ?>
@@ -120,7 +122,9 @@ $v = fn(string $c) => e((string) ($valeurs[$c] ?? ''));
         </div>
         <div class="col-md-6">
             <label class="form-label small fw-bold" for="isbn">ISBN (10 ou 13 chiffres)<?= $livre ? '' : ' *' ?></label>
-            <input type="text" id="isbn" name="isbn" class="form-control" value="<?= $v('isbn') ?>" maxlength="17" <?= $livre ? '' : 'required' ?>>
+            <input type="text" id="isbn" name="isbn" class="form-control" value="<?= $v('isbn') ?>" maxlength="17" inputmode="numeric" aria-describedby="isbn-scanner-info" <?= $livre ? '' : 'required' ?>>
+            <button type="button" class="bouton-scanner-isbn" data-scanner-isbn data-scanner-mode="champ" data-scanner-cible="isbn" data-scanner-recherche="livre_isbn.php" data-scanner-info="isbn-scanner-info" data-scanner-lien="livre.php?id=" hidden><i class="bi bi-upc-scan" aria-hidden="true"></i><span>Scanner un ISBN</span></button>
+            <div class="form-text" id="isbn-scanner-info" aria-live="polite"></div>
         </div>
         <div class="col-md-6">
             <label class="form-label small fw-bold" for="image">Couverture (JPG, PNG ou WEBP, 2 Mo max)</label>

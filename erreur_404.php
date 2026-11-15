@@ -21,9 +21,10 @@ include 'header.php';
         </form>
 
         <div class="page-introuvable__liens">
-            <a href="index.php" class="bouton bouton-contour bouton-petit">Retour à l'accueil</a>
+            <a href="./" class="bouton bouton-contour bouton-petit">Retour à l'accueil</a>
             <a href="catalogue.php" class="bouton bouton-contour bouton-petit">Voir le catalogue</a>
             <a href="dons.php" class="bouton bouton-contour bouton-petit">Voir les livres à donner</a>
+            <a href="qui-sommes-nous" class="bouton bouton-contour bouton-petit">Qui sommes-nous ?</a>
         </div>
     </div>
 </div>

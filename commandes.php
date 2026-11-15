@@ -103,7 +103,7 @@ include 'header.php';
         <div class="card p-5 text-center shadow-sm border-0 bg-white" style="border-radius: 15px;">
             <i class="bi bi-bag text-muted fs-1 mb-3"></i>
             <h5 class="text-secondary">Vous n'avez pas encore passé de commande.</h5>
-            <a href="index.php" class="btn btn-success rounded-pill px-4 mt-3 mx-auto">Découvrir nos livres</a>
+            <a href="./" class="btn btn-success rounded-pill px-4 mt-3 mx-auto">Découvrir nos livres</a>
         </div>
     <?php else: ?>
         <?php foreach ($commandes as $cmd): ?>

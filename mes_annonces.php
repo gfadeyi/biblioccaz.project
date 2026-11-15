@@ -103,7 +103,7 @@ include 'header.php';
                     <?php if (in_array($statut, ['refusee', 'retiree'], true) && $a['motif_moderation']): ?>
                         <p class="mon-annonce__motif"><strong><?= $statut === 'refusee' ? 'Motif du refus' : "Retirée par l'équipe" ?> :</strong> <?= htmlspecialchars($a['motif_moderation']) ?></p>
                     <?php elseif ($statut === 'vendue'): ?>
-                        <p class="mon-annonce__aide">Vendu ! Le reçu est dans <a href="mes_transactions.php?onglet=ventes">Mes ventes et achats</a>.</p>
+                        <p class="mon-annonce__aide">Vendu ! Le reçu est dans <a href="mes_transactions.php?onglet=ventes">Mes ventes entre lecteurs</a>.</p>
                     <?php elseif ($statut === 'en_validation'): ?>
                         <p class="mon-annonce__aide">L'équipe vérifie votre annonce : vous recevrez un mail dès sa mise en ligne.</p>
                     <?php endif; ?>

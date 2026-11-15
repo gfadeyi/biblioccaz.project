@@ -61,7 +61,7 @@ include 'header.php';
             <div class="carte-formulaire__encart" role="status">
                 <p class="mb-2"><i class="bi bi-envelope-check" aria-hidden="true"></i> Merci, votre candidature est bien reçue.</p>
                 <p class="mb-3">Si elle est acceptée, vous recevrez un mail <?= $membre ? 'qui vous ouvrira l’accès au back-office.' : 'pour choisir le mot de passe de votre nouveau compte.' ?></p>
-                <a href="index.php" class="bouton bouton-principal bouton-petit">Revenir à l'accueil</a>
+                <a href="./" class="bouton bouton-principal bouton-petit">Revenir à l'accueil</a>
             </div>
         <?php elseif ($etat['etat'] === 'indisponible'): ?>
             <div class="carte-formulaire__encart" role="status"><p class="mb-0">Les candidatures ouvriront très bientôt. Revenez un peu plus tard.</p></div>

@@ -195,6 +195,7 @@ include 'header.php';
                     <ul class="recherche-don__liste" id="don_suggestions" role="listbox" aria-label="Livres du catalogue" hidden></ul>
                 </div>
                 <input type="hidden" name="id_livre" id="don_id_livre" value="<?= htmlspecialchars($v['id_livre']) ?>">
+                <button type="button" class="bouton-scanner-isbn" data-scanner-isbn data-scanner-mode="saisie" data-scanner-cible="don_titre" hidden><i class="bi bi-upc-scan" aria-hidden="true"></i><span>Scanner un ISBN</span></button>
                 <div class="form-text" id="don_lien_info" aria-live="polite"><?= $v['id_livre'] !== '' ? '✓ Livre lié au catalogue' : 'Tapez au moins deux lettres pour retrouver le livre dans le catalogue, ou saisissez un titre libre.' ?></div>
             </div>
             <div class="col-md-6">

@@ -1,0 +1,36 @@
+.bouton-scanner-isbn { display: inline-flex; align-items: center; gap: .4rem; margin-top: .45rem; padding: .3rem .8rem; border: 1.5px solid var(--vert-200, #c5dfb2);
+                       border-radius: 999px; background: var(--surface, #fff); color: var(--texte-vert, #274e13); font-size: .88rem; font-weight: 600; line-height: 1.2; cursor: pointer;
+                       transition: background .2s ease, border-color .2s ease; }
+.bouton-scanner-isbn:hover { background: var(--vert-50, #f2f7ee); border-color: var(--texte-vert, #274e13); }
+.bouton-scanner-isbn:focus-visible, .bouton-scanner-entete:focus-visible, .scanner-isbn button:focus-visible { outline: 2px solid var(--texte-vif, #3f7d25); outline-offset: 2px; }
+.bouton-scanner-isbn[hidden], .bouton-scanner-entete[hidden] { display: none; }
+.bouton-scanner-entete { position: absolute; right: 47px; top: 5px; width: 38px; height: 38px; display: inline-flex; align-items: center; justify-content: center;
+                         border: 0; border-radius: 50%; background: transparent; color: var(--texte-vert, #274e13); font-size: 1.15rem; cursor: pointer; transition: background .2s ease; }
+.bouton-scanner-entete:hover { background: var(--vert-50, #f2f7ee); }
+.recherche-entete.scanner-isbn-actif .champ-recherche { padding-right: 5.9rem; }
+.scanner-isbn { width: min(440px, calc(100vw - 32px)); max-height: calc(100dvh - 32px); padding: 0; border: 0; border-radius: 20px; background: var(--surface, #fff);
+                color: var(--encre, #17230f); box-shadow: 0 10px 30px rgba(14, 31, 7, .25); overflow: auto; }
+.scanner-isbn::backdrop { background: rgba(14, 31, 7, .55); }
+.scanner-isbn__entete { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 1rem 1.1rem .6rem 1.25rem; }
+.scanner-isbn__entete h2 { margin: 0; font-family: var(--police-titre, Georgia, serif); font-size: 1.25rem; color: var(--titre, #0e1f07); }
+.scanner-isbn__fermer { width: 38px; height: 38px; flex-shrink: 0; border: 0; border-radius: 50%; background: var(--vert-50, #f2f7ee); color: var(--texte-vert, #274e13); cursor: pointer; }
+.scanner-isbn__camera { position: relative; margin: 0 1.25rem; border-radius: 12px; overflow: hidden; background: #0e1f07; aspect-ratio: 4 / 3; }
+.scanner-isbn__camera[hidden] { display: none; }
+.scanner-isbn__camera video { width: 100%; height: 100%; object-fit: cover; display: block; }
+.scanner-isbn__viseur { position: absolute; left: 10%; right: 10%; top: 32%; bottom: 32%; border: 3px solid rgba(255, 255, 255, .92); border-radius: 10px;
+                        box-shadow: 0 0 0 999px rgba(14, 31, 7, .35); }
+.scanner-isbn__viseur::after { content: ""; position: absolute; left: 6%; right: 6%; top: 50%; height: 2px; background: #6fa84f; animation: scanner-isbn-ligne 1.6s ease-in-out infinite alternate; }
+@keyframes scanner-isbn-ligne { from { transform: translateY(-18px); } to { transform: translateY(18px); } }
+@media (prefers-reduced-motion: reduce) { .scanner-isbn__viseur::after { animation: none; } }
+.scanner-isbn__etat { margin: .8rem 1.25rem 0; font-size: .95rem; color: var(--encre-douce, #56634f); min-height: 1.4em; }
+.scanner-isbn__saisie { margin: .9rem 1.25rem 1.25rem; padding-top: .9rem; border-top: 1px solid var(--trait, #dce5d6); }
+.scanner-isbn__saisie label { display: block; margin-bottom: .35rem; font-weight: 700; font-size: .9rem; }
+.scanner-isbn__ligne { display: flex; gap: .5rem; }
+.scanner-isbn__ligne input { flex: 1; min-width: 0; height: 44px; padding: 0 .9rem; border: 1.5px solid var(--trait, #dce5d6); border-radius: 999px; background: var(--papier, #f5f8f3);
+                             color: var(--encre, #17230f); font-size: 1rem; letter-spacing: .03em; }
+.scanner-isbn__ligne input:focus { outline: none; border-color: var(--texte-vert, #274e13); box-shadow: 0 0 0 4px var(--vert-50, #f2f7ee); }
+.scanner-isbn__ligne input[aria-invalid="true"] { border-color: #b3261e; }
+.scanner-isbn__valider { flex-shrink: 0; height: 44px; padding: 0 1.2rem; border: 0; border-radius: 999px; background: var(--vert, #274e13); color: #fff; font-weight: 700; cursor: pointer; }
+.scanner-isbn__valider:hover { background: var(--vert-fonce, #1a330d); }
+.scanner-isbn__erreur { margin: .5rem 0 0; color: #b3261e; font-size: .9rem; }
+.scanner-isbn__erreur[hidden] { display: none; }

@@ -5,6 +5,15 @@ RewriteEngine On
 RewriteRule ^robots\.txt$ robots.php [END]
 RewriteRule ^\.well-known/acme-challenge/[A-Za-z0-9_-]+$ - [END]
 RewriteRule (^|/)(\.[^/]+|secure_data|sauvegardes|sql|docs|vendor|nbproject|cron|outils)(/|$) - [F,END,NC]
+RewriteCond %{REQUEST_METHOD} ^(GET|HEAD)$
+RewriteCond %{THE_REQUEST} \s(/(?:[^?\s]*/)?)index\.php[?\s]
+RewriteRule ^index\.php$ %1 [R=301,L]
+RewriteCond %{REQUEST_METHOD} ^(GET|HEAD)$
+RewriteCond %{THE_REQUEST} \s(/(?:[^?\s]*/)?)qui_sommes_nous\.php[?\s]
+RewriteRule ^qui_sommes_nous\.php$ %1qui-sommes-nous [R=301,L]
+RewriteCond %{THE_REQUEST} \s(/(?:[^?\s]*/)?)qui-sommes-nous/[?\s]
+RewriteRule ^qui-sommes-nous/$ %1qui-sommes-nous [R=301,L]
+RewriteRule ^qui-sommes-nous$ qui_sommes_nous.php [END]
 
 <FilesMatch "(?i)(\.(md|sql|log|ini|env|bak|old|orig|save|swp|dist|ya?ml|toml|lock|zip|7z|tar|gz)$|~$|^composer\.(json|lock)$|^secrets.*\.php$|^config\.php$|^mailer\.php$|_lib\.php$|^partie_.*\.php$|^(header|footer|panier_calcul)\.php$)">
     Require all denied
