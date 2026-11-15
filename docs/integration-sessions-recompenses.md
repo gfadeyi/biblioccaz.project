@@ -26,7 +26,7 @@ Les filtres scolaires, prix, état et offre restent combinables. Les suggestions
 ## Trois notions différentes
 
 - **Compte actif** : état administratif compatible avec l'accès, sous réserve d'email vérifié et des droits du rôle. Les états `actif` et transitoire `valide_moderateur` sont acceptés par le contrôle commun ; les suspensions et candidatures en attente ne le sont pas. Le badge « Actif » de Membres décrit le compte, pas sa présence.
-- **Utilisateur en ligne** : au moins une connexion valide du registre F6, non révoquée, active depuis moins de dix minutes, compte autorisé et empreinte du mot de passe actuelle. Les connexions simultanées restent distinctes. La supervision utilise maintenant les mêmes états autorisés que le contrôle commun : un compte en attente n'y apparaît plus comme connecté.
+- **Utilisateur en ligne** : au moins une connexion valide du registre F6, non révoquée, active depuis moins de quinze minutes, compte autorisé et empreinte du mot de passe actuelle. Les connexions simultanées restent distinctes. La supervision utilise maintenant les mêmes états autorisés que le contrôle commun : un compte en attente n'y apparaît plus comme connecté.
 - **Profil participant actif** : notion métier non activée. Les badges et niveaux mesurent des réalisations ; ils ne constituent pas ce statut. Le profil n'affiche pas de faux indicateur de présence ou de participation.
 
 Propositions à décider, sans seuil implémenté :

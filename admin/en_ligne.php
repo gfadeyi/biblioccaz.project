@@ -43,7 +43,7 @@ $page = filter_var($_GET['page'] ?? 1,FILTER_VALIDATE_INT,['options' => ['min_ra
 $tableau = $suiviDisponible ? tableauSessions($pdo,$recherche,$role,$multiples,$page) : null;
 include __DIR__ . '/_haut.php';
 ?>
-<p class="text-muted small">Sessions valides selon le délai d'inactivité de dix minutes. La dernière requête connue n'est pas une preuve de présence humaine en temps réel. Une fermeture prend effet dès la prochaine requête authentifiée.</p>
+<p class="text-muted small">Sessions valides selon le délai d'inactivité de quinze minutes. La dernière requête connue n'est pas une preuve de présence humaine en temps réel. Une fermeture prend effet dès la prochaine requête authentifiée.</p>
 <?php if (!$suiviDisponible): ?>
 <div class="alert alert-warning" role="status">Le tableau nécessite la migration des sessions et sql/maj_sessions_supervision.sql. Aucun décompte ni fermeture n'est proposé tant que le suivi du rôle n'est pas disponible.</div>
 <?php else: ?>

@@ -6,7 +6,7 @@ La page « Connexions actives » est réservée aux administrateurs. Elle réuti
 
 Trois indicateurs globaux : sessions valides, utilisateurs distincts et utilisateurs disposant de plusieurs sessions. Ils sont calculés sur tout le registre, indépendamment des filtres et de la pagination. Un test avec 501 connexions vérifie l'absence de troncature héritée de l'ancien affichage.
 
-La validité exige une dernière requête connue depuis moins de dix minutes, aucune révocation, un mot de passe et un rôle correspondant à l'ouverture, un email vérifié et un compte dans un état autorisé. Les comptes suspendus ou en attente sont exclus, ainsi que les sessions dont le rôle a changé ou n'est pas connu. Ce décompte ne prétend pas prouver une présence humaine en temps réel. Les dates affichées distinguent ouverture et dernière requête connue.
+La validité exige une dernière requête connue depuis moins de quinze minutes, aucune révocation, un mot de passe et un rôle correspondant à l'ouverture, un email vérifié et un compte dans un état autorisé. Les comptes suspendus ou en attente sont exclus, ainsi que les sessions dont le rôle a changé ou n'est pas connu. Ce décompte ne prétend pas prouver une présence humaine en temps réel. Les dates affichées distinguent ouverture et dernière requête connue.
 
 Le tableau est un instantané SQL cohérent, horodaté, actualisé à la demande. Le rendu serveur permet recherche, pagination et confirmations sans JavaScript. L'ancien endpoint F6 reste compatible ; il n'est plus utilisé pour compter les indicateurs du tableau.
 
@@ -53,7 +53,7 @@ La navigation et l'envoi volontaire d'un message continuent à actualiser l'acti
 
 La recette HTTP isolée du correctif comporte 21 assertions : polls répétés, nouveaux messages, navigation, envoi, CSRF, accès tiers et refus après expiration, révocation, suspension, changement de rôle ou de mot de passe. Les campagnes F6 (80), messages de fin de session (42) et authentification (53) passent également. Aucun test n'écrit sur la base principale et aucune migration n'est nécessaire.
 
-Le comportement visuel et les redirections Fetch restent à vérifier dans un navigateur : laisser une conversation ouverte sans interaction au-delà de dix minutes, vérifier l'expiration, puis refaire avec une fermeture distante ; vérifier aussi la réception avant expiration et l'ouverture du bandeau des nouveaux messages. Ne pas assimiler ces contrôles manuels à la recette HTTP automatisée.
+Le comportement visuel et les redirections Fetch restent à vérifier dans un navigateur : laisser une conversation ouverte sans interaction au-delà de quinze minutes, vérifier l'expiration, puis refaire avec une fermeture distante ; vérifier aussi la réception avant expiration et l'ouverture du bandeau des nouveaux messages. Ne pas assimiler ces contrôles manuels à la recette HTTP automatisée.
 
 ### Recette complémentaire des réponses au polling
 

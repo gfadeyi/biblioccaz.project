@@ -64,7 +64,7 @@ if (isset($_GET['inscription'])) { $success = "Compte créé ! Un mail de valida
         <?php endif; ?>
 
         <?php if (isset($_GET['timeout']) || (isset($_GET['msg']) && $_GET['msg'] === 'inactive')): ?>
-            <div class="alert alert-info small" role="status"><strong>Déconnexion automatique</strong> après 10 minutes d'inactivité.</div>
+            <div class="alert alert-info small" role="status"><strong>Déconnexion automatique</strong> après 15 minutes d'inactivité.</div>
         <?php endif; ?>
         <?php if ($finSession): ?><div class="alert <?= $compteSuspendu ? 'alert-danger' : 'alert-info' ?> small" role="<?= $compteSuspendu ? 'alert' : 'status' ?>"><?= htmlspecialchars($finSession) ?></div><?php endif; ?>
         <?php if ($error): ?>

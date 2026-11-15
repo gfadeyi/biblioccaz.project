@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/connexion_persistante_lib.php';
 
-const SESSION_INACTIVITE = 600;
+const SESSION_INACTIVITE = 900;
 
 function modeProduction(): bool
 {
@@ -35,6 +35,9 @@ function demarrerSession(): void
         ini_set('session.gc_probability', '1');
         ini_set('session.gc_divisor', '100');
     }
+    if ((int) ini_get('session.gc_maxlifetime') < SESSION_INACTIVITE) {
+        ini_set('session.gc_maxlifetime', (string) SESSION_INACTIVITE);
+    }
     ini_set('session.use_strict_mode', '1');
     ini_set('session.use_only_cookies', '1');
     session_set_cookie_params(['httponly' => true, 'samesite' => 'Lax', 'secure' => modeProduction() || connexionHttps()]);
@@ -43,7 +46,7 @@ function demarrerSession(): void
 
 function conditionSessionValide(bool $verifierRole = true): string
 {
-    return "s.date_revocation IS NULL AND s.derniere_activite > DATE_SUB(?, INTERVAL 600 SECOND)
+    return "s.date_revocation IS NULL AND s.derniere_activite > DATE_SUB(?, INTERVAL " . SESSION_INACTIVITE . " SECOND)
         AND s.empreinte_mdp = SHA2(u.mot_de_passe, 256) AND u.email_verifie = 1 AND u.statut IN ('actif','valide_moderateur')" . ($verifierRole ? ' AND s.role_connexion = u.role' : '');
 }
 
@@ -161,7 +164,7 @@ function controlerSessionUtilisateur(PDO $pdo, bool $actualiser = true): void
         if (restaurerConnexionPersistante($pdo)) { return; }
     }
     if (!isset($_SESSION['user_id'])) {
-        if ($inactive) { refuserSession($pdo,'Expiration après dix minutes sans activité','expiree'); }
+        if ($inactive) { refuserSession($pdo,'Expiration après quinze minutes sans activité','expiree'); }
         $_SESSION['last_activity'] = time(); return;
     }
     $stmt = $pdo->prepare('SELECT id, pseudo, role, statut, email_verifie, mot_de_passe, nom, prenom FROM user WHERE id = ?');
@@ -180,7 +183,7 @@ function controlerSessionUtilisateur(PDO $pdo, bool $actualiser = true): void
         $avecRole = roleSessionDisponible($pdo);
         $pdo->beginTransaction();
         try {
-            $stmt = $pdo->prepare('SELECT id_suivi, date_revocation, id_revoque_par' . ($avecRole ? ', role_connexion' : '') . ', (derniere_activite > DATE_SUB(NOW(), INTERVAL 600 SECOND)) AS recente FROM session_utilisateur WHERE empreinte = ? AND id_user = ? AND empreinte_mdp = ? FOR UPDATE');
+            $stmt = $pdo->prepare('SELECT id_suivi, date_revocation, id_revoque_par' . ($avecRole ? ', role_connexion' : '') . ', (derniere_activite > DATE_SUB(NOW(), INTERVAL ' . SESSION_INACTIVITE . ' SECOND)) AS recente FROM session_utilisateur WHERE empreinte = ? AND id_user = ? AND empreinte_mdp = ? FOR UPDATE');
             $stmt->execute([empreinteSessionCourante(), $membre['id'], $_SESSION['empreinte_auth']]);
             $suivi = $stmt->fetch();
             $roleValide = !$avecRole || ($suivi && $suivi['role_connexion'] === $membre['role']);
@@ -195,9 +198,9 @@ function controlerSessionUtilisateur(PDO $pdo, bool $actualiser = true): void
         if (!$suivi) { refuserSession($pdo, 'Session non enregistrée'); }
         if (!$roleValide) { refuserSession($pdo,'Rôle de connexion absent ou modifié'); }
         if ($suivi['date_revocation']) { refuserSession($pdo, 'Session fermée', $suivi['id_revoque_par'] ? 'fermee' : 'inconnue'); }
-        if (!$suivi['recente']) { refuserSession($pdo,'Expiration du registre après dix minutes','expiree'); }
+        if (!$suivi['recente']) { refuserSession($pdo,'Expiration du registre après quinze minutes','expiree'); }
     }
-    if ($inactive) { refuserSession($pdo,'Expiration après dix minutes sans activité','expiree'); }
+    if ($inactive) { refuserSession($pdo,'Expiration après quinze minutes sans activité','expiree'); }
     foreach (['pseudo', 'role', 'nom', 'prenom'] as $champ) { $_SESSION[$champ] = $membre[$champ]; }
     if ($actualiser) { $_SESSION['last_activity'] = time(); }
 }
