@@ -213,6 +213,7 @@ $nomOnglet = trim((string) ($titreDocument ?? $titrePage ?? $titresOnglets[$page
     <script src="<?= urlStatique('javascript/bandeau_demo.js') ?>" defer></script>
     <script src="<?= urlStatique('javascript/scanner_isbn.js') ?>" defer></script>
     <script src="<?= urlStatique('javascript/application_web.js') ?>" defer></script>
+    <script src="<?= urlStatique('javascript/tiroir_notifications.js') ?>" defer></script>
 </head>
 <body>
 <a class="lien-evitement" href="#contenu">Aller au contenu</a>
@@ -271,12 +272,14 @@ $nomOnglet = trim((string) ($titreDocument ?? $titrePage ?? $titresOnglets[$page
                 </a>
             <?php endif; ?>
             <?php if ($avecCloche): ?>
-                <div class="dropdown dropdown-hover position-relative" id="entete-notifications">
-                    <a href="notifications.php" class="icone-entete" aria-label="Notifications<?= $nbNotificationsNonLues ? ', ' . $nbNotificationsNonLues . ' non lue' . ($nbNotificationsNonLues > 1 ? 's' : '') : '' ?>">
+                <div class="dropdown dropdown-hover position-relative" id="entete-notifications" data-tiroir-notifications>
+                    <a href="notifications.php" class="icone-entete" aria-haspopup="true" aria-expanded="false" aria-controls="menu-notifications" aria-label="Notifications<?= $nbNotificationsNonLues ? ', ' . $nbNotificationsNonLues . ' non lue' . ($nbNotificationsNonLues > 1 ? 's' : '') : '' ?>">
                         <?= iconeDessin('clochette') ?><span>Notifs</span>
                         <?php if ($nbNotificationsNonLues > 0): ?><span class="pastille" data-compteur-notifications><?= $nbNotificationsNonLues > 99 ? '99+' : $nbNotificationsNonLues ?></span><?php endif; ?>
                     </a>
-                    <ul class="dropdown-menu dropdown-menu-end p-2 shadow border-0 menu-notifications">
+                    <div class="voile-tiroir" hidden></div>
+                    <ul class="dropdown-menu dropdown-menu-end p-2 shadow border-0 menu-notifications" id="menu-notifications">
+                        <li class="menu-notifications__fermer"><button type="button" class="bouton-fermer-menu" aria-label="Fermer les notifications"><i class="bi bi-x-lg" aria-hidden="true"></i></button></li>
                         <li class="menu-notifications__titre">
                             <span data-titre-notifications>Notifications<?= $nbNotificationsNonLues ? ' (' . $nbNotificationsNonLues . ' non lue' . ($nbNotificationsNonLues > 1 ? 's' : '') . ')' : '' ?></span>
                             <?php if ($nbNotificationsNonLues > 0): ?>
