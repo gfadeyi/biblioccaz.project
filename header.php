@@ -216,6 +216,14 @@ $nomOnglet = trim((string) ($titreDocument ?? $titrePage ?? $titresOnglets[$page
     <script src="<?= urlStatique('javascript/tiroir_notifications.js') ?>" defer></script>
 </head>
 <body>
+<?php $apercuEquipe = apercuBackOffice($pdo); if ($apercuEquipe): ?>
+    <div class="bandeau-apercu" role="status">
+        <i class="bi bi-eye" aria-hidden="true"></i>
+        <span><strong>Mode aperçu back-office</strong><span class="bandeau-apercu__detail"> · @<?= htmlspecialchars($apercuEquipe['pseudo']) ?> · le site tel que le voient les visiteurs et les membres</span></span>
+        <a href="admin/">Retour au back-office</a>
+        <a href="apercu_quitter.php">Quitter l’aperçu</a>
+    </div>
+<?php endif; ?>
 <a class="lien-evitement" href="#contenu">Aller au contenu</a>
 <?php if (bandeauDemonstrationVisible()): ?>
     <div class="bandeau-demo" role="note" data-bandeau-demo="<?= COOKIE_BANDEAU_DEMONSTRATION ?>">

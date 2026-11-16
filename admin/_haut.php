@@ -112,8 +112,8 @@ $iconesFlash = ['success' => 'check-circle-fill', 'danger' => 'x-octagon-fill', 
             </nav>
         <?php endif; ?>
 
-        <a href="../" class="admin-menu-lien admin-menu-site">
-            <i class="bi bi-shop"></i><span>Voir le site client</span><i class="bi bi-box-arrow-up-right ms-auto small"></i>
+        <a href="apercu.php" class="admin-menu-lien admin-menu-site" target="_blank" rel="noopener" aria-label="Aperçu du site (nouvel onglet)">
+            <i class="bi bi-eye"></i><span>Aperçu du site</span><i class="bi bi-box-arrow-up-right ms-auto small" aria-hidden="true"></i>
         </a>
     </div>
 </aside>
