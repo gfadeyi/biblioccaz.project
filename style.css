@@ -2445,3 +2445,9 @@ form[data-selection-collection] legend { float: none; width: auto; }
 .menu-entete__voir { margin-left: auto; display: inline-flex; align-items: center; gap: .2rem; font-size: .76rem; font-weight: 600; color: var(--texte-vert); white-space: nowrap; }
 .menu-entete__points:hover .menu-entete__voir i { transform: translateX(2px); }
 .menu-entete__voir i { font-size: .7rem; transition: transform var(--duree-rapide, 160ms); }
+@media (max-width: 991.98px) {
+    .panneau-ouvert #menu-compte { padding-top: 0; }
+    .panneau-ouvert #menu-compte .menu-entete__fermer { position: sticky; top: 0; z-index: 3; display: flex; justify-content: flex-end; height: 0; margin: 0; padding: 0; background: transparent; overflow: visible; pointer-events: none; }
+    .panneau-ouvert #menu-compte .bouton-fermer-menu { margin-top: 10px; pointer-events: auto; box-shadow: 0 2px 10px rgba(14, 31, 7, .14); }
+    .panneau-ouvert #menu-compte .menu-entete__profil { padding-top: .85rem; padding-right: 3.4rem; }
+}
