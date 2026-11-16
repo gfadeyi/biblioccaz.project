@@ -57,6 +57,7 @@ function creerConnexionPersistante(PDO $pdo, array $membre): bool
     $pdo->prepare('DELETE FROM connexion_persistante WHERE id_user = ? AND date_expiration <= NOW()')->execute([$membre['id']]);
     $pdo->prepare('INSERT INTO connexion_persistante (id_user, selecteur, empreinte_validateur, empreinte_mdp, date_expiration, appareil) VALUES (?, ?, ?, ?, FROM_UNIXTIME(?), ?)')
         ->execute([$membre['id'], $selecteur, hash('sha256', $validateur), hash('sha256', $membre['mot_de_passe']), $expiration, libelleAppareil((string) ($_SERVER['HTTP_USER_AGENT'] ?? ''))]);
+    lierSessionConnexionPersistante($pdo, (int) $pdo->lastInsertId());
     ecrireCookiePersistant($selecteur . ':' . $validateur, $expiration);
     return true;
 }
@@ -133,6 +134,7 @@ function restaurerConnexionPersistante(PDO $pdo): bool
     $_SESSION['connexion_time'] = time();
     try {
         enregistrerSessionUtilisateur($pdo, $ligne);
+        lierSessionConnexionPersistante($pdo, (int) $ligne['id_connexion']);
     } catch (RuntimeException $e) {
         $_SESSION = [];
         return false;

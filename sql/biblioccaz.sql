@@ -964,12 +964,14 @@ CREATE TABLE IF NOT EXISTS session_utilisateur (
     espace ENUM('site', 'admin') NOT NULL,
     role_connexion VARCHAR(20) NULL,
     appareil VARCHAR(60) NULL,
+    id_connexion_persistante INT NULL,
     date_connexion DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     derniere_activite DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     date_revocation DATETIME NULL,
     id_revoque_par INT NULL,
     INDEX idx_session_membre (id_user, date_revocation, derniere_activite),
     INDEX idx_session_activite (date_revocation, derniere_activite),
+    INDEX idx_session_persistante (id_connexion_persistante),
     FOREIGN KEY (id_user) REFERENCES user(id) ON DELETE CASCADE,
     FOREIGN KEY (id_revoque_par) REFERENCES user(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

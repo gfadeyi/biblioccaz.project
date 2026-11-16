@@ -42,6 +42,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit();
     }
 
+    if ($action === 'fermer_session' || $action === 'fermer_autres_sessions') {
+        $idSuivi = $action === 'fermer_session' ? filter_var($_POST['id_suivi'] ?? null, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]) : null;
+        if ($action === 'fermer_session' && !$idSuivi) {
+            $_SESSION['flash_profil'] = ['danger', "Appareil introuvable."];
+        } else {
+            $nombre = fermerSessionsDuMembre($pdo, $idUser, $idSuivi ?: null);
+            insertLog('SECURITE', $action === 'fermer_session' ? "Fermeture d'une connexion depuis le profil" : "Fermeture des autres connexions depuis le profil ($nombre)");
+            $_SESSION['flash_profil'] = $nombre > 0
+                ? ['success', $nombre > 1 ? "$nombre appareils ont été déconnectés." : "L'appareil a été déconnecté."]
+                : ['info', "Aucun autre appareil n'était connecté."];
+        }
+        header("Location: profil.php#appareils");
+        exit();
+    }
+
     if ($action === 'newsletter') {
         $abonner = ($_POST['abonner'] ?? '') === '1';
 
@@ -160,6 +175,7 @@ if (isset($_GET['mdp'])) {
     $flashProfil = ['success', "Votre mot de passe a bien été modifié."];
 }
 $csrf = jetonCsrf();
+$appareilsConnectes = sessionsDuMembre($pdo, $idUser);
 $scriptsPage = ['photo_profil.js'];
 
 include 'header.php';
@@ -169,7 +185,7 @@ include 'header.php';
     <h1 class="titre-page-compte"><?= $estEquipe ? 'Mon espace équipe' : ($estAuteur ? 'Mon espace auteur' : 'Mon compte') ?></h1>
 
     <?php if ($flashProfil): ?>
-        <div class="alert alert-<?= $flashProfil[0] === 'success' ? 'success' : 'danger' ?> rounded-3" role="status"><?= htmlspecialchars($flashProfil[1]) ?></div>
+        <div class="alert alert-<?= in_array($flashProfil[0], ['success', 'info', 'warning'], true) ? $flashProfil[0] : 'danger' ?> rounded-3" role="status"><?= htmlspecialchars($flashProfil[1]) ?></div>
     <?php endif; ?>
 
     <section class="carte-compte profil-identite" aria-label="Mon identité">
@@ -432,6 +448,39 @@ include 'header.php';
                     <a href="don_creer.php" class="bouton bouton-contour bouton-petit"><i class="bi bi-plus-lg" aria-hidden="true"></i> Donner un livre</a>
                     <a href="mes_dons.php" class="lien-voir-tout">Mes dons <i class="bi bi-chevron-right" aria-hidden="true"></i></a>
                 </div>
+            </section>
+        <?php endif; ?>
+
+        <?php if ($appareilsConnectes): ?>
+            <section class="carte-compte appareils-connectes" id="appareils" aria-labelledby="titre-appareils">
+                <h2 class="carte-compte__titre" id="titre-appareils"><?= iconeDessin('porte') ?> Mes appareils connectés <span class="compteur-menu"><?= count($appareilsConnectes) ?></span></h2>
+                <p class="texte-profil">Vous pouvez rester connecté sur <?= SESSIONS_SIMULTANEES_MAX ?> appareils à la fois (ordinateur, téléphone, tablette). Chaque appareil se déconnecte seul après <?= intdiv(SESSION_INACTIVITE, 60) ?> minutes sans activité ; au-delà de <?= SESSIONS_SIMULTANEES_MAX ?>, la connexion la plus ancienne est fermée.</p>
+                <ul class="liste-appareils">
+                    <?php foreach ($appareilsConnectes as $appareil): ?>
+                        <li class="appareil<?= (int) $appareil['courante'] ? ' appareil--courant' : '' ?>">
+                            <span class="appareil__icone" aria-hidden="true"><i class="bi bi-<?= preg_match('/iPhone|Android/', (string) $appareil['appareil']) ? 'phone' : (str_contains((string) $appareil['appareil'], 'iPad') ? 'tablet' : 'laptop') ?>"></i></span>
+                            <span class="appareil__texte">
+                                <strong><?= htmlspecialchars($appareil['appareil'] ?: 'Appareil inconnu') ?><?= $appareil['espace'] === 'admin' ? ' · back-office' : '' ?></strong>
+                                <small><?= (int) $appareil['courante'] ? 'Cet appareil · ' : '' ?>connecté le <?= date('d/m à H:i', strtotime($appareil['date_connexion'])) ?> · actif à <?= date('H:i', strtotime($appareil['derniere_activite'])) ?></small>
+                            </span>
+                            <?php if (!(int) $appareil['courante']): ?>
+                                <form method="POST" class="appareil__action">
+                                    <input type="hidden" name="csrf" value="<?= $csrf ?>">
+                                    <input type="hidden" name="action" value="fermer_session">
+                                    <input type="hidden" name="id_suivi" value="<?= (int) $appareil['id_suivi'] ?>">
+                                    <button class="bouton-lien">Déconnecter</button>
+                                </form>
+                            <?php endif; ?>
+                        </li>
+                    <?php endforeach; ?>
+                </ul>
+                <?php if (count($appareilsConnectes) > 1): ?>
+                    <form method="POST" data-confirmer="Déconnecter tous vos autres appareils ? Vous resterez connecté sur celui-ci." data-titre-confirmer="Déconnecter les autres appareils" data-bouton-confirmer="Déconnecter">
+                        <input type="hidden" name="csrf" value="<?= $csrf ?>">
+                        <input type="hidden" name="action" value="fermer_autres_sessions">
+                        <button class="bouton bouton-contour bouton-petit"><i class="bi bi-box-arrow-right" aria-hidden="true"></i> Déconnecter les autres appareils</button>
+                    </form>
+                <?php endif; ?>
             </section>
         <?php endif; ?>
 

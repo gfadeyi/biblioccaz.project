@@ -2,6 +2,7 @@
 require_once __DIR__ . '/connexion_persistante_lib.php';
 
 const SESSION_INACTIVITE = 900;
+const SESSIONS_SIMULTANEES_MAX = 5;
 
 function modeProduction(): bool
 {
@@ -60,6 +61,82 @@ function appareilSessionDisponible(PDO $pdo): bool
 {
     try { $pdo->prepare('SELECT appareil FROM session_utilisateur LIMIT 0')->execute(); return true; }
     catch (PDOException $e) { if (in_array((int) ($e->errorInfo[1] ?? 0),[1146,1054],true)) { return false; } throw $e; }
+}
+
+function lienPersistantSessionDisponible(PDO $pdo): bool
+{
+    static $disponible = null;
+    if ($disponible !== null) { return $disponible; }
+    try { $pdo->prepare('SELECT id_connexion_persistante FROM session_utilisateur LIMIT 0')->execute(); return $disponible = true; }
+    catch (PDOException $e) { if (in_array((int) ($e->errorInfo[1] ?? 0),[1146,1054],true)) { return $disponible = false; } throw $e; }
+}
+
+function lierSessionConnexionPersistante(PDO $pdo, int $idConnexion): void
+{
+    if ($idConnexion > 0 && suiviSessionsDisponible($pdo) && lienPersistantSessionDisponible($pdo)) {
+        $pdo->prepare('UPDATE session_utilisateur SET id_connexion_persistante = ? WHERE empreinte = ?')->execute([$idConnexion, empreinteSessionCourante()]);
+    }
+}
+
+function supprimerConnexionsPersistantesLiees(PDO $pdo, array $idsConnexion): void
+{
+    $idsConnexion = array_values(array_unique(array_filter(array_map('intval', $idsConnexion))));
+    if ($idsConnexion && connexionPersistanteDisponible($pdo)) {
+        $pdo->prepare('DELETE FROM connexion_persistante WHERE id_connexion IN (' . implode(',', array_fill(0, count($idsConnexion), '?')) . ')')->execute($idsConnexion);
+    }
+}
+
+function sessionsValidesMembre(PDO $pdo, int $idUser, ?string $espace = null): array
+{
+    $colonnes = 's.id_suivi, s.espace, s.date_connexion, s.derniere_activite, (s.empreinte = ?) AS courante'
+        . (appareilSessionDisponible($pdo) ? ', s.appareil' : ', NULL AS appareil')
+        . (lienPersistantSessionDisponible($pdo) ? ', s.id_connexion_persistante' : ', NULL AS id_connexion_persistante');
+    $sql = 'SELECT ' . $colonnes . ' FROM session_utilisateur s INNER JOIN user u ON u.id = s.id_user WHERE s.id_user = ?'
+        . ($espace !== null ? ' AND s.espace = ?' : '') . ' AND ' . conditionSessionValide(roleSessionDisponible($pdo))
+        . ' ORDER BY s.derniere_activite DESC, s.id_suivi DESC';
+    $parametres = array_merge([empreinteSessionCourante(), $idUser], $espace !== null ? [$espace] : [], [$pdo->query('SELECT NOW()')->fetchColumn()]);
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute($parametres);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+function limiterSessionsSimultanees(PDO $pdo, int $idUser, string $espace): int
+{
+    $enTrop = array_slice(sessionsValidesMembre($pdo, $idUser, $espace), SESSIONS_SIMULTANEES_MAX);
+    if (!$enTrop) { return 0; }
+    $fermer = $pdo->prepare('UPDATE session_utilisateur SET date_revocation = NOW(), id_revoque_par = ? WHERE id_suivi = ? AND date_revocation IS NULL');
+    foreach ($enTrop as $session) { $fermer->execute([$idUser, $session['id_suivi']]); }
+    supprimerConnexionsPersistantesLiees($pdo, array_column($enTrop, 'id_connexion_persistante'));
+    insertLog('SECURITE', count($enTrop) . ' connexion(s) la(les) plus ancienne(s) fermée(s) : limite de ' . SESSIONS_SIMULTANEES_MAX . ' appareils atteinte');
+    return count($enTrop);
+}
+
+function sessionsDuMembre(PDO $pdo, int $idUser): array
+{
+    if (!suiviSessionsDisponible($pdo)) { return []; }
+    return sessionsValidesMembre($pdo, $idUser);
+}
+
+function fermerSessionsDuMembre(PDO $pdo, int $idUser, ?int $idSuivi): int
+{
+    if (!suiviSessionsDisponible($pdo)) { return 0; }
+    $pdo->beginTransaction();
+    try {
+        $cibles = array_values(array_filter(sessionsValidesMembre($pdo, $idUser), fn(array $s) => !(int) $s['courante'] && ($idSuivi === null || (int) $s['id_suivi'] === $idSuivi)));
+        $fermer = $pdo->prepare('UPDATE session_utilisateur SET date_revocation = NOW(), id_revoque_par = ? WHERE id_suivi = ? AND id_user = ? AND date_revocation IS NULL');
+        $nombre = 0;
+        foreach ($cibles as $session) { $fermer->execute([$idUser, $session['id_suivi'], $idUser]); $nombre += $fermer->rowCount(); }
+        supprimerConnexionsPersistantesLiees($pdo, array_column($cibles, 'id_connexion_persistante'));
+        if ($idSuivi === null && connexionPersistanteDisponible($pdo)) {
+            $cookie = lireCookiePersistant();
+            $pdo->prepare('DELETE FROM connexion_persistante WHERE id_user = ? AND selecteur <> ?')->execute([$idUser, $cookie[0] ?? '']);
+        }
+        $pdo->commit();
+        return $nombre;
+    } catch (Throwable $e) {
+        if ($pdo->inTransaction()) { $pdo->rollBack(); }
+        throw $e;
+    }
 }
 
 function libelleAppareil(string $agent): ?string
@@ -148,6 +225,7 @@ function enregistrerSessionUtilisateur(PDO $pdo, array $membre): void
         if (roleSessionDisponible($pdo)) { $colonnes[] = 'role_connexion'; $valeurs[] = $actuel['role']; }
         if (appareilSessionDisponible($pdo)) { $colonnes[] = 'appareil'; $valeurs[] = libelleAppareil((string) ($_SERVER['HTTP_USER_AGENT'] ?? '')); }
         $pdo->prepare('INSERT INTO session_utilisateur (' . implode(', ', $colonnes) . ') VALUES (' . implode(', ', array_fill(0, count($colonnes), '?')) . ')')->execute($valeurs);
+        limiterSessionsSimultanees($pdo, (int) $membre['id'], session_name() === 'BIBLIOCCAZ_ADMIN' ? 'admin' : 'site');
         $pdo->commit();
     } catch (Throwable $e) {
         if ($pdo->inTransaction()) { $pdo->rollBack(); }
@@ -250,7 +328,15 @@ function revoquerSessionsUtilisateur(PDO $pdo, int $idAdministrateur, int $idMem
         }
         $sql = 'UPDATE session_utilisateur s INNER JOIN user u ON u.id=s.id_user SET s.date_revocation = NOW(), s.id_revoque_par = ? WHERE s.id_user = ? AND ' . conditionSessionValide(roleSessionDisponible($pdo));
         $parametres = [$idAdministrateur, $idMembre, $pdo->query('SELECT NOW()')->fetchColumn()];
-        if ($idSuivi !== null) { $sql .= ' AND s.id_suivi = ?'; $parametres[] = $idSuivi; }
+        if ($idSuivi !== null) {
+            $sql .= ' AND s.id_suivi = ?';
+            $parametres[] = $idSuivi;
+            if (lienPersistantSessionDisponible($pdo)) {
+                $lien = $pdo->prepare('SELECT id_connexion_persistante FROM session_utilisateur WHERE id_suivi = ? AND id_user = ?');
+                $lien->execute([$idSuivi, $idMembre]);
+                supprimerConnexionsPersistantesLiees($pdo, [(int) $lien->fetchColumn()]);
+            }
+        }
         $stmt = $pdo->prepare($sql);
         $stmt->execute($parametres);
         $nombre = $stmt->rowCount();
