@@ -2451,16 +2451,6 @@ form[data-selection-collection] legend { float: none; width: auto; }
     .panneau-ouvert #menu-compte .bouton-fermer-menu { margin-top: 10px; pointer-events: auto; box-shadow: 0 2px 10px rgba(14, 31, 7, .14); }
     .panneau-ouvert #menu-compte .menu-entete__profil { padding-top: .85rem; padding-right: 3.4rem; }
 }
-.liste-appareils { list-style: none; margin: 0 0 1rem; padding: 0; display: grid; gap: .5rem; }
-.appareil { display: flex; align-items: center; gap: .75rem; padding: .6rem .75rem; border: 1px solid var(--trait); border-radius: var(--rayon); background: var(--surface); }
-.appareil--courant { border-color: var(--vert-200); background: var(--vert-50); }
-.appareil__icone { width: 36px; height: 36px; flex-shrink: 0; display: grid; place-items: center; border-radius: 50%; background: var(--vert-50); color: var(--texte-vert); font-size: 1.05rem; }
-.appareil--courant .appareil__icone { background: var(--surface); }
-.appareil__texte { display: grid; gap: .1rem; min-width: 0; flex: 1; }
-.appareil__texte strong { font-size: .95rem; overflow-wrap: anywhere; }
-.appareil__texte small { color: var(--encre-douce); font-size: .8rem; }
-.appareil__action { margin: 0; flex-shrink: 0; }
-.appareil__action .bouton-lien { color: #b42318; font-weight: 600; }
 body { padding-left: env(safe-area-inset-left); padding-right: env(safe-area-inset-right); }
 :root.application-autonome, :root.application-autonome body { height: 100%; }
 :root.application-autonome body { display: flex; flex-direction: column; overflow: hidden; padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom); background: var(--surface); }

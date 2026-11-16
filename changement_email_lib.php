@@ -99,7 +99,6 @@ function confirmerChangementEmail(PDO $pdo, string $jeton, ?int $idConnecte = nu
         $pdo->prepare('UPDATE user SET email=?,email_verifie=1,email_token=NULL,reset_token_hash=NULL,reset_expire=NULL WHERE id=?')->execute([$actuelle['nouvelle_email'],$membre['id']]);
         annulerChangementEmail($pdo,(int) $membre['id']);
         $pdo->prepare('UPDATE session_utilisateur SET date_revocation=NOW(),id_revoque_par=? WHERE id_user=? AND date_revocation IS NULL')->execute([$membre['id'],$membre['id']]);
-        supprimerConnexionsPersistantes($pdo, (int) $membre['id']);
         $pdo->commit();
         return ['id_user'=>(int) $membre['id'],'pseudo'=>$membre['pseudo'],'ancienne_email'=>$membre['email'],'nouvelle_email'=>$actuelle['nouvelle_email']];
     } catch (PDOException $erreur) {

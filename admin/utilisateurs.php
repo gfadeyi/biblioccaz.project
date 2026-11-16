@@ -12,7 +12,7 @@ $tris = [
     'roles' => ['Par rôle puis pseudo', "FIELD(role, 'admin', 'gestionnaire', 'moderateur', 'auteur', 'client'), pseudo, id"],
 ];
 $tri = is_string($_GET['tri'] ?? null) && isset($tris[$_GET['tri']]) ? $_GET['tri'] : 'roles';
-$retourMembres = 'utilisateurs.php?' . http_build_query(['q' => $q, 'role' => $filtreRole, 'tri' => $tri]);
+$retourMembres = 'utilisateurs?' . http_build_query(['q' => $q, 'role' => $filtreRole, 'tri' => $tri]);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     exigerPost($retourMembres);
@@ -41,13 +41,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 rediriger($retourMembres, 'danger', "Rôle inconnu.");
             }
             $pdo->prepare("UPDATE user SET role = ? WHERE id = ?")->execute([$role, $idUser]);
-            supprimerConnexionsPersistantes($pdo, $idUser);
             insertLog('ADMIN', "Rôle de @$pseudo changé en $role");
             rediriger($retourMembres, 'success', "@$pseudo est maintenant " . mb_strtolower(ROLES_LIBELLES[$role]) . ".");
 
         case 'suspendre':
             $pdo->prepare("UPDATE user SET statut = 'refuse_definitif' WHERE id = ?")->execute([$idUser]);
-            supprimerConnexionsPersistantes($pdo, $idUser);
             insertLog('ADMIN', "Compte de @$pseudo suspendu");
             rediriger($retourMembres, 'success', "Le compte de @$pseudo est suspendu : il ne peut plus se connecter.");
 
@@ -107,7 +105,7 @@ function lienTriMembres(string $libelle, string $croissant, string $decroissant,
     $indication = $libelle === 'Inscription'
         ? ($suivant === $croissant ? 'du plus ancien au plus récent' : 'du plus récent au plus ancien')
         : ($suivant === $croissant ? 'par ordre alphabétique' : 'par ordre alphabétique inverse');
-    return '<a href="utilisateurs.php?' . e(http_build_query(['q' => $q, 'role' => $role, 'tri' => $suivant]))
+    return '<a href="utilisateurs?' . e(http_build_query(['q' => $q, 'role' => $role, 'tri' => $suivant]))
         . '" class="th-tri ' . ($actif ? 'actif' : '') . '" aria-label="' . e('Trier par ' . mb_strtolower($libelle) . ' ' . $indication) . '">'
         . e($libelle) . ' <i class="bi bi-' . $icone . '" aria-hidden="true"></i></a>';
 }
@@ -129,7 +127,7 @@ include __DIR__ . '/_haut.php';
 <?php if ($nbCandidatures): ?>
     <div class="alert alert-info d-flex flex-wrap align-items-center justify-content-between gap-2">
         <span><i class="bi bi-person-plus me-1" aria-hidden="true"></i> <?= $nbCandidatures ?> candidature<?= $nbCandidatures > 1 ? 's' : '' ?> à l’équipe en attente.</span>
-        <a href="candidatures.php" class="btn btn-sm btn-success">Voir les candidatures</a>
+        <a href="candidatures" class="btn btn-sm btn-success">Voir les candidatures</a>
     </div>
 <?php endif; ?>
 
@@ -144,10 +142,10 @@ include __DIR__ . '/_haut.php';
         </select>
         <input type="hidden" name="tri" value="<?= e($tri) ?>">
         <button class="btn btn-outline-secondary" aria-label="Rechercher"><i class="bi bi-search" aria-hidden="true"></i></button>
-        <?php if ($q !== '' || $filtreRole !== ''): ?><a href="utilisateurs.php?<?= e(http_build_query(['tri' => $tri])) ?>" class="btn btn-link">Effacer</a><?php endif; ?>
+        <?php if ($q !== '' || $filtreRole !== ''): ?><a href="utilisateurs?<?= e(http_build_query(['tri' => $tri])) ?>" class="btn btn-link">Effacer</a><?php endif; ?>
     </form>
-    <a href="membre_creer.php" class="btn btn-success"><i class="bi bi-person-plus me-1" aria-hidden="true"></i> Créer un compte</a>
-    <a href="export_membres.php" class="btn btn-outline-secondary"><i class="bi bi-file-earmark-pdf me-1"></i> Export PDF</a>
+    <a href="membre_creer" class="btn btn-success"><i class="bi bi-person-plus me-1" aria-hidden="true"></i> Créer un compte</a>
+    <a href="export_membres" class="btn btn-outline-secondary"><i class="bi bi-file-earmark-pdf me-1"></i> Export PDF</a>
 </div>
 
 <div class="carte">

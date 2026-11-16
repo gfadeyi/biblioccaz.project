@@ -5,33 +5,33 @@ exigerDroit('admin');
 header('Cache-Control: no-store');
 $suiviDisponible = suiviSessionsDisponible($pdo) && roleSessionDisponible($pdo);
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (!is_string($_POST['csrf'] ?? null)) { rediriger('en_ligne.php', 'danger', 'Requête invalide.'); }
-    exigerPost('en_ligne.php');
+    if (!is_string($_POST['csrf'] ?? null)) { rediriger('en_ligne', 'danger', 'Requête invalide.'); }
+    exigerPost('en_ligne');
     if (($_POST['action'] ?? '') === 'clients_auteurs') {
         $comptes = filter_var($_POST['comptes_attendus'] ?? null, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0]]);
         $sessions = filter_var($_POST['sessions_attendues'] ?? null, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0]]);
-        if (!$suiviDisponible || $comptes === false || $sessions === false || ($_POST['confirmer'] ?? '') !== '1') { rediriger('en_ligne.php','danger','Aperçu ou confirmation invalide.'); }
+        if (!$suiviDisponible || $comptes === false || $sessions === false || ($_POST['confirmer'] ?? '') !== '1') { rediriger('en_ligne','danger','Aperçu ou confirmation invalide.'); }
         try {
             $bilan = revoquerSessionsClientsAuteurs($pdo,(int) $_SESSION['user_id'],$comptes,$sessions);
             insertLog('SECURITE', 'Fermeture globale clients/auteurs : ' . $bilan['sessions'] . ' sessions, ' . $bilan['utilisateurs'] . ' comptes');
-            rediriger('en_ligne.php','success',$bilan['sessions'] . ' session(s) fermée(s) pour ' . $bilan['utilisateurs'] . ' compte(s) client ou auteur.');
-        } catch (DomainException $e) { rediriger('en_ligne.php','warning',$e->getMessage()); }
-        catch (PDOException $e) { rediriger('en_ligne.php','danger','Fermeture indisponible. Actualisez avant de réessayer.'); }
+            rediriger('en_ligne','success',$bilan['sessions'] . ' session(s) fermée(s) pour ' . $bilan['utilisateurs'] . ' compte(s) client ou auteur.');
+        } catch (DomainException $e) { rediriger('en_ligne','warning',$e->getMessage()); }
+        catch (PDOException $e) { rediriger('en_ligne','danger','Fermeture indisponible. Actualisez avant de réessayer.'); }
     }
     $idMembre = filter_var($_POST['id_user'] ?? null, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
     $idSuivi = filter_var($_POST['id_suivi'] ?? null, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
     $action = $_POST['action'] ?? '';
     if (!$suiviDisponible || !$idMembre || !$idSuivi || ($_POST['confirmer'] ?? '') !== '1' || !in_array($action, ['une', 'toutes'], true)) {
-        rediriger('en_ligne.php', 'danger', 'Action invalide ou confirmation manquante.');
+        rediriger('en_ligne', 'danger', 'Action invalide ou confirmation manquante.');
     }
     try {
         $nombre = revoquerSessionsUtilisateur($pdo, (int) $_SESSION['user_id'], $idMembre, $action === 'une' ? $idSuivi : null);
         insertLog('SECURITE', 'Revocation de ' . $nombre . ' connexion(s) du membre #' . $idMembre);
-        rediriger('en_ligne.php', 'success', $nombre . ' connexion(s) fermée(s).');
+        rediriger('en_ligne', 'success', $nombre . ' connexion(s) fermée(s).');
     } catch (DomainException $e) {
-        rediriger('en_ligne.php', 'danger', $e->getMessage());
+        rediriger('en_ligne', 'danger', $e->getMessage());
     } catch (PDOException $e) {
-        rediriger('en_ligne.php', 'danger', 'Le contrôle des connexions est temporairement indisponible.');
+        rediriger('en_ligne', 'danger', 'Le contrôle des connexions est temporairement indisponible.');
     }
 }
 $titrePage = 'Connexions actives';

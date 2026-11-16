@@ -39,7 +39,6 @@ function consommerJetonRecuperation(PDO $pdo, int $idUser, string $jeton, string
         WHERE id = ? AND reset_token_hash = ? AND reset_expire > NOW()');
     $stmt->execute([password_hash($motDePasse, PASSWORD_DEFAULT), $idUser, hash('sha256', $jeton)]);
     if ($stmt->rowCount() !== 1) { return false; }
-    supprimerConnexionsPersistantes($pdo, $idUser);
     return true;
 }
 

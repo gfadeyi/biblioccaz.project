@@ -42,8 +42,7 @@ try {
         }
 
         $retour = ouvrirSessionMembre($pdo, $user);
-        supprimerConnexionPersistanteCourante($pdo);
-        if (($_POST['rester_connecte'] ?? '') === '1') { creerConnexionPersistante($pdo, $user); }
+        if (($_POST['memoriser_identifiant'] ?? '') === '1') { memoriserIdentifiant($pseudo); } else { oublierIdentifiantMemorise(); }
         header('Location: ' . $retour);
         exit();
     } else {

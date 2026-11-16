@@ -15,9 +15,9 @@ try {
     $conversation = null;
 }
 if (!$conversation) {
-    rediriger(aLeDroit('moderation') ? 'messages.php?onglet=conversations' : 'index.php', 'warning', "Cette conversation n'existe pas.");
+    rediriger(aLeDroit('moderation') ? 'messages?onglet=conversations' : './', 'warning', "Cette conversation n'existe pas.");
 }
-$retour = "conversation.php?id=$idConversation";
+$retour = "conversation?id=$idConversation";
 $moderation = aLeDroit('moderation');
 $droitLecture = DROITS_LECTURE_CONVERSATION[$conversation['type_objet']] ?? 'moderation';
 if (!$moderation && !aLeDroit($droitLecture)) {
@@ -66,7 +66,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (!$messageVise) { rediriger($retour, 'warning', "Message introuvable."); }
             $traiterSignalements->execute([$idModerateur, $idMessage]);
             insertLog('MODERATION', "Signalement du message #$idMessage classé sans suite");
-            rediriger('messages.php', 'success', "Signalement classé sans suite.");
+            rediriger('messages', 'success', "Signalement classé sans suite.");
 
         case 'clore':
             $motif = mb_substr(trim($_POST['motif'] ?? ''), 0, 255);
@@ -92,7 +92,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 rediriger($retour, 'info', "Ce compte est déjà suspendu.");
             }
             $pdo->prepare("UPDATE `user` SET statut = 'refuse_temporaire' WHERE id = ?")->execute([$idMembre]);
-            supprimerConnexionsPersistantes($pdo, $idMembre);
             insertLog('MODERATION', "Compte de @{$membre['pseudo']} suspendu depuis la conversation #$idConversation");
             rediriger($retour, 'success', "Le compte de @{$membre['pseudo']} est suspendu : il ne peut plus se connecter ni écrire. Un administrateur peut le réactiver depuis Membres.");
     }
@@ -127,7 +126,7 @@ include __DIR__ . '/_haut.php';
 ?>
 
 <?php if ($moderation): ?>
-    <a href="messages.php" class="d-inline-flex align-items-center gap-1 mb-3 text-success fw-semibold text-decoration-none"><i class="bi bi-arrow-left" aria-hidden="true"></i> Retour aux messages</a>
+    <a href="messages" class="d-inline-flex align-items-center gap-1 mb-3 text-success fw-semibold text-decoration-none"><i class="bi bi-arrow-left" aria-hidden="true"></i> Retour aux messages</a>
 <?php else: ?>
     <div class="alert alert-info" data-conversation-lecture-seule><i class="bi bi-eye me-1" aria-hidden="true"></i> Lecture des échanges liés à votre pôle. Masquer un message, clore la conversation ou suspendre un membre relève de la modération.</div>
 <?php endif; ?>
@@ -215,9 +214,9 @@ include __DIR__ . '/_haut.php';
                 </div>
             <?php endforeach; ?>
             <?php if ($conversation['type_objet'] === 'emprunt'): ?>
-                <a href="emprunts.php?id=<?= (int) $conversation['id_objet'] ?>" class="small"><i class="bi bi-book" aria-hidden="true"></i> Voir l'emprunt (retrait, retour)</a>
+                <a href="emprunts?id=<?= (int) $conversation['id_objet'] ?>" class="small"><i class="bi bi-book" aria-hidden="true"></i> Voir l'emprunt (retrait, retour)</a>
             <?php elseif ($conversation['type_objet'] === 'vente'): ?>
-                <a href="ventes.php?id=<?= (int) $conversation['id_objet'] ?>" class="small"><i class="bi bi-tag" aria-hidden="true"></i> Voir la vente (valider, annuler, litige)</a>
+                <a href="ventes?id=<?= (int) $conversation['id_objet'] ?>" class="small"><i class="bi bi-tag" aria-hidden="true"></i> Voir la vente (valider, annuler, litige)</a>
             <?php elseif ($conversation['objet']['lien']): ?>
                 <a href="../<?= e($conversation['objet']['lien']) ?>" target="_blank" rel="noopener" class="small"><i class="bi bi-box-arrow-up-right" aria-hidden="true"></i> Voir sur le site</a>
             <?php endif; ?>

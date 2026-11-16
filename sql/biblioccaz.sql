@@ -964,14 +964,13 @@ CREATE TABLE IF NOT EXISTS session_utilisateur (
     espace ENUM('site', 'admin') NOT NULL,
     role_connexion VARCHAR(20) NULL,
     appareil VARCHAR(60) NULL,
-    id_connexion_persistante INT NULL,
     date_connexion DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     derniere_activite DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     date_revocation DATETIME NULL,
     id_revoque_par INT NULL,
+    motif_revocation VARCHAR(30) NULL,
     INDEX idx_session_membre (id_user, date_revocation, derniere_activite),
     INDEX idx_session_activite (date_revocation, derniere_activite),
-    INDEX idx_session_persistante (id_connexion_persistante),
     FOREIGN KEY (id_user) REFERENCES user(id) ON DELETE CASCADE,
     FOREIGN KEY (id_revoque_par) REFERENCES user(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -1437,21 +1436,6 @@ INSERT IGNORE INTO newsletter_consentement (email, actif, generation, source)
 SELECT email, 1, 1, 'reprise' FROM `user` WHERE is_newsletter = 1;
 INSERT IGNORE INTO newsletter_consentement (email, actif, generation, source)
 SELECT email, 1, 1, 'reprise' FROM newsletter_abonne WHERE actif = 1;
-
-CREATE TABLE IF NOT EXISTS connexion_persistante (
-    id_connexion INT AUTO_INCREMENT PRIMARY KEY,
-    id_user INT NOT NULL,
-    selecteur CHAR(24) NOT NULL,
-    empreinte_validateur CHAR(64) NOT NULL,
-    empreinte_mdp CHAR(64) NOT NULL,
-    appareil VARCHAR(60) NULL,
-    date_creation DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    derniere_utilisation DATETIME NULL,
-    date_expiration DATETIME NOT NULL,
-    UNIQUE KEY uq_connexion_persistante_selecteur (selecteur),
-    INDEX idx_connexion_persistante_membre (id_user, date_expiration),
-    CONSTRAINT fk_connexion_persistante_user FOREIGN KEY (id_user) REFERENCES user(id) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS notification (
     id_notification INT AUTO_INCREMENT PRIMARY KEY,

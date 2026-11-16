@@ -71,10 +71,22 @@ try {
 if (!$enLigneDeCommande) {
     $fermetureGlobaleSessions = basename($_SERVER['SCRIPT_FILENAME'] ?? '') === 'en_ligne.php' && ($_SERVER['REQUEST_METHOD'] ?? '') === 'POST' && ($_POST['action'] ?? '') === 'clients_auteurs';
     $actionMessagerieMembre = basename($_SERVER['SCRIPT_FILENAME'] ?? '') === 'message_nouveaux.php' && ($_SERVER['REQUEST_METHOD'] ?? '') === 'POST' && in_array($_POST['action'] ?? '', ['envoyer', 'ecrire'], true);
-    $actualiserSession = !$fermetureGlobaleSessions && ($actionMessagerieMembre || !in_array(basename($_SERVER['SCRIPT_FILENAME'] ?? ''), ['logs_donnees.php', 'message_nouveaux.php', 'messagerie_equipe_nouveaux.php'], true));
-    controlerSessionUtilisateur($pdo, $actualiserSession);
+    $actualiserSession = !$fermetureGlobaleSessions && ($actionMessagerieMembre || !in_array(basename($_SERVER['SCRIPT_FILENAME'] ?? ''), SCRIPTS_SANS_ACTIVITE, true));
+    $apercuSite = apercuBackOffice($pdo);
+    if ($apercuSite === null && session_name() === APERCU_SESSION) {
+        fermerApercuBackOffice();
+        detruireSessionCourante();
+        if (!in_array($_SERVER['REQUEST_METHOD'] ?? 'GET', ['GET', 'HEAD'], true)) { http_response_code(403); exit; }
+        header('Location: ' . ($_SERVER['REQUEST_URI'] ?? './'));
+        exit;
+    }
+    if ($apercuSite !== null) {
+        appliquerApercu($pdo, $apercuSite);
+    } else {
+        controlerSessionUtilisateur($pdo, $actualiserSession);
+    }
 
-    if (isset($_SESSION['user_id'])) {
+    if (isset($_SESSION['user_id']) && $apercuSite === null) {
         header('Cache-Control: no-store');
         if ($actualiserSession) {
             $stmt = $pdo->prepare("UPDATE user SET last_activity = NOW() WHERE id = ?");
@@ -131,7 +143,7 @@ $racineSite = str_replace('\\', '/', __DIR__);
 $currentPage = strpos($cheminScript, $racineSite . '/') === 0
     ? substr($cheminScript, strlen($racineSite) + 1)
     : basename($_SERVER['PHP_SELF']);
-if (!$enLigneDeCommande && !str_starts_with($currentPage, 'admin/')) {
+if (!$enLigneDeCommande && !str_starts_with($currentPage, 'admin/') && !apercuActif()) {
     require_once __DIR__ . '/panier_minute_lib.php';
     synchroniserPanierMinute($pdo);
 }
@@ -140,7 +152,7 @@ $ignoredPages = ['admin/logs_donnees.php', 'recherche.php', 'don_recherche_livre
                  'get_captcha_image.php', 'captcha_piece.php', 'captcha_verifier.php',
                  'admin/puzzle_image.php', 'admin/puzzle_piece.php', 'admin/puzzle_verifier.php'];
 
-if (!$enLigneDeCommande && !in_array($currentPage, $ignoredPages) && strpos($currentPage, 'traitement_') === false && (str_starts_with($currentPage, 'admin/') || !apercuBackOffice($pdo))) {
+if (!$enLigneDeCommande && !in_array($currentPage, $ignoredPages) && strpos($currentPage, 'traitement_') === false && !apercuActif()) {
     insertLog('VISITE', "Consultation de la page : " . $currentPage);
 }
 ?>

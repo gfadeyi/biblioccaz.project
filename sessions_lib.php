@@ -1,8 +1,8 @@
 <?php
-require_once __DIR__ . '/connexion_persistante_lib.php';
+require_once __DIR__ . '/identifiant_memorise_lib.php';
 
 const SESSION_INACTIVITE = 900;
-const SESSIONS_SIMULTANEES_MAX = 5;
+const SCRIPTS_SANS_ACTIVITE = ['logs_donnees.php', 'message_nouveaux.php', 'messagerie_equipe_nouveaux.php', 'tableau_donnees.php'];
 
 function modeProduction(): bool
 {
@@ -39,6 +39,8 @@ function demarrerSession(): void
     if ((int) ini_get('session.gc_maxlifetime') < SESSION_INACTIVITE) {
         ini_set('session.gc_maxlifetime', (string) SESSION_INACTIVITE);
     }
+    require_once __DIR__ . '/apercu_lib.php';
+    if (session_name() !== 'BIBLIOCCAZ_ADMIN' && jetonApercu() !== null) { session_name(APERCU_SESSION); }
     ini_set('session.use_strict_mode', '1');
     ini_set('session.use_only_cookies', '1');
     session_set_cookie_params(['httponly' => true, 'samesite' => 'Lax', 'secure' => modeProduction() || connexionHttps()]);
@@ -47,7 +49,7 @@ function demarrerSession(): void
 
 function conditionSessionValide(bool $verifierRole = true): string
 {
-    return "s.date_revocation IS NULL AND s.derniere_activite > DATE_SUB(?, INTERVAL " . SESSION_INACTIVITE . " SECOND)
+    return "s.date_revocation IS NULL AND s.derniere_activite >= DATE_SUB(?, INTERVAL " . SESSION_INACTIVITE . " SECOND)
         AND s.empreinte_mdp = SHA2(u.mot_de_passe, 256) AND u.email_verifie = 1 AND u.statut IN ('actif','valide_moderateur')" . ($verifierRole ? ' AND s.role_connexion = u.role' : '');
 }
 
@@ -63,80 +65,38 @@ function appareilSessionDisponible(PDO $pdo): bool
     catch (PDOException $e) { if (in_array((int) ($e->errorInfo[1] ?? 0),[1146,1054],true)) { return false; } throw $e; }
 }
 
-function lienPersistantSessionDisponible(PDO $pdo): bool
+function motifRevocationDisponible(PDO $pdo): bool
 {
     static $disponible = null;
     if ($disponible !== null) { return $disponible; }
-    try { $pdo->prepare('SELECT id_connexion_persistante FROM session_utilisateur LIMIT 0')->execute(); return $disponible = true; }
+    try { $pdo->prepare('SELECT motif_revocation FROM session_utilisateur LIMIT 0')->execute(); return $disponible = true; }
     catch (PDOException $e) { if (in_array((int) ($e->errorInfo[1] ?? 0),[1146,1054],true)) { return $disponible = false; } throw $e; }
 }
 
-function lierSessionConnexionPersistante(PDO $pdo, int $idConnexion): void
+function empreinteAutreEspaceDuNavigateur(): ?string
 {
-    if ($idConnexion > 0 && suiviSessionsDisponible($pdo) && lienPersistantSessionDisponible($pdo)) {
-        $pdo->prepare('UPDATE session_utilisateur SET id_connexion_persistante = ? WHERE empreinte = ?')->execute([$idConnexion, empreinteSessionCourante()]);
-    }
+    $autre = session_name() === 'BIBLIOCCAZ_ADMIN' ? 'PHPSESSID' : 'BIBLIOCCAZ_ADMIN';
+    $identifiant = $_COOKIE[$autre] ?? null;
+    return is_string($identifiant) && preg_match('/\A[A-Za-z0-9,-]{16,128}\z/', $identifiant) ? hash('sha256', $autre . ':' . $identifiant) : null;
 }
 
-function supprimerConnexionsPersistantesLiees(PDO $pdo, array $idsConnexion): void
+function revoquerAutresSessions(PDO $pdo, int $idUser): int
 {
-    $idsConnexion = array_values(array_unique(array_filter(array_map('intval', $idsConnexion))));
-    if ($idsConnexion && connexionPersistanteDisponible($pdo)) {
-        $pdo->prepare('DELETE FROM connexion_persistante WHERE id_connexion IN (' . implode(',', array_fill(0, count($idsConnexion), '?')) . ')')->execute($idsConnexion);
-    }
-}
-
-function sessionsValidesMembre(PDO $pdo, int $idUser, ?string $espace = null): array
-{
-    $colonnes = 's.id_suivi, s.espace, s.date_connexion, s.derniere_activite, (s.empreinte = ?) AS courante'
-        . (appareilSessionDisponible($pdo) ? ', s.appareil' : ', NULL AS appareil')
-        . (lienPersistantSessionDisponible($pdo) ? ', s.id_connexion_persistante' : ', NULL AS id_connexion_persistante');
-    $sql = 'SELECT ' . $colonnes . ' FROM session_utilisateur s INNER JOIN user u ON u.id = s.id_user WHERE s.id_user = ?'
-        . ($espace !== null ? ' AND s.espace = ?' : '') . ' AND ' . conditionSessionValide(roleSessionDisponible($pdo))
-        . ' ORDER BY s.derniere_activite DESC, s.id_suivi DESC';
-    $parametres = array_merge([empreinteSessionCourante(), $idUser], $espace !== null ? [$espace] : [], [$pdo->query('SELECT NOW()')->fetchColumn()]);
+    $conserver = array_values(array_filter([empreinteSessionCourante(), empreinteAutreEspaceDuNavigateur()]));
+    $sql = 'UPDATE session_utilisateur SET date_revocation = NOW(), id_revoque_par = ?' . (motifRevocationDisponible($pdo) ? ", motif_revocation = 'nouvelle_connexion'" : '')
+        . ' WHERE id_user = ? AND date_revocation IS NULL AND empreinte NOT IN (' . implode(',', array_fill(0, count($conserver), '?')) . ')';
     $stmt = $pdo->prepare($sql);
-    $stmt->execute($parametres);
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $stmt->execute(array_merge([$idUser, $idUser], $conserver));
+    return $stmt->rowCount();
 }
 
-function limiterSessionsSimultanees(PDO $pdo, int $idUser, string $espace): int
+function requeteAttendJson(): bool
 {
-    $enTrop = array_slice(sessionsValidesMembre($pdo, $idUser, $espace), SESSIONS_SIMULTANEES_MAX);
-    if (!$enTrop) { return 0; }
-    $fermer = $pdo->prepare('UPDATE session_utilisateur SET date_revocation = NOW(), id_revoque_par = ? WHERE id_suivi = ? AND date_revocation IS NULL');
-    foreach ($enTrop as $session) { $fermer->execute([$idUser, $session['id_suivi']]); }
-    supprimerConnexionsPersistantesLiees($pdo, array_column($enTrop, 'id_connexion_persistante'));
-    insertLog('SECURITE', count($enTrop) . ' connexion(s) la(les) plus ancienne(s) fermée(s) : limite de ' . SESSIONS_SIMULTANEES_MAX . ' appareils atteinte');
-    return count($enTrop);
-}
-
-function sessionsDuMembre(PDO $pdo, int $idUser): array
-{
-    if (!suiviSessionsDisponible($pdo)) { return []; }
-    return sessionsValidesMembre($pdo, $idUser);
-}
-
-function fermerSessionsDuMembre(PDO $pdo, int $idUser, ?int $idSuivi): int
-{
-    if (!suiviSessionsDisponible($pdo)) { return 0; }
-    $pdo->beginTransaction();
-    try {
-        $cibles = array_values(array_filter(sessionsValidesMembre($pdo, $idUser), fn(array $s) => !(int) $s['courante'] && ($idSuivi === null || (int) $s['id_suivi'] === $idSuivi)));
-        $fermer = $pdo->prepare('UPDATE session_utilisateur SET date_revocation = NOW(), id_revoque_par = ? WHERE id_suivi = ? AND id_user = ? AND date_revocation IS NULL');
-        $nombre = 0;
-        foreach ($cibles as $session) { $fermer->execute([$idUser, $session['id_suivi'], $idUser]); $nombre += $fermer->rowCount(); }
-        supprimerConnexionsPersistantesLiees($pdo, array_column($cibles, 'id_connexion_persistante'));
-        if ($idSuivi === null && connexionPersistanteDisponible($pdo)) {
-            $cookie = lireCookiePersistant();
-            $pdo->prepare('DELETE FROM connexion_persistante WHERE id_user = ? AND selecteur <> ?')->execute([$idUser, $cookie[0] ?? '']);
-        }
-        $pdo->commit();
-        return $nombre;
-    } catch (Throwable $e) {
-        if ($pdo->inTransaction()) { $pdo->rollBack(); }
-        throw $e;
-    }
+    $accepte = strtolower((string) ($_SERVER['HTTP_ACCEPT'] ?? ''));
+    return in_array(basename($_SERVER['SCRIPT_FILENAME'] ?? ''), SCRIPTS_SANS_ACTIVITE, true)
+        || strtolower((string) ($_SERVER['HTTP_X_REQUESTED_WITH'] ?? '')) === 'xmlhttprequest'
+        || strtolower((string) ($_SERVER['HTTP_SEC_FETCH_DEST'] ?? '')) === 'empty'
+        || (str_contains($accepte, 'application/json') && !str_contains($accepte, 'text/html'));
 }
 
 function libelleAppareil(string $agent): ?string
@@ -189,20 +149,20 @@ function terminerSuiviSession(PDO $pdo): void
 function refuserSession(PDO $pdo, string $motif, string $raison = 'inconnue'): void
 {
     terminerSuiviSession($pdo);
-    if ($raison !== 'expiree' && session_name() !== 'BIBLIOCCAZ_ADMIN') { supprimerConnexionPersistanteCourante($pdo); }
     insertLog('DECONNEXION', $motif);
     detruireSessionCourante();
     session_id('');
     session_start();
     $_SESSION['motif_deconnexion'] = $raison;
-    if (in_array(basename($_SERVER['SCRIPT_FILENAME'] ?? ''), ['message_nouveaux.php', 'messagerie_equipe_nouveaux.php'], true)) {
+    $connexion = session_name() === 'BIBLIOCCAZ_ADMIN' ? 'login' : 'connexion';
+    if (requeteAttendJson()) {
         http_response_code(401);
         header('Content-Type: application/json; charset=utf-8');
         header('Cache-Control: no-store');
-        echo json_encode(['nouveaux' => 0, 'authentification_requise' => true]);
+        echo json_encode(['nouveaux' => 0, 'authentification_requise' => true, 'motif' => $raison, 'message' => texteFinSession($raison), 'connexion' => $connexion], JSON_UNESCAPED_UNICODE);
         exit;
     }
-    header('Location: connexion');
+    header('Location: ' . $connexion);
     exit;
 }
 
@@ -225,7 +185,7 @@ function enregistrerSessionUtilisateur(PDO $pdo, array $membre): void
         if (roleSessionDisponible($pdo)) { $colonnes[] = 'role_connexion'; $valeurs[] = $actuel['role']; }
         if (appareilSessionDisponible($pdo)) { $colonnes[] = 'appareil'; $valeurs[] = libelleAppareil((string) ($_SERVER['HTTP_USER_AGENT'] ?? '')); }
         $pdo->prepare('INSERT INTO session_utilisateur (' . implode(', ', $colonnes) . ') VALUES (' . implode(', ', array_fill(0, count($colonnes), '?')) . ')')->execute($valeurs);
-        limiterSessionsSimultanees($pdo, (int) $membre['id'], session_name() === 'BIBLIOCCAZ_ADMIN' ? 'admin' : 'site');
+        revoquerAutresSessions($pdo, (int) $membre['id']);
         $pdo->commit();
     } catch (Throwable $e) {
         if ($pdo->inTransaction()) { $pdo->rollBack(); }
@@ -236,11 +196,8 @@ function enregistrerSessionUtilisateur(PDO $pdo, array $membre): void
 
 function controlerSessionUtilisateur(PDO $pdo, bool $actualiser = true): void
 {
-    $inactive = isset($_SESSION['last_activity']) && time() - (int) $_SESSION['last_activity'] >= SESSION_INACTIVITE;
-    if (session_name() !== 'BIBLIOCCAZ_ADMIN' && (!isset($_SESSION['user_id']) || $inactive) && isset($_COOKIE[CONNEXION_PERSISTANTE_COOKIE])) {
-        if (isset($_SESSION['user_id'])) { terminerSuiviSession($pdo); }
-        if (restaurerConnexionPersistante($pdo)) { return; }
-    }
+    $inactive = isset($_SESSION['last_activity']) && time() - (int) $_SESSION['last_activity'] > SESSION_INACTIVITE;
+    effacerAncienCookiePersistant();
     if (!isset($_SESSION['user_id'])) {
         if ($inactive) { refuserSession($pdo,'Expiration après quinze minutes sans activité','expiree'); }
         $_SESSION['last_activity'] = time(); return;
@@ -261,7 +218,7 @@ function controlerSessionUtilisateur(PDO $pdo, bool $actualiser = true): void
         $avecRole = roleSessionDisponible($pdo);
         $pdo->beginTransaction();
         try {
-            $stmt = $pdo->prepare('SELECT id_suivi, date_revocation, id_revoque_par' . ($avecRole ? ', role_connexion' : '') . ', (derniere_activite > DATE_SUB(NOW(), INTERVAL ' . SESSION_INACTIVITE . ' SECOND)) AS recente FROM session_utilisateur WHERE empreinte = ? AND id_user = ? AND empreinte_mdp = ? FOR UPDATE');
+            $stmt = $pdo->prepare('SELECT id_suivi, date_revocation, id_revoque_par' . ($avecRole ? ', role_connexion' : '') . (motifRevocationDisponible($pdo) ? ', motif_revocation' : '') . ', (derniere_activite >= DATE_SUB(NOW(), INTERVAL ' . SESSION_INACTIVITE . ' SECOND)) AS recente FROM session_utilisateur WHERE empreinte = ? AND id_user = ? AND empreinte_mdp = ? FOR UPDATE');
             $stmt->execute([empreinteSessionCourante(), $membre['id'], $_SESSION['empreinte_auth']]);
             $suivi = $stmt->fetch();
             $roleValide = !$avecRole || ($suivi && $suivi['role_connexion'] === $membre['role']);
@@ -275,7 +232,10 @@ function controlerSessionUtilisateur(PDO $pdo, bool $actualiser = true): void
         }
         if (!$suivi) { refuserSession($pdo, 'Session non enregistrée'); }
         if (!$roleValide) { refuserSession($pdo,'Rôle de connexion absent ou modifié'); }
-        if ($suivi['date_revocation']) { refuserSession($pdo, 'Session fermée', $suivi['id_revoque_par'] ? 'fermee' : 'inconnue'); }
+        if ($suivi['date_revocation']) {
+            if (($suivi['motif_revocation'] ?? null) === 'nouvelle_connexion') { refuserSession($pdo, 'Session remplacée par une nouvelle connexion', 'remplacee'); }
+            refuserSession($pdo, 'Session fermée', $suivi['id_revoque_par'] ? 'fermee' : 'inconnue');
+        }
         if (!$suivi['recente']) { refuserSession($pdo,'Expiration du registre après quinze minutes','expiree'); }
     }
     if ($inactive) { refuserSession($pdo,'Expiration après quinze minutes sans activité','expiree'); }
@@ -292,7 +252,13 @@ function messageFinSession(): string
 {
     $raison = $_SESSION['motif_deconnexion'] ?? '';
     unset($_SESSION['motif_deconnexion']);
+    return texteFinSession((string) $raison);
+}
+
+function texteFinSession(string $raison): string
+{
     return match ($raison) {
+        'remplacee' => 'Vous avez été déconnecté car une nouvelle connexion a été ouverte sur un autre appareil.',
         'fermee' => 'Votre session a été fermée. Veuillez vous reconnecter.',
         'expiree' => 'Votre session a expiré. Veuillez vous reconnecter.',
         'mot_de_passe' => 'Votre session a été invalidée après modification du mot de passe. Merci de vous reconnecter.',
@@ -331,16 +297,10 @@ function revoquerSessionsUtilisateur(PDO $pdo, int $idAdministrateur, int $idMem
         if ($idSuivi !== null) {
             $sql .= ' AND s.id_suivi = ?';
             $parametres[] = $idSuivi;
-            if (lienPersistantSessionDisponible($pdo)) {
-                $lien = $pdo->prepare('SELECT id_connexion_persistante FROM session_utilisateur WHERE id_suivi = ? AND id_user = ?');
-                $lien->execute([$idSuivi, $idMembre]);
-                supprimerConnexionsPersistantesLiees($pdo, [(int) $lien->fetchColumn()]);
-            }
         }
         $stmt = $pdo->prepare($sql);
         $stmt->execute($parametres);
         $nombre = $stmt->rowCount();
-        if ($idSuivi === null) { supprimerConnexionsPersistantes($pdo, $idMembre); }
         $pdo->commit();
         return $nombre;
     } catch (Throwable $e) {

@@ -67,8 +67,6 @@ if ($user && $_SERVER['REQUEST_METHOD'] === 'POST') {
             exit();
         } else {
             insertLog('SECURITE', "Mot de passe modifié depuis le profil");
-            supprimerConnexionsPersistantes($pdo, (int) $user['id']);
-            effacerCookiePersistant();
             terminerSuiviSession($pdo);
             session_regenerate_id(true);
             try {

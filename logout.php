@@ -6,7 +6,6 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !is_string($_POST['csrf'] ?? null) 
     exit('Requête de déconnexion invalide.');
 }
 terminerSuiviSession($pdo);
-supprimerConnexionPersistanteCourante($pdo);
 insertLog('DECONNEXION', 'Déconnexion volontaire du site');
 detruireSessionCourante();
 header("Location: ./");

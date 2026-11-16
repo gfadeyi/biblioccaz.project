@@ -45,6 +45,8 @@ if ($identifiantsIncorrects && is_string($_SESSION['identifiant_connexion'] ?? n
     if (filter_var($identifiantSaisi, FILTER_VALIDATE_EMAIL)) { $_SESSION['email_inscription'] = $identifiantSaisi; }
 }
 unset($_SESSION['identifiant_connexion']);
+$identifiantMemorise = identifiantMemorise();
+if ($identifiantSaisi === '') { $identifiantSaisi = $identifiantMemorise; }
 $lienInscription = $identifiantsIncorrects && filter_var($identifiantSaisi, FILTER_VALIDATE_EMAIL) ? 'inscription?depuis=connexion' : 'inscription';
 
 if (isset($_GET['verif'])) { $success = "Compte validé ! Vous pouvez vous connecter."; }
@@ -88,9 +90,9 @@ if (isset($_GET['inscription'])) { $success = "Compte créé ! Un mail de valida
             </div>
             <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-4">
                 <div class="form-check rester-connecte">
-                    <input class="form-check-input" type="checkbox" id="rester-connecte" name="rester_connecte" value="1" aria-describedby="aide-rester-connecte">
-                    <label class="form-check-label" for="rester-connecte">Rester connecté</label>
-                    <div class="form-text" id="aide-rester-connecte">30 jours sur cet appareil, pour les comptes lecteurs. À éviter sur un appareil partagé.</div>
+                    <input class="form-check-input" type="checkbox" id="memoriser-identifiant" name="memoriser_identifiant" value="1" aria-describedby="aide-memoriser-identifiant"<?= $identifiantMemorise !== '' ? ' checked' : '' ?>>
+                    <label class="form-check-label" for="memoriser-identifiant">Mémoriser mon identifiant</label>
+                    <div class="form-text" id="aide-memoriser-identifiant">Seul votre identifiant est retenu sur cet appareil (<?= IDENTIFIANT_MEMORISE_JOURS ?> jours), jamais votre mot de passe. Vous restez déconnecté après 15 minutes sans activité.</div>
                 </div>
                 <a href="recuparation_mdp" class="carte-formulaire__lien-discret">Mot de passe oublié ?</a>
             </div>

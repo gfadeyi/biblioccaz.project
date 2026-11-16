@@ -1,5 +1,5 @@
 <?php
-$lienSessions = fn(int $numero) => 'en_ligne.php?' . http_build_query(['q'=>$recherche,'role'=>$role,'multiples'=>$multiples ? '1' : '', 'page'=>$numero]);
+$lienSessions = fn(int $numero) => 'en_ligne?' . http_build_query(['q'=>$recherche,'role'=>$role,'multiples'=>$multiples ? '1' : '', 'page'=>$numero]);
 $instant = $tableau['instant'];
 $filtresActifs = $recherche !== '' || $role !== '' || $multiples;
 $caseSansJs = fn(string $texte) => '<label class="form-check confirmation-sans-js" data-confirmation-sans-js><input type="checkbox" name="confirmer" value="1" required class="form-check-input"> <span class="form-check-label">' . e($texte) . '</span></label>';
@@ -38,7 +38,7 @@ $caseSansJs = fn(string $texte) => '<label class="form-check confirmation-sans-j
             <span class="form-check-label">Seulement les membres connectés plusieurs fois</span>
         </label>
         <?php if ($filtresActifs): ?>
-            <a href="en_ligne.php" class="small">Réinitialiser les filtres</a>
+            <a href="en_ligne" class="small">Réinitialiser les filtres</a>
         <?php endif; ?>
     </div>
 </form>
