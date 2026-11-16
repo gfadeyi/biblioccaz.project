@@ -5,7 +5,7 @@ exigerDroit('admin');
 $dossier = __DIR__ . '/../img/captcha/';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    exigerPost('captcha.php');
+    exigerPost('captcha');
     $action = $_POST['action'] ?? '';
 
     if ($action === 'ajouter') {
@@ -14,10 +14,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $info = ($f && $f['error'] === UPLOAD_ERR_OK) ? @getimagesize($f['tmp_name']) : false;
 
         if (!$info || !isset($types[$info[2]])) {
-            rediriger('captcha.php', 'danger', "Le fichier doit être une image JPG ou PNG.");
+            rediriger('captcha', 'danger', "Le fichier doit être une image JPG ou PNG.");
         }
         if ($f['size'] > 2 * 1024 * 1024) {
-            rediriger('captcha.php', 'danger', "L'image est trop lourde (2 Mo maximum).");
+            rediriger('captcha', 'danger', "L'image est trop lourde (2 Mo maximum).");
         }
         if (!is_dir($dossier)) {
             mkdir($dossier, 0755, true);
@@ -26,9 +26,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $nom = substr($base, 0, 40) . '_' . bin2hex(random_bytes(3)) . '.' . $types[$info[2]];
         if (move_uploaded_file($f['tmp_name'], $dossier . $nom)) {
             insertLog('ADMIN', "Image CAPTCHA ajoutée : $nom");
-            rediriger('captcha.php', 'success', "Image ajoutée au puzzle.");
+            rediriger('captcha', 'success', "Image ajoutée au puzzle.");
         }
-        rediriger('captcha.php', 'danger', "Impossible d'enregistrer l'image (droits du dossier img/captcha/ ?).");
+        rediriger('captcha', 'danger', "Impossible d'enregistrer l'image (droits du dossier img/captcha/ ?).");
     }
 
     if ($action === 'supprimer') {
@@ -36,11 +36,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (preg_match('/\.(jpe?g|png)$/i', $nom) && is_file($dossier . $nom)) {
             unlink($dossier . $nom);
             insertLog('ADMIN', "Image CAPTCHA supprimée : $nom");
-            rediriger('captcha.php', 'success', "Image supprimée.");
+            rediriger('captcha', 'success', "Image supprimée.");
         }
-        rediriger('captcha.php', 'warning', "Image introuvable.");
+        rediriger('captcha', 'warning', "Image introuvable.");
     }
-    rediriger('captcha.php');
+    rediriger('captcha');
 }
 
 $images = is_dir($dossier) ? array_values(preg_grep('/\.(jpe?g|png)$/i', scandir($dossier))) : [];

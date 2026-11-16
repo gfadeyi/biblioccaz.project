@@ -296,14 +296,14 @@ function demandeAvisEquipe(string $type, int $id): ?array
 
 function actionDemandeAvisEquipe(string $type, int $id): array
 {
-    return ['messagerie_equipe.php?' . http_build_query(['demande' => $type, 'id' => $id]), 'people', 'Demander l’avis de l’équipe', 'btn-outline-secondary'];
+    return ['messagerie_equipe?' . http_build_query(['demande' => $type, 'id' => $id]), 'people', 'Demander l’avis de l’équipe', 'btn-outline-secondary'];
 }
 
 function afficherMessageEquipe(string $contenu): string
 {
     $html = nl2br(htmlspecialchars($contenu, ENT_QUOTES), false);
     $pages = implode('|', array_map(fn($page) => preg_quote($page, '~'), PAGES_LIENS_EQUIPE));
-    return preg_replace('~(?<![\w/.])((?:' . $pages . ')(?:\?[a-z_]+=\d+)?)(?![\w/])~', '<a href="$1">$1</a>', $html);
+    return preg_replace_callback('~(?<![\w/.])((?:' . $pages . ')(?:\?[a-z_]+=\d+)?)(?![\w/])~', fn(array $lien) => '<a href="' . str_replace('.php', '', $lien[1]) . '">' . $lien[1] . '</a>', $html);
 }
 
 function accueillirNouveauMembreEquipe(PDO $pdo, int $idNouveau, int $idAuteur, string $pseudo, string $libelleRole): bool

@@ -5,7 +5,7 @@ require_once __DIR__ . '/../retours_lib.php';
 exigerDroit('catalogue');
 
 $idCommande = (int) ($_GET['id'] ?? 0);
-$retour = "commande.php?id=$idCommande";
+$retour = "commande?id=$idCommande";
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     exigerPost($retour);
@@ -46,7 +46,7 @@ $stmt = $pdo->prepare("
 $stmt->execute([$idCommande]);
 $commande = $stmt->fetch();
 if (!$commande) {
-    rediriger('commandes.php', 'warning', "Cette commande n'existe pas.");
+    rediriger('commandes', 'warning', "Cette commande n'existe pas.");
 }
 $lignes = lignesDeCommande($pdo, $idCommande);
 $retoursCommande = retoursParCommande($pdo, [$idCommande])[$idCommande] ?? [];
@@ -63,8 +63,8 @@ $nbCommandesClient = (int) $stmt->fetchColumn();
 $titrePage = 'Commande n° ' . $idCommande;
 $sousTitrePage = 'Passée le ' . date('d/m/Y à H:i', strtotime($commande['date_commande'])) . ' par @' . $commande['pseudo'];
 $pageActive = 'commandes';
-$filAriane = [[null, 'Ventes'], ['commandes.php', 'Commandes']];
-$actionsPage = [['commandes.php', 'arrow-left', 'Toutes les commandes', 'btn-outline-secondary']];
+$filAriane = [[null, 'Ventes'], ['commandes', 'Commandes']];
+$actionsPage = [['commandes', 'arrow-left', 'Toutes les commandes', 'btn-outline-secondary']];
 include __DIR__ . '/_haut.php';
 ?>
 
@@ -96,7 +96,7 @@ include __DIR__ . '/_haut.php';
                                 <?php endif; ?>
                                 <small class="text-muted d-block"><?= e(libelleEtat($ligne['etat'])) ?> · <?= (int) $ligne['quantite'] ?> × <?= formaterPrix((float) $ligne['prix_unitaire']) ?></small>
                                 <?php if ($ligne['id_livre'] && $ligne['stock_offre'] !== null): ?>
-                                    <a href="exemplaires.php?id=<?= (int) $ligne['id_livre'] ?>" class="small lignes-commande__stock"><i class="bi bi-box-seam me-1" aria-hidden="true"></i>Stock actuel de cette offre : <?= (int) $ligne['stock_offre'] ?></a>
+                                    <a href="exemplaires?id=<?= (int) $ligne['id_livre'] ?>" class="small lignes-commande__stock"><i class="bi bi-box-seam me-1" aria-hidden="true"></i>Stock actuel de cette offre : <?= (int) $ligne['stock_offre'] ?></a>
                                 <?php endif; ?>
                             </div>
                             <strong class="lignes-commande__prix"><?= formaterPrix((float) $ligne['prix_unitaire'] * (int) $ligne['quantite']) ?></strong>
@@ -170,7 +170,7 @@ include __DIR__ . '/_haut.php';
                 <div class="carte-entete"><h2 class="h6 fw-bold mb-0">Retours et remboursements</h2></div>
                 <ul class="carte-corps list-unstyled small mb-0">
                     <?php foreach ($retoursCommande as $retourCommande): ?>
-                        <li class="mb-1"><a href="retour.php?id=<?= (int) $retourCommande['id_retour'] ?>" class="fw-bold"><?= e((string) $retourCommande['reference']) ?></a> · <?= $retourCommande['type'] === 'retour' ? 'retour' : 'remboursement' ?> · <?= e(libelleStatutRetour($retourCommande['statut'])) ?></li>
+                        <li class="mb-1"><a href="retour?id=<?= (int) $retourCommande['id_retour'] ?>" class="fw-bold"><?= e((string) $retourCommande['reference']) ?></a> · <?= $retourCommande['type'] === 'retour' ? 'retour' : 'remboursement' ?> · <?= e(libelleStatutRetour($retourCommande['statut'])) ?></li>
                     <?php endforeach; ?>
                 </ul>
             </section>

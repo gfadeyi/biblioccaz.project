@@ -11,7 +11,7 @@ $dateLisible = fn(?int $date) => $date !== null ? date('d/m/Y à H:i', $date) : 
 $classes = ['ok' => 'bg-success', 'attention' => 'bg-dark', 'inconnu' => 'bg-secondary', 'en_cours' => 'bg-secondary'];
 $titrePage = 'Santé du site';
 $pageActive = 'sante';
-$actionsPage = [['sante.php', 'arrow-clockwise', 'Actualiser', 'btn-outline-success']];
+$actionsPage = [['sante', 'arrow-clockwise', 'Actualiser', 'btn-outline-success']];
 include __DIR__ . '/_haut.php';
 ?>
 
@@ -32,7 +32,7 @@ include __DIR__ . '/_haut.php';
             <p class="mb-2"><strong>Dernier début :</strong> <?= e($dateLisible($sante['relances']['date'])) ?></p>
             <p><?= e($sante['relances']['detail']) ?></p>
             <p class="small text-muted">Un début de passage de plus de 36 heures ou un passage en cours depuis plus de quinze minutes est signalé. Cet écran ne modifie pas la tâche planifiée.</p>
-            <a href="relances_emprunts.php" class="btn btn-outline-success btn-sm">Voir le suivi des relances</a>
+            <a href="relances_emprunts" class="btn btn-outline-success btn-sm">Voir le suivi des relances</a>
         </div>
     </section>
     <?php foreach (['courriels' => ['Courriels', 'envelope-exclamation', 'Échecs d’envoi repérés', 'Dernier échec repéré'], 'php' => ['Journal PHP', 'code-square', 'Entrées datées repérées', 'Dernière entrée repérée']] as $type => [$titre, $icone, $mesure, $dernier]): ?>
@@ -52,7 +52,7 @@ include __DIR__ . '/_haut.php';
                     <p><?= $journal['lecture'] === 'absent' ? 'Aucun fichier de journal présent. Un journal peut ne pas encore avoir été créé.' : 'Le fichier du journal ne peut pas être lu.' ?></p>
                 <?php endif; ?>
                 <p class="small text-muted">Lecture limitée aux 512 Kio les plus récents. Aucun contenu du journal, adresse email ou détail de configuration n’est affiché ici. <?= $type === 'courriels' ? 'Un compteur à zéro ne confirme pas la réception des messages.' : 'Les traces techniques complètes restent dans le dossier privé.' ?></p>
-                <?php if ($type === 'courriels'): ?><a href="logs.php" class="btn btn-outline-success btn-sm">Ouvrir le journal d’activité</a><?php endif; ?>
+                <?php if ($type === 'courriels'): ?><a href="logs" class="btn btn-outline-success btn-sm">Ouvrir le journal d’activité</a><?php endif; ?>
             </div>
         </section>
     <?php endforeach; ?>

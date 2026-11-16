@@ -48,9 +48,9 @@ function exigerDroit(string $droit, bool $json = false): void
     }
     if (!estEquipe()) {
         if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-            $_SESSION['admin_retour'] = basename($_SERVER['SCRIPT_NAME']) . (empty($_SERVER['QUERY_STRING']) ? '' : '?' . $_SERVER['QUERY_STRING']);
+            $_SESSION['admin_retour'] = basename((string) $_SERVER['SCRIPT_NAME'], '.php') . (empty($_SERVER['QUERY_STRING']) ? '' : '?' . $_SERVER['QUERY_STRING']);
         }
-        header('Location: login.php');
+        header('Location: login');
         exit();
     }
     refuserAcces('Votre rôle ne donne pas accès à cette page.');

@@ -107,7 +107,7 @@ include __DIR__ . '/_haut.php';
                             </td>
                             <td class="small"><?= $c['date_dernier_message'] ? date('d/m/Y H:i', strtotime($c['date_dernier_message'])) : '—' ?></td>
                             <td><span class="badge rounded-pill <?= $c['statut'] === 'ouverte' ? 'bg-success-subtle text-success-emphasis' : ($c['statut'] === 'close' ? 'bg-danger-subtle text-danger-emphasis' : 'bg-light text-dark border') ?>"><?= e(STATUTS_CONVERSATION[$c['statut']][0] ?? $c['statut']) ?></span></td>
-                            <td class="text-end"><a href="conversation.php?id=<?= (int) $c['id_conversation'] ?>" class="btn btn-sm btn-outline-secondary" aria-label="Lire la conversation"><i class="bi bi-eye" aria-hidden="true"></i></a></td>
+                            <td class="text-end"><a href="conversation?id=<?= (int) $c['id_conversation'] ?>" class="btn btn-sm btn-outline-secondary" aria-label="Lire la conversation"><i class="bi bi-eye" aria-hidden="true"></i></a></td>
                         </tr>
                     <?php endforeach; ?>
                 </tbody>
@@ -144,7 +144,7 @@ include __DIR__ . '/_haut.php';
                     </div>
                     <p class="small text-muted mb-3" style="white-space: pre-line;">Signalé par <?= e((string) $m['details']) ?></p>
                     <div class="mt-auto">
-                        <a href="conversation.php?id=<?= (int) $m['id_conversation'] ?>#message-<?= (int) $m['id_message'] ?>" class="btn btn-sm btn-success fw-bold"><i class="bi bi-chat-dots" aria-hidden="true"></i> Lire la conversation et décider</a>
+                        <a href="conversation?id=<?= (int) $m['id_conversation'] ?>#message-<?= (int) $m['id_message'] ?>" class="btn btn-sm btn-success fw-bold"><i class="bi bi-chat-dots" aria-hidden="true"></i> Lire la conversation et décider</a>
                     </div>
                 </article>
             </div>

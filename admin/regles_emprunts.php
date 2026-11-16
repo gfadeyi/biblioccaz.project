@@ -4,7 +4,7 @@ require_once __DIR__ . '/../regles_emprunts_lib.php';
 exigerDroit('admin');
 $etat = chargerReglesEmprunts($pdo);
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    exigerPost('regles_emprunts.php');
+    exigerPost('regles_emprunts');
     try {
         if (!$etat['disponible']) { throw new DomainException('Les réglages ne sont pas encore installés.'); }
         if (($_POST['confirmer'] ?? '') !== '1') { throw new DomainException('Confirmez les modifications avant de les enregistrer.'); }
@@ -13,12 +13,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (!is_array($_POST['regles'] ?? null)) { throw new DomainException('Réglages invalides.'); }
         $modifie = enregistrerReglesEmprunts($pdo, (int) $_SESSION['user_id'], $_POST['regles'], (int) $version);
         if ($modifie) { insertLog('EMPRUNT', 'Modification des règles des emprunts, version ' . ((int) $version + 1)); }
-        rediriger('regles_emprunts.php', 'success', $modifie ? 'Règles enregistrées. Les emprunts déjà réservés conservent leurs conditions.' : 'Aucune modification.');
+        rediriger('regles_emprunts', 'success', $modifie ? 'Règles enregistrées. Les emprunts déjà réservés conservent leurs conditions.' : 'Aucune modification.');
     } catch (DomainException $erreur) {
-        rediriger('regles_emprunts.php', 'danger', $erreur->getMessage());
+        rediriger('regles_emprunts', 'danger', $erreur->getMessage());
     } catch (PDOException $erreur) {
         insertLog('ERREUR', 'Enregistrement des règles des emprunts impossible.');
-        rediriger('regles_emprunts.php', 'danger', 'Enregistrement indisponible. Aucune règle modifiée.');
+        rediriger('regles_emprunts', 'danger', 'Enregistrement indisponible. Aucune règle modifiée.');
     }
 }
 $historique = [];

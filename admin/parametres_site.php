@@ -5,19 +5,19 @@ exigerDroit('admin');
 $defaut = parametresTechniquesParDefaut();
 $etat = chargerParametreSite($pdo, 'technique', $defaut);
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    exigerPost('parametres_site.php');
+    exigerPost('parametres_site');
     try {
         $version = filter_var($_POST['version'] ?? '', FILTER_VALIDATE_INT);
         if ($version === false || $version < 0 || !is_array($_POST['reglages'] ?? null)) { throw new DomainException('Réglages invalides.'); }
         $valeurs = validerParametresTechniques($_POST['reglages']);
         $modifie = enregistrerParametreSite($pdo, 'technique', $valeurs, $defaut, $version, (int) $_SESSION['user_id']);
         if ($modifie) { insertLog('PARAMETRES', 'Modification des paramètres techniques, version ' . ($version + 1)); }
-        rediriger('parametres_site.php', 'success', $modifie ? 'Paramètres enregistrés et publiés.' : 'Aucune modification.');
+        rediriger('parametres_site', 'success', $modifie ? 'Paramètres enregistrés et publiés.' : 'Aucune modification.');
     } catch (DomainException $erreur) {
-        rediriger('parametres_site.php', 'warning', $erreur->getMessage());
+        rediriger('parametres_site', 'warning', $erreur->getMessage());
     } catch (Throwable $erreur) {
         error_log('Paramètres techniques : ' . $erreur->getMessage());
-        rediriger('parametres_site.php', 'danger', 'Les paramètres n’ont pas pu être enregistrés.');
+        rediriger('parametres_site', 'danger', 'Les paramètres n’ont pas pu être enregistrés.');
     }
 }
 $historique = $etat['disponible'] ? historiqueParametreSite($pdo, 'technique') : [];

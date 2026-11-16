@@ -5,7 +5,7 @@ require_once __DIR__ . '/../messagerie_equipe_lib.php';
 exigerDroit('dons_lecture');
 
 $idDon = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT) ?: 0;
-$retour = 'don.php?id=' . $idDon;
+$retour = 'don?id=' . $idDon;
 $suiviDisponible = suiviModerationDonsDisponible($pdo);
 $gestionDons = aLeDroit('dons');
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -33,7 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $requete = $pdo->prepare('SELECT d.*, l.couverture, donneur.pseudo AS donneur_pseudo, beneficiaire.pseudo AS beneficiaire_pseudo FROM don d INNER JOIN `user` donneur ON donneur.id = d.id_donneur LEFT JOIN `user` beneficiaire ON beneficiaire.id = d.id_beneficiaire LEFT JOIN livre l ON l.id_livre = d.id_livre WHERE d.id_don = ?');
 $requete->execute([$idDon]);
 $don = $requete->fetch();
-if (!$don) { rediriger('dons.php', 'warning', 'Ce don n’existe pas.'); }
+if (!$don) { rediriger('dons', 'warning', 'Ce don n’existe pas.'); }
 $historique = [];
 if ($suiviDisponible) {
     $requete = $pdo->prepare('SELECT m.*, u.pseudo AS moderateur_pseudo, b.pseudo AS beneficiaire_pseudo FROM don_moderation m LEFT JOIN `user` u ON u.id = m.id_moderateur LEFT JOIN `user` b ON b.id = m.id_beneficiaire WHERE m.id_don = ? ORDER BY m.id_moderation DESC');
@@ -48,7 +48,7 @@ $actionsPage = [actionDemandeAvisEquipe('don', $idDon)];
 $pageActive = 'dons';
 include __DIR__ . '/_haut.php';
 ?>
-<a href="dons.php" class="btn btn-outline-secondary mb-3">Retour aux dons</a>
+<a href="dons" class="btn btn-outline-secondary mb-3">Retour aux dons</a>
 <div class="row g-4">
     <div class="col-lg-7">
         <section class="carte p-4 mb-4">
@@ -105,7 +105,7 @@ include __DIR__ . '/_haut.php';
                 <div class="d-flex flex-wrap gap-2">
                     <?php foreach ($conversations as $conversation): ?>
                         <?php if (aLeDroit('moderation')): ?>
-                            <a class="btn btn-outline-secondary" href="conversation.php?id=<?= (int) $conversation['id_conversation'] ?>">Conversation #<?= (int) $conversation['id_conversation'] ?> · <?= e(STATUTS_CONVERSATION[$conversation['statut']][0] ?? $conversation['statut']) ?></a>
+                            <a class="btn btn-outline-secondary" href="conversation?id=<?= (int) $conversation['id_conversation'] ?>">Conversation #<?= (int) $conversation['id_conversation'] ?> · <?= e(STATUTS_CONVERSATION[$conversation['statut']][0] ?? $conversation['statut']) ?></a>
                         <?php else: ?>
                             <span class="etiquette etiquette-neutre">Conversation #<?= (int) $conversation['id_conversation'] ?> · <?= e(STATUTS_CONVERSATION[$conversation['statut']][0] ?? $conversation['statut']) ?></span>
                         <?php endif; ?>

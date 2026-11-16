@@ -84,7 +84,7 @@ if ($disponible) {
 function lienDemandes(array $changements): string
 {
     $parametres = array_filter(array_merge(['statut' => $_GET['statut'] ?? '', 'categorie' => $_GET['categorie'] ?? '', 'attribution' => $_GET['attribution'] ?? '', 'perimetre' => $_GET['perimetre'] ?? '', 'q' => $_GET['q'] ?? ''], $changements), fn($valeur) => $valeur !== '' && $valeur !== null);
-    return 'service_client.php' . ($parametres ? '?' . http_build_query($parametres) : '');
+    return 'service_client' . ($parametres ? '?' . http_build_query($parametres) : '');
 }
 
 $titrePage = 'Service client';
@@ -137,7 +137,7 @@ include __DIR__ . '/_haut.php';
             <option value="personne" <?= $attribution === 'personne' ? 'selected' : '' ?>>Sans responsable</option>
         </select>
         <button class="btn btn-vert btn-sm">Filtrer</button>
-        <?php if ($recherche !== '' || $categorie !== '' || $attribution !== '' || $filtre !== 'a_traiter'): ?><a href="service_client.php" class="btn btn-link btn-sm">Réinitialiser</a><?php endif; ?>
+        <?php if ($recherche !== '' || $categorie !== '' || $attribution !== '' || $filtre !== 'a_traiter'): ?><a href="service_client" class="btn btn-link btn-sm">Réinitialiser</a><?php endif; ?>
     </form>
 
     <?php if (!$demandes): ?>
@@ -163,7 +163,7 @@ include __DIR__ . '/_haut.php';
                     <?php foreach ($demandes as $demande): ?>
                         <tr>
                             <td data-libelle="Demande">
-                                <a href="demande_client.php?id=<?= (int) $demande['id_demande'] ?>" class="fw-bold"><?= e($demande['sujet']) ?></a>
+                                <a href="demande_client?id=<?= (int) $demande['id_demande'] ?>" class="fw-bold"><?= e($demande['sujet']) ?></a>
                                 <?php if ((int) $demande['non_lu_equipe'] && $demande['statut'] !== 'resolue'): ?><span class="etiquette etiquette-alerte ms-1">Nouveau message</span><?php endif; ?>
                                 <br><small class="text-muted"><?= e((string) $demande['reference']) ?> · <?= (int) $demande['nb_messages'] ?> message<?= (int) $demande['nb_messages'] > 1 ? 's' : '' ?> · <?= date('d/m/Y H:i', strtotime($demande['date_maj'])) ?><?= $demande['id_commande'] ? ' · commande n° ' . (int) $demande['id_commande'] : '' ?></small>
                             </td>
@@ -171,7 +171,7 @@ include __DIR__ . '/_haut.php';
                             <td data-libelle="Catégorie"><?= e(SERVICE_CATEGORIES[$demande['categorie']] ?? 'Autre') ?><?php if ($roleMoi !== 'admin' && !in_array($demande['categorie'], $categoriesMiennes, true) && (int) $demande['id_assigne'] !== $idMoi): ?><br><small class="text-muted">autre pôle · lecture</small><?php endif; ?></td>
                             <td data-libelle="Responsable"><?= $demande['pseudo_assigne'] ? '@' . e($demande['pseudo_assigne']) : '<span class="text-muted">Personne</span>' ?></td>
                             <td data-libelle="Statut"><span class="etiquette<?= $demande['statut'] === 'resolue' ? ' etiquette-neutre' : ($demande['statut'] === 'nouvelle' ? ' etiquette-alerte' : '') ?>"><?= e(libelleStatutDemande($demande['statut'])) ?></span></td>
-                            <td class="text-end"><a href="demande_client.php?id=<?= (int) $demande['id_demande'] ?>" class="btn btn-outline-success btn-sm">Ouvrir</a></td>
+                            <td class="text-end"><a href="demande_client?id=<?= (int) $demande['id_demande'] ?>" class="btn btn-outline-success btn-sm">Ouvrir</a></td>
                         </tr>
                     <?php endforeach; ?>
                 </tbody>

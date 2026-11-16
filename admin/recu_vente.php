@@ -10,10 +10,10 @@ try {
     $demande = null;
 }
 if (!$demande || $demande['statut'] !== 'validee') {
-    rediriger('ventes.php', 'warning', "Cette vente n'a pas de reçu.");
+    rediriger('ventes', 'warning', "Cette vente n'a pas de reçu.");
 }
 if (!file_exists(__DIR__ . '/../vendor/autoload.php')) {
-    rediriger('ventes.php?id=' . $idDemande, 'danger', "Dompdf est introuvable : lancez « composer install » à la racine du projet.");
+    rediriger('ventes?id=' . $idDemande, 'danger', "Dompdf est introuvable : lancez « composer install » à la racine du projet.");
 }
 insertLog('VENTE', "Reçu de la vente #$idDemande téléchargé par l'équipe");
 telechargerRecuVente($demande);

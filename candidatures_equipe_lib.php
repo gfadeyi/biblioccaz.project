@@ -316,7 +316,7 @@ function prevenirDecisionCandidatureEquipe(PDO $pdo, array $resultat, bool $acce
     if ($resultat['mode'] === 'promotion') {
         return notifierParMail($compte['email'], 'Votre candidature est acceptée',
             "Bonjour {$compte['prenom']},\n\nBonne nouvelle : l'équipe BIBLIOccaz a accepté votre candidature. Votre compte a maintenant le rôle de $libelleRole, avec le pseudo {$compte['pseudo']}.\n\nConnectez-vous au back-office avec vos identifiants habituels." . $complement,
-            SITE_URL . '/admin/login.php', 'Accéder au back-office');
+            SITE_URL . '/admin/login', 'Accéder au back-office');
     }
     $presentation = $resultat['mode'] === 'creation'
         ? "Bonne nouvelle : l'équipe BIBLIOccaz a accepté votre candidature et vient de vous créer un compte (rôle : $libelleRole), avec le pseudo {$compte['pseudo']}."

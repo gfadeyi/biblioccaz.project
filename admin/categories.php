@@ -17,7 +17,7 @@ $message = '';
 $erreur = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    exigerPost('categories.php');
+    exigerPost('categories');
     $type = $_POST['type'] ?? '';
     $action = $_POST['action'] ?? '';
     $nom = trim($_POST['nom'] ?? '');
@@ -99,7 +99,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $erreur = $e->getCode() == 23000 ? "Ce nom existe déjà." : "Erreur : " . $e->getMessage();
     }
     if ($erreur === '') {
-        rediriger('categories.php', 'success', $message);
+        rediriger('categories', 'success', $message);
     }
 }
 
@@ -138,7 +138,7 @@ function boutonSupprimer(string $type, array $element, string $avertissement): v
 <?php if ($sansCategorie > 0): ?>
     <div class="alert alert-warning">
         <i class="bi bi-info-circle-fill" aria-hidden="true"></i>
-        <span><?= $sansCategorie ?> livre<?= $sansCategorie > 1 ? 's n\'ont' : ' n\'a' ?> pas de catégorie. Classez-les depuis <a href="inventaire.php">l'inventaire</a> (bouton « Modifier la fiche »).</span>
+        <span><?= $sansCategorie ?> livre<?= $sansCategorie > 1 ? 's n\'ont' : ' n\'a' ?> pas de catégorie. Classez-les depuis <a href="inventaire">l'inventaire</a> (bouton « Modifier la fiche »).</span>
     </div>
 <?php endif; ?>
 

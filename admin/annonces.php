@@ -11,7 +11,7 @@ $onglets = [
 ];
 $onglet = isset($onglets[$_GET['onglet'] ?? '']) ? $_GET['onglet'] : 'a_valider';
 $q = trim($_GET['q'] ?? '');
-$retour = 'annonces.php?' . http_build_query(['onglet' => $onglet, 'q' => $q]);
+$retour = 'annonces?' . http_build_query(['onglet' => $onglet, 'q' => $q]);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     exigerPost($retour);
@@ -190,7 +190,7 @@ include __DIR__ . '/_haut.php';
                         </form>
                     <?php endif; ?>
                     <?php if (in_array($statut, ANNONCE_STATUTS_MODIFIABLES, true)): ?>
-                        <a href="annonce.php?id=<?= $id ?>" class="btn btn-sm btn-outline-secondary"><i class="bi bi-pencil" aria-hidden="true"></i> Modifier</a>
+                        <a href="annonce?id=<?= $id ?>" class="btn btn-sm btn-outline-secondary"><i class="bi bi-pencil" aria-hidden="true"></i> Modifier</a>
                     <?php endif; ?>
                     <?php if ($statut === 'publiee'): ?>
                         <a href="../annonce?id=<?= $id ?>" target="_blank" rel="noopener" class="btn btn-sm btn-outline-secondary"><i class="bi bi-eye" aria-hidden="true"></i> Voir sur le site</a>

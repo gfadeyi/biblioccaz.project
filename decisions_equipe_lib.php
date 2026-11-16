@@ -2,13 +2,13 @@
 require_once __DIR__ . '/droits_equipe_lib.php';
 
 const OBJETS_DECISIONS_EQUIPE = [
-    'livre' => ['Fiche livre', 'catalogue', 'moderation_livres.php'],
+    'livre' => ['Fiche livre', 'catalogue', 'moderation_livres'],
     'archive' => ['Archive du catalogue', 'catalogue', 'livres.php'],
-    'annonce' => ['Annonce', 'moderation', 'annonces.php'],
-    'don' => ['Don', 'dons', 'dons.php'],
-    'avis' => ['Avis', 'moderation', 'moderation_avis.php'],
-    'evenement' => ['Événement', 'evenements', 'evenements.php'],
-    'candidature_equipe' => ['Candidature équipe', 'admin', 'candidatures.php'],
+    'annonce' => ['Annonce', 'moderation', 'annonces'],
+    'don' => ['Don', 'dons', 'dons'],
+    'avis' => ['Avis', 'moderation', 'moderation_avis'],
+    'evenement' => ['Événement', 'evenements', 'evenements'],
+    'candidature_equipe' => ['Candidature équipe', 'admin', 'candidatures'],
 ];
 const ACTIONS_DECISIONS_EQUIPE = [
     'valider' => 'Validation', 'refuser' => 'Refus', 'modifier' => 'Modification',

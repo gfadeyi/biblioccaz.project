@@ -6,7 +6,7 @@ exigerDroit('candidatures_auteur');
 $disponible = candidaturesAuteurDisponibles($pdo);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $disponible) {
-    exigerPost('candidatures_auteur.php');
+    exigerPost('candidatures_auteur');
     $action = $_POST['action'] ?? '';
 
     if ($action === 'decision') {
@@ -17,7 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $disponible) {
         try {
             $resultat = deciderCandidatureAuteur($pdo, $idCandidature, (int) $_SESSION['user_id'], $decision, $messageDecision);
         } catch (DomainException $e) {
-            rediriger('candidatures_auteur.php#candidature-' . $idCandidature, 'warning', $e->getMessage());
+            rediriger('candidatures_auteur#candidature-' . $idCandidature, 'warning', $e->getMessage());
         }
         $candidat = $resultat['candidat'];
         $candidature = $resultat['candidature'];
@@ -46,24 +46,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $disponible) {
         if ($prevenir) {
             $texte .= $mailEnvoye ? ' Le mail de réponse est parti.' : " Le mail n'a pas pu partir.";
         }
-        rediriger('candidatures_auteur.php', $prevenir && !$mailEnvoye ? 'warning' : 'success', $texte);
+        rediriger('candidatures_auteur', $prevenir && !$mailEnvoye ? 'warning' : 'success', $texte);
     }
 
     if (in_array($action, ['masquer', 'afficher'], true)) {
         $idAuteur = (int) ($_POST['id_user'] ?? 0);
         $fiche = ficheAuteurDe($pdo, $idAuteur);
         if (!$fiche) {
-            rediriger('candidatures_auteur.php#pages', 'warning', 'Page auteur introuvable.');
+            rediriger('candidatures_auteur#pages', 'warning', 'Page auteur introuvable.');
         }
         $change = masquerFicheAuteur($pdo, $idAuteur, (int) $_SESSION['user_id'], $action === 'masquer');
         if ($change) {
             insertLog('ADMIN', ($action === 'masquer' ? 'Page auteur masquée' : 'Page auteur réaffichée') . " : « {$fiche['nom_plume']} » (membre #$idAuteur)");
         }
-        rediriger('candidatures_auteur.php#pages', 'success', $action === 'masquer'
+        rediriger('candidatures_auteur#pages', 'success', $action === 'masquer'
             ? "La page « {$fiche['nom_plume']} » est masquée : elle n'est plus visible sur le site."
             : "La page « {$fiche['nom_plume']} » est de nouveau visible.");
     }
-    rediriger('candidatures_auteur.php');
+    rediriger('candidatures_auteur');
 }
 
 $enAttente = [];
@@ -104,9 +104,9 @@ if ($disponible) {
 
 $onglets = [];
 if (aLeDroit('admin')) {
-    $onglets['candidatures.php'] = 'Modération';
+    $onglets['candidatures'] = 'Modération';
 }
-$onglets['candidatures_auteur.php'] = 'Auteurs';
+$onglets['candidatures_auteur'] = 'Auteurs';
 
 $titrePage = 'Candidatures auteur';
 $pageActive = 'candidatures_auteur';
@@ -117,7 +117,7 @@ include __DIR__ . '/_haut.php';
 <?php if (count($onglets) > 1): ?>
     <ul class="nav nav-pills mb-3">
         <?php foreach ($onglets as $lienOnglet => $libelleOnglet): ?>
-            <?php $actif = $lienOnglet === 'candidatures_auteur.php'; ?>
+            <?php $actif = $lienOnglet === 'candidatures_auteur'; ?>
             <li class="nav-item">
                 <a class="nav-link <?= $actif ? 'active bg-success' : 'text-success' ?>" href="<?= $lienOnglet ?>" <?= $actif ? 'aria-current="page"' : '' ?>><?= $libelleOnglet ?></a>
             </li>

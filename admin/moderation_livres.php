@@ -7,29 +7,29 @@ exigerDroit('catalogue');
 $exclureArchives = archivageCatalogueDisponible($pdo) ? ' AND NOT EXISTS (SELECT 1 FROM livre_archive ar WHERE ar.id_livre = l.id_livre AND ar.actif = 1)' : '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    exigerPost('moderation_livres.php');
+    exigerPost('moderation_livres');
     $id = (int) ($_POST['id_livre'] ?? 0);
     $action = $_POST['action'] ?? '';
 
     if ($action === 'modifier_description') {
         [$type, $message] = traiterFicheEquipe($pdo, $id, (int) $_SESSION['user_id'], 'modifier', is_string($_POST['motif'] ?? null) ? $_POST['motif'] : '', is_string($_POST['description'] ?? null) ? trim($_POST['description']) : '');
-        rediriger('moderation_livres.php', $type, $message);
+        rediriger('moderation_livres', $type, $message);
     }
 
     if ($action === 'valider') {
         [$type, $message] = traiterFicheEquipe($pdo, $id, (int) $_SESSION['user_id'], 'valider', is_string($_POST['motif'] ?? null) ? $_POST['motif'] : '');
-        rediriger('moderation_livres.php', $type, $message);
+        rediriger('moderation_livres', $type, $message);
     }
 
     if ($action === 'refuser') {
         if (!aLeDroit('admin')) {
-            rediriger('moderation_livres.php', 'warning', "Seul un administrateur peut refuser (archiver) une fiche.");
+            rediriger('moderation_livres', 'warning', "Seul un administrateur peut refuser (archiver) une fiche.");
         }
         [$type, $message] = changerArchivageLivre($pdo, $id, (int) $_SESSION['user_id'], true, is_string($_POST['motif'] ?? null) ? $_POST['motif'] : '');
-        rediriger('moderation_livres.php', $type, $message);
+        rediriger('moderation_livres', $type, $message);
     }
 
-    rediriger('moderation_livres.php');
+    rediriger('moderation_livres');
 }
 
 $livres = $pdo->query("
@@ -42,7 +42,7 @@ $pageActive = 'moderation_livres';
 include __DIR__ . '/_haut.php';
 ?>
 
-<p class="text-muted">Les fiches proposées par les auteurs n'apparaissent dans le catalogue qu'une fois validées. Les fiches créées avec une annonce de vente se valident depuis <a href="annonces.php">Annonces</a>.</p>
+<p class="text-muted">Les fiches proposées par les auteurs n'apparaissent dans le catalogue qu'une fois validées. Les fiches créées avec une annonce de vente se valident depuis <a href="annonces">Annonces</a>.</p>
 
 <?php if (!$livres): ?>
     <div class="carte p-5 text-center">
@@ -82,9 +82,9 @@ include __DIR__ . '/_haut.php';
                                 <input name="motif" class="form-control form-control-sm" maxlength="1000" placeholder="Note de validation (facultative)" aria-label="Note de validation pour <?= e($l['titre']) ?>">
                                 <button class="btn btn-sm btn-success fw-bold"><i class="bi bi-check-lg"></i> Valider</button>
                             </form>
-                            <a href="messagerie_equipe.php?demande=livre&amp;id=<?= (int) $l['id_livre'] ?>" class="btn btn-sm btn-outline-secondary"><i class="bi bi-people" aria-hidden="true"></i> Demander l’avis de l’équipe</a>
+                            <a href="messagerie_equipe?demande=livre&amp;id=<?= (int) $l['id_livre'] ?>" class="btn btn-sm btn-outline-secondary"><i class="bi bi-people" aria-hidden="true"></i> Demander l’avis de l’équipe</a>
                             <?php if (aLeDroit('catalogue')): ?>
-                                <a href="livre.php?id=<?= $l['id_livre'] ?>" class="btn btn-sm btn-outline-secondary"><i class="bi bi-pencil"></i> Modifier la fiche</a>
+                                <a href="livre?id=<?= $l['id_livre'] ?>" class="btn btn-sm btn-outline-secondary"><i class="bi bi-pencil"></i> Modifier la fiche</a>
                             <?php endif; ?>
                             <?php if (aLeDroit('admin')): ?>
                                 <form method="POST" data-confirmer="Refuser et archiver cette fiche en conservant son historique ?">

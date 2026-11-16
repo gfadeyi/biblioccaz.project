@@ -7,17 +7,17 @@ exigerDroit('evenements');
 $id = (int) ($_GET['id'] ?? 0);
 $evt = $id ? chargerEvenement($pdo, $id) : null;
 if ($id && !$evt) {
-    rediriger('evenements.php', 'warning', "Cet événement n'existe pas.");
+    rediriger('evenements', 'warning', "Cet événement n'existe pas.");
 }
 if ($evt && $evt['statut'] === 'annule') {
-    rediriger("evenement_participants.php?id=$id", 'warning', "Un événement annulé ne peut plus être modifié.");
+    rediriger("evenement_participants?id=$id", 'warning', "Un événement annulé ne peut plus être modifié.");
 }
 if ($evt && in_array($evt['statut'], ['refuse', 'retire'], true)) {
-    rediriger('evenements.php?onglet=refuses', 'warning', "Cette proposition a été refusée ou retirée par son auteur : elle ne peut plus être modifiée.");
+    rediriger('evenements?onglet=refuses', 'warning', "Cette proposition a été refusée ou retirée par son auteur : elle ne peut plus être modifiée.");
 }
 $estProposition = $evt && $evt['statut'] === 'en_attente';
 $proposeur = $evt ? proposeurEvenement($pdo, $evt) : null;
-$retour = $id ? "evenement.php?id=$id" : 'evenement.php';
+$retour = $id ? "evenement?id=$id" : 'evenement';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && in_array($_POST['action'] ?? '', ['valider', 'refuser'], true)) {
     exigerPost($retour);
@@ -27,7 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && in_array($_POST['action'] ?? '', ['
     [$typeMessage, $message] = $_POST['action'] === 'valider'
         ? validerEvenementPropose($pdo, $id, (int) $_SESSION['user_id'])
         : refuserEvenementPropose($pdo, $id, (int) $_SESSION['user_id'], (string) ($_POST['motif_refus'] ?? ''));
-    $destination = $typeMessage !== 'success' ? $retour : ($_POST['action'] === 'valider' ? "evenement_participants.php?id=$id" : 'evenements.php?onglet=proposes');
+    $destination = $typeMessage !== 'success' ? $retour : ($_POST['action'] === 'valider' ? "evenement_participants?id=$id" : 'evenements?onglet=proposes');
     rediriger($destination, $typeMessage, $message);
 }
 
@@ -41,7 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'annul
         . ($motif !== '' ? "\n\nRaison : $motif" : '')
         . "\n\nVotre inscription est automatiquement annulée, vous n'avez rien à faire.");
     insertLog('EVENEMENT', "Annulation de l'événement #$id : {$evt['titre']} ($nb personnes prévenues)");
-    rediriger("evenement_participants.php?id=$id", 'success', "Événement annulé. $nb inscrit" . ($nb > 1 ? 's ont' : ' a') . " été prévenu" . ($nb > 1 ? 's' : '') . " par mail.");
+    rediriger("evenement_participants?id=$id", 'success', "Événement annulé. $nb inscrit" . ($nb > 1 ? 's ont' : ' a') . " été prévenu" . ($nb > 1 ? 's' : '') . " par mail.");
 }
 
 $erreur = '';
@@ -99,14 +99,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? 'enregistrer')
                 $nb = notifierParticipants($pdo, $id, "Changement pour « {$nouveau['titre']} »",
                     "L'événement « {$nouveau['titre']} » auquel vous êtes inscrit a changé :\n\n"
                     . "Quand : " . horaireEvenement($nouveau) . "\nOù : {$nouveau['lieu']}\nTarif : " . texteTarifEvenement($nouveau) . "\n\n"
-                    . "Si vous ne pouvez plus venir, désinscrivez-vous depuis votre espace pour libérer votre place : " . SITE_URL . "/mes_evenements.php");
+                    . "Si vous ne pouvez plus venir, désinscrivez-vous depuis votre espace pour libérer votre place : " . SITE_URL . "/mes_evenements");
                 $message .= " $nb participant" . ($nb > 1 ? 's ont' : ' a') . " été prévenu" . ($nb > 1 ? 's' : '') . " du changement.";
             }
             if ($promus) {
                 $message .= " " . count($promus) . " personne" . (count($promus) > 1 ? 's' : '') . " de la liste d'attente inscrite" . (count($promus) > 1 ? 's' : '') . ".";
             }
             insertLog('EVENEMENT', "Modification de l'événement #$id : {$valeurs['titre']}");
-            rediriger("evenement.php?id=$id", 'success', $message);
+            rediriger("evenement?id=$id", 'success', $message);
         }
 
         $donnees[] = $image;
@@ -119,7 +119,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? 'enregistrer')
         $nouvelId = (int) $pdo->lastInsertId();
         enregistrerLivresEvenement($pdo, $nouvelId, $livresCoches);
         insertLog('EVENEMENT', "Création de l'événement #$nouvelId : {$valeurs['titre']}");
-        rediriger("evenement_participants.php?id=$nouvelId", 'success', "Événement créé : il est visible dans le calendrier public.");
+        rediriger("evenement_participants?id=$nouvelId", 'success', "Événement créé : il est visible dans le calendrier public.");
     }
 }
 
@@ -130,14 +130,14 @@ $actionsPage = $estProposition ? [actionDemandeAvisEquipe('evenement', $id)] : [
 $titrePage = $estProposition ? 'Proposition d\'événement' : ($evt ? 'Modifier l\'événement' : 'Nouvel événement');
 $scriptsPage = '<script src="../javascript/choix_livres.js?v=' . filemtime(__DIR__ . '/../javascript/choix_livres.js') . '"></script>';
 $pageActive = 'evenements';
-$filAriane = [[null, 'Communauté'], ['evenements.php', 'Événements']];
+$filAriane = [[null, 'Communauté'], ['evenements', 'Événements']];
 include __DIR__ . '/_haut.php';
 ?>
 
 <div class="d-flex flex-wrap gap-2 mb-3">
-    <a href="evenements.php" class="btn btn-sm btn-outline-secondary"><i class="bi bi-arrow-left"></i> Événements</a>
+    <a href="evenements" class="btn btn-sm btn-outline-secondary"><i class="bi bi-arrow-left"></i> Événements</a>
     <?php if ($evt && !$estProposition): ?>
-        <a href="evenement_participants.php?id=<?= $id ?>" class="btn btn-sm btn-outline-success"><i class="bi bi-people"></i> Participants (<?= $evt['nb_inscrits'] ?>)</a>
+        <a href="evenement_participants?id=<?= $id ?>" class="btn btn-sm btn-outline-success"><i class="bi bi-people"></i> Participants (<?= $evt['nb_inscrits'] ?>)</a>
         <a href="../evenement?id=<?= $id ?>" target="_blank" class="btn btn-sm btn-outline-secondary"><i class="bi bi-eye"></i> Voir sur le site</a>
     <?php endif; ?>
 </div>

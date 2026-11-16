@@ -16,7 +16,7 @@ $pageActive = 'relances_emprunts';
 include __DIR__ . '/_haut.php';
 ?>
 <p class="text-muted">Les relances sont exécutées par la tâche planifiée des emprunts. Ce suivi permet de vérifier les passages et de repérer un problème d’envoi.</p>
-<a href="emprunts.php" class="btn btn-outline-success mb-3">Voir les emprunts · <?= $enRetard ?> en retard</a>
+<a href="emprunts" class="btn btn-outline-success mb-3">Voir les emprunts · <?= $enRetard ?> en retard</a>
 <?php if (!$suiviDisponible): ?><div class="alert alert-warning">Installez <code>sql/maj_suivi_relances.sql</code> pour enregistrer les prochains passages.</div><?php endif; ?>
 <?php if (!$executions): ?><div class="carte p-4">Aucun passage enregistré depuis l’installation du suivi.</div><?php endif; ?>
 <?php if ($executions): ?>

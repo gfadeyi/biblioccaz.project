@@ -6,7 +6,7 @@ require_once __DIR__ . '/../avis_spoiler_lib.php';
 exigerDroit('moderation');
 
 $onglet = ($_GET['onglet'] ?? 'signales') === 'tous' ? 'tous' : 'signales';
-$retour = 'moderation_avis.php?onglet=' . $onglet;
+$retour = 'moderation_avis?onglet=' . $onglet;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     exigerPost($retour);
@@ -95,7 +95,7 @@ echo etoilesStyle();
                     </form>
                 <?php endif; ?>
             <?php endforeach; ?>
-            <a href="messagerie_equipe.php?demande=avis&amp;id=<?= (int) $a['id_avis'] ?>" class="btn btn-sm rounded-pill btn-outline-secondary"><i class="bi bi-people" aria-hidden="true"></i> Demander l’avis de l’équipe</a>
+            <a href="messagerie_equipe?demande=avis&amp;id=<?= (int) $a['id_avis'] ?>" class="btn btn-sm rounded-pill btn-outline-secondary"><i class="bi bi-people" aria-hidden="true"></i> Demander l’avis de l’équipe</a>
         </div>
     </div>
 <?php endforeach; ?>

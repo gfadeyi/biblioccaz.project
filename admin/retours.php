@@ -60,7 +60,7 @@ if ($disponible) {
 function lienRetours(array $changements): string
 {
     $parametres = array_filter(array_merge(['statut' => $_GET['statut'] ?? '', 'q' => $_GET['q'] ?? '', 'type' => $_GET['type'] ?? ''], $changements), fn($valeur) => $valeur !== '' && $valeur !== null);
-    return 'retours.php' . ($parametres ? '?' . http_build_query($parametres) : '');
+    return 'retours' . ($parametres ? '?' . http_build_query($parametres) : '');
 }
 
 $titrePage = 'Retours et remboursements';
@@ -96,7 +96,7 @@ include __DIR__ . '/_haut.php';
             <option value="remboursement" <?= $type === 'remboursement' ? 'selected' : '' ?>>Remboursements après annulation</option>
         </select>
         <button class="btn btn-vert btn-sm">Filtrer</button>
-        <?php if ($recherche !== '' || $type !== '' || $filtre !== 'a_traiter'): ?><a href="retours.php" class="btn btn-link btn-sm">Réinitialiser</a><?php endif; ?>
+        <?php if ($recherche !== '' || $type !== '' || $filtre !== 'a_traiter'): ?><a href="retours" class="btn btn-link btn-sm">Réinitialiser</a><?php endif; ?>
     </form>
 
     <?php if (!$retours): ?>
@@ -121,12 +121,12 @@ include __DIR__ . '/_haut.php';
                 <tbody>
                     <?php foreach ($retours as $retour): ?>
                         <tr>
-                            <td data-libelle="Demande"><a href="retour.php?id=<?= (int) $retour['id_retour'] ?>" class="fw-bold"><?= e((string) $retour['reference']) ?></a><br><small class="text-muted"><?= date('d/m/Y H:i', strtotime($retour['date_demande'])) ?> · commande n° <?= (int) $retour['id_commande'] ?></small></td>
+                            <td data-libelle="Demande"><a href="retour?id=<?= (int) $retour['id_retour'] ?>" class="fw-bold"><?= e((string) $retour['reference']) ?></a><br><small class="text-muted"><?= date('d/m/Y H:i', strtotime($retour['date_demande'])) ?> · commande n° <?= (int) $retour['id_commande'] ?></small></td>
                             <td data-libelle="Client">@<?= e($retour['pseudo']) ?></td>
                             <td data-libelle="Type"><?= $retour['type'] === 'retour' ? 'Retour (' . (int) $retour['nb_livres'] . ' livre' . ((int) $retour['nb_livres'] > 1 ? 's' : '') . ')' : 'Remboursement' ?><br><small class="text-muted"><?= e(libelleMotifRetour($retour['type'], $retour['motif'])) ?></small></td>
                             <td data-libelle="Montant" class="text-end"><strong><?= formaterPrix((float) $retour['montant']) ?></strong></td>
                             <td data-libelle="Statut"><span class="etiquette<?= in_array($retour['statut'], ['refuse', 'annule'], true) ? ' etiquette-neutre' : ($retour['statut'] === 'demande' ? ' etiquette-alerte' : '') ?>"><?= e(libelleStatutRetour($retour['statut'])) ?></span></td>
-                            <td class="text-end"><a href="retour.php?id=<?= (int) $retour['id_retour'] ?>" class="btn btn-outline-success btn-sm">Traiter</a></td>
+                            <td class="text-end"><a href="retour?id=<?= (int) $retour['id_retour'] ?>" class="btn btn-outline-success btn-sm">Traiter</a></td>
                         </tr>
                     <?php endforeach; ?>
                 </tbody>

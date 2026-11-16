@@ -9,12 +9,12 @@ $q = is_string($_GET['q'] ?? null) ? mb_substr(trim($_GET['q']), 0, 100) : '';
 $page = max(1, filter_input(INPUT_GET, 'page', FILTER_VALIDATE_INT) ?: 1);
 $total = 0;
 $nombrePages = 1;
-$retour = 'dons.php?' . http_build_query(['statut' => $filtre, 'q' => $q]);
+$retour = 'dons?' . http_build_query(['statut' => $filtre, 'q' => $q]);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     exigerDroit('dons');
     exigerPost($retour);
-    rediriger('don.php?id=' . max(0, (int) ($_POST['id_don'] ?? 0)), 'info', 'Consultez le don puis indiquez le motif de votre intervention.');
+    rediriger('don?id=' . max(0, (int) ($_POST['id_don'] ?? 0)), 'info', 'Consultez le don puis indiquez le motif de votre intervention.');
 }
 
 $conditions = [
@@ -119,7 +119,7 @@ $onglets = ['en_validation' => 'À valider', 'refuse' => 'À corriger', 'en_cour
                         </td>
                         <td><?= badgeStatutDon($d) ?></td>
                         <td class="text-end text-nowrap">
-                            <a href="don.php?id=<?= (int) $d['id_don'] ?>" class="btn btn-sm btn-outline-success">Voir le suivi</a>
+                            <a href="don?id=<?= (int) $d['id_don'] ?>" class="btn btn-sm btn-outline-success">Voir le suivi</a>
                         </td>
                     </tr>
                 <?php endforeach; ?>

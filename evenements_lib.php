@@ -160,7 +160,7 @@ function conditionTarifEvenement(PDO $pdo, string $tarif, string $alias = 'e'): 
 
 function urlPresence(array $inscription): string
 {
-    return SITE_URL . '/admin/presence.php?code=' . $inscription['code'];
+    return SITE_URL . '/admin/presence?code=' . $inscription['code'];
 }
 
 function genererCodeBillet(PDO $pdo): string

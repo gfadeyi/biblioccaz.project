@@ -6,8 +6,8 @@ const MDP_LONGUEUR_MIN = 8;
 $erreur = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (!is_string($_POST['csrf'] ?? null)) { rediriger('mot_de_passe.php', 'danger', 'Requête invalide.'); }
-    exigerPost('mot_de_passe.php');
+    if (!is_string($_POST['csrf'] ?? null)) { rediriger('mot_de_passe', 'danger', 'Requête invalide.'); }
+    exigerPost('mot_de_passe');
     $stmt = $pdo->prepare("SELECT mot_de_passe FROM user WHERE id = ?");
     $stmt->execute([$_SESSION['user_id']]);
     $actuel = (string) $stmt->fetchColumn();
@@ -26,7 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $nouveauHash = password_hash($nouveau, PASSWORD_DEFAULT);
         $stmt = $pdo->prepare("UPDATE user SET mot_de_passe = ?, reset_token_hash = NULL, reset_expire = NULL WHERE id = ? AND mot_de_passe = ?");
         $stmt->execute([$nouveauHash, $_SESSION['user_id'], $actuel]);
-        if ($stmt->rowCount() !== 1) { rediriger('mot_de_passe.php', 'danger', 'Le compte a changé. Merci de réessayer.'); }
+        if ($stmt->rowCount() !== 1) { rediriger('mot_de_passe', 'danger', 'Le compte a changé. Merci de réessayer.'); }
         terminerSuiviSession($pdo);
         session_regenerate_id(true);
         try {
@@ -35,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             refuserSession($pdo, 'Reconnexion nécessaire après modification simultanée du compte');
         }
         insertLog('SECURITE', "Mot de passe modifié depuis le back-office");
-        rediriger('index.php', 'success', "Mot de passe modifié.");
+        rediriger('./', 'success', "Mot de passe modifié.");
     }
 }
 

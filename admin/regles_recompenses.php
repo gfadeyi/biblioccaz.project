@@ -4,19 +4,19 @@ require_once __DIR__ . '/../points_lib.php';
 exigerDroit('admin');
 $etatRegles = chargerReglesRecompenses($pdo);
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (!is_string($_POST['csrf'] ?? null)) { rediriger('regles_recompenses.php', 'danger', 'Requête invalide.'); }
-    exigerPost('regles_recompenses.php');
+    if (!is_string($_POST['csrf'] ?? null)) { rediriger('regles_recompenses', 'danger', 'Requête invalide.'); }
+    exigerPost('regles_recompenses');
     try {
         if (!$etatRegles['disponible'] || ($_POST['confirmer'] ?? '') !== '1') { throw new DomainException('La migration et la confirmation sont nécessaires avant enregistrement.'); }
         $version = entierRegle($_POST['version'] ?? null, 1, 1000000);
         $saisie = array_intersect_key($_POST, reglesRecompensesParDefaut());
         $modifie = enregistrerReglesRecompenses($pdo, (int) $_SESSION['user_id'], $saisie, $version);
         if ($modifie) { insertLog('RECOMPENSES', 'Modification du barème, version ' . ($version + 1)); }
-        rediriger('regles_recompenses.php', 'success', $modifie ? 'Règles enregistrées. Les mouvements historiques sont conservés.' : 'Aucune modification.');
+        rediriger('regles_recompenses', 'success', $modifie ? 'Règles enregistrées. Les mouvements historiques sont conservés.' : 'Aucune modification.');
     } catch (DomainException $e) {
-        rediriger('regles_recompenses.php', 'danger', $e->getMessage());
+        rediriger('regles_recompenses', 'danger', $e->getMessage());
     } catch (PDOException $e) {
-        rediriger('regles_recompenses.php', 'danger', 'Enregistrement indisponible. Aucune règle modifiée.');
+        rediriger('regles_recompenses', 'danger', 'Enregistrement indisponible. Aucune règle modifiée.');
     }
 }
 $regles = $etatRegles['regles'];

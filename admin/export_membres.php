@@ -3,7 +3,7 @@ require_once __DIR__ . '/_init.php';
 exigerDroit('admin');
 
 if (!file_exists(__DIR__ . '/../vendor/autoload.php')) {
-    rediriger('utilisateurs.php', 'danger', "Dompdf est introuvable : lancez « composer install » à la racine du projet.");
+    rediriger('utilisateurs', 'danger', "Dompdf est introuvable : lancez « composer install » à la racine du projet.");
 }
 require_once __DIR__ . '/../vendor/autoload.php';
 

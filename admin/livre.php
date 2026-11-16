@@ -10,7 +10,7 @@ if ($id) {
     $stmt->execute([$id]);
     $livre = $stmt->fetch();
     if (!$livre) {
-        rediriger('inventaire.php', 'warning', "Ce livre n'existe pas.");
+        rediriger('inventaire', 'warning', "Ce livre n'existe pas.");
     }
 }
 
@@ -18,7 +18,7 @@ $erreur = '';
 $valeurs = $livre ?: [];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    exigerPost($id ? "livre.php?id=$id" : 'livre.php');
+    exigerPost($id ? "livre?id=$id" : 'livre');
 
     $champs = ['titre', 'auteur', 'description', 'isbn', 'editeur', 'annee_parution', 'nb_pages', 'poids', 'dimensions', 'reliure', 'niveau_scolaire', 'matiere'];
     foreach ($champs as $c) {
@@ -78,9 +78,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         insertLog('CATALOGUE', ($livre ? "Modification" : "Ajout") . " du livre #$id : " . $valeurs['titre']);
 
         if ($livre) {
-            rediriger("livre.php?id=$id", 'success', 'Modifications enregistrées.');
+            rediriger("livre?id=$id", 'success', 'Modifications enregistrées.');
         }
-        rediriger("exemplaires.php?id=$id&vue=ajouter", 'success', "Livre ajouté. Ajoutez maintenant ses exemplaires en stock.");
+        rediriger("exemplaires?id=$id&vue=ajouter", 'success', "Livre ajouté. Ajoutez maintenant ses exemplaires en stock.");
     }
 }
 
@@ -89,7 +89,7 @@ $tagsActuels = $_POST['tags'] ?? ($livre ? array_column(tagsDuLivre($pdo, $id), 
 
 $titrePage = $livre ? 'Modifier la fiche' : 'Ajouter un livre';
 $pageActive = $livre ? 'inventaire' : 'livre';
-$filAriane = $livre ? [[null, 'Catalogue'], ['inventaire.php', 'Inventaire & stock']] : null;
+$filAriane = $livre ? [[null, 'Catalogue'], ['inventaire', 'Inventaire & stock']] : null;
 $stylesPage = '<link rel="stylesheet" href="' . e(urlStatique('scanner_isbn.css', '../')) . '">';
 $scriptsPage = '<script src="' . e(urlStatique('javascript/scanner_isbn.js', '../')) . '" defer></script>';
 include __DIR__ . '/_haut.php';
@@ -97,9 +97,9 @@ $v = fn(string $c) => e((string) ($valeurs[$c] ?? ''));
 ?>
 
 <div class="d-flex flex-wrap gap-2 mb-3">
-    <a href="inventaire.php" class="btn btn-sm btn-outline-secondary"><i class="bi bi-arrow-left"></i> Inventaire</a>
+    <a href="inventaire" class="btn btn-sm btn-outline-secondary"><i class="bi bi-arrow-left"></i> Inventaire</a>
     <?php if ($livre): ?>
-        <a href="exemplaires.php?id=<?= $id ?>" class="btn btn-sm btn-outline-success"><i class="bi bi-box-seam"></i> Gérer le stock</a>
+        <a href="exemplaires?id=<?= $id ?>" class="btn btn-sm btn-outline-success"><i class="bi bi-box-seam"></i> Gérer le stock</a>
         <a href="../livre?id=<?= $id ?>" target="_blank" class="btn btn-sm btn-outline-secondary"><i class="bi bi-eye"></i> Voir sur le site</a>
     <?php endif; ?>
 </div>
@@ -123,7 +123,7 @@ $v = fn(string $c) => e((string) ($valeurs[$c] ?? ''));
         <div class="col-md-6">
             <label class="form-label small fw-bold" for="isbn">ISBN (10 ou 13 chiffres)<?= $livre ? '' : ' *' ?></label>
             <input type="text" id="isbn" name="isbn" class="form-control" value="<?= $v('isbn') ?>" maxlength="17" inputmode="numeric" aria-describedby="isbn-scanner-info" <?= $livre ? '' : 'required' ?>>
-            <button type="button" class="bouton-scanner-isbn" data-scanner-isbn data-scanner-mode="champ" data-scanner-cible="isbn" data-scanner-recherche="livre_isbn.php" data-scanner-info="isbn-scanner-info" data-scanner-lien="livre.php?id=" hidden><i class="bi bi-upc-scan" aria-hidden="true"></i><span>Scanner un ISBN</span></button>
+            <button type="button" class="bouton-scanner-isbn" data-scanner-isbn data-scanner-mode="champ" data-scanner-cible="isbn" data-scanner-recherche="livre_isbn" data-scanner-info="isbn-scanner-info" data-scanner-lien="livre?id=" hidden><i class="bi bi-upc-scan" aria-hidden="true"></i><span>Scanner un ISBN</span></button>
             <div class="form-text" id="isbn-scanner-info" aria-live="polite"></div>
         </div>
         <div class="col-md-6">

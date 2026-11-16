@@ -43,7 +43,7 @@ try {
 
 $titrePage = 'Événements';
 $pageActive = 'evenements';
-$actionsPage = [['evenement.php', 'plus-circle', 'Nouvel événement', 'btn-vert']];
+$actionsPage = [['evenement', 'plus-circle', 'Nouvel événement', 'btn-vert']];
 include __DIR__ . '/_haut.php';
 ?>
 
@@ -123,11 +123,11 @@ include __DIR__ . '/_haut.php';
                         <?php endif; ?>
                         <td class="text-end text-nowrap">
                             <?php if ($e['statut'] === 'en_attente'): ?>
-                                <a href="evenement.php?id=<?= $e['id_evenement'] ?>" class="btn btn-sm btn-vert"><i class="bi bi-search"></i> Examiner</a>
+                                <a href="evenement?id=<?= $e['id_evenement'] ?>" class="btn btn-sm btn-vert"><i class="bi bi-search"></i> Examiner</a>
                             <?php elseif (in_array($e['statut'], ['publie', 'annule'], true)): ?>
-                                <a href="evenement_participants.php?id=<?= $e['id_evenement'] ?>" class="btn btn-sm btn-outline-success" title="Participants et présences"><i class="bi bi-people"></i> Participants</a>
+                                <a href="evenement_participants?id=<?= $e['id_evenement'] ?>" class="btn btn-sm btn-outline-success" title="Participants et présences"><i class="bi bi-people"></i> Participants</a>
                                 <?php if ($e['statut'] === 'publie'): ?>
-                                    <a href="evenement.php?id=<?= $e['id_evenement'] ?>" class="btn btn-sm btn-outline-secondary" title="Modifier" aria-label="Modifier"><i class="bi bi-pencil"></i></a>
+                                    <a href="evenement?id=<?= $e['id_evenement'] ?>" class="btn btn-sm btn-outline-secondary" title="Modifier" aria-label="Modifier"><i class="bi bi-pencil"></i></a>
                                 <?php endif; ?>
                                 <a href="../evenement?id=<?= $e['id_evenement'] ?>" target="_blank" class="btn btn-sm btn-outline-secondary" title="Voir sur le site" aria-label="Voir sur le site"><i class="bi bi-eye"></i></a>
                             <?php endif; ?>

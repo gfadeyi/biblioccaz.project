@@ -8,7 +8,7 @@ $consentementDisponible = consentementNewsletterDisponible($pdo);
 $onglet = in_array($_GET['onglet'] ?? '', ['desinscrits', 'historique'], true) ? $_GET['onglet'] : 'inscrits';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    exigerPost('newsletter.php');
+    exigerPost('newsletter');
     $action = $_POST['action'] ?? '';
 
     if ($action === 'desabonner') {
@@ -18,32 +18,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $q = $pdo->prepare("SELECT email FROM $table WHERE $colonne = ?");
         $q->execute([$id]);
         $email = $q->fetchColumn();
-        if (!$email) { rediriger('newsletter.php', 'warning', 'Abonné introuvable.'); }
+        if (!$email) { rediriger('newsletter', 'warning', 'Abonné introuvable.'); }
         try { enregistrerPreferenceNewsletter($pdo, $email, false, 'admin'); }
-        catch (DomainException $e) { rediriger('newsletter.php', 'warning', $e->getMessage()); }
+        catch (DomainException $e) { rediriger('newsletter', 'warning', $e->getMessage()); }
         insertLog('ADMIN', 'Désinscription newsletter effectuée.');
-        rediriger('newsletter.php?onglet=' . $onglet, 'success', "Abonné retiré de la newsletter.");
+        rediriger('newsletter?onglet=' . $onglet, 'success', "Abonné retiré de la newsletter.");
     }
 
     if ($action === 'envoyer') {
         $sujet = is_string($_POST['sujet'] ?? null) ? trim($_POST['sujet']) : '';
         $message = is_string($_POST['message'] ?? null) ? trim($_POST['message']) : '';
         if ($sujet === '' || $message === '' || mb_strlen($sujet) > 150 || mb_strlen($message) > 20000) {
-            rediriger('newsletter.php', 'danger', "Le sujet doit contenir 1 à 150 caractères et le message 1 à 20 000 caractères.");
+            rediriger('newsletter', 'danger', "Le sujet doit contenir 1 à 150 caractères et le message 1 à 20 000 caractères.");
         }
-        if (!$consentementDisponible) { rediriger('newsletter.php', 'warning', 'L’envoi est momentanément indisponible.'); }
+        if (!$consentementDisponible) { rediriger('newsletter', 'warning', 'L’envoi est momentanément indisponible.'); }
         $q = $pdo->prepare('SELECT email FROM newsletter_consentement WHERE actif = 1 AND date_confirmation IS NOT NULL ORDER BY email');
         $q->execute();
         $abonnes = $q->fetchAll(PDO::FETCH_COLUMN);
         if (!$abonnes) {
-            rediriger('newsletter.php', 'warning', "Aucun abonné confirmé.");
+            rediriger('newsletter', 'warning', "Aucun abonné confirmé.");
         }
 
         $resultat = envoyerEditionNewsletter($pdo, $abonnes, $sujet, $message);
         insertLog('ADMIN', 'Campagne newsletter : ' . $resultat['envoyes'] . ' envois, ' . $resultat['echecs'] . ' échecs.');
-        rediriger('newsletter.php', $resultat['echecs'] ? 'warning' : 'success', $resultat['envoyes'] . ' message(s) envoyé(s), ' . $resultat['echecs'] . ' échec(s). Les envois réussis ne sont pas relancés automatiquement.');
+        rediriger('newsletter', $resultat['echecs'] ? 'warning' : 'success', $resultat['envoyes'] . ' message(s) envoyé(s), ' . $resultat['echecs'] . ' échec(s). Les envois réussis ne sont pas relancés automatiquement.');
     }
-    rediriger('newsletter.php');
+    rediriger('newsletter');
 }
 
 $abonnes = $pdo->query("

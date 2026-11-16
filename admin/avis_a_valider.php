@@ -8,7 +8,7 @@ exigerDroit('moderation');
 function validerAvis(PDO $pdo, array $avis): bool
 {
     [$type, $message] = traiterAvisEquipe($pdo, (int) $avis['id_avis'], (int) $_SESSION['user_id'], 'valider');
-    if ($type === 'danger') { rediriger('avis_a_valider.php', $type, $message); }
+    if ($type === 'danger') { rediriger('avis_a_valider', $type, $message); }
     return $type === 'success';
 }
 
@@ -21,7 +21,7 @@ $requeteAvis = "
     WHERE a.statut = 'visible' AND a.date_validation IS NULL";
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    exigerPost('avis_a_valider.php');
+    exigerPost('avis_a_valider');
     $action = $_POST['action'] ?? '';
 
     if ($action === 'tout_valider') {
@@ -30,24 +30,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         foreach ($tous as $avis) {
             $valides += validerAvis($pdo, $avis) ? 1 : 0;
         }
-        rediriger('avis_a_valider.php', 'success', $valides . " avis validé(s).");
+        rediriger('avis_a_valider', 'success', $valides . " avis validé(s).");
     }
 
     $stmt = $pdo->prepare($requeteAvis . " AND a.id_avis = ?");
     $stmt->execute([(int) ($_POST['id_avis'] ?? 0)]);
     $avis = $stmt->fetch();
     if (!$avis) {
-        rediriger('avis_a_valider.php', 'warning', "Cet avis a déjà été traité.");
+        rediriger('avis_a_valider', 'warning', "Cet avis a déjà été traité.");
     }
     if ($action === 'valider') {
         [$type, $message] = traiterAvisEquipe($pdo, (int) $avis['id_avis'], (int) $_SESSION['user_id'], 'valider', is_string($_POST['motif'] ?? null) ? $_POST['motif'] : '');
-        rediriger('avis_a_valider.php', $type, $message);
+        rediriger('avis_a_valider', $type, $message);
     }
     if ($action === 'refuser') {
         [$type, $message] = traiterAvisEquipe($pdo, (int) $avis['id_avis'], (int) $_SESSION['user_id'], 'refuser', is_string($_POST['motif'] ?? null) ? $_POST['motif'] : '');
-        rediriger('avis_a_valider.php', $type, $message);
+        rediriger('avis_a_valider', $type, $message);
     }
-    rediriger('avis_a_valider.php');
+    rediriger('avis_a_valider');
 }
 
 $avisListe = $pdo->query($requeteAvis . " ORDER BY a.date_creation")->fetchAll();

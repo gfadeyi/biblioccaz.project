@@ -173,7 +173,7 @@ function boutonActionDon(string $action, int $idDon, string $csrf, string $libel
 
                 <?php if ($estAdmin && !$estDonneur && in_array($statut, ['disponible', 'reserve', 'expire', 'en_validation', 'refuse'], true)): ?>
                     <hr>
-                    <a href="admin/don.php?id=<?= (int) $don['id_don'] ?>" class="btn btn-outline-danger btn-sm">Gérer ce don dans le back-office</a>
+                    <a href="admin/don?id=<?= (int) $don['id_don'] ?>" class="btn btn-outline-danger btn-sm">Gérer ce don dans le back-office</a>
                 <?php endif; ?>
             </div>
         </div>

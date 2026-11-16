@@ -96,7 +96,7 @@ function lienMembresPoints(array $changements): string
 {
     $parametres = array_merge(['q' => $_GET['q'] ?? '', 'niveau' => $_GET['niveau'] ?? '', 'tri' => $_GET['tri'] ?? ''], $changements);
     $parametres = array_filter($parametres, fn($valeur) => $valeur !== '' && $valeur !== null);
-    return 'membres_points.php' . ($parametres ? '?' . http_build_query($parametres) : '');
+    return 'membres_points' . ($parametres ? '?' . http_build_query($parametres) : '');
 }
 
 function iconeBadgeAdmin(string $nom): string
@@ -153,7 +153,7 @@ $maxRepartition = max(1, max($repartition));
     </select>
     <input type="hidden" name="tri" value="<?= e($tri) ?>">
     <button class="btn btn-vert btn-sm">Filtrer</button>
-    <?php if ($recherche !== '' || $niveauFiltre !== null): ?><a href="membres_points.php" class="btn btn-link btn-sm">Réinitialiser</a><?php endif; ?>
+    <?php if ($recherche !== '' || $niveauFiltre !== null): ?><a href="membres_points" class="btn btn-link btn-sm">Réinitialiser</a><?php endif; ?>
 </form>
 
 <?php if (!$membres): ?>

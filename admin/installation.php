@@ -80,7 +80,7 @@ if (!$installationTerminee && $_SERVER['REQUEST_METHOD'] === 'POST') {
                     $pdo->commit();
                     insertLog('ADMIN', "Premier compte administrateur @{$saisie['pseudo']} créé par la page d'installation");
                     $_SESSION['installation_admin_creee'] = true;
-                    rediriger('installation.php');
+                    rediriger('installation');
                 }
             }
         } catch (PDOException $e) {
@@ -126,13 +126,13 @@ if ($installationTerminee) {
                 <div class="alert alert-info small" role="status">Un compte administrateur existe déjà : cette page ne peut plus en créer.</div>
             <?php endif; ?>
             <p class="small">Dernière étape : videz <strong>JETON_INSTALLATION</strong> dans <strong>secrets.php</strong> sur le serveur. La page sera alors introuvable.</p>
-            <a href="login.php" class="btn btn-vert w-100 py-2 fw-bold">Aller à la connexion</a>
+            <a href="login" class="btn btn-vert w-100 py-2 fw-bold">Aller à la connexion</a>
         <?php else: ?>
             <?php if ($erreur): ?>
                 <div class="alert alert-danger small" role="alert"><?= e($erreur) ?></div>
             <?php endif; ?>
             <p class="small text-muted">Cette page ne sert qu'une fois : elle se ferme dès qu'un administrateur existe.</p>
-            <form method="POST" action="installation.php" autocomplete="off">
+            <form method="POST" action="installation" autocomplete="off">
                 <?= champCsrf() ?>
                 <div class="mb-3">
                     <label for="jeton" class="form-label small fw-bold">Jeton d'installation</label>

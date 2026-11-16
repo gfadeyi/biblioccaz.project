@@ -4,7 +4,7 @@ exigerDroit('admin');
 $defaut = droitsEquipeParDefaut(DROITS);
 $etat = configurationDroitsEquipe($pdo, DROITS);
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    exigerPost('droits_equipe.php');
+    exigerPost('droits_equipe');
     try {
         if (($_POST['confirmer'] ?? '') !== '1' || !is_array($_POST['droits'] ?? [])) { throw new DomainException('Confirmez la modification des droits.'); }
         $version = filter_var($_POST['version'] ?? '', FILTER_VALIDATE_INT);
@@ -12,12 +12,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $droits = ($_POST['action'] ?? '') === 'retablir' ? $defaut : validerDroitsEquipe($_POST['droits'] ?? []);
         $modifie = enregistrerParametreSite($pdo, 'droits_equipe', $droits, $defaut, $version, (int) $_SESSION['user_id']);
         if ($modifie) { insertLog('DROITS', 'Modification des familles de droits de l’équipe, version ' . ($version + 1)); }
-        rediriger('droits_equipe.php', 'success', $modifie ? 'Droits enregistrés. Ils s’appliquent dès la prochaine requête des membres de l’équipe.' : 'Aucune modification.');
+        rediriger('droits_equipe', 'success', $modifie ? 'Droits enregistrés. Ils s’appliquent dès la prochaine requête des membres de l’équipe.' : 'Aucune modification.');
     } catch (DomainException $erreur) {
-        rediriger('droits_equipe.php', 'warning', $erreur->getMessage());
+        rediriger('droits_equipe', 'warning', $erreur->getMessage());
     } catch (Throwable $erreur) {
         error_log('Paramétrage des droits : ' . $erreur->getMessage());
-        rediriger('droits_equipe.php', 'danger', 'Les droits n’ont pas pu être enregistrés.');
+        rediriger('droits_equipe', 'danger', 'Les droits n’ont pas pu être enregistrés.');
     }
 }
 $historique = $etat['disponible'] ? historiqueParametreSite($pdo, 'droits_equipe') : [];

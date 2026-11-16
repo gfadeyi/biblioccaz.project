@@ -9,5 +9,5 @@ if (isset($_SESSION['user_id'])) {
 }
 terminerSuiviSession($pdo);
 detruireSessionCourante();
-header('Location: login.php?deconnecte=1');
+header('Location: login?deconnecte=1');
 exit();

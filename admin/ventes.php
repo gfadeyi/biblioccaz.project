@@ -12,7 +12,7 @@ $onglets = [
 $onglet = isset($onglets[$_GET['onglet'] ?? '']) ? $_GET['onglet'] : 'surveiller';
 $q = trim($_GET['q'] ?? '');
 $idFiltre = (int) ($_GET['id'] ?? 0);
-$retour = 'ventes.php?onglet=' . $onglet . ($q !== '' ? '&q=' . urlencode($q) : '');
+$retour = 'ventes?onglet=' . $onglet . ($q !== '' ? '&q=' . urlencode($q) : '');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     exigerPost($retour);
@@ -134,10 +134,10 @@ include __DIR__ . '/_haut.php';
 
                 <div class="d-flex flex-wrap gap-2 mt-3 pt-2 mt-auto align-items-start">
                     <?php if ($v['id_conversation']): ?>
-                        <a href="conversation.php?id=<?= (int) $v['id_conversation'] ?>" class="btn btn-sm btn-outline-secondary"><i class="bi bi-chat-dots" aria-hidden="true"></i> Conversation</a>
+                        <a href="conversation?id=<?= (int) $v['id_conversation'] ?>" class="btn btn-sm btn-outline-secondary"><i class="bi bi-chat-dots" aria-hidden="true"></i> Conversation</a>
                     <?php endif; ?>
                     <?php if ($v['statut'] === 'validee'): ?>
-                        <a href="recu_vente.php?id=<?= $id ?>" class="btn btn-sm btn-outline-secondary"><i class="bi bi-file-earmark-pdf" aria-hidden="true"></i> Reçu</a>
+                        <a href="recu_vente?id=<?= $id ?>" class="btn btn-sm btn-outline-secondary"><i class="bi bi-file-earmark-pdf" aria-hidden="true"></i> Reçu</a>
                     <?php endif; ?>
                     <?php if ($v['statut'] === 'acceptee' || receptionAConfirmer($v)): ?>
                         <form method="POST" data-confirmer="<?= $v['statut'] === 'acceptee' ? 'Conclure et confirmer la vente à la place des membres ? Le livre sera marqué vendu et le vendeur recevra ses points.' : 'Confirmer la vente à la place de l\'acheteur ? Les points du vendeur seront crédités.' ?>">

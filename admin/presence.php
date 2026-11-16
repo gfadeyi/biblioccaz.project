@@ -11,10 +11,10 @@ $stmt = $pdo->prepare("
 $stmt->execute([$code]);
 $inscription = $stmt->fetch();
 if (!$inscription) {
-    rediriger('evenements.php', 'danger', "Ce QR code ne correspond à aucun billet.");
+    rediriger('evenements', 'danger', "Ce QR code ne correspond à aucun billet.");
 }
 $evt = chargerEvenement($pdo, (int) $inscription['id_evenement']);
-$retour = "evenement_participants.php?id={$evt['id_evenement']}";
+$retour = "evenement_participants?id={$evt['id_evenement']}";
 
 $probleme = match (true) {
     $evt['statut'] !== 'publie' => "Cet événement a été annulé.",
@@ -25,19 +25,19 @@ $probleme = match (true) {
 };
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    exigerPost("presence.php?code=$code");
+    exigerPost("presence?code=$code");
     if ($probleme === '' && !$inscription['present']) {
         $pdo->prepare("UPDATE evenement_inscription SET present = 1, date_presence = NOW() WHERE id_inscription = ?")->execute([$inscription['id_inscription']]);
         pointsPresence($pdo, $inscription, $evt['titre'], true);
         insertLog('EVENEMENT', "Présence validée par QR code pour l'inscription #{$inscription['id_inscription']} (événement #{$evt['id_evenement']})");
         rediriger($retour, 'success', "Présence validée pour @{$inscription['pseudo']}.");
     }
-    rediriger("presence.php?code=$code");
+    rediriger("presence?code=$code");
 }
 
 $titrePage = 'Contrôle du billet';
 $pageActive = 'evenements';
-$filAriane = [[null, 'Communauté'], ['evenements.php', 'Événements']];
+$filAriane = [[null, 'Communauté'], ['evenements', 'Événements']];
 include __DIR__ . '/_haut.php';
 ?>
 

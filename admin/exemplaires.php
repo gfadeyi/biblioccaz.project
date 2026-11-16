@@ -14,9 +14,9 @@ $stmt = $pdo->prepare("SELECT * FROM livre WHERE id_livre = ?");
 $stmt->execute([$idLivre]);
 $livre = $stmt->fetch();
 if (!$livre) {
-    rediriger('inventaire.php', 'warning', "Ce livre n'existe pas.");
+    rediriger('inventaire', 'warning', "Ce livre n'existe pas.");
 }
-$retour = "exemplaires.php?id=$idLivre&vue=$vueStock";
+$retour = "exemplaires?id=$idLivre&vue=$vueStock";
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     exigerPost($retour);
@@ -46,7 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if (str_starts_with($action, 'emprunt_')) {
-        $retour = "exemplaires.php?id=$idLivre&vue=emprunt";
+        $retour = "exemplaires?id=$idLivre&vue=emprunt";
         require_once __DIR__ . '/../emprunts_lib.php';
         $duree = (int) ($_POST['duree'] ?? regleEmprunt($pdo, 'duree_jours'));
         $renouvellements = (int) ($_POST['renouvellements'] ?? regleEmprunt($pdo, 'renouvellements_max'));
@@ -138,18 +138,18 @@ try {
 
 $titrePage = 'Stock : ' . $livre['titre'];
 $pageActive = 'inventaire';
-$filAriane = [[null, 'Catalogue'], ['inventaire.php', 'Inventaire & stock']];
+$filAriane = [[null, 'Catalogue'], ['inventaire', 'Inventaire & stock']];
 include __DIR__ . '/_haut.php';
 ?>
 
 <div class="d-flex flex-wrap gap-2 mb-3">
-    <a href="inventaire.php" class="btn btn-sm btn-outline-secondary"><i class="bi bi-arrow-left"></i> Inventaire</a>
-    <a href="livre.php?id=<?= $idLivre ?>" class="btn btn-sm btn-outline-secondary"><i class="bi bi-pencil"></i> Modifier la fiche</a>
+    <a href="inventaire" class="btn btn-sm btn-outline-secondary"><i class="bi bi-arrow-left"></i> Inventaire</a>
+    <a href="livre?id=<?= $idLivre ?>" class="btn btn-sm btn-outline-secondary"><i class="bi bi-pencil"></i> Modifier la fiche</a>
 </div>
 
 <nav class="d-flex flex-wrap gap-2 mb-4" aria-label="Gestion des exemplaires">
     <?php foreach ($vuesStock as $cleVue => $libelleVue): ?>
-        <a class="btn btn-sm <?= $vueStock === $cleVue ? 'btn-vert' : 'btn-outline-secondary' ?>" href="exemplaires.php?id=<?= $idLivre ?>&amp;vue=<?= e($cleVue) ?>" <?= $vueStock === $cleVue ? 'aria-current="page"' : '' ?>><?= e($libelleVue) ?></a>
+        <a class="btn btn-sm <?= $vueStock === $cleVue ? 'btn-vert' : 'btn-outline-secondary' ?>" href="exemplaires?id=<?= $idLivre ?>&amp;vue=<?= e($cleVue) ?>" <?= $vueStock === $cleVue ? 'aria-current="page"' : '' ?>><?= e($libelleVue) ?></a>
     <?php endforeach; ?>
 </nav>
 
@@ -190,9 +190,9 @@ include __DIR__ . '/_haut.php';
                 <h3 class="h6 mb-2"><i class="bi bi-lightbulb" aria-hidden="true"></i> Un coup de pouce pour le prix</h3>
                 <p id="explicationPrixStock" class="text-muted mb-2">Une aide indicative, pas une cote du marché. Le tarif reste votre choix. Les anciens prix, y compris le prix neuf de référence, peuvent dater ou provenir de la démonstration.</p>
                 <?php if ($prixNeufReference !== null && $prixNeufReference > 0): ?>
-                    <p class="mb-2">Prix neuf de référence : <strong><?= formaterPrix($prixNeufReference) ?></strong> · <a href="livre.php?id=<?= $idLivre ?>">Vérifier la fiche</a></p>
+                    <p class="mb-2">Prix neuf de référence : <strong><?= formaterPrix($prixNeufReference) ?></strong> · <a href="livre?id=<?= $idLivre ?>">Vérifier la fiche</a></p>
                 <?php else: ?>
-                    <p class="mb-2">Prix neuf non renseigné · <a href="livre.php?id=<?= $idLivre ?>">Compléter la fiche</a></p>
+                    <p class="mb-2">Prix neuf non renseigné · <a href="livre?id=<?= $idLivre ?>">Compléter la fiche</a></p>
                 <?php endif; ?>
                 <div data-prix-sans-script>
                     <ul class="ps-3 mb-2">
@@ -322,7 +322,7 @@ include __DIR__ . '/_haut.php';
                                             <?php else: ?>
                                                 <span class="badge <?= $ex['en_retard'] ? 'bg-danger-subtle text-danger-emphasis' : 'bg-light text-dark border' ?>"><?= e(STATUTS_PRET[$ex['statut_pret']] ?? $ex['statut_pret']) ?><?= $ex['en_retard'] ? ', en retard' : '' ?></span>
                                                 <?php if ($ex['id_emprunt_actif']): ?>
-                                                    <div><a href="emprunts.php?id=<?= (int) $ex['id_emprunt_actif'] ?>">@<?= e($ex['emprunteur']) ?></a><?= $ex['retour_prevu'] ? ' · retour le ' . date('d/m/Y', strtotime($ex['retour_prevu'])) : '' ?></div>
+                                                    <div><a href="emprunts?id=<?= (int) $ex['id_emprunt_actif'] ?>">@<?= e($ex['emprunteur']) ?></a><?= $ex['retour_prevu'] ? ' · retour le ' . date('d/m/Y', strtotime($ex['retour_prevu'])) : '' ?></div>
                                                 <?php endif; ?>
                                             <?php endif; ?>
                                         </td>

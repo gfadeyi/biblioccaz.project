@@ -5,9 +5,9 @@ require_once __DIR__ . '/../messagerie_equipe_lib.php';
 exigerDroit('catalogue');
 
 $idRetour = (int) ($_GET['id'] ?? 0);
-$lienRetour = "retour.php?id=$idRetour";
+$lienRetour = "retour?id=$idRetour";
 if (!retoursDisponibles($pdo)) {
-    rediriger('retours.php', 'warning', 'Les retours ne sont pas installés.');
+    rediriger('retours', 'warning', 'Les retours ne sont pas installés.');
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -19,7 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 $retour = retourComplet($pdo, $idRetour);
 if (!$retour) {
-    rediriger('retours.php', 'warning', "Cette demande n'existe pas.");
+    rediriger('retours', 'warning', "Cette demande n'existe pas.");
 }
 $suivants = RETOUR_TRANSITIONS[$retour['type']][$retour['statut']] ?? [];
 $libellesActions = [
@@ -32,8 +32,8 @@ $libellesActions = [
 $titrePage = 'Demande ' . $retour['reference'];
 $sousTitrePage = ($retour['type'] === 'retour' ? 'Retour' : 'Remboursement') . ' · commande n° ' . (int) $retour['id_commande'] . ' · @' . $retour['pseudo'];
 $pageActive = 'retours';
-$filAriane = [[null, 'Ventes'], ['retours.php', 'Retours']];
-$actionsPage = [['retours.php', 'arrow-left', 'Toutes les demandes', 'btn-outline-secondary'], ['commande.php?id=' . (int) $retour['id_commande'], 'bag-check', 'Voir la commande', 'btn-outline-success'], actionDemandeAvisEquipe('retour', $idRetour)];
+$filAriane = [[null, 'Ventes'], ['retours', 'Retours']];
+$actionsPage = [['retours', 'arrow-left', 'Toutes les demandes', 'btn-outline-secondary'], ['commande?id=' . (int) $retour['id_commande'], 'bag-check', 'Voir la commande', 'btn-outline-success'], actionDemandeAvisEquipe('retour', $idRetour)];
 include __DIR__ . '/_haut.php';
 ?>
 

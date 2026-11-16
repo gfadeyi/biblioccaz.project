@@ -6,10 +6,10 @@ exigerDroit('evenements');
 $id = (int) ($_GET['id'] ?? 0);
 $evt = chargerEvenement($pdo, $id);
 if (!$evt) {
-    rediriger('evenements.php', 'warning', "Cet événement n'existe pas.");
+    rediriger('evenements', 'warning', "Cet événement n'existe pas.");
 }
 if (!file_exists(__DIR__ . '/../vendor/autoload.php')) {
-    rediriger("evenement_participants.php?id=$id", 'danger', "Dompdf est introuvable : lancez « composer install » à la racine du projet.");
+    rediriger("evenement_participants?id=$id", 'danger', "Dompdf est introuvable : lancez « composer install » à la racine du projet.");
 }
 require_once __DIR__ . '/../vendor/autoload.php';
 

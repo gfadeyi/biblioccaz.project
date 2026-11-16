@@ -9,13 +9,13 @@ $archivageDisponible = archivageCatalogueDisponible($pdo);
 $filtreArchive = ($_GET['archives'] ?? '') === '1';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    exigerPost('inventaire.php');
+    exigerPost('inventaire');
     $action = is_string($_POST['action'] ?? null) ? $_POST['action'] : '';
     if (in_array($action, ['supprimer', 'archiver', 'reactiver'], true)) {
         [$type, $message] = changerArchivageLivre($pdo, (int) ($_POST['id_livre'] ?? 0), (int) $_SESSION['user_id'], $action !== 'reactiver');
-        rediriger('inventaire.php?archives=' . ($action === 'reactiver' ? '1' : '0'), $type, $message);
+        rediriger('inventaire?archives=' . ($action === 'reactiver' ? '1' : '0'), $type, $message);
     }
-    rediriger('inventaire.php');
+    rediriger('inventaire');
 }
 
 const ETATS_STOCK = ['neuf' => ['N', 'Neuf'], 'tres bon' => ['TB', 'Très bon état'], 'bon' => ['B', 'Bon état'], 'use' => ['U', 'État usé']];
@@ -103,14 +103,14 @@ function lienTri(string $colonne, string $libelle, string $triActuel, string $se
     $sensSuivant = $triActuel === $colonne && $sensActuel === 'ASC' ? 'desc' : 'asc';
     $parametres = array_filter(array_merge($_GET, ['tri' => $colonne, 'sens' => $sensSuivant, 'page' => 1]), fn($v) => $v !== '');
     $icone = $triActuel === $colonne ? ($sensActuel === 'ASC' ? 'sort-up' : 'sort-down') : 'arrow-down-up';
-    return '<a href="inventaire.php?' . e(http_build_query($parametres)) . '" class="th-tri ' . ($triActuel === $colonne ? 'actif' : '') . '">'
+    return '<a href="inventaire?' . e(http_build_query($parametres)) . '" class="th-tri ' . ($triActuel === $colonne ? 'actif' : '') . '">'
         . e($libelle) . ' <i class="bi bi-' . $icone . '" aria-hidden="true"></i></a>';
 }
 
 $titrePage = 'Inventaire & stock';
 $sousTitrePage = 'Les titres du catalogue, leur stock par état et leurs prix.';
 $pageActive = 'inventaire';
-$actionsPage = [['livre.php', 'plus-lg', 'Nouveau titre', 'btn-vert']];
+$actionsPage = [['livre', 'plus-lg', 'Nouveau titre', 'btn-vert']];
 include __DIR__ . '/_haut.php';
 ?>
 
@@ -139,7 +139,7 @@ include __DIR__ . '/_haut.php';
         <input type="hidden" name="tri" value="<?= e($tri) ?>">
         <input type="hidden" name="sens" value="<?= strtolower($sens) ?>">
         <button class="btn btn-outline-secondary">Rechercher</button>
-        <?php if ($filtresActifs): ?><a href="inventaire.php" class="btn btn-link">Effacer les filtres</a><?php endif; ?>
+        <?php if ($filtresActifs): ?><a href="inventaire" class="btn btn-link">Effacer les filtres</a><?php endif; ?>
         <span class="ms-auto d-flex flex-wrap gap-2">
             <span class="etiquette etiquette-neutre"><?= $totalLivres ?> titre<?= $totalLivres > 1 ? 's' : '' ?></span>
             <?php if ($totaux['bas'] > 0): ?><span class="etiquette"><i class="bi bi-exclamation-circle" aria-hidden="true"></i><?= $totaux['bas'] ?> stock bas</span><?php endif; ?>
@@ -151,7 +151,7 @@ include __DIR__ . '/_haut.php';
         <div class="etat-vide">
             <div class="icone-vide"><i class="bi bi-box-seam" aria-hidden="true"></i></div>
             <strong><?= $filtresActifs ? 'Aucun livre ne correspond à ces filtres' : 'Le catalogue est vide' ?></strong>
-            <?= $filtresActifs ? '<a href="inventaire.php">Effacer les filtres</a>' : '<a href="livre.php">Ajouter un premier titre</a>' ?>
+            <?= $filtresActifs ? '<a href="inventaire">Effacer les filtres</a>' : '<a href="livre">Ajouter un premier titre</a>' ?>
         </div>
     <?php else: ?>
         <div class="table-responsive">
@@ -213,8 +213,8 @@ include __DIR__ . '/_haut.php';
                             <td class="text-end prix-cellule" data-libelle="Prix à partir de"><?= $l['prix_min'] !== null ? formaterPrix($l['prix_min']) : '<span class="text-muted fw-normal">—</span>' ?></td>
                             <td class="text-end cellule-actions">
                                 <div class="actions-ligne">
-                                    <a href="exemplaires.php?id=<?= $l['id_livre'] ?>" class="btn btn-vert bouton-action-texte" title="Ajouter ou retirer des exemplaires"><i class="bi bi-box-seam" aria-hidden="true"></i> Stock</a>
-                                    <a href="livre.php?id=<?= $l['id_livre'] ?>" class="btn btn-outline-secondary bouton-action" title="Modifier la fiche"><i class="bi bi-pencil" aria-hidden="true"></i></a>
+                                    <a href="exemplaires?id=<?= $l['id_livre'] ?>" class="btn btn-vert bouton-action-texte" title="Ajouter ou retirer des exemplaires"><i class="bi bi-box-seam" aria-hidden="true"></i> Stock</a>
+                                    <a href="livre?id=<?= $l['id_livre'] ?>" class="btn btn-outline-secondary bouton-action" title="Modifier la fiche"><i class="bi bi-pencil" aria-hidden="true"></i></a>
                                     <?php if ($l['is_valide']): ?>
                                         <a href="../livre?id=<?= $l['id_livre'] ?>" target="_blank" rel="noopener" class="btn btn-outline-secondary bouton-action" title="Voir sur le site"><i class="bi bi-eye" aria-hidden="true"></i></a>
                                     <?php endif; ?>
@@ -243,7 +243,7 @@ include __DIR__ . '/_haut.php';
     <div class="d-flex gap-2">
         <?php foreach (['précédente' => $page - 1, 'suivante' => $page + 1] as $direction => $cible): ?>
             <?php if ($cible >= 1 && $cible <= $nombrePages): ?>
-                <a class="btn btn-sm btn-outline-secondary" href="inventaire.php?<?= e(http_build_query(array_merge($_GET, ['page' => $cible]))) ?>">Page <?= e($direction) ?></a>
+                <a class="btn btn-sm btn-outline-secondary" href="inventaire?<?= e(http_build_query(array_merge($_GET, ['page' => $cible]))) ?>">Page <?= e($direction) ?></a>
             <?php endif; ?>
         <?php endforeach; ?>
     </div>

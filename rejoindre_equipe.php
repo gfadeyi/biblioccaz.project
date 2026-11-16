@@ -68,7 +68,7 @@ include 'header.php';
         <?php elseif ($etat['etat'] === 'equipe'): ?>
             <div class="carte-formulaire__encart" role="status">
                 <p class="mb-3">Vous faites déjà partie de l'équipe.</p>
-                <a href="admin/login.php" class="bouton bouton-principal bouton-petit">Accéder au back-office</a>
+                <a href="admin/login" class="bouton bouton-principal bouton-petit">Accéder au back-office</a>
             </div>
         <?php elseif ($etat['etat'] === 'interdite'): ?>
             <div class="carte-formulaire__encart" role="status"><p class="mb-0">Votre compte ne permet pas de postuler pour le moment.</p></div>

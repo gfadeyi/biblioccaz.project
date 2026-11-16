@@ -13,7 +13,7 @@ $onglet = isset($onglets[$_GET['onglet'] ?? '']) ? $_GET['onglet'] : 'a_preparer
 $q = trim($_GET['q'] ?? '');
 $idFiltre = (int) ($_GET['id'] ?? 0);
 $codeCherche = normaliserCodeRetrait((string) ($_GET['code'] ?? ''));
-$retour = 'emprunts.php?onglet=' . $onglet . ($q !== '' ? '&q=' . urlencode($q) : '');
+$retour = 'emprunts?onglet=' . $onglet . ($q !== '' ? '&q=' . urlencode($q) : '');
 $idEquipe = (int) $_SESSION['user_id'];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -31,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } catch (PDOException $e) {
         [$type, $message] = ['danger', "L'emprunt n'est pas encore installé : importez sql/maj_emprunts.sql."];
     }
-    $destination = ($_POST['action'] ?? '') === 'lever' ? 'emprunts.php?onglet=blocages' : ($idEmprunt ? "emprunts.php?id=$idEmprunt" : $retour);
+    $destination = ($_POST['action'] ?? '') === 'lever' ? 'emprunts?onglet=blocages' : ($idEmprunt ? "emprunts?id=$idEmprunt" : $retour);
     rediriger($destination, $type, $message);
 }
 
@@ -106,7 +106,7 @@ function carteEmpruntAdmin(array $em, PDO $pdo, bool $resultatCode = false): voi
                 <div class="min-w-0 flex-grow-1">
                     <div class="d-flex flex-wrap justify-content-between gap-2">
                         <div class="min-w-0">
-                            <a href="exemplaires.php?id=<?= (int) $em['id_livre'] ?>&amp;vue=emprunt#emprunt" class="fw-bold text-decoration-none"><?= e($em['titre']) ?></a>
+                            <a href="exemplaires?id=<?= (int) $em['id_livre'] ?>&amp;vue=emprunt#emprunt" class="fw-bold text-decoration-none"><?= e($em['titre']) ?></a>
                             <div class="small text-muted">Emprunt n° <?= $id ?> · exemplaire n° <?= (int) $em['id_exemplaire'] ?> (<?= e(libelleEtat($em['etat'])) ?>)</div>
                         </div>
                         <span class="emprunt-admin__code" title="Code de retrait"><?= e($em['code_retrait']) ?></span>
@@ -154,10 +154,10 @@ function carteEmpruntAdmin(array $em, PDO $pdo, bool $resultatCode = false): voi
                     </form>
                 <?php endif; ?>
                 <?php if (in_array($em['statut'], ['reserve', 'en_cours', 'rendu'], true)): ?>
-                    <a href="emprunt_ticket.php?id=<?= $id ?>" class="btn btn-sm btn-outline-secondary"><i class="bi bi-file-earmark-pdf" aria-hidden="true"></i> Ticket</a>
+                    <a href="emprunt_ticket?id=<?= $id ?>" class="btn btn-sm btn-outline-secondary"><i class="bi bi-file-earmark-pdf" aria-hidden="true"></i> Ticket</a>
                 <?php endif; ?>
                 <?php if (!empty($em['id_conversation'])): ?>
-                    <a href="conversation.php?id=<?= (int) $em['id_conversation'] ?>" class="btn btn-sm btn-outline-secondary"><i class="bi bi-chat-dots" aria-hidden="true"></i> Conversation</a>
+                    <a href="conversation?id=<?= (int) $em['id_conversation'] ?>" class="btn btn-sm btn-outline-secondary"><i class="bi bi-chat-dots" aria-hidden="true"></i> Conversation</a>
                 <?php endif; ?>
                 <?php if ($em['statut'] === 'reserve'): ?>
                     <details class="annonce-admin__motif">

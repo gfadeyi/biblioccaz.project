@@ -3,7 +3,7 @@ require_once __DIR__ . '/_init.php';
 require_once __DIR__ . '/../connexion_equipe_lib.php';
 
 if (estEquipe()) {
-    rediriger('index.php');
+    rediriger('./');
 }
 
 $erreur = '';
@@ -45,13 +45,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             enregistrerSessionUtilisateur($pdo, $user);
         } catch (RuntimeException $e) {
             insertLog('ERREUR', 'Connexion au back-office temporairement indisponible');
-            rediriger('login.php?connexion=indisponible');
+            rediriger('login?connexion=indisponible');
         }
 
         insertLog('CONNEXION', "Connexion au back-office");
         $retour = $_SESSION['admin_retour'] ?? '';
         unset($_SESSION['admin_retour']);
-        rediriger(preg_match('/^[a-z_]+\.php(\?[A-Za-z0-9_=&%-]*)?$/', $retour) ? $retour : 'index.php');
+        rediriger(preg_match('/^(?!index(\?|$))[a-z_]+(\?[A-Za-z0-9_=&%-]*)?$/', $retour) ? $retour : './');
     }
 }
 ?>
@@ -90,7 +90,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="alert alert-danger small" role="alert"><?= e($erreur) ?></div>
         <?php endif; ?>
 
-        <form method="POST" action="login.php">
+        <form method="POST" action="login">
             <?= champCsrf() ?>
             <div class="mb-3">
                 <label for="identifiant" class="form-label small fw-bold">Email ou pseudo</label>

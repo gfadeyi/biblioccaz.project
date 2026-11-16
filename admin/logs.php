@@ -92,7 +92,7 @@ function afficher() {
 
 async function charger() {
     try {
-        const reponse = await fetch('logs_donnees.php', { cache: 'no-store' });
+        const reponse = await fetch('logs_donnees', { cache: 'no-store' });
         if (!reponse.ok) return;
         const data = await reponse.json();
 

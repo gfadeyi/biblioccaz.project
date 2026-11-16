@@ -10,11 +10,11 @@ $disponible = messagerieEquipeDisponible($pdo);
 if ($disponible && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = (string) ($_POST['action'] ?? '');
     $idConversation = max(0, (int) ($_POST['id_conversation'] ?? 0));
-    exigerPost('messagerie_equipe.php' . ($idConversation ? '?c=' . $idConversation : ''));
+    exigerPost('messagerie_equipe' . ($idConversation ? '?c=' . $idConversation : ''));
     try {
         if ($action === 'envoyer') {
             envoyerMessageInterneEquipe($pdo, $idConversation, $moi, (string) ($_POST['contenu'] ?? ''));
-            rediriger('messagerie_equipe.php?c=' . $idConversation . '#dernier');
+            rediriger('messagerie_equipe?c=' . $idConversation . '#dernier');
         }
         if ($action === 'nouvelle') {
             $destinataires = is_array($_POST['destinataires'] ?? null) ? $_POST['destinataires'] : [];
@@ -28,20 +28,20 @@ if ($disponible && $_SERVER['REQUEST_METHOD'] === 'POST') {
                 $idConversation = creerGroupeEquipe($pdo, $moi, $destinataires, (string) ($_POST['titre'] ?? ''));
             }
             envoyerMessageInterneEquipe($pdo, $idConversation, $moi, $contenu);
-            rediriger('messagerie_equipe.php?c=' . $idConversation . '#dernier', 'success', 'Message envoyé.');
+            rediriger('messagerie_equipe?c=' . $idConversation . '#dernier', 'success', 'Message envoyé.');
         }
         if ($action === 'tout_lu') {
             marquerToutEquipeLu($pdo, $moi);
-            rediriger('messagerie_equipe.php', 'success', 'Toutes les conversations sont marquées comme lues.');
+            rediriger('messagerie_equipe', 'success', 'Toutes les conversations sont marquées comme lues.');
         }
-        rediriger('messagerie_equipe.php', 'warning', 'Action inconnue.');
+        rediriger('messagerie_equipe', 'warning', 'Action inconnue.');
     } catch (DomainException $erreur) {
         if ($action === 'nouvelle') {
             $_SESSION['brouillon_equipe'] = ['contenu' => mb_substr((string) ($_POST['contenu'] ?? ''), 0, LONGUEUR_MESSAGE_EQUIPE), 'titre' => mb_substr((string) ($_POST['titre'] ?? ''), 0, 120)];
-            rediriger('messagerie_equipe.php?nouveau=1', 'warning', $erreur->getMessage());
+            rediriger('messagerie_equipe?nouveau=1', 'warning', $erreur->getMessage());
         }
         $_SESSION['brouillon_equipe'] = ['contenu' => mb_substr((string) ($_POST['contenu'] ?? ''), 0, LONGUEUR_MESSAGE_EQUIPE)];
-        rediriger('messagerie_equipe.php' . ($idConversation ? '?c=' . $idConversation : ''), 'warning', $erreur->getMessage());
+        rediriger('messagerie_equipe' . ($idConversation ? '?c=' . $idConversation : ''), 'warning', $erreur->getMessage());
     }
 }
 
@@ -65,7 +65,7 @@ if ($disponible) {
     if ($idOuvert) {
         $conversation = conversationEquipe($pdo, $idOuvert, $moi);
         if (!$conversation) {
-            rediriger('messagerie_equipe.php', 'warning', 'Conversation introuvable.');
+            rediriger('messagerie_equipe', 'warning', 'Conversation introuvable.');
         }
         $messages = messagesConversationEquipe($pdo, $idOuvert);
         $participants = participantsConversationEquipe($pdo, $idOuvert);
@@ -91,7 +91,7 @@ $panneauOuvert = $conversation || $nouveau || $recherche !== '';
 $titrePage = 'Messagerie de l’équipe';
 $sousTitrePage = 'Réservée aux administrateurs, gestionnaires et modérateurs. Les membres du site n’y ont pas accès.';
 $pageActive = 'messagerie_equipe';
-$actionsPage = $disponible ? [['messagerie_equipe.php?nouveau=1', 'pencil-square', 'Nouveau message', 'btn-vert']] : [];
+$actionsPage = $disponible ? [['messagerie_equipe?nouveau=1', 'pencil-square', 'Nouveau message', 'btn-vert']] : [];
 $scriptsPage = $disponible ? '<script src="../javascript/messagerie_equipe.js?v=' . filemtime(__DIR__ . '/../javascript/messagerie_equipe.js') . '"></script>' : '';
 include __DIR__ . '/_haut.php';
 ?>
@@ -99,7 +99,7 @@ include __DIR__ . '/_haut.php';
 <?php if (!$disponible): ?>
     <div class="alert alert-warning">Installez <code>sql/maj_messagerie_equipe.sql</code> pour activer la messagerie de l’équipe.</div>
 <?php else: ?>
-<div class="messagerie-equipe<?= $panneauOuvert ? ' panneau-ouvert' : '' ?>" data-actualisation="messagerie_equipe_nouveaux.php" data-conversation="<?= $conversation ? (int) $conversation['id_conversation'] : 0 ?>" data-dernier="<?= $messages ? (int) end($messages)['id_message'] : 0 ?>">
+<div class="messagerie-equipe<?= $panneauOuvert ? ' panneau-ouvert' : '' ?>" data-actualisation="messagerie_equipe_nouveaux" data-conversation="<?= $conversation ? (int) $conversation['id_conversation'] : 0 ?>" data-dernier="<?= $messages ? (int) end($messages)['id_message'] : 0 ?>">
     <aside class="carte messagerie-equipe__liste" aria-label="Conversations">
         <form method="GET" class="carte-corps border-bottom" role="search">
             <label for="recherche-equipe" class="visually-hidden">Rechercher dans les messages</label>
@@ -125,7 +125,7 @@ include __DIR__ . '/_haut.php';
 
     <section class="carte messagerie-equipe__panneau" aria-live="polite">
         <?php if ($panneauOuvert): ?>
-            <a href="messagerie_equipe.php" class="retour-conversations d-lg-none"><i class="bi bi-arrow-left" aria-hidden="true"></i> Conversations</a>
+            <a href="messagerie_equipe" class="retour-conversations d-lg-none"><i class="bi bi-arrow-left" aria-hidden="true"></i> Conversations</a>
         <?php endif; ?>
 
         <?php if ($recherche !== ''): ?>
@@ -137,7 +137,7 @@ include __DIR__ . '/_haut.php';
                     <p class="text-muted mb-0">Aucun message ne correspond.</p>
                 <?php endif; ?>
                 <?php foreach ($resultats as $r): ?>
-                    <a href="messagerie_equipe.php?c=<?= (int) $r['id_conversation'] ?>#message-<?= (int) $r['id_message'] ?>" class="resultat-equipe">
+                    <a href="messagerie_equipe?c=<?= (int) $r['id_conversation'] ?>#message-<?= (int) $r['id_message'] ?>" class="resultat-equipe">
                         <span class="small text-muted"><?= e($idsConversations[$r['id_conversation']] ?? 'Conversation') ?> · @<?= e($r['pseudo'] ?? 'ancien membre') ?> · <?= date('d/m/Y H:i', strtotime($r['date_envoi'])) ?></span>
                         <span><?= e(mb_strimwidth($r['contenu'], 0, 180, '…')) ?></span>
                     </a>

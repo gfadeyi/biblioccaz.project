@@ -35,7 +35,7 @@ include __DIR__ . '/_haut.php';
             <div class="col-md-6 col-xl-4"><label for="acteurDecision" class="form-label">Membre de l’équipe</label><select id="acteurDecision" name="acteur" class="form-select"><option value="0">Tous les membres</option><?php foreach ($acteurs as $acteur): ?><option value="<?= (int) $acteur['id_acteur'] ?>" <?= $filtres['acteur'] === (int) $acteur['id_acteur'] ? 'selected' : '' ?>><?= e($acteur['pseudo']) ?></option><?php endforeach; ?></select></div>
             <div class="col-6 col-xl-4"><label for="debutDecision" class="form-label">Du</label><input id="debutDecision" type="date" name="depuis" class="form-control" value="<?= e($filtres['depuis']) ?>"></div>
             <div class="col-6 col-xl-4"><label for="finDecision" class="form-label">Au</label><input id="finDecision" type="date" name="jusqua" class="form-control" value="<?= e($filtres['jusqua']) ?>"></div>
-            <div class="col-12 d-flex flex-wrap gap-2"><button class="btn btn-vert">Filtrer</button><a href="historique_decisions.php" class="btn btn-outline-secondary">Réinitialiser</a><a href="historique_decisions.php?acteur=<?= (int) $_SESSION['user_id'] ?>" class="btn btn-outline-success">Mes décisions</a></div>
+            <div class="col-12 d-flex flex-wrap gap-2"><button class="btn btn-vert">Filtrer</button><a href="historique_decisions" class="btn btn-outline-secondary">Réinitialiser</a><a href="historique_decisions?acteur=<?= (int) $_SESSION['user_id'] ?>" class="btn btn-outline-success">Mes décisions</a></div>
         </div>
     </form>
     <p role="status"><?= (int) $resultat['total'] ?> décision<?= $resultat['total'] > 1 ? 's' : '' ?> trouvée<?= $resultat['total'] > 1 ? 's' : '' ?>.</p>

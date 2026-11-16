@@ -43,7 +43,7 @@ try {
 }
 $csrf = jetonCsrf();
 $nbActifs = count($reservations) + count($enCours);
-$urlQr = fn(array $emprunt) => SITE_URL . '/admin/emprunts.php?code=' . rawurlencode($emprunt['code_retrait']);
+$urlQr = fn(array $emprunt) => SITE_URL . '/admin/emprunts?code=' . rawurlencode($emprunt['code_retrait']);
 
 $titreDocument = 'Mes emprunts';
 include 'header.php';

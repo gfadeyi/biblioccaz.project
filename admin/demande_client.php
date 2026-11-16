@@ -5,10 +5,10 @@ require_once __DIR__ . '/../messagerie_equipe_lib.php';
 exigerDroit('equipe');
 
 $idDemande = (int) ($_GET['id'] ?? 0);
-$lienDemande = "demande_client.php?id=$idDemande";
+$lienDemande = "demande_client?id=$idDemande";
 $idMoi = (int) $_SESSION['user_id'];
 if (!serviceClientDisponible($pdo)) {
-    rediriger('service_client.php', 'warning', 'Le service client n’est pas installé.');
+    rediriger('service_client', 'warning', 'Le service client n’est pas installé.');
 }
 
 $roleMoi = (string) $_SESSION['role'];
@@ -39,7 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 $demande = demandeClient($pdo, $idDemande);
 if (!$demande) {
-    rediriger('service_client.php', 'warning', "Cette demande n'existe pas.");
+    rediriger('service_client', 'warning', "Cette demande n'existe pas.");
 }
 if ((int) $demande['non_lu_equipe']) {
     marquerDemandeLue($pdo, $idDemande, 'equipe');
@@ -64,8 +64,8 @@ $peutTraiter = peutTraiterDemandeClient($pdo, $demande, $idMoi, $roleMoi);
 $titrePage = $demande['sujet'];
 $sousTitrePage = $demande['reference'] . ' · ' . (SERVICE_CATEGORIES[$demande['categorie']] ?? 'Autre') . ' · @' . $demande['pseudo'];
 $pageActive = 'service_client';
-$filAriane = [[null, 'Ventes'], ['service_client.php', 'Service client']];
-$actionsPage = [['service_client.php', 'arrow-left', 'Toutes les demandes', 'btn-outline-secondary'], actionDemandeAvisEquipe('demande_client', $idDemande)];
+$filAriane = [[null, 'Ventes'], ['service_client', 'Service client']];
+$actionsPage = [['service_client', 'arrow-left', 'Toutes les demandes', 'btn-outline-secondary'], actionDemandeAvisEquipe('demande_client', $idDemande)];
 $scriptsPage = '<script src="' . e(urlStatique('javascript/reponses_types.js', '../')) . '" defer></script>';
 include __DIR__ . '/_haut.php';
 ?>
@@ -174,10 +174,10 @@ include __DIR__ . '/_haut.php';
                 <p class="mb-2"><a href="mailto:<?= e($demande['email']) ?>"><?= e($demande['email']) ?></a></p>
                 <p class="mb-2">Ouverte le <?= date('d/m/Y à H:i', strtotime($demande['date_creation'])) ?></p>
                 <?php if ($commande): ?>
-                    <p class="mb-2">Commande <a href="commande.php?id=<?= (int) $commande['id_commande'] ?>">n° <?= (int) $commande['id_commande'] ?></a> du <?= date('d/m/Y', strtotime($commande['date_commande'])) ?> · <?= formaterPrix((float) $commande['total']) ?><?= $commande['statut'] === 'annulee' ? ' (annulée)' : '' ?></p>
+                    <p class="mb-2">Commande <a href="commande?id=<?= (int) $commande['id_commande'] ?>">n° <?= (int) $commande['id_commande'] ?></a> du <?= date('d/m/Y', strtotime($commande['date_commande'])) ?> · <?= formaterPrix((float) $commande['total']) ?><?= $commande['statut'] === 'annulee' ? ' (annulée)' : '' ?></p>
                 <?php endif; ?>
                 <?php if ($autresDemandes): ?>
-                    <p class="mb-0"><a href="service_client.php?<?= e(http_build_query(['statut' => 'toutes', 'q' => $demande['pseudo']])) ?>"><?= $autresDemandes ?> autre<?= $autresDemandes > 1 ? 's' : '' ?> demande<?= $autresDemandes > 1 ? 's' : '' ?></a></p>
+                    <p class="mb-0"><a href="service_client?<?= e(http_build_query(['statut' => 'toutes', 'q' => $demande['pseudo']])) ?>"><?= $autresDemandes ?> autre<?= $autresDemandes > 1 ? 's' : '' ?> demande<?= $autresDemandes > 1 ? 's' : '' ?></a></p>
                 <?php endif; ?>
             </div>
         </section>

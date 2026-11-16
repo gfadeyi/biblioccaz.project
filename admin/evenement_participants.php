@@ -7,12 +7,12 @@ exigerDroit('evenements');
 $id = (int) ($_GET['id'] ?? 0);
 $evt = chargerEvenement($pdo, $id);
 if (!$evt) {
-    rediriger('evenements.php', 'warning', "Cet événement n'existe pas.");
+    rediriger('evenements', 'warning', "Cet événement n'existe pas.");
 }
 if (!in_array($evt['statut'], ['publie', 'annule'], true)) {
-    rediriger($evt['statut'] === 'en_attente' ? "evenement.php?id=$id" : 'evenements.php?onglet=refuses');
+    rediriger($evt['statut'] === 'en_attente' ? "evenement?id=$id" : 'evenements?onglet=refuses');
 }
-$retour = "evenement_participants.php?id=$id";
+$retour = "evenement_participants?id=$id";
 $presencesOuvertes = $evt['statut'] === 'publie' && date('Y-m-d') >= substr($evt['date_debut'], 0, 10);
 
 function validerPresence(PDO $pdo, array $inscription, array $evt, bool $present): void
@@ -97,16 +97,16 @@ function bouton(string $action, int $idInscription, string $libelle, string $cla
 
 $titrePage = $evt['titre'];
 $pageActive = 'evenements';
-$filAriane = [[null, 'Communauté'], ['evenements.php', 'Événements']];
+$filAriane = [[null, 'Communauté'], ['evenements', 'Événements']];
 include __DIR__ . '/_haut.php';
 ?>
 
 <div class="d-flex flex-wrap gap-2 mb-3">
-    <a href="evenements.php" class="btn btn-sm btn-outline-secondary"><i class="bi bi-arrow-left"></i> Événements</a>
+    <a href="evenements" class="btn btn-sm btn-outline-secondary"><i class="bi bi-arrow-left"></i> Événements</a>
     <?php if ($evt['statut'] === 'publie'): ?>
-        <a href="evenement.php?id=<?= $id ?>" class="btn btn-sm btn-outline-secondary"><i class="bi bi-pencil"></i> Modifier / annuler</a>
+        <a href="evenement?id=<?= $id ?>" class="btn btn-sm btn-outline-secondary"><i class="bi bi-pencil"></i> Modifier / annuler</a>
     <?php endif; ?>
-    <a href="evenement_pdf.php?id=<?= $id ?>" class="btn btn-sm btn-outline-secondary"><i class="bi bi-file-earmark-pdf"></i> Liste PDF</a>
+    <a href="evenement_pdf?id=<?= $id ?>" class="btn btn-sm btn-outline-secondary"><i class="bi bi-file-earmark-pdf"></i> Liste PDF</a>
     <a href="../evenement?id=<?= $id ?>" target="_blank" class="btn btn-sm btn-outline-secondary"><i class="bi bi-eye"></i> Voir sur le site</a>
 </div>
 

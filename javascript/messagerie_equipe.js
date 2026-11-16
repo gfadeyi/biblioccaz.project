@@ -112,7 +112,7 @@
                     throw new Error('Session terminée');
                 }
                 if (reponse.status === 404) {
-                    window.location.assign('messagerie_equipe.php');
+                    window.location.assign('messagerie_equipe');
                     throw new Error('Conversation introuvable');
                 }
                 if (!reponse.ok) {

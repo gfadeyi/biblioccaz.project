@@ -65,7 +65,7 @@ function lienCommandes(array $changements): string
 {
     $parametres = array_merge(['q' => $_GET['q'] ?? '', 'statut' => $_GET['statut'] ?? '', 'periode' => $_GET['periode'] ?? '', 'tri' => $_GET['tri'] ?? ''], $changements);
     $parametres = array_filter($parametres, fn($valeur) => $valeur !== '' && $valeur !== null);
-    return 'commandes.php' . ($parametres ? '?' . http_build_query($parametres) : '');
+    return 'commandes' . ($parametres ? '?' . http_build_query($parametres) : '');
 }
 
 $titrePage = 'Commandes';
@@ -101,7 +101,7 @@ $filtresActifs = $recherche !== '' || $statutFiltre !== '' || $periode !== '';
     </select>
     <input type="hidden" name="tri" value="<?= e($tri) ?>">
     <button class="btn btn-vert btn-sm">Filtrer</button>
-    <?php if ($filtresActifs): ?><a href="commandes.php" class="btn btn-link btn-sm">Réinitialiser</a><?php endif; ?>
+    <?php if ($filtresActifs): ?><a href="commandes" class="btn btn-link btn-sm">Réinitialiser</a><?php endif; ?>
 </form>
 
 <?php if (!$commandes): ?>
@@ -130,7 +130,7 @@ $filtresActifs = $recherche !== '' || $statutFiltre !== '' || $periode !== '';
                     <?php $annulee = $commande['statut'] === 'annulee'; ?>
                     <tr class="<?= $annulee ? 'ligne-annulee' : '' ?>">
                         <td data-libelle="Commande">
-                            <a href="commande.php?id=<?= (int) $commande['id_commande'] ?>" class="fw-bold">N° <?= (int) $commande['id_commande'] ?></a>
+                            <a href="commande?id=<?= (int) $commande['id_commande'] ?>" class="fw-bold">N° <?= (int) $commande['id_commande'] ?></a>
                             <br><small class="text-muted"><?= date('d/m/Y à H:i', strtotime($commande['date_commande'])) ?></small>
                         </td>
                         <td data-libelle="Client"><?= e($commande['prenom'] . ' ' . $commande['nom']) ?><br><small class="text-muted">@<?= e($commande['pseudo']) ?></small></td>
@@ -150,7 +150,7 @@ $filtresActifs = $recherche !== '' || $statutFiltre !== '' || $periode !== '';
                                 <span class="etiquette"><i class="bi bi-check2" aria-hidden="true"></i> Validée</span>
                             <?php endif; ?>
                         </td>
-                        <td class="text-end"><a href="commande.php?id=<?= (int) $commande['id_commande'] ?>" class="btn btn-outline-success btn-sm">Détail</a></td>
+                        <td class="text-end"><a href="commande?id=<?= (int) $commande['id_commande'] ?>" class="btn btn-outline-success btn-sm">Détail</a></td>
                     </tr>
                 <?php endforeach; ?>
             </tbody>

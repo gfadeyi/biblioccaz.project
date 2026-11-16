@@ -27,7 +27,7 @@ function vueListeConversationsEquipe(array $conversations, ?int $idActif): strin
         $actif = $idActif !== null && (int) $c['id_conversation'] === $idActif;
         ?>
         <li>
-            <a href="messagerie_equipe.php?c=<?= (int) $c['id_conversation'] ?>#dernier" class="conversation-equipe<?= $actif ? ' actif' : '' ?><?= $c['nb_non_lus'] > 0 ? ' non-lu' : '' ?>"<?= $actif ? ' aria-current="true"' : '' ?>>
+            <a href="messagerie_equipe?c=<?= (int) $c['id_conversation'] ?>#dernier" class="conversation-equipe<?= $actif ? ' actif' : '' ?><?= $c['nb_non_lus'] > 0 ? ' non-lu' : '' ?>"<?= $actif ? ' aria-current="true"' : '' ?>>
                 <span class="conversation-equipe__icone" aria-hidden="true"><i class="bi bi-<?= $c['type'] === 'equipe' ? 'people-fill' : ($c['type'] === 'groupe' ? 'people' : 'person') ?>"></i></span>
                 <span class="conversation-equipe__texte">
                     <strong><?= e($c['nom']) ?></strong>

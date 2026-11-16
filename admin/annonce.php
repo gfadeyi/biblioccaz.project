@@ -7,13 +7,13 @@ exigerDroit('moderation');
 $idAnnonce = (int) ($_GET['id'] ?? 0);
 $annonce = annonceParId($pdo, $idAnnonce);
 if (!$annonce) {
-    rediriger('annonces.php', 'warning', "Cette annonce n'existe pas.");
+    rediriger('annonces', 'warning', "Cette annonce n'existe pas.");
 }
 if (!in_array($annonce['statut_annonce'], ANNONCE_STATUTS_MODIFIABLES, true)) {
-    rediriger('annonces.php?onglet=toutes', 'warning', "Une annonce réservée ou vendue ne peut plus être modifiée.");
+    rediriger('annonces?onglet=toutes', 'warning', "Une annonce réservée ou vendue ne peut plus être modifiée.");
 }
 $photos = photosAnnonce($pdo, $idAnnonce);
-$retourListe = 'annonces.php?onglet=' . match ($annonce['statut_annonce']) {
+$retourListe = 'annonces?onglet=' . match ($annonce['statut_annonce']) {
     'en_validation' => 'a_valider',
     'publiee' => 'en_ligne',
     default => 'refusees',
@@ -30,7 +30,7 @@ $v = [
 $erreurs = [];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    exigerPost("annonce.php?id=$idAnnonce");
+    exigerPost("annonce?id=$idAnnonce");
     foreach (array_keys($v) as $champ) {
         $v[$champ] = trim((string) ($_POST[$champ] ?? ''));
     }
@@ -72,7 +72,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $complement = $v['message'] !== '' ? "\n\nMessage de l'équipe :\n" . $v['message'] : '';
             notifierParMail($annonce['vendeur_email'], "Votre annonce a été ajustée",
                 "Bonjour {$annonce['vendeur_pseudo']},\n\nL'équipe BIBLIOccaz a ajusté votre annonce « {$annonce['titre']} » pour qu'elle respecte les règles du site." . $complement,
-                SITE_URL . '/mes_annonces.php', "Voir mes annonces");
+                SITE_URL . '/mes_annonces', "Voir mes annonces");
             $texte .= " Le vendeur a été prévenu par mail.";
         }
         rediriger($retourListe, 'success', $texte);

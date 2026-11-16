@@ -7,7 +7,7 @@ exigerDroit('admin');
 $disponible = candidaturesEquipeDisponibles($pdo);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    exigerPost('candidatures.php');
+    exigerPost('candidatures');
     $idCandidature = (int) ($_POST['id_candidature'] ?? 0);
     $decision = $_POST['decision'] ?? '';
     $message = is_string($_POST['message'] ?? null) ? $_POST['message'] : '';
@@ -15,7 +15,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $prevenir = !empty($_POST['prevenir']);
 
     if (!$disponible || !in_array($decision, ['accepter', 'refuser'], true)) {
-        rediriger('candidatures.php');
+        rediriger('candidatures');
     }
 
     try {
@@ -24,7 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             : refuserCandidatureEquipe($pdo, $idCandidature, (int) $_SESSION['user_id'], $message);
     } catch (DomainException $e) {
         $_SESSION['saisie_candidature'] = ['id' => $idCandidature, 'pseudo' => $pseudo, 'message' => mb_substr($message, 0, MESSAGE_DECISION_EQUIPE_MAX)];
-        rediriger('candidatures.php#candidature-' . $idCandidature, 'danger', $e->getMessage());
+        rediriger('candidatures#candidature-' . $idCandidature, 'danger', $e->getMessage());
     }
     unset($_SESSION['saisie_candidature']);
 
@@ -52,7 +52,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($bienvenue) {
             $texte .= " Un message de bienvenue l'attend dans la messagerie de l'équipe.";
         }
-        rediriger('candidatures.php', $mailEnvoye === false ? 'warning' : 'success', $texte);
+        rediriger('candidatures', $mailEnvoye === false ? 'warning' : 'success', $texte);
     }
 
     $nom = trim($candidature['prenom'] . ' ' . $candidature['nom']);
@@ -62,7 +62,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($mailEnvoye !== null) {
         $texte .= $mailEnvoye ? ' Le mail de réponse est parti.' : " Le mail n'a pas pu partir.";
     }
-    rediriger('candidatures.php', $mailEnvoye === false ? 'warning' : 'success', $texte);
+    rediriger('candidatures', $mailEnvoye === false ? 'warning' : 'success', $texte);
 }
 
 $saisieCandidature = $_SESSION['saisie_candidature'] ?? null;
@@ -79,8 +79,8 @@ include __DIR__ . '/_haut.php';
 
 <?php if (aLeDroit('candidatures_auteur')): ?>
     <ul class="nav nav-pills mb-3">
-        <li class="nav-item"><a class="nav-link active bg-success" href="candidatures.php" aria-current="page">Équipe</a></li>
-        <li class="nav-item"><a class="nav-link text-success" href="candidatures_auteur.php">Auteurs<?php if (($compteurs['candidatures_auteur'] ?? 0) > 0): ?> <span class="badge rounded-pill bg-success ms-1"><?= (int) $compteurs['candidatures_auteur'] ?></span><?php endif; ?></a></li>
+        <li class="nav-item"><a class="nav-link active bg-success" href="candidatures" aria-current="page">Équipe</a></li>
+        <li class="nav-item"><a class="nav-link text-success" href="candidatures_auteur">Auteurs<?php if (($compteurs['candidatures_auteur'] ?? 0) > 0): ?> <span class="badge rounded-pill bg-success ms-1"><?= (int) $compteurs['candidatures_auteur'] ?></span><?php endif; ?></a></li>
     </ul>
 <?php endif; ?>
 

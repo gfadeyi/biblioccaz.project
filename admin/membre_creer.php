@@ -8,7 +8,7 @@ $erreur = '';
 $saisie = ['prenom' => '', 'nom' => '', 'pseudo' => '', 'email' => '', 'role' => 'client'];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    exigerPost('membre_creer.php');
+    exigerPost('membre_creer');
     foreach ($saisie as $champ => $valeurParDefaut) {
         $saisie[$champ] = is_string($_POST[$champ] ?? null) ? trim($_POST[$champ]) : '';
     }
@@ -56,7 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             accueillirNouveauMembreEquipe($pdo, $idUser, (int) $_SESSION['user_id'], $saisie['pseudo'], $libelleRole);
         }
 
-        rediriger('utilisateurs.php?q=' . rawurlencode($saisie['pseudo']), $mailEnvoye ? 'success' : 'warning', $mailEnvoye
+        rediriger('utilisateurs?q=' . rawurlencode($saisie['pseudo']), $mailEnvoye ? 'success' : 'warning', $mailEnvoye
             ? "Le compte @{$saisie['pseudo']} est créé. Une invitation a été envoyée à {$saisie['email']} pour choisir son mot de passe."
             : "Le compte @{$saisie['pseudo']} est créé, mais l'invitation n'a pas pu partir. La personne peut utiliser « Mot de passe oublié » avec son adresse email.");
     }
@@ -69,7 +69,7 @@ include __DIR__ . '/_haut.php';
 
 <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
     <p class="text-muted mb-0">Le compte est actif tout de suite. La personne reçoit un mail pour choisir elle-même son mot de passe ; aucun mot de passe ne passe par l'équipe.</p>
-    <a href="utilisateurs.php" class="btn btn-sm btn-outline-secondary"><i class="bi bi-arrow-left" aria-hidden="true"></i> Retour aux membres</a>
+    <a href="utilisateurs" class="btn btn-sm btn-outline-secondary"><i class="bi bi-arrow-left" aria-hidden="true"></i> Retour aux membres</a>
 </div>
 
 <?php if ($erreur): ?>
@@ -108,7 +108,7 @@ include __DIR__ . '/_haut.php';
     </div>
     <div class="d-flex flex-wrap gap-2 mt-4">
         <button class="btn btn-success"><i class="bi bi-person-plus me-1" aria-hidden="true"></i> Créer le compte et envoyer l'invitation</button>
-        <a href="utilisateurs.php" class="btn btn-link">Annuler</a>
+        <a href="utilisateurs" class="btn btn-link">Annuler</a>
     </div>
 </form>
 

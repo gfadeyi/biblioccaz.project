@@ -8,46 +8,46 @@ $nonLusEquipe = estEquipe() ? nombreNonLusEquipe($pdo, (int) $_SESSION['user_id'
 
 $menu = [
     'Pilotage' => [
-        ['index', 'index.php', 'speedometer2', 'Tableau de bord', 'equipe', 0],
-        ['messagerie_equipe', 'messagerie_equipe.php', 'chat-left-text', 'Messagerie de l’équipe', 'equipe', $nonLusEquipe],
-        ['historique_decisions', 'historique_decisions.php', 'clock-history', 'Historique des décisions', 'equipe', 0],
+        ['index', './', 'speedometer2', 'Tableau de bord', 'equipe', 0],
+        ['messagerie_equipe', 'messagerie_equipe', 'chat-left-text', 'Messagerie de l’équipe', 'equipe', $nonLusEquipe],
+        ['historique_decisions', 'historique_decisions', 'clock-history', 'Historique des décisions', 'equipe', 0],
     ],
     'Catalogue' => [
-        ['moderation_livres', 'moderation_livres.php', 'shield-check', 'Fiches à valider', 'catalogue', $compteurs['livres']],
-        ['annonces', 'annonces.php', 'shop', 'Annonces', 'moderation', $compteurs['annonces'] ?? 0],
-        ['inventaire', 'inventaire.php', 'box-seam', 'Inventaire & stock', 'catalogue', 0],
-        ['livre', 'livre.php', 'plus-circle', 'Ajouter un livre', 'catalogue', 0],
-        ['categories', 'categories.php', 'tags', 'Catégories & tags', 'admin', 0],
+        ['moderation_livres', 'moderation_livres', 'shield-check', 'Fiches à valider', 'catalogue', $compteurs['livres']],
+        ['annonces', 'annonces', 'shop', 'Annonces', 'moderation', $compteurs['annonces'] ?? 0],
+        ['inventaire', 'inventaire', 'box-seam', 'Inventaire & stock', 'catalogue', 0],
+        ['livre', 'livre', 'plus-circle', 'Ajouter un livre', 'catalogue', 0],
+        ['categories', 'categories', 'tags', 'Catégories & tags', 'admin', 0],
     ],
     'Ventes' => [
-        ['commandes', 'commandes.php', 'bag-check', 'Commandes', 'catalogue', 0],
-        ['service_client', 'service_client.php', 'headset', 'Service client', 'equipe', $compteurs['service_client'] ?? 0],
-        ['retours', 'retours.php', 'arrow-return-left', 'Retours', 'catalogue', $compteurs['retours'] ?? 0],
-        ['ventes', 'ventes.php', 'people', 'Entre lecteurs', 'ventes', $compteurs['ventes'] ?? 0],
-        ['emprunts', 'emprunts.php', 'book', 'Emprunts', 'catalogue', $compteurs['emprunts'] ?? 0],
+        ['commandes', 'commandes', 'bag-check', 'Commandes', 'catalogue', 0],
+        ['service_client', 'service_client', 'headset', 'Service client', 'equipe', $compteurs['service_client'] ?? 0],
+        ['retours', 'retours', 'arrow-return-left', 'Retours', 'catalogue', $compteurs['retours'] ?? 0],
+        ['ventes', 'ventes', 'people', 'Entre lecteurs', 'ventes', $compteurs['ventes'] ?? 0],
+        ['emprunts', 'emprunts', 'book', 'Emprunts', 'catalogue', $compteurs['emprunts'] ?? 0],
     ],
     'Communauté' => [
-        ['avis_a_valider', 'avis_a_valider.php', 'patch-check', 'Avis à valider', 'moderation', $compteurs['avis_a_valider'] ?? 0],
-        ['moderation_avis', 'moderation_avis.php', 'chat-square-text', 'Avis signalés', 'moderation', $compteurs['avis']],
-        ['messages', 'messages.php', 'chat-dots', 'Messages', 'moderation', $compteurs['messages'] ?? 0],
-        ['membres_points', 'membres_points.php', 'award', 'Niveaux & badges', 'equipe', 0],
-        ['dons', 'dons.php', 'gift', 'Dons', 'dons_lecture', aLeDroit('dons') ? ($compteurs['dons'] ?? 0) : 0],
-        ['evenements', 'evenements.php', 'calendar-event', 'Événements', 'evenements', $compteurs['evenements_proposes'] ?? 0],
-        ['utilisateurs', 'utilisateurs.php', 'people', 'Membres', 'admin', 0],
-        ['candidatures', 'candidatures.php', 'person-plus', 'Candidatures équipe', 'admin', $compteurs['candidatures']],
-        ['candidatures_auteur', 'candidatures_auteur.php', 'feather', 'Candidatures auteur', 'candidatures_auteur', $compteurs['candidatures_auteur'] ?? 0],
-        ['en_ligne', 'en_ligne.php', 'broadcast', 'En ligne', 'admin', 0],
-        ['newsletter', 'newsletter.php', 'megaphone', 'Newsletter', 'admin', 0],
+        ['avis_a_valider', 'avis_a_valider', 'patch-check', 'Avis à valider', 'moderation', $compteurs['avis_a_valider'] ?? 0],
+        ['moderation_avis', 'moderation_avis', 'chat-square-text', 'Avis signalés', 'moderation', $compteurs['avis']],
+        ['messages', 'messages', 'chat-dots', 'Messages', 'moderation', $compteurs['messages'] ?? 0],
+        ['membres_points', 'membres_points', 'award', 'Niveaux & badges', 'equipe', 0],
+        ['dons', 'dons', 'gift', 'Dons', 'dons_lecture', aLeDroit('dons') ? ($compteurs['dons'] ?? 0) : 0],
+        ['evenements', 'evenements', 'calendar-event', 'Événements', 'evenements', $compteurs['evenements_proposes'] ?? 0],
+        ['utilisateurs', 'utilisateurs', 'people', 'Membres', 'admin', 0],
+        ['candidatures', 'candidatures', 'person-plus', 'Candidatures équipe', 'admin', $compteurs['candidatures']],
+        ['candidatures_auteur', 'candidatures_auteur', 'feather', 'Candidatures auteur', 'candidatures_auteur', $compteurs['candidatures_auteur'] ?? 0],
+        ['en_ligne', 'en_ligne', 'broadcast', 'En ligne', 'admin', 0],
+        ['newsletter', 'newsletter', 'megaphone', 'Newsletter', 'admin', 0],
     ],
     'Système' => [
-        ['sante', 'sante.php', 'heart-pulse', 'Santé du site', 'admin', 0],
-        ['droits_equipe', 'droits_equipe.php', 'shield-lock', 'Droits de l’équipe', 'admin', 0],
-        ['parametres_site', 'parametres_site.php', 'gear', 'Paramètres du site', 'admin', 0],
-        ['relances_emprunts', 'relances_emprunts.php', 'bell', 'Suivi des relances', 'catalogue', 0],
-        ['regles_emprunts', 'regles_emprunts.php', 'book', 'Règles des emprunts', 'admin', 0],
-        ['regles_recompenses', 'regles_recompenses.php', 'sliders', 'Règles de récompenses', 'admin', 0],
-        ['logs', 'logs.php', 'journal-text', "Journal d'activité", 'admin', 0],
-        ['captcha', 'captcha.php', 'puzzle', 'Images du CAPTCHA', 'admin', 0],
+        ['sante', 'sante', 'heart-pulse', 'Santé du site', 'admin', 0],
+        ['droits_equipe', 'droits_equipe', 'shield-lock', 'Droits de l’équipe', 'admin', 0],
+        ['parametres_site', 'parametres_site', 'gear', 'Paramètres du site', 'admin', 0],
+        ['relances_emprunts', 'relances_emprunts', 'bell', 'Suivi des relances', 'catalogue', 0],
+        ['regles_emprunts', 'regles_emprunts', 'book', 'Règles des emprunts', 'admin', 0],
+        ['regles_recompenses', 'regles_recompenses', 'sliders', 'Règles de récompenses', 'admin', 0],
+        ['logs', 'logs', 'journal-text', "Journal d'activité", 'admin', 0],
+        ['captcha', 'captcha', 'puzzle', 'Images du CAPTCHA', 'admin', 0],
     ],
 ];
 
@@ -90,7 +90,7 @@ $iconesFlash = ['success' => 'check-circle-fill', 'danger' => 'x-octagon-fill', 
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" data-bs-target="#menuAdmin" aria-label="Fermer"></button>
     </div>
     <div class="admin-menu-contenu">
-        <a href="index.php" class="admin-logo">
+        <a href="./" class="admin-logo">
             <i class="bi bi-book-half"></i>
             <span>BIBLIOccaz<small>Back-office</small></span>
         </a>
@@ -112,7 +112,7 @@ $iconesFlash = ['success' => 'check-circle-fill', 'danger' => 'x-octagon-fill', 
             </nav>
         <?php endif; ?>
 
-        <a href="apercu.php" class="admin-menu-lien admin-menu-site" target="_blank" rel="noopener" aria-label="Aperçu du site (nouvel onglet)">
+        <a href="apercu" class="admin-menu-lien admin-menu-site" target="_blank" rel="noopener" aria-label="Aperçu du site (nouvel onglet)">
             <i class="bi bi-eye"></i><span>Aperçu du site</span><i class="bi bi-box-arrow-up-right ms-auto small" aria-hidden="true"></i>
         </a>
     </div>
@@ -128,7 +128,7 @@ $iconesFlash = ['success' => 'check-circle-fill', 'danger' => 'x-octagon-fill', 
                 <?php if ($pageActive === 'index'): ?>
                     <li><span aria-current="page">Tableau de bord</span></li>
                 <?php else: ?>
-                    <li><a href="index.php">Tableau de bord</a></li>
+                    <li><a href="./">Tableau de bord</a></li>
                     <?php foreach ($filAriane as [$lienAriane, $libelleAriane]): ?>
                         <li><?= $lienAriane ? '<a href="' . e($lienAriane) . '">' . e($libelleAriane) . '</a>' : e($libelleAriane) ?></li>
                     <?php endforeach; ?>
@@ -144,9 +144,9 @@ $iconesFlash = ['success' => 'check-circle-fill', 'danger' => 'x-octagon-fill', 
                     <span class="role-profil d-none d-md-inline"><?= ROLES_LIBELLES[$_SESSION['role']] ?? '' ?></span>
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end shadow-sm">
-                    <li><a class="dropdown-item" href="mot_de_passe.php"><i class="bi bi-shield-lock me-2"></i>Changer mon mot de passe</a></li>
+                    <li><a class="dropdown-item" href="mot_de_passe"><i class="bi bi-shield-lock me-2"></i>Changer mon mot de passe</a></li>
                     <li><hr class="dropdown-divider"></li>
-                    <li><form method="POST" action="deconnexion.php"><?= champCsrf() ?><button type="submit" class="dropdown-item text-danger"><i class="bi bi-box-arrow-right me-2"></i>Déconnexion</button></form></li>
+                    <li><form method="POST" action="deconnexion"><?= champCsrf() ?><button type="submit" class="dropdown-item text-danger"><i class="bi bi-box-arrow-right me-2"></i>Déconnexion</button></form></li>
                 </ul>
             </div>
         <?php endif; ?>

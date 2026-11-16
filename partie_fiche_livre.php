@@ -132,7 +132,7 @@
                 <?php endif; ?>
                 <p class="mb-2">Vous avez ce livre ? <a href="annonce_creer?livre=<?= (int) $id ?>">Vendez-le</a> ou <a href="don_creer?livre=<?= (int) $id ?>">donnez-le</a>.</p>
                 <a class="small" href="#offres">Voir toutes les offres : magasin, lecteurs, dons et emprunts</a>
-                <?php if (in_array($_SESSION['role'] ?? '', ['admin', 'gestionnaire'], true)): ?><div class="d-flex flex-wrap gap-2 mt-3"><a href="admin/livre.php?id=<?= (int) $id ?>" class="btn btn-sm btn-outline-secondary">Modifier la fiche</a><a href="admin/exemplaires.php?id=<?= (int) $id ?>" class="btn btn-sm btn-outline-success">Gérer le stock</a></div><?php endif; ?>
+                <?php if (in_array($_SESSION['role'] ?? '', ['admin', 'gestionnaire'], true)): ?><div class="d-flex flex-wrap gap-2 mt-3"><a href="admin/livre?id=<?= (int) $id ?>" class="btn btn-sm btn-outline-secondary">Modifier la fiche</a><a href="admin/exemplaires?id=<?= (int) $id ?>" class="btn btn-sm btn-outline-success">Gérer le stock</a></div><?php endif; ?>
             </section>
     </div>
 </section>
