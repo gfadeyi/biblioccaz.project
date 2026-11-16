@@ -64,24 +64,22 @@ $colonnesMenuCompte = [];
 $serviceClientMenu = $avecCloche ? ['service_client.php', 'tasse', 'Service client', $nbReponsesService] : null;
 if ($resumeCompte) {
     $colonnesMenuCompte = [
-        ['Mon espace & achats', [
+        ['Mon compte & ventes', [
             ['profil.php', 'lecteur', 'Mon profil', 0],
-            ['points_badges.php', 'medaille', 'Mes points et badges', 0],
-            ['suggestions.php', 'lunettes', 'Suggestions pour vous', 0],
             ['commandes.php', 'colis', 'Mes achats', $resumeCompte['commandes']],
             ['retours.php', 'carton', 'Mes retours', 0],
-            ['adresses.php', 'enveloppe', 'Mes adresses', 0],
-            ['alertes.php', 'clochette', 'Mes alertes', $resumeCompte['alertes']],
-            ['wishlist.php', 'marque-page', 'Mes favoris', $nb_favoris, true],
-        ]],
-        ['Communauté & activités', [
-            ['mes_dons.php', 'seconde-vie', 'Mes dons', $resumeCompte['dons']],
             ['mes_annonces.php', 'etiquette', 'Mes annonces', $resumeCompte['annonces'] ?? 0],
             ['mes_transactions.php', 'cabas', 'Mes ventes entre lecteurs', $resumeCompte['transactions'] ?? 0],
+            ['adresses.php', 'enveloppe', 'Mes adresses', 0],
+            ['alertes.php', 'clochette', 'Mes alertes', $resumeCompte['alertes']],
+        ]],
+        ['Dons, emprunts & communauté', [
+            ['mes_dons.php', 'seconde-vie', 'Mes dons', $resumeCompte['dons']],
             ['mes_emprunts.php', 'livre-ouvert', 'Mes emprunts', $resumeCompte['emprunts'] ?? 0],
             ['mes_evenements.php', 'ticket', 'Mes événements', $resumeCompte['evenements']],
             ['ma_collection.php', 'pile', 'Mes collections', 0],
             ['avis.php', 'plume', 'Mes avis', $resumeCompte['avis']],
+            ['wishlist.php', 'marque-page', 'Mes favoris', $nb_favoris, true],
             ['messages.php', 'bulle', 'Mes messages', $nbMessagesNonLus, true],
         ]],
     ];
@@ -90,7 +88,6 @@ if ($resumeCompte) {
         ['Mon espace créateur', [
             ['profil.php', 'lecteur', 'Mon profil', 0],
             ['dashboard_auteur.php', 'plume', 'Espace créateur', 0],
-            ['suggestions.php', 'lunettes', 'Suggestions pour vous', 0],
             ['proposer_ouvrage.php', 'livre-ouvert', 'Proposer un livre', 0],
             ['proposer_evenement.php', 'ticket', 'Proposer un événement', 0],
         ]],
@@ -322,16 +319,18 @@ $nomOnglet = trim((string) ($titreDocument ?? $titrePage ?? $titresOnglets[$page
                             </span>
                         </li>
                         <?php if ($resumeCompte): ?>
-                            <li class="menu-entete__points">
-                                <a href="points_badges.php" class="menu-entete__solde"><?= iconeDessin('medaille') ?><strong><?= (int) $solde_points ?></strong> points à utiliser</a>
-                                <span class="jauge-niveau" style="--progression: <?= round($resumeCompte['niveau']['progression'], 3) ?>;"><span></span></span>
-                                <small>
-                                    <?php if ($resumeCompte['niveau']['prochain']): ?>
-                                        Encore <?= $resumeCompte['niveau']['reste'] ?> pts pour devenir « <?= htmlspecialchars($resumeCompte['niveau']['prochain']['nom']) ?> »
-                                    <?php else: ?>
-                                        Niveau maximum atteint, bravo !
-                                    <?php endif; ?>
-                                </small>
+                            <li>
+                                <a href="points_badges.php" class="menu-entete__points">
+                                    <span class="menu-entete__solde"><?= iconeDessin('medaille') ?><strong><?= (int) $solde_points ?></strong> points à utiliser <span class="menu-entete__voir">Points et badges <i class="bi bi-chevron-right" aria-hidden="true"></i></span></span>
+                                    <span class="jauge-niveau" style="--progression: <?= round($resumeCompte['niveau']['progression'], 3) ?>;"><span></span></span>
+                                    <small>
+                                        <?php if ($resumeCompte['niveau']['prochain']): ?>
+                                            Encore <?= $resumeCompte['niveau']['reste'] ?> pts pour devenir « <?= htmlspecialchars($resumeCompte['niveau']['prochain']['nom']) ?> »
+                                        <?php else: ?>
+                                            Niveau maximum atteint, bravo !
+                                        <?php endif; ?>
+                                    </small>
+                                </a>
                             </li>
                         <?php endif; ?>
                         <li class="menu-entete__colonnes<?= count($colonnesMenuCompte) > 1 ? ' menu-entete__colonnes--double' : '' ?>">

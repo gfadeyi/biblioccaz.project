@@ -2439,3 +2439,9 @@ form[data-selection-collection] legend { float: none; width: auto; }
     .menu-entete__colonnes--double { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: .6rem; }
     .menu-entete__colonnes--double .menu-entete__colonne + .menu-entete__colonne { border-left: 1px solid var(--trait); padding-left: .6rem; }
 }
+.menu-entete__points { text-decoration: none; transition: background var(--duree-rapide, 160ms), box-shadow var(--duree-rapide, 160ms); }
+.menu-entete__points:hover, .menu-entete__points:focus-visible { background: var(--vert-100); color: var(--encre-douce); box-shadow: inset 0 0 0 1px var(--vert-200); }
+.menu-entete__points:focus-visible { outline: 2px solid var(--texte-vif); outline-offset: 2px; }
+.menu-entete__voir { margin-left: auto; display: inline-flex; align-items: center; gap: .2rem; font-size: .76rem; font-weight: 600; color: var(--texte-vert); white-space: nowrap; }
+.menu-entete__points:hover .menu-entete__voir i { transform: translateX(2px); }
+.menu-entete__voir i { font-size: .7rem; transition: transform var(--duree-rapide, 160ms); }
