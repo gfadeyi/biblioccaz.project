@@ -56,7 +56,7 @@ include __DIR__ . '/_haut.php';
         <div class="col-xl-6">
             <div class="carte p-3 h-100">
                 <div class="d-flex gap-3">
-                    <img src="<?= imageLivre($l['couverture']) ?>" alt="" class="rounded shadow-sm flex-shrink-0" style="width: 90px; height: 128px; object-fit: cover;">
+                    <img width="90" height="128" src="<?= imageLivre($l['couverture']) ?>" alt="" loading="lazy" decoding="async" class="rounded shadow-sm flex-shrink-0" style="width: 90px; height: 128px; object-fit: cover;">
                     <div class="flex-grow-1">
                         <h2 class="h6 fw-bold mb-1"><?= e($l['titre']) ?></h2>
                         <p class="text-muted small mb-2">

@@ -64,7 +64,7 @@ include __DIR__ . '/_haut.php';
             <?php if ($photosSupplementaires): ?>
                 <ul class="galerie-don mb-3" aria-label="Autres photos du don">
                     <?php foreach ($photosSupplementaires as $numeroPhoto => $photoSupplementaire): ?>
-                        <li><a href="../<?= e(cheminPhotoDon($photoSupplementaire['fichier'])) ?>" target="_blank" rel="noopener"><img src="../<?= e(cheminPhotoDon($photoSupplementaire['fichier'])) ?>" alt="Photo <?= $numeroPhoto + 2 ?>" loading="lazy"></a></li>
+                        <li><a href="../<?= e(cheminPhotoDon($photoSupplementaire['fichier'])) ?>" target="_blank" rel="noopener"><img src="../<?= e(cheminPhotoDon($photoSupplementaire['fichier'])) ?>" alt="Photo <?= $numeroPhoto + 2 ?>" loading="lazy" decoding="async"></a></li>
                     <?php endforeach; ?>
                 </ul>
             <?php endif; ?>

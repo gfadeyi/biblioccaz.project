@@ -160,7 +160,7 @@ include __DIR__ . '/_haut.php';
             <?= champCsrf() ?>
             <input type="hidden" name="action" value="ajouter">
             <div class="d-flex gap-3 mb-3">
-                <img src="<?= imageLivre($livre['couverture']) ?>" alt="" class="rounded shadow-sm" style="width: 70px; height: 100px; object-fit: cover;">
+                <img width="70" height="100" src="<?= imageLivre($livre['couverture']) ?>" alt="" class="rounded shadow-sm" style="width: 70px; height: 100px; object-fit: cover;">
                 <div>
                     <div class="fw-bold"><?= e($livre['titre']) ?></div>
                     <div class="small text-muted"><?= e($livre['auteur'] ?? '') ?></div>

@@ -104,7 +104,7 @@ $onglets = ['en_validation' => 'À valider', 'refuse' => 'À corriger', 'en_cour
                     <tr>
                         <td>
                             <div class="d-flex align-items-center gap-3">
-                                <img src="../<?= photoDon($d['photo'], $d['couverture_don']) ?>" alt="" class="couverture-mini">
+                                <img width="42" height="60" src="../<?= photoDon($d['photo'], $d['couverture_don']) ?>" alt="" loading="lazy" decoding="async" class="couverture-mini">
                                 <div>
                                     <div class="fw-bold"><?= e($d['titre']) ?></div>
                                     <div class="small text-muted">#<?= $d['id_don'] ?> · code <span class="font-monospace"><?= e($d['code_court']) ?></span></div>

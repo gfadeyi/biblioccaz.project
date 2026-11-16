@@ -60,7 +60,7 @@ include __DIR__ . '/_haut.php';
                     <ul class="lignes-commande">
                         <?php foreach ($retour['lignes'] as $ligne): ?>
                             <li>
-                                <img src="<?= imageLivre($ligne['couverture']) ?>" alt="" loading="lazy">
+                                <img src="<?= imageLivre($ligne['couverture']) ?>" alt="" loading="lazy" decoding="async">
                                 <div class="lignes-commande__infos"><strong><?= e($ligne['titre']) ?></strong><small class="text-muted d-block"><?= e(libelleEtat($ligne['etat'])) ?> · <?= (int) $ligne['quantite_retour'] ?> sur <?= (int) $ligne['quantite'] ?> × <?= formaterPrix((float) $ligne['prix_unitaire']) ?></small></div>
                             </li>
                         <?php endforeach; ?>

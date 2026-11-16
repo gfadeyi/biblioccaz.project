@@ -102,7 +102,7 @@ function carteEmpruntAdmin(array $em, PDO $pdo, bool $resultatCode = false): voi
     <div class="col-xl-6">
         <article class="carte p-3 h-100 d-flex flex-column emprunt-admin<?= $retard ? ' emprunt-admin--retard' : '' ?>" id="emprunt-<?= $identifiantCarte ?>">
             <div class="d-flex gap-3">
-                <img src="<?= imageLivre($em['couverture']) ?>" alt="" class="emprunt-admin__visuel" loading="lazy">
+                <img src="<?= imageLivre($em['couverture']) ?>" alt="" class="emprunt-admin__visuel" loading="lazy" decoding="async">
                 <div class="min-w-0 flex-grow-1">
                     <div class="d-flex flex-wrap justify-content-between gap-2">
                         <div class="min-w-0">

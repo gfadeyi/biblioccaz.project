@@ -102,7 +102,7 @@ include 'header.php';
                     <?php $action = actionAttendue($t, $estVendeur); ?>
                     <li>
                         <a href="transaction?id=<?= (int) $t['id_demande'] ?>" class="carte-compte ligne-transaction<?= $action ? ' ligne-transaction--action' : '' ?>">
-                            <img src="<?= htmlspecialchars(urlPhotoAnnonce($t['photo'], $t['couverture'])) ?>" alt="" class="ligne-transaction__visuel" loading="lazy">
+                            <img src="<?= htmlspecialchars(urlPhotoAnnonce($t['photo'], $t['couverture'])) ?>" alt="" class="ligne-transaction__visuel" loading="lazy" decoding="async">
                             <span class="ligne-transaction__contenu">
                                 <span class="ligne-transaction__titre"><?= htmlspecialchars($t['titre']) ?></span>
                                 <span class="ligne-transaction__qui">

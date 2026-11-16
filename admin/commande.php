@@ -84,7 +84,7 @@ include __DIR__ . '/_haut.php';
                     <?php foreach ($lignes as $ligne): ?>
                         <li>
                             <?php if (!empty($ligne['couverture'])): ?>
-                                <img src="<?= imageLivre($ligne['couverture']) ?>" alt="" loading="lazy">
+                                <img src="<?= imageLivre($ligne['couverture']) ?>" alt="" loading="lazy" decoding="async">
                             <?php else: ?>
                                 <span class="lignes-commande__sans-image" aria-hidden="true"><i class="bi bi-book"></i></span>
                             <?php endif; ?>

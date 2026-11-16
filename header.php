@@ -196,6 +196,8 @@ $nomOnglet = trim((string) ($titreDocument ?? $titrePage ?? $titresOnglets[$page
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="BibliOccaz">
+    <link rel="preload" href="ressources/polices/source-sans-3-latin.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="ressources/polices/fraunces-latin.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="<?= urlStatique('ressources/polices/polices.css') ?>">
     <link rel="stylesheet" href="<?= urlStatique('ressources/bootstrap-5.3.0/bootstrap.min.css') ?>">
     <link rel="stylesheet" href="<?= urlStatique('ressources/bootstrap-icons-1.11.0/bootstrap-icons.min.css') ?>">
@@ -409,7 +411,7 @@ $nomOnglet = trim((string) ($titreDocument ?? $titrePage ?? $titresOnglets[$page
                         <li class="mini-cart-scroll">
                             <?php foreach ($_SESSION['panier'] as $item): ?>
                                 <div class="d-flex align-items-center mb-3 pb-2 border-bottom">
-                                    <img src="img/<?= htmlspecialchars($item['image']) ?>" alt="" class="img-fluid rounded border" style="width: 40px; height: 55px; object-fit: cover; flex-shrink: 0;">
+                                    <img width="40" height="55" src="img/<?= htmlspecialchars($item['image']) ?>" alt="" loading="lazy" decoding="async" class="img-fluid rounded border" style="width: 40px; height: 55px; object-fit: cover; flex-shrink: 0;">
                                     <div class="flex-grow-1 ms-3" style="min-width: 0;">
                                         <h6 class="mb-0 small fw-bold text-truncate" style="max-width: 150px;"><?= htmlspecialchars($item['titre']) ?></h6>
                                         <div class="text-muted" style="font-size: 0.7rem;">État : <?= htmlspecialchars($item['etat']) ?></div>

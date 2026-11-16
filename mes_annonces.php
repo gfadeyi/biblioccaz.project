@@ -79,7 +79,7 @@ include 'header.php';
             ?>
             <article class="carte-compte mon-annonce mon-annonce--<?= htmlspecialchars($statut) ?>">
                 <a href="annonce?id=<?= $id ?>" class="mon-annonce__visuel" tabindex="-1" aria-hidden="true">
-                    <img src="<?= htmlspecialchars(urlPhotoAnnonce($photos[$id] ?? null, $a['couverture'])) ?>" alt="" loading="lazy">
+                    <img src="<?= htmlspecialchars(urlPhotoAnnonce($photos[$id] ?? null, $a['couverture'])) ?>" alt="" loading="lazy" decoding="async">
                 </a>
                 <div class="mon-annonce__contenu">
                     <div class="mon-annonce__entete">

@@ -94,8 +94,11 @@ function conditionAnnoncePubliee(string $alias = 'e'): string
 function sqlOffres(array $origines = []): string
 {
     $requetesParOrigine = [
-        'magasin' => "SELECT ex.id_exemplaire AS id_offre, ex.id_livre, ex.etat, ex.prix, " . sqlStockLibrePanier('ex') . " AS quantite, 'magasin' AS origine
-                      FROM exemplaire ex WHERE " . conditionOffreMagasin('ex'),
+        'magasin' => "SELECT ex.id_exemplaire AS id_offre, ex.id_livre, ex.etat, ex.prix, GREATEST(0, ex.quantite - COALESCE(rs.reserve, 0)) AS quantite, 'magasin' AS origine
+                      FROM exemplaire ex
+                      INNER JOIN livre fiche ON fiche.id_livre = ex.id_livre AND fiche.is_valide = 1
+                      LEFT JOIN (SELECT pr.id_exemplaire, SUM(pr.quantite) AS reserve FROM panier_reservation pr WHERE pr.date_expiration > NOW() GROUP BY pr.id_exemplaire) rs ON rs.id_exemplaire = ex.id_exemplaire
+                      WHERE " . conditionExemplaireMagasin('ex') . " AND ex.is_disponible = 1 AND ex.quantite > COALESCE(rs.reserve, 0)",
         'particulier' => "SELECT an.id_exemplaire AS id_offre, an.id_livre, an.etat, an.prix, 1 AS quantite, 'particulier' AS origine
                           FROM exemplaire an WHERE " . conditionAnnoncePubliee('an'),
         'don'     => "SELECT d.id_don AS id_offre, d.id_livre, d.etat, 0 AS prix, 1 AS quantite, 'don' AS origine

@@ -237,7 +237,7 @@ include 'header.php';
                             <?php foreach ($photosExistantes as $photoExistante): ?>
                                 <label class="photo-don-existante">
                                     <input type="checkbox" name="retirer_photos[]" value="<?= (int) $photoExistante['id_photo'] ?>">
-                                    <img src="<?= htmlspecialchars(cheminPhotoDon($photoExistante['fichier'])) ?>" alt="Photo supplémentaire" loading="lazy">
+                                    <img src="<?= htmlspecialchars(cheminPhotoDon($photoExistante['fichier'])) ?>" alt="Photo supplémentaire" loading="lazy" decoding="async">
                                     <span>Retirer</span>
                                 </label>
                             <?php endforeach; ?>

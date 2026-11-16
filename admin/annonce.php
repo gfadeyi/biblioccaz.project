@@ -134,7 +134,7 @@ include __DIR__ . '/_haut.php';
                         <div class="d-flex flex-wrap gap-3">
                             <?php foreach ($photos as $index => $photo): ?>
                                 <label class="text-center small">
-                                    <img src="<?= e(urlPhotoAnnonce($photo['fichier'], null, '../')) ?>" alt="Photo <?= $index + 1 ?> de l'annonce" class="d-block rounded border mb-1" style="width: 92px; height: 116px; object-fit: cover;">
+                                    <img width="92" height="116" src="<?= e(urlPhotoAnnonce($photo['fichier'], null, '../')) ?>" alt="Photo <?= $index + 1 ?> de l'annonce" class="d-block rounded border mb-1" style="width: 92px; height: 116px; object-fit: cover;">
                                     <input type="checkbox" class="form-check-input" name="retirer_photos[]" value="<?= (int) $photo['id_photo'] ?>"> Retirer
                                 </label>
                             <?php endforeach; ?>
@@ -160,7 +160,7 @@ include __DIR__ . '/_haut.php';
         <div class="carte p-4">
             <h2 class="h6 fw-bold mb-3">L'annonce</h2>
             <div class="d-flex gap-3 mb-3">
-                <img src="<?= imageLivre($annonce['couverture']) ?>" alt="" class="rounded shadow-sm" style="width: 64px; height: 90px; object-fit: cover;">
+                <img width="64" height="90" src="<?= imageLivre($annonce['couverture']) ?>" alt="" class="rounded shadow-sm" style="width: 64px; height: 90px; object-fit: cover;">
                 <div class="small">
                     <div class="fw-bold"><?= e($annonce['titre']) ?></div>
                     <div class="text-muted"><?= e((string) $annonce['auteur']) ?></div>

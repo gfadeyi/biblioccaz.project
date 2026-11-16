@@ -75,7 +75,7 @@ include 'header.php';
                     <?php foreach ($lignes as $ligne): ?>
                         <?php $choisie = $saisie['quantites'][$ligne['id_ligne']] ?? ((int) $ligne['quantite'] === 1 && count($lignes) === 1 ? 1 : 0); ?>
                         <li>
-                            <img src="<?= htmlspecialchars(urlImage($ligne['couverture'])) ?>" alt="" loading="lazy">
+                            <img src="<?= htmlspecialchars(urlImage($ligne['couverture'])) ?>" alt="" loading="lazy" decoding="async">
                             <span class="lignes-retour__titre"><strong><?= htmlspecialchars($ligne['titre']) ?></strong><small><?= htmlspecialchars(libelleEtat($ligne['etat'])) ?> · <?= formaterPrix((float) $ligne['prix_unitaire']) ?></small></span>
                             <label class="lignes-retour__quantite">
                                 <span class="visually-hidden">Quantité à retourner pour <?= htmlspecialchars($ligne['titre']) ?></span>

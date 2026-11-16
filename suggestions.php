@@ -94,7 +94,7 @@ echo etoilesStyle();
                         <?php foreach ($historique as $consulte): ?>
                             <li>
                                 <a href="livre?id=<?= (int) $consulte['id_livre'] ?>">
-                                    <img src="<?= htmlspecialchars(urlImage($consulte['couverture'] ?: 'default.png')) ?>" alt="" loading="lazy">
+                                    <img src="<?= htmlspecialchars(urlImage($consulte['couverture'] ?: 'default.png')) ?>" alt="" loading="lazy" decoding="async">
                                     <span><?= htmlspecialchars($consulte['titre']) ?></span>
                                 </a>
                             </li>

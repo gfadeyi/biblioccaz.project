@@ -106,7 +106,7 @@ include 'header.php';
                     <?php foreach ($imagesGalerie as $index => $image): ?>
                         <a href="<?= htmlspecialchars($image) ?>" class="galerie-annonce__vignette<?= $index === 0 ? ' actif' : '' ?>" data-photo="<?= htmlspecialchars($image) ?>"
                            aria-label="Afficher la photo <?= $index + 1 ?>" <?= $index === 0 ? 'aria-current="true"' : '' ?>>
-                            <img src="<?= htmlspecialchars($image) ?>" alt="" loading="lazy">
+                            <img src="<?= htmlspecialchars($image) ?>" alt="" loading="lazy" decoding="async">
                         </a>
                     <?php endforeach; ?>
                 </div>

@@ -184,7 +184,7 @@ include 'header.php';
                 <input type="hidden" name="MAX_FILE_SIZE" value="<?= PHOTO_PROFIL_TAILLE_MAX ?>">
                 <input type="file" name="photo" id="champPhoto" class="visually-hidden" accept="image/jpeg,image/png,image/webp" data-taille-max="<?= PHOTO_PROFIL_TAILLE_MAX ?>">
                 <label for="champPhoto" class="bouton bouton-contour bouton-petit" id="boutonChoisirPhoto"><i class="bi bi-camera" aria-hidden="true"></i> <?= cheminPhotoMembre($user['photo'] ?? null) ? 'Changer la photo' : 'Ajouter une photo' ?></label>
-                <div class="profil-photo__choix" id="choixPhoto">
+                <div class="profil-photo__choix" id="choixPhoto" data-attente-script>
                     <button class="bouton bouton-principal bouton-petit"><i class="bi bi-check-lg" aria-hidden="true"></i> Enregistrer</button>
                     <button type="button" class="bouton bouton-discret bouton-petit" id="annulerPhoto">Annuler</button>
                 </div>
@@ -329,7 +329,7 @@ include 'header.php';
                     <?php foreach ($suggestionsProfil as $suggestion): ?>
                         <li>
                             <a href="livre?id=<?= (int) $suggestion['id_livre'] ?>">
-                                <img src="<?= htmlspecialchars(urlImage($suggestion['couverture'] ?: 'default.png')) ?>" alt="" loading="lazy">
+                                <img src="<?= htmlspecialchars(urlImage($suggestion['couverture'] ?: 'default.png')) ?>" alt="" loading="lazy" decoding="async">
                                 <span>
                                     <strong><?= htmlspecialchars($suggestion['titre']) ?></strong>
                                     <small><?= htmlspecialchars($suggestion['raison']) ?></small>
@@ -376,7 +376,7 @@ include 'header.php';
                     <div class="couvertures-profil">
                         <?php foreach (array_slice($favoris, 0, 5) as $favori): ?>
                             <a href="livre?id=<?= (int) $favori['id_livre'] ?>" title="<?= htmlspecialchars($favori['titre']) ?>">
-                                <img src="<?= htmlspecialchars(urlImage($favori['couverture'])) ?>" alt="<?= htmlspecialchars($favori['titre']) ?>" loading="lazy">
+                                <img src="<?= htmlspecialchars(urlImage($favori['couverture'])) ?>" alt="<?= htmlspecialchars($favori['titre']) ?>" loading="lazy" decoding="async">
                             </a>
                         <?php endforeach; ?>
                     </div>

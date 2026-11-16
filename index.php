@@ -280,7 +280,7 @@ include 'header.php';
                 <h3><?= iconeDessin('carton') ?> Derniers dons</h3>
                 <?php foreach ($derniersDons as $don): ?>
                     <a href="don_detail?id=<?= (int) $don['id_don'] ?>" class="ligne-communaute">
-                        <span class="couverture-mini"><img src="<?= htmlspecialchars(photoDon($don['photo'], $don['couverture_don'])) ?>" alt="" loading="lazy"></span>
+                        <span class="couverture-mini"><img src="<?= htmlspecialchars(photoDon($don['photo'], $don['couverture_don'])) ?>" alt="" loading="lazy" decoding="async"></span>
                         <span class="ligne-communaute__texte">
                             <strong><?= htmlspecialchars($don['titre']) ?></strong>
                             <?php if (!empty($don['auteur'])): ?><small><?= htmlspecialchars($don['auteur']) ?></small><?php endif; ?>
@@ -338,7 +338,7 @@ include 'header.php';
                     <div class="carrousel-avis" data-carrousel-avis>
                         <?php foreach ($derniersAvis as $avis): ?>
                             <a href="livre?id=<?= (int) $avis['id_livre'] ?>#avis" class="avis-lecteur">
-                                <span class="couverture-mini"><img src="<?= htmlspecialchars(urlImage($avis['couverture'])) ?>" alt="" loading="lazy"></span>
+                                <span class="couverture-mini"><img src="<?= htmlspecialchars(urlImage($avis['couverture'])) ?>" alt="" loading="lazy" decoding="async"></span>
                                 <span class="avis-lecteur__texte">
                                     <span class="avis-lecteur__auteur">
                                         <?= avatarMembre($avis['pseudo'], $avis['photo'], 'petit') ?>

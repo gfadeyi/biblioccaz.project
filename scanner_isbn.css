@@ -4,6 +4,7 @@
 .bouton-scanner-isbn:hover { background: var(--vert-50, #f2f7ee); border-color: var(--texte-vert, #274e13); }
 .bouton-scanner-isbn:focus-visible, .bouton-scanner-entete:focus-visible, .scanner-isbn button:focus-visible { outline: 2px solid var(--texte-vif, #3f7d25); outline-offset: 2px; }
 .bouton-scanner-isbn[hidden], .bouton-scanner-entete[hidden] { display: none; }
+@media (scripting: enabled) { .bouton-scanner-isbn[hidden] { display: inline-flex !important; visibility: hidden; } }
 .bouton-scanner-entete { position: absolute; right: 47px; top: 5px; width: 38px; height: 38px; display: inline-flex; align-items: center; justify-content: center;
                          border: 0; border-radius: 50%; background: transparent; color: var(--texte-vert, #274e13); font-size: 1.15rem; cursor: pointer; transition: background .2s ease; }
 .bouton-scanner-entete:hover { background: var(--vert-50, #f2f7ee); }

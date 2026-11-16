@@ -84,7 +84,7 @@ function boutonActionDon(string $action, int $idDon, string $csrf, string $libel
             <?php if ($photosSupplementaires): ?>
                 <ul class="galerie-don" aria-label="Autres photos du livre">
                     <?php foreach ($photosSupplementaires as $numeroPhoto => $photoSupplementaire): ?>
-                        <li><a href="<?= htmlspecialchars(cheminPhotoDon($photoSupplementaire['fichier'])) ?>" target="_blank" rel="noopener"><img src="<?= htmlspecialchars(cheminPhotoDon($photoSupplementaire['fichier'])) ?>" alt="Photo <?= $numeroPhoto + 2 ?> de « <?= htmlspecialchars($don['titre']) ?> »" loading="lazy"></a></li>
+                        <li><a href="<?= htmlspecialchars(cheminPhotoDon($photoSupplementaire['fichier'])) ?>" target="_blank" rel="noopener"><img src="<?= htmlspecialchars(cheminPhotoDon($photoSupplementaire['fichier'])) ?>" alt="Photo <?= $numeroPhoto + 2 ?> de « <?= htmlspecialchars($don['titre']) ?> »" loading="lazy" decoding="async"></a></li>
                     <?php endforeach; ?>
                 </ul>
             <?php endif; ?>

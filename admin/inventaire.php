@@ -175,7 +175,7 @@ include __DIR__ . '/_haut.php';
                         <tr class="<?= $classeLigne ?>">
                             <td>
                                 <div class="d-flex align-items-center gap-3">
-                                    <img loading="lazy" decoding="async" src="<?= imageLivre($l['couverture']) ?>" alt="" class="couverture-mini">
+                                    <img width="42" height="60" loading="lazy" decoding="async" src="<?= imageLivre($l['couverture']) ?>" alt="" class="couverture-mini">
                                     <div>
                                         <div class="titre-livre"><?= e($l['titre']) ?></div>
                                         <div class="auteur-livre"><?= e($l['auteur']) ?></div>

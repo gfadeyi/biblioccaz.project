@@ -37,7 +37,7 @@ function avatarMembre(string $pseudo, ?string $photo, string $classe = '', strin
     $classes = trim('avatar-lecteur ' . $classe);
     $chemin = cheminPhotoMembre($photo);
     if ($chemin) {
-        return '<span class="' . $classes . ' avec-photo" aria-hidden="true"><img src="' . htmlspecialchars($prefixe . $chemin) . '" alt="" loading="lazy"></span>';
+        return '<span class="' . $classes . ' avec-photo" aria-hidden="true"><img src="' . htmlspecialchars($prefixe . $chemin) . '" alt="" loading="lazy" decoding="async"></span>';
     }
     $teinte = crc32(mb_strtolower($pseudo, 'UTF-8')) % TEINTES_AVATAR + 1;
     return '<span class="' . $classes . ' teinte-' . $teinte . '" aria-hidden="true">' . htmlspecialchars(initialePseudo($pseudo)) . '</span>';

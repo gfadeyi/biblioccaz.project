@@ -129,7 +129,7 @@ $v = fn(string $c) => e((string) ($valeurs[$c] ?? ''));
         <div class="col-md-6">
             <label class="form-label small fw-bold" for="image">Couverture (JPG, PNG ou WEBP, 2 Mo max)</label>
             <div class="d-flex gap-3 align-items-center">
-                <?php if ($livre): ?><img src="<?= imageLivre($livre['couverture']) ?>" alt="Couverture actuelle" class="couverture-mini"><?php endif; ?>
+                <?php if ($livre): ?><img width="42" height="60" src="<?= imageLivre($livre['couverture']) ?>" alt="Couverture actuelle" class="couverture-mini"><?php endif; ?>
                 <input type="file" id="image" name="image" class="form-control" accept="image/jpeg,image/png,image/webp">
             </div>
         </div>

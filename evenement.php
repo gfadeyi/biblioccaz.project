@@ -212,7 +212,7 @@ include 'header.php';
             <div class="livres-evenement__liste">
                 <?php foreach ($livresAssocies as $livre): ?>
                     <a href="livre?id=<?= (int) $livre['id_livre'] ?>" class="livres-evenement__livre">
-                        <img src="<?= htmlspecialchars(urlImage($livre['couverture'])) ?>" alt="" loading="lazy">
+                        <img src="<?= htmlspecialchars(urlImage($livre['couverture'])) ?>" alt="" loading="lazy" decoding="async">
                         <strong><?= htmlspecialchars($livre['titre']) ?></strong>
                         <small><?= htmlspecialchars($livre['auteur'] ?? '') ?></small>
                     </a>

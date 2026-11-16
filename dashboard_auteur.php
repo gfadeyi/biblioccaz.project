@@ -172,7 +172,7 @@ include 'header.php';
                 <?php foreach ($mesLivres as $livre): ?>
                     <li>
                         <span class="d-flex align-items-center gap-3">
-                            <img src="<?= htmlspecialchars(urlImage($livre['couverture'])) ?>" alt="" class="miniature-livre" loading="lazy">
+                            <img src="<?= htmlspecialchars(urlImage($livre['couverture'])) ?>" alt="" class="miniature-livre" loading="lazy" decoding="async">
                             <span>
                                 <?php if ($livre['is_valide']): ?>
                                     <a href="livre?id=<?= (int) $livre['id_livre'] ?>"><?= htmlspecialchars($livre['titre']) ?></a>

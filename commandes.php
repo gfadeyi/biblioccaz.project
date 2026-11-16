@@ -149,7 +149,7 @@ include 'header.php';
                         <?php endif; ?>
                         <div class="d-flex align-items-center mb-2">
                             <?php if (!empty($l['couverture'])): ?>
-                                <img src="<?= htmlspecialchars(urlImage($l['couverture'])) ?>" alt="" loading="lazy" class="rounded border" style="width: 40px; height: 55px; object-fit: cover;">
+                                <img width="40" height="55" src="<?= htmlspecialchars(urlImage($l['couverture'])) ?>" alt="" loading="lazy" decoding="async" class="rounded border" style="width: 40px; height: 55px; object-fit: cover;">
                             <?php else: ?>
                                 <div class="rounded border bg-light d-flex align-items-center justify-content-center" style="width: 40px; height: 55px;"><i class="bi bi-book text-muted"></i></div>
                             <?php endif; ?>

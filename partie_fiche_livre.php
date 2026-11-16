@@ -12,7 +12,7 @@
                     <?php if (!empty($livre['date_ajout']) && strtotime($livre['date_ajout']) >= strtotime('-30 days')): ?><span class="badge-bibli badge-nouveau">Nouveauté</span><?php endif; ?>
                     <?php if ($serieLivre): ?><a href="serie?id=<?= (int) $serieLivre['id_serie'] ?>" class="badge-bibli badge-etat">Série<?= $serieLivre['numero_tome'] !== null ? ' · tome ' . htmlspecialchars(numeroVolumeSerie($serieLivre)) : '' ?></a><?php endif; ?>
                 </div>
-                <img class="fiche-livre__couverture" src="<?= htmlspecialchars(urlImage($livre['couverture'])) ?>" alt="Couverture de <?= htmlspecialchars($livre['titre']) ?>" fetchpriority="high">
+                <img class="fiche-livre__couverture" src="<?= htmlspecialchars(urlImage($livre['couverture'])) ?>" alt="Couverture de <?= htmlspecialchars($livre['titre']) ?>"<?= dimensionsImage($livre['couverture'] ?: 'default.png') ?> fetchpriority="high" decoding="async">
                 <?php if ($publicsLivre): ?><p class="fiche-livre__audience"><?= htmlspecialchars(implode(' · ', array_column($publicsLivre, 'nom'))) ?></p><?php endif; ?>
             </div>
 
@@ -155,7 +155,7 @@
     <div style="min-width:0;">
         <div class="serie-complete__navigation"><button type="button" data-carrousel-cible="tomes-serie" data-direction="-1" aria-label="Tomes précédents"><i class="bi bi-chevron-left" aria-hidden="true"></i></button><button type="button" data-carrousel-cible="tomes-serie" data-direction="1" aria-label="Tomes suivants"><i class="bi bi-chevron-right" aria-hidden="true"></i></button></div>
         <div class="serie-complete__tomes" id="tomes-serie">
-            <?php foreach ($selectionSerie['tomes'] as $tome): ?><a class="serie-tome" href="livre?id=<?= (int) $tome['id_livre'] ?>"><img src="<?= htmlspecialchars(urlImage($tome['couverture'])) ?>" alt="Couverture de <?= htmlspecialchars($tome['titre']) ?>" loading="lazy"><?php if ($tome['numero_tome'] !== null): ?><span>Tome <?= htmlspecialchars(numeroVolumeSerie($tome)) ?></span><?php endif; ?><strong><?= htmlspecialchars($tome['titre']) ?></strong></a><?php endforeach; ?>
+            <?php foreach ($selectionSerie['tomes'] as $tome): ?><a class="serie-tome" href="livre?id=<?= (int) $tome['id_livre'] ?>"><img src="<?= htmlspecialchars(urlImage($tome['couverture'])) ?>" alt="Couverture de <?= htmlspecialchars($tome['titre']) ?>" loading="lazy" decoding="async"><?php if ($tome['numero_tome'] !== null): ?><span>Tome <?= htmlspecialchars(numeroVolumeSerie($tome)) ?></span><?php endif; ?><strong><?= htmlspecialchars($tome['titre']) ?></strong></a><?php endforeach; ?>
         </div>
     </div>
 </section>

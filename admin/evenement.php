@@ -217,7 +217,7 @@ include __DIR__ . '/_haut.php';
                 <div class="col-12">
                     <label class="form-label small fw-bold" for="image">Image (JPG, PNG ou WEBP, 2 Mo max)</label>
                     <div class="d-flex gap-3 align-items-center">
-                        <?php if (!empty($evt['image'])): ?><img src="<?= e(imageEvenement($evt['image'], '../')) ?>" alt="Image actuelle" class="rounded" style="width: 90px; height: 56px; object-fit: cover;"><?php endif; ?>
+                        <?php if (!empty($evt['image'])): ?><img width="90" height="56" src="<?= e(imageEvenement($evt['image'], '../')) ?>" alt="Image actuelle" class="rounded" style="width: 90px; height: 56px; object-fit: cover;"><?php endif; ?>
                         <input type="file" id="image" name="image" class="form-control" accept="image/jpeg,image/png,image/webp">
                     </div>
                 </div>

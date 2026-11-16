@@ -21,6 +21,7 @@ document.addEventListener('DOMContentLoaded', function () {
         apercu.removeAttribute('src');
         cadre.classList.remove('avec-apercu');
         choix.hidden = true;
+        choix.removeAttribute('data-attente-script');
         boutonChoisir.hidden = false;
         if (formulaireRetirer) formulaireRetirer.hidden = false;
         aide.textContent = message || texteAide;

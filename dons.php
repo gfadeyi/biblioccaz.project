@@ -131,7 +131,7 @@ include 'header.php';
                 <div class="col-sm-6 col-lg-3">
                     <a href="don_detail?id=<?= $d['id_don'] ?>" class="card h-100 border-0 shadow-sm text-decoration-none text-dark" style="border-radius: 15px; overflow: hidden;">
                         <div class="bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
-                            <img src="<?= htmlspecialchars(photoDon($d['photo'], $d['couverture_don'])) ?>" alt="<?= htmlspecialchars(legendePhotoDon($d['photo'], $d['couverture_don']) . ' : ' . $d['titre']) ?>" loading="lazy" style="max-height: 180px; max-width: 90%; object-fit: contain;">
+                            <img src="<?= htmlspecialchars(photoDon($d['photo'], $d['couverture_don'])) ?>" alt="<?= htmlspecialchars(legendePhotoDon($d['photo'], $d['couverture_don']) . ' : ' . $d['titre']) ?>" loading="lazy" decoding="async" style="max-height: 180px; max-width: 90%; object-fit: contain;">
                         </div>
                         <div class="card-body">
                             <div class="small text-muted mb-2"><?= htmlspecialchars(legendePhotoDon($d['photo'], $d['couverture_don'])) ?></div>

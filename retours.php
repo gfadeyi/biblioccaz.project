@@ -83,7 +83,7 @@ include 'header.php';
                         <ul class="lignes-retour lignes-retour--lecture">
                             <?php foreach ($retour['lignes'] as $ligne): ?>
                                 <li>
-                                    <img src="<?= htmlspecialchars(urlImage($ligne['couverture'])) ?>" alt="" loading="lazy">
+                                    <img src="<?= htmlspecialchars(urlImage($ligne['couverture'])) ?>" alt="" loading="lazy" decoding="async">
                                     <span class="lignes-retour__titre"><strong><?= htmlspecialchars($ligne['titre']) ?></strong><small><?= htmlspecialchars(libelleEtat($ligne['etat'])) ?> · <?= (int) $ligne['quantite_retour'] ?> × <?= formaterPrix((float) $ligne['prix_unitaire']) ?></small></span>
                                 </li>
                             <?php endforeach; ?>

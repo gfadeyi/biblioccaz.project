@@ -127,6 +127,20 @@ function urlImage(?string $fichier, string $racine = ''): string
     return $racine . 'img/' . implode('/', array_map('rawurlencode', explode('/', $chemin)));
 }
 
+function dimensionsImage(?string $fichier): string
+{
+    static $connues = [];
+    if (!$fichier || str_contains($fichier, '..') || preg_match('~A[a-z]+://~i', $fichier)) {
+        return '';
+    }
+    if (!isset($connues[$fichier])) {
+        $chemin = __DIR__ . '/img/' . $fichier;
+        $taille = is_file($chemin) ? @getimagesize($chemin) : (is_file(__DIR__ . '/img/default.png') ? @getimagesize(__DIR__ . '/img/default.png') : false);
+        $connues[$fichier] = $taille && $taille[0] > 0 && $taille[1] > 0 ? ' width="' . (int) $taille[0] . '" height="' . (int) $taille[1] . '"' : '';
+    }
+    return $connues[$fichier];
+}
+
 function urlStatique(string $chemin, string $racine = ''): string
 {
     $fichier = __DIR__ . '/' . $chemin;

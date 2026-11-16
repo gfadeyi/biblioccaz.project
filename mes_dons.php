@@ -32,7 +32,7 @@ include 'header.php';
 
 function ligneDon(array $d, string $infoPersonne): void { ?>
     <a href="don_detail?id=<?= $d['id_don'] ?>" class="list-group-item list-group-item-action d-flex align-items-center gap-3 py-3">
-        <img src="<?= htmlspecialchars(photoDon($d['photo'], $d['couverture_don'])) ?>" alt="" class="rounded border" style="width: 45px; height: 60px; object-fit: cover;">
+        <img width="45" height="60" src="<?= htmlspecialchars(photoDon($d['photo'], $d['couverture_don'])) ?>" alt="" loading="lazy" decoding="async" class="rounded border" style="width: 45px; height: 60px; object-fit: cover;">
         <div class="flex-grow-1">
             <div class="fw-bold"><?= htmlspecialchars($d['titre']) ?></div>
             <div class="small text-muted"><?= $infoPersonne ?></div>

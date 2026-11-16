@@ -37,7 +37,7 @@ include 'header.php';
                 <li class="carte-auteur">
                     <span class="carte-auteur__portrait" aria-hidden="true">
                         <?php if ($photoAuteur): ?>
-                            <img src="<?= htmlspecialchars($photoAuteur) ?>" alt="" loading="lazy">
+                            <img src="<?= htmlspecialchars($photoAuteur) ?>" alt="" loading="lazy" decoding="async">
                         <?php else: ?>
                             <?= htmlspecialchars(mb_strtoupper(mb_substr($ficheAuteur['nom_plume'], 0, 1))) ?>
                         <?php endif; ?>

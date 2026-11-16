@@ -101,7 +101,7 @@ include __DIR__ . '/_haut.php';
         <div class="col-xl-6">
             <article class="carte p-3 h-100 d-flex flex-column vente-admin<?= (int) $v['en_litige'] ? ' vente-admin--litige' : '' ?>">
                 <div class="d-flex gap-3">
-                    <img src="<?= e(urlPhotoAnnonce($v['photo'], $v['couverture'], '../')) ?>" alt="" class="vente-admin__visuel" loading="lazy">
+                    <img src="<?= e(urlPhotoAnnonce($v['photo'], $v['couverture'], '../')) ?>" alt="" class="vente-admin__visuel" loading="lazy" decoding="async">
                     <div class="min-w-0 flex-grow-1">
                         <div class="d-flex flex-wrap justify-content-between gap-2">
                             <div class="min-w-0">

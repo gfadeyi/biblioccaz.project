@@ -90,7 +90,7 @@ include 'header.php';
                             <a href="messages?id=<?= (int) $c['id_conversation'] ?>#conversation"
                                class="ligne-conversation<?= $c['non_lus'] ? ' ligne-conversation--non-lue' : '' ?><?= $c['statut'] !== 'ouverte' ? ' ligne-conversation--fermee' : '' ?>"
                                <?= $active ? 'aria-current="page"' : '' ?>>
-                                <img src="<?= htmlspecialchars($c['objet']['image']) ?>" alt="" class="ligne-conversation__visuel" loading="lazy">
+                                <img src="<?= htmlspecialchars($c['objet']['image']) ?>" alt="" class="ligne-conversation__visuel" loading="lazy" decoding="async">
                                 <span class="ligne-conversation__texte">
                                     <span class="ligne-conversation__haut">
                                         <span class="ligne-conversation__titre"><?= htmlspecialchars($c['objet']['titre']) ?></span>

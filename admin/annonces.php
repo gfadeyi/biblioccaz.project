@@ -136,11 +136,11 @@ include __DIR__ . '/_haut.php';
                         <?php if ($imagesAnnonce): ?>
                             <?php foreach ($imagesAnnonce as $index => $fichier): ?>
                                 <a href="<?= e(urlPhotoAnnonce($fichier, null, '../')) ?>" target="_blank" rel="noopener" class="<?= $index ? 'annonce-admin__vignette' : 'annonce-admin__principale' ?>">
-                                    <img src="<?= e(urlPhotoAnnonce($fichier, null, '../')) ?>" alt="Photo <?= $index + 1 ?> de l'annonce">
+                                    <img src="<?= e(urlPhotoAnnonce($fichier, null, '../')) ?>" alt="Photo <?= $index + 1 ?> de l'annonce" loading="lazy" decoding="async">
                                 </a>
                             <?php endforeach; ?>
                         <?php else: ?>
-                            <span class="annonce-admin__principale"><img src="<?= imageLivre($a['couverture']) ?>" alt=""></span>
+                            <span class="annonce-admin__principale"><img src="<?= imageLivre($a['couverture']) ?>" alt="" loading="lazy" decoding="async"></span>
                             <span class="small text-muted d-block mt-1">Sans photo</span>
                         <?php endif; ?>
                     </div>

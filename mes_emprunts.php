@@ -107,7 +107,7 @@ include 'header.php';
                 <h2 class="section-emprunts__titre" id="titre-reservations"><?= iconeDessin('ticket') ?> À retirer en magasin</h2>
                 <?php foreach ($reservations as $emprunt): ?>
                     <article class="carte-compte carte-emprunt carte-emprunt--reserve" id="emprunt-<?= (int) $emprunt['id_emprunt'] ?>">
-                        <img src="<?= htmlspecialchars(urlImage($emprunt['couverture'])) ?>" alt="" class="carte-emprunt__couverture" loading="lazy">
+                        <img src="<?= htmlspecialchars(urlImage($emprunt['couverture'])) ?>" alt="" class="carte-emprunt__couverture" loading="lazy" decoding="async">
                         <div class="carte-emprunt__contenu">
                             <h3 class="carte-emprunt__titre"><a href="livre?id=<?= (int) $emprunt['id_livre'] ?>"><?= htmlspecialchars($emprunt['titre']) ?></a></h3>
                             <p class="carte-emprunt__auteur"><?= htmlspecialchars($emprunt['auteur'] ?? '') ?></p>
@@ -142,7 +142,7 @@ include 'header.php';
                 <?php foreach ($enCours as $emprunt): ?>
                     <?php $refusRenouvellement = raisonRefusRenouvellement($pdo, $emprunt); $retard = empruntEnRetard($emprunt); ?>
                     <article class="carte-compte carte-emprunt<?= $retard ? ' carte-emprunt--retard' : '' ?>" id="emprunt-<?= (int) $emprunt['id_emprunt'] ?>">
-                        <img src="<?= htmlspecialchars(urlImage($emprunt['couverture'])) ?>" alt="" class="carte-emprunt__couverture" loading="lazy">
+                        <img src="<?= htmlspecialchars(urlImage($emprunt['couverture'])) ?>" alt="" class="carte-emprunt__couverture" loading="lazy" decoding="async">
                         <div class="carte-emprunt__contenu">
                             <h3 class="carte-emprunt__titre"><a href="livre?id=<?= (int) $emprunt['id_livre'] ?>"><?= htmlspecialchars($emprunt['titre']) ?></a></h3>
                             <p class="carte-emprunt__auteur"><?= htmlspecialchars($emprunt['auteur'] ?? '') ?></p>
@@ -189,7 +189,7 @@ include 'header.php';
                 <ul class="liste-attentes">
                     <?php foreach ($attentes as $attente): ?>
                         <li class="carte-compte ligne-attente">
-                            <img src="<?= htmlspecialchars(urlImage($attente['couverture'])) ?>" alt="" class="ligne-attente__couverture" loading="lazy">
+                            <img src="<?= htmlspecialchars(urlImage($attente['couverture'])) ?>" alt="" class="ligne-attente__couverture" loading="lazy" decoding="async">
                             <span class="ligne-attente__texte">
                                 <a href="livre?id=<?= (int) $attente['id_livre'] ?>" class="ligne-attente__titre"><?= htmlspecialchars($attente['titre']) ?></a>
                                 <span class="ligne-attente__detail">
