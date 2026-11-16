@@ -582,3 +582,6 @@ a.stat:hover, a.stat:focus-visible { translate: 0 -3px; box-shadow: var(--ombre-
 .galerie-don { list-style: none; display: flex; flex-wrap: wrap; gap: .5rem; margin: 0; padding: 0; }
 .galerie-don a { display: block; width: 64px; height: 84px; border: 1px solid var(--trait); border-radius: 8px; overflow: hidden; }
 .galerie-don img { width: 100%; height: 100%; object-fit: cover; }
+@media (max-width: 991.98px) {
+    .admin-menu .admin-menu-contenu { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; padding-bottom: calc(1.25rem + env(safe-area-inset-bottom)); }
+}
