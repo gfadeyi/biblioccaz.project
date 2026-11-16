@@ -98,7 +98,7 @@ include 'header.php';
     <nav aria-label="Fil d'Ariane" class="fil-ariane">
         <a href="mon-compte">Mon compte</a>
         <span aria-hidden="true">›</span>
-        <a href="mes_transactions.php<?= $estVendeur ? '?onglet=ventes' : '' ?>">Mes ventes et achats</a>
+        <a href="mes_transactions<?= $estVendeur ? '?onglet=ventes' : '' ?>">Mes ventes et achats</a>
         <span aria-hidden="true">›</span>
         <span aria-current="page"><?= htmlspecialchars($demande['titre']) ?></span>
     </nav>

@@ -10,7 +10,7 @@ img/*
 !img/profils/
 img/profils/*
 !img/profils/.htaccess
-/nbproject/private/
+/nbproject/
 
 # Identifiants locaux (base de données, mails) - jamais sur GitHub
 secrets.php

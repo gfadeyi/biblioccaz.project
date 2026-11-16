@@ -104,7 +104,7 @@ function refuserActionApercu(): never
         exit;
     }
     $racine = rtrim((string) parse_url(SITE_URL, PHP_URL_PATH), '/') . '/';
-    echo '<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex, nofollow"><title>Aperçu en lecture seule — BIBLIOccaz</title><link rel="stylesheet" href="' . htmlspecialchars($racine, ENT_QUOTES) . 'style.css"></head><body><main class="page-formulaire"><section class="carte-formulaire" role="alert"><h1>Aperçu en lecture seule</h1><p>' . htmlspecialchars($message) . '</p><a class="bouton bouton-principal" href="javascript:history.back()">Revenir à la page précédente</a></section></main></body></html>';
+    echo '<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex, nofollow"><title>Aperçu en lecture seule — BIBLIOccaz</title><link rel="stylesheet" href="' . htmlspecialchars($racine, ENT_QUOTES) . 'style.css?v=' . filemtime(__DIR__ . '/style.css') . '"></head><body><main class="page-formulaire"><section class="carte-formulaire" role="alert"><h1>Aperçu en lecture seule</h1><p>' . htmlspecialchars($message) . '</p><a class="bouton bouton-principal" href="javascript:history.back()">Revenir à la page précédente</a></section></main></body></html>';
     exit;
 }
 

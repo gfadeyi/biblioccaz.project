@@ -137,7 +137,7 @@ include 'header.php';
         <div class="col-6 col-md-2 d-flex gap-2">
             <button class="btn btn-outline-success flex-grow-1">Filtrer</button>
             <?php if ($filtresActifs): ?>
-                <a href="evenements.php<?= $periode === 'passes' ? '?periode=passes' : '' ?>" class="btn btn-link px-1" title="Effacer les filtres"><i class="bi bi-x-lg"></i></a>
+                <a href="evenements<?= $periode === 'passes' ? '?periode=passes' : '' ?>" class="btn btn-link px-1" title="Effacer les filtres" aria-label="Effacer les filtres"><i class="bi bi-x-lg" aria-hidden="true"></i></a>
             <?php endif; ?>
         </div>
     </form>
