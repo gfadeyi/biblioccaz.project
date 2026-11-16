@@ -188,6 +188,14 @@ $nomOnglet = trim((string) ($titreDocument ?? $titrePage ?? $titresOnglets[$page
     <meta name="twitter:card" content="summary_large_image">
     <?php endif; ?>
     <link rel="icon" type="image/svg+xml" href="<?= urlStatique('favicon.svg') ?>">
+    <link rel="manifest" href="<?= urlStatique('manifest.json') ?>">
+    <link rel="apple-touch-icon" sizes="180x180" href="<?= urlStatique('apple-touch-icon.png') ?>">
+    <meta name="theme-color" content="#274e13">
+    <meta name="application-name" content="BibliOccaz">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="BibliOccaz">
     <link rel="stylesheet" href="<?= urlStatique('ressources/polices/polices.css') ?>">
     <link rel="stylesheet" href="<?= urlStatique('ressources/bootstrap-5.3.0/bootstrap.min.css') ?>">
     <link rel="stylesheet" href="<?= urlStatique('ressources/bootstrap-icons-1.11.0/bootstrap-icons.min.css') ?>">
@@ -204,6 +212,7 @@ $nomOnglet = trim((string) ($titreDocument ?? $titrePage ?? $titresOnglets[$page
     <script src="<?= urlStatique('javascript/couvertures.js') ?>" data-defaut="img/default.png"></script>
     <script src="<?= urlStatique('javascript/bandeau_demo.js') ?>" defer></script>
     <script src="<?= urlStatique('javascript/scanner_isbn.js') ?>" defer></script>
+    <script src="<?= urlStatique('javascript/application_web.js') ?>" defer></script>
 </head>
 <body>
 <a class="lien-evitement" href="#contenu">Aller au contenu</a>
