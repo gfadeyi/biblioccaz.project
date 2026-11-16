@@ -168,7 +168,7 @@ $nomOnglet = trim((string) ($titreDocument ?? $titrePage ?? $titresOnglets[$page
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <?php if (!empty($adresseBase)): ?><base href="<?= htmlspecialchars($adresseBase) ?>"><?php endif; ?>
     <title><?= htmlspecialchars($nomOnglet . ' - BIBLIOccaz', ENT_QUOTES, 'UTF-8') ?></title>
     <meta name="description" content="<?= htmlspecialchars(descriptionReferencement($pageReferencement, $nomOnglet), ENT_QUOTES, 'UTF-8') ?>">
@@ -507,6 +507,7 @@ $nomOnglet = trim((string) ($titreDocument ?? $titrePage ?? $titresOnglets[$page
     </div>
 </div>
 
+<div class="zone-defilement" id="zone-defilement">
 <main id="contenu" tabindex="-1">
 <?php $messageConnexion = messageApresConnexion(); if ($messageConnexion !== null): ?>
     <div class="container-xxl pt-3">

@@ -59,9 +59,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="robots" content="noindex, nofollow">
     <title>Connexion · Back-office BIBLIOccaz</title>
+    <link rel="icon" type="image/svg+xml" href="<?= urlStatique('favicon.svg', '../') ?>">
+<?php include __DIR__ . '/_application_web.php'; ?>
     <link rel="stylesheet" href="<?= urlStatique('ressources/bootstrap-5.3.0/bootstrap.min.css', '../') ?>">
     <link rel="stylesheet" href="<?= urlStatique('ressources/bootstrap-icons-1.11.0/bootstrap-icons.min.css', '../') ?>">
     <link rel="stylesheet" href="<?= urlStatique('admin/admin.css', '../') ?>">

@@ -2461,3 +2461,16 @@ form[data-selection-collection] legend { float: none; width: auto; }
 .appareil__texte small { color: var(--encre-douce); font-size: .8rem; }
 .appareil__action { margin: 0; flex-shrink: 0; }
 .appareil__action .bouton-lien { color: #b42318; font-weight: 600; }
+body { padding-left: env(safe-area-inset-left); padding-right: env(safe-area-inset-right); }
+:root.application-autonome, :root.application-autonome body { height: 100%; }
+:root.application-autonome body { display: flex; flex-direction: column; overflow: hidden; padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom); background: var(--surface); }
+:root.application-autonome .entete { position: relative; flex: none; }
+:root.application-autonome .bandeau-demo { flex: none; }
+:root.application-autonome .zone-defilement { flex: 1 1 auto; min-height: 0; overflow-x: hidden; overflow-y: auto; overscroll-behavior-y: contain; -webkit-overflow-scrolling: touch; background: var(--papier); }
+@media (display-mode: standalone) {
+    html, body { height: 100%; }
+    body { display: flex; flex-direction: column; overflow: hidden; padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom); background: var(--surface); }
+    .entete { position: relative; flex: none; }
+    .bandeau-demo { flex: none; }
+    .zone-defilement { flex: 1 1 auto; min-height: 0; overflow-x: hidden; overflow-y: auto; overscroll-behavior-y: contain; -webkit-overflow-scrolling: touch; background: var(--papier); }
+}

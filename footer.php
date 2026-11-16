@@ -83,6 +83,7 @@ $messageNewsletter = $messagesNewsletter[$cleNewsletter] ?? null;
         </div>
     </div>
 </footer>
+</div>
 
 <div class="modal fade fenetre-confirmation" id="fenetreConfirmation" tabindex="-1" aria-labelledby="titreConfirmation" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
