@@ -31,6 +31,8 @@ $nombreFrancais = fn(int $nombre): string => number_format($nombre, 0, ',', "\u{
 
 $titreDocument = 'Qui sommes-nous ?';
 $scriptsPage = ['qui_sommes_nous.js'];
+$descriptionDocument = 'BibliOccaz, la librairie communautaire de démonstration : notre histoire, nos valeurs, le fonctionnement des dons, des emprunts et des points entre lecteurs.';
+$donneesStructurees = [donneesOrganisation(), ['@context' => 'https://schema.org', '@type' => 'AboutPage', 'name' => 'Qui sommes-nous ?', 'url' => urlAbsolueSite('qui-sommes-nous'), 'inLanguage' => 'fr-FR', 'about' => ['@id' => urlAbsolueSite() . '#organisation']]];
 include 'header.php';
 ?>
 

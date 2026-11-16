@@ -99,6 +99,7 @@ try {
 
 $moisCourts = ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.'];
 $scriptsPage = ['accueil.js'];
+$donneesStructurees = [donneesOrganisation(), donneesSiteWeb()];
 
 include 'header.php';
 ?>

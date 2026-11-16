@@ -163,6 +163,9 @@ $pageReferencement = cheminPageReferencement();
 $indexable = indexationPermise($pageReferencement);
 if (!$indexable && !headers_sent()) { header('X-Robots-Tag: noindex, nofollow'); }
 $nomOnglet = trim((string) ($titreDocument ?? $titrePage ?? $titresOnglets[$pageActuelle] ?? 'Bibliothèque d’occasion'));
+$descriptionPage = isset($descriptionDocument) && trim((string) $descriptionDocument) !== '' ? texteReferencement((string) $descriptionDocument, 180) : descriptionReferencement($pageReferencement, $nomOnglet);
+$typePartage = in_array($typePartage ?? '', ['book', 'article'], true) ? $typePartage : 'website';
+$imagePartage = isset($imagePartage) && is_string($imagePartage) && $imagePartage !== '' ? $imagePartage : null;
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -171,21 +174,31 @@ $nomOnglet = trim((string) ($titreDocument ?? $titrePage ?? $titresOnglets[$page
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <?php if (!empty($adresseBase)): ?><base href="<?= htmlspecialchars($adresseBase) ?>"><?php endif; ?>
     <title><?= htmlspecialchars($nomOnglet . ' - BIBLIOccaz', ENT_QUOTES, 'UTF-8') ?></title>
-    <meta name="description" content="<?= htmlspecialchars(descriptionReferencement($pageReferencement, $nomOnglet), ENT_QUOTES, 'UTF-8') ?>">
+    <meta name="description" content="<?= htmlspecialchars($descriptionPage, ENT_QUOTES, 'UTF-8') ?>">
     <meta name="robots" content="<?= $indexable ? 'index, follow' : 'noindex, nofollow' ?>">
     <?php if ($indexable): ?>
     <link rel="canonical" href="<?= htmlspecialchars(adresseCanonique($pageReferencement), ENT_QUOTES, 'UTF-8') ?>">
-    <meta property="og:type" content="website">
+    <meta property="og:type" content="<?= $typePartage ?>">
     <meta property="og:site_name" content="BIBLIOccaz">
     <meta property="og:locale" content="fr_FR">
     <meta property="og:title" content="<?= htmlspecialchars($nomOnglet, ENT_QUOTES, 'UTF-8') ?>">
-    <meta property="og:description" content="<?= htmlspecialchars(descriptionReferencement($pageReferencement, $nomOnglet), ENT_QUOTES, 'UTF-8') ?>">
+    <meta property="og:description" content="<?= htmlspecialchars($descriptionPage, ENT_QUOTES, 'UTF-8') ?>">
     <meta property="og:url" content="<?= htmlspecialchars(adresseCanonique($pageReferencement), ENT_QUOTES, 'UTF-8') ?>">
+    <?php if ($imagePartage !== null): ?>
+    <meta property="og:image" content="<?= htmlspecialchars(urlAbsolueSite($imagePartage), ENT_QUOTES, 'UTF-8') ?>">
+    <meta property="og:image:alt" content="<?= htmlspecialchars($nomOnglet, ENT_QUOTES, 'UTF-8') ?>">
+    <meta name="twitter:card" content="summary">
+    <?php else: ?>
     <meta property="og:image" content="<?= htmlspecialchars(rtrim(SITE_URL, '/') . '/ressources/partage-biblioccaz.png', ENT_QUOTES, 'UTF-8') ?>">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta property="og:image:alt" content="BIBLIOccaz — Livres d’occasion et communauté de lecteurs. Démonstration.">
     <meta name="twitter:card" content="summary_large_image">
+    <?php endif; ?>
+    <?php foreach ($donneesStructurees ?? [] as $blocStructure): ?>
+    <?= is_array($blocStructure) ? baliseDonneesStructurees($blocStructure) : '' ?>
+
+    <?php endforeach; ?>
     <?php endif; ?>
     <link rel="icon" type="image/svg+xml" href="<?= urlStatique('favicon.svg') ?>">
     <link rel="manifest" href="<?= urlStatique('manifest.json') ?>">

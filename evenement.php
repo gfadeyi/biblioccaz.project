@@ -45,6 +45,10 @@ function boutonEvenement(string $action, int $idEvt, string $csrf, string $libel
     </form>";
 }
 
+$titreDocument = $evt['titre'];
+$descriptionDocument = $evt['titre'] . ' — ' . date('d/m/Y à H\hi', $debut) . (trim((string) ($evt['lieu'] ?? '')) !== '' ? ', ' . $evt['lieu'] : '') . (trim((string) ($evt['description'] ?? '')) !== '' ? '. ' . $evt['description'] : '');
+if (!empty($evt['image'])) { $imagePartage = imageEvenement($evt['image']); }
+$donneesStructurees = $estPublic ? [donneesEvenement($evt, $etat, $restantes), donneesFilAriane([['Événements', 'evenements'], [$evt['titre'], 'evenement?id=' . (int) $evt['id_evenement']]])] : [];
 include 'header.php';
 ?>
 

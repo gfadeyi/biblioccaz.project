@@ -149,7 +149,14 @@ $caracteristiquesLivre = array_filter([
     'Parution' => !empty($livre['date_parution']) ? date('d/m/Y', strtotime($livre['date_parution'])) : '', 'ISBN' => $livre['isbn'] ?? '', 'Niveau scolaire' => $livre['niveau_scolaire'] ?? '', 'Matière' => $livre['matiere'] ?? '',
     'Nombre de pages' => $livre['nb_pages'] ?? '', 'Format' => trim(($livre['reliure'] ?? '') . ' ' . ($livre['dimensions'] ?? '')), 'Poids' => !empty($livre['poids']) ? $livre['poids'] . ' g' : '', 'Langue' => $livre['langue'] ?? '',
 ], fn($valeur) => trim((string) $valeur) !== '');
-$titreDocument = $livre['titre'];
+$titreDocument = $livre['titre'] . ($livre['auteur'] !== '' ? ' — ' . $livre['auteur'] : '');
+$descriptionDocument = $livre['titre'] . ($livre['auteur'] !== '' ? ' de ' . $livre['auteur'] : '') . ' en occasion sur BibliOccaz' . (trim((string) ($livre['description'] ?? '')) !== '' ? ' : ' . $livre['description'] : '. Site de démonstration, commandes et paiements fictifs.');
+$typePartage = 'book';
+$imagePartage = urlImage($livre['couverture'] ?? null);
+$donneesStructurees = [
+    donneesLivre($livre, $toutesOffres, $noteEntete),
+    donneesFilAriane(array_merge([['Catalogue', 'catalogue']], $catLivre ? [[$catLivre['nom'], 'catalogue?categorie=' . rawurlencode($catLivre['slug'])]] : [], [[$livre['titre'], 'livre?id=' . (int) $livre['id_livre']]])),
+];
 include 'header.php';
 include 'partie_fiche_livre.php';
 ?>
