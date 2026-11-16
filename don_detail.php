@@ -31,7 +31,7 @@ if ($don && $don['statut'] === 'refuse') {
 include 'header.php';
 
 if (!$don || (in_array($don['statut'], ['en_validation', 'refuse'], true) && (int) ($_SESSION['user_id'] ?? 0) !== (int) $don['id_donneur'] && ($_SESSION['role'] ?? '') !== 'admin')) {
-    echo "<div class='container my-5'><div class='alert alert-warning'>Ce don n'existe pas.</div><a href='dons.php'>Voir les dons disponibles</a></div>";
+    echo "<div class='container my-5'><div class='alert alert-warning'>Ce don n'existe pas.</div><a href='dons'>Voir les dons disponibles</a></div>";
     include 'footer.php';
     exit();
 }
@@ -68,7 +68,7 @@ function boutonActionDon(string $action, int $idDon, string $csrf, string $libel
 ?>
 
 <div class="container my-5">
-    <a href="dons.php" class="text-decoration-none small text-muted"><i class="bi bi-arrow-left"></i> Tous les dons</a>
+    <a href="dons" class="text-decoration-none small text-muted"><i class="bi bi-arrow-left"></i> Tous les dons</a>
 
     <?php if ($flash): ?>
         <div class="alert alert-<?= $flash[0] === 'success' ? 'success' : 'danger' ?> rounded-3 mt-3"><?= htmlspecialchars($flash[1]) ?></div>
@@ -99,7 +99,7 @@ function boutonActionDon(string $action, int $idDon, string $csrf, string $libel
             <h1 class="fw-bold"><?= htmlspecialchars($don['titre']) ?></h1>
             <?php if ($don['auteur']): ?><p class="text-muted h5"><?= htmlspecialchars($don['auteur']) ?></p><?php endif; ?>
             <?php if ($don['id_livre']): ?>
-                <a href="detail_livre.php?id=<?= $don['id_livre'] ?>" class="small">Voir la fiche du livre et ses avis →</a>
+                <a href="livre?id=<?= $don['id_livre'] ?>" class="small">Voir la fiche du livre et ses avis →</a>
             <?php endif; ?>
 
             <table class="table table-sm mt-3">
@@ -121,7 +121,7 @@ function boutonActionDon(string $action, int $idDon, string $csrf, string $libel
 
                 <?php if ($estDonneur): ?>
                     <?php if (in_array($statut, ['en_validation', 'refuse', 'disponible', 'expire'], true)): ?>
-                        <a href="don_creer.php?id=<?= (int) $don['id_don'] ?>" class="btn btn-outline-success mb-3">Modifier le don</a>
+                        <a href="don_creer?id=<?= (int) $don['id_don'] ?>" class="btn btn-outline-success mb-3">Modifier le don</a>
                     <?php endif; ?>
                     <?php if (in_array($statut, ['en_validation', 'refuse'], true)): ?>
                         <p class="small text-muted">Ce don attend la validation de l’équipe. Il n’est pas encore visible ni réservable par les autres membres.</p>
@@ -152,7 +152,7 @@ function boutonActionDon(string $action, int $idDon, string $csrf, string $libel
                     <h6 class="fw-bold"><i class="bi bi-bookmark-check text-success"></i> Vous avez réservé ce livre</h6>
                     <p class="small">Convenez du jour et du lieu de retrait avec <strong>@<?= htmlspecialchars($don['donneur_pseudo']) ?></strong> <a href="#conversation">dans la conversation ci-dessous</a>.</p>
                     <p class="small text-muted">Sur place, scannez le QR code du donneur avec votre téléphone, ou saisissez le code qu'il vous donnera :</p>
-                    <a href="don_valider.php" class="btn btn-success rounded-pill w-100 mb-2"><i class="bi bi-qr-code-scan"></i> Scanner ou saisir le code</a>
+                    <a href="don_valider" class="btn btn-success rounded-pill w-100 mb-2"><i class="bi bi-qr-code-scan"></i> Scanner ou saisir le code</a>
                     <?= boutonActionDon('annuler_reservation', (int) $don['id_don'], $csrf, 'Annuler ma réservation', 'btn-link btn-sm text-danger', 'Annuler votre réservation ?') ?>
 
                 <?php elseif ($estBeneficiaire && $statut === 'recupere'): ?>
@@ -202,7 +202,7 @@ function boutonActionDon(string $action, int $idDon, string $csrf, string $libel
     </script>
     <style>
         @media print {
-            header, footer, .offcanvas, .btn, form, .alert, a[href="dons.php"] { display: none !important; }
+            header, footer, .offcanvas, .btn, form, .alert, a[href="dons"] { display: none !important; }
         }
     </style>
 <?php endif; ?>

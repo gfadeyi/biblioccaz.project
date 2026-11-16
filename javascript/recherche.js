@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         livres.forEach((livre, index) => {
             const lien = document.createElement('a');
-            lien.href = 'detail_livre.php?id=' + encodeURIComponent(livre.id_livre || livre.id);
+            lien.href = 'livre?id=' + encodeURIComponent(livre.id_livre || livre.id);
             lien.id = 'suggestion-livre-' + index;
             lien.className = 'list-group-item list-group-item-action d-flex justify-content-between align-items-center gap-2';
             lien.setAttribute('role', 'option');
@@ -94,7 +94,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 let livres;
                 if (utiliserCache) livres = memorise.livres;
                 else {
-                    const reponse = await fetch('recherche.php?q=' + encodeURIComponent(saisie), {signal: requeteEnCours.signal});
+                    const reponse = await fetch('recherche?q=' + encodeURIComponent(saisie), {signal: requeteEnCours.signal});
                     if (!reponse.ok) throw new Error('Recherche indisponible');
                     livres = await reponse.json();
                 }

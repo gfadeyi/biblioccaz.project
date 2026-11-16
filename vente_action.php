@@ -5,7 +5,7 @@ require_once 'avis_lib.php';
 if (session_status() === PHP_SESSION_NONE) { session_start(); }
 
 if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php");
+    header("Location: connexion");
     exit();
 }
 $idUser = (int) $_SESSION['user_id'];
@@ -20,7 +20,7 @@ function retourVente(string $destination, string $type, string $message): never
     exit();
 }
 
-$destination = $idDemande ? "transaction.php?id=$idDemande" : ($idAnnonce ? "annonce.php?id=$idAnnonce" : 'mes_transactions.php');
+$destination = $idDemande ? "transaction?id=$idDemande" : ($idAnnonce ? "annonce?id=$idAnnonce" : 'mes_transactions');
 if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !verifierCsrf()) {
     retourVente($destination, 'danger', "Session expirée, merci de réessayer.");
 }
@@ -28,7 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !verifierCsrf()) {
 try {
     if ($action === 'demander') {
         [$type, $message, $idCree] = creerDemande($pdo, $idAnnonce, $idUser, (string) ($_POST['mode_remise'] ?? ''), (string) ($_POST['message'] ?? ''));
-        retourVente($idCree ? "transaction.php?id=$idCree" : $destination, $type, $message);
+        retourVente($idCree ? "transaction?id=$idCree" : $destination, $type, $message);
     }
     $motif = (string) ($_POST['motif'] ?? '');
     [$type, $message] = match ($action) {

@@ -5,7 +5,7 @@ require_once 'avis_lib.php';
 if (session_status() === PHP_SESSION_NONE) { session_start(); }
 
 if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php");
+    header("Location: connexion");
     exit();
 }
 $idUser = (int) $_SESSION['user_id'];
@@ -60,7 +60,7 @@ include 'header.php';
 
 <div class="container mt-4 mb-5 page-mes-transactions">
     <nav aria-label="Fil d'Ariane" class="fil-ariane">
-        <a href="profil.php">Mon compte</a>
+        <a href="mon-compte">Mon compte</a>
         <span aria-hidden="true">›</span>
         <span aria-current="page">Mes ventes entre lecteurs</span>
     </nav>
@@ -70,7 +70,7 @@ include 'header.php';
             <h1 class="titre-page-compte mb-1">Mes ventes entre lecteurs</h1>
             <p class="text-muted mb-0">Vos échanges de livres avec les autres lecteurs, de la demande au reçu.</p>
         </div>
-        <a href="mes_annonces.php" class="bouton bouton-contour bouton-petit"><i class="bi bi-tag" aria-hidden="true"></i> Mes annonces</a>
+        <a href="mes_annonces" class="bouton bouton-contour bouton-petit"><i class="bi bi-tag" aria-hidden="true"></i> Mes annonces</a>
     </div>
 
     <?php if ($indisponible): ?>
@@ -92,7 +92,7 @@ include 'header.php';
                 <p><?= $estVendeur
                     ? 'Quand un lecteur demande à acheter un de vos livres, sa demande apparaît ici.'
                     : 'Des lecteurs revendent leurs livres à petit prix : faites-leur une demande depuis une annonce.' ?></p>
-                <a href="<?= $estVendeur ? 'mes_annonces.php' : 'catalogue.php?offre=particulier' ?>" class="bouton bouton-principal bouton-petit">
+                <a href="<?= $estVendeur ? 'mes_annonces' : 'catalogue?offre=particulier' ?>" class="bouton bouton-principal bouton-petit">
                     <?= $estVendeur ? 'Voir mes annonces' : 'Voir les annonces entre lecteurs' ?>
                 </a>
             </div>
@@ -101,7 +101,7 @@ include 'header.php';
                 <?php foreach ($liste as $t): ?>
                     <?php $action = actionAttendue($t, $estVendeur); ?>
                     <li>
-                        <a href="transaction.php?id=<?= (int) $t['id_demande'] ?>" class="carte-compte ligne-transaction<?= $action ? ' ligne-transaction--action' : '' ?>">
+                        <a href="transaction?id=<?= (int) $t['id_demande'] ?>" class="carte-compte ligne-transaction<?= $action ? ' ligne-transaction--action' : '' ?>">
                             <img src="<?= htmlspecialchars(urlPhotoAnnonce($t['photo'], $t['couverture'])) ?>" alt="" class="ligne-transaction__visuel" loading="lazy">
                             <span class="ligne-transaction__contenu">
                                 <span class="ligne-transaction__titre"><?= htmlspecialchars($t['titre']) ?></span>

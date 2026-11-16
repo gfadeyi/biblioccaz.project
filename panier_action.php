@@ -4,7 +4,7 @@ require_once __DIR__ . '/avis_lib.php';
 require_once __DIR__ . '/panier_minute_lib.php';
 $ajax = strtolower($_SERVER['HTTP_X_REQUESTED_WITH'] ?? '') === 'xmlhttprequest';
 $action = is_string($_POST['action'] ?? null) ? $_POST['action'] : 'ajouter';
-$retour = 'panier.php';
+$retour = 'panier';
 header('Cache-Control: no-store');
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     header('Content-Type: application/json; charset=utf-8');

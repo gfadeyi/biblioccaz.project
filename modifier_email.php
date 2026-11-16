@@ -5,7 +5,7 @@ require_once 'notifications_lib.php';
 require_once 'changement_email_lib.php';
 header('Cache-Control: no-store');
 header('Referrer-Policy: no-referrer');
-if (!isset($_SESSION['user_id'])) { header('Location: login.php'); exit(); }
+if (!isset($_SESSION['user_id'])) { header('Location: connexion'); exit(); }
 $idUser = (int) $_SESSION['user_id'];
 $disponible = changementEmailDisponible($pdo);
 $erreur = '';
@@ -22,22 +22,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (($_POST['action'] ?? '') === 'annuler') {
                 annulerChangementEmail($pdo,$idUser);
                 $_SESSION['flash_changement_email'] = 'La demande a été annulée. Votre adresse actuelle est conservée.';
-                header('Location: modifier_email.php');
+                header('Location: modifier_email');
                 exit();
             }
             if (($_POST['action'] ?? '') !== 'demander') { throw new DomainException('Action inconnue.'); }
             $motDePasse = is_string($_POST['mot_de_passe'] ?? null) ? $_POST['mot_de_passe'] : '';
             $demande = demanderChangementEmail($pdo,$idUser,$emailSaisi,$motDePasse);
-            $lien = SITE_URL . '/confirmer_email.php?token=' . $demande['jeton'];
+            $lien = SITE_URL . '/confirmer_email?token=' . $demande['jeton'];
             $envoye = notifierParMail($demande['nouvelle_email'],'Confirmez votre nouvelle adresse email',"Bonjour {$demande['pseudo']},\n\nConfirmez votre nouvelle adresse email sur BibliOccaz en ouvrant le lien ci-dessous, puis en validant la confirmation. Il est valable une heure et ne peut être utilisé qu’une seule fois.\n\nVotre ancienne adresse reste utilisée jusque-là.",$lien,'Confirmer mon adresse email');
             if (!$envoye) {
                 annulerChangementEmail($pdo,$idUser,hash('sha256',$demande['jeton']));
                 throw new DomainException('Le mail n’a pas pu être envoyé. Votre adresse actuelle est conservée. Réessayez dans une minute.');
             }
-            notifierParMail($demande['ancienne_email'],'Demande de changement d’adresse email',"Bonjour {$demande['pseudo']},\n\nUne demande de changement d’adresse email a été faite depuis votre compte BibliOccaz. Votre adresse actuelle reste utilisée tant que la nouvelle n’est pas confirmée.\n\nSi vous n’êtes pas à l’origine de cette demande, connectez-vous pour l’annuler et changez votre mot de passe.",SITE_URL . '/modifier_email.php','Consulter la demande');
+            notifierParMail($demande['ancienne_email'],'Demande de changement d’adresse email',"Bonjour {$demande['pseudo']},\n\nUne demande de changement d’adresse email a été faite depuis votre compte BibliOccaz. Votre adresse actuelle reste utilisée tant que la nouvelle n’est pas confirmée.\n\nSi vous n’êtes pas à l’origine de cette demande, connectez-vous pour l’annuler et changez votre mot de passe.",SITE_URL . '/modifier_email','Consulter la demande');
             insertLog('COMPTE','Demande de changement d’adresse email');
             $_SESSION['flash_changement_email'] = 'Un lien de confirmation a été envoyé à la nouvelle adresse. Il est valable une heure.';
-            header('Location: modifier_email.php');
+            header('Location: modifier_email');
             exit();
         } catch (DomainException $exception) {
             $erreur = $exception->getMessage();
@@ -78,7 +78,7 @@ include 'header.php';
                 <button class="bouton bouton-principal w-100">Envoyer le lien de confirmation</button>
             </fieldset>
         </form>
-        <p class="carte-formulaire__pied"><a href="modifier_profil.php">Retour à mes informations</a></p>
+        <p class="carte-formulaire__pied"><a href="modifier_profil">Retour à mes informations</a></p>
     </div>
 </div>
 <?php include 'footer.php'; ?>

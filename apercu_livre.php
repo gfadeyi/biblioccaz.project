@@ -14,4 +14,4 @@ $etats = [];
 foreach (etatsMagasinDuLivre($pdo, $id) as $etat => $offre) {
     $etats[] = ['etat' => $etat, 'libelle' => $etat === 'use' ? 'Correct' : ($etat === 'tres bon' ? 'Très bon' : ucfirst($etat)), 'id_exemplaire' => $offre ? (int) $offre['id_exemplaire'] : null, 'prix' => $offre ? (float) $offre['prix'] : null, 'disponible' => $offre && $offre['libre'] > 0, 'stock_bas' => $offre ? stockEstBas((int) $offre['libre']) : false];
 }
-echo json_encode(['id' => $id, 'titre' => $livre['titre'], 'auteur' => $livre['auteur'], 'couverture' => urlImage($livre['couverture']), 'note' => (float) $note['moyenne'], 'avis' => (int) $note['nb'], 'prix_neuf' => prixNeufReference($pdo, $livre), 'etats' => $etats, 'lien' => 'detail_livre.php?id=' . $id], JSON_THROW_ON_ERROR);
+echo json_encode(['id' => $id, 'titre' => $livre['titre'], 'auteur' => $livre['auteur'], 'couverture' => urlImage($livre['couverture']), 'note' => (float) $note['moyenne'], 'avis' => (int) $note['nb'], 'prix_neuf' => prixNeufReference($pdo, $livre), 'etats' => $etats, 'lien' => 'livre?id=' . $id], JSON_THROW_ON_ERROR);

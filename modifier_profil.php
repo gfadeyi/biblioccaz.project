@@ -7,7 +7,7 @@ require_once 'recommandations_lib.php';
 if (session_status() === PHP_SESSION_NONE) { session_start(); }
 
 if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php");
+    header("Location: connexion");
     exit();
 }
 
@@ -25,7 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action === 'preferences') {
         try {
             enregistrerPreferences($pdo, $user_id, idsChoisis($_POST['categories'] ?? []), idsChoisis($_POST['themes'] ?? []));
             insertLog('PROFIL', "Préférences de lecture mises à jour");
-            header('Location: modifier_profil.php?preferences=1#preferences');
+            header('Location: modifier_profil?preferences=1#preferences');
             exit();
         } catch (PDOException $e) {
             $erreurPreferences = "Les préférences de lecture ne sont pas encore disponibles.";
@@ -53,7 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action === 'preferences') {
             $stmt = $pdo->prepare("UPDATE user SET nom = ?, prenom = ?, ville = ?, cp = ? WHERE id = ?");
             $stmt->execute([$nom, $prenom, $ville, $cp, $user_id]);
         }
-        header('Location: modifier_profil.php?enregistre=1');
+        header('Location: modifier_profil?enregistre=1');
         exit();
     }
 }
@@ -90,7 +90,7 @@ include 'header.php';
             <div class="alert alert-danger small" role="alert"><?= htmlspecialchars($erreur) ?></div>
         <?php endif; ?>
 
-        <form action="modifier_profil.php" method="POST">
+        <form action="modifier_profil" method="POST">
             <input type="hidden" name="csrf" value="<?= jetonCsrf() ?>">
             <input type="hidden" name="action" value="infos">
             <div class="row g-3">
@@ -105,7 +105,7 @@ include 'header.php';
                 <div class="col-md-7">
                     <span class="form-label d-block">Adresse email actuelle</span>
                     <p class="text-break mb-1"><?= htmlspecialchars($user['email'] ?? '') ?></p>
-                    <a href="modifier_email.php" class="small">Changer mon adresse email</a>
+                    <a href="modifier_email" class="small">Changer mon adresse email</a>
                 </div>
                 <div class="col-md-5">
                     <label for="telephone" class="form-label">Téléphone</label>
@@ -126,14 +126,14 @@ include 'header.php';
             </div>
         </form>
         <p class="carte-formulaire__pied">
-            <a href="profil.php">Retour à mon compte</a> · <a href="modifier_mdp.php">Changer mon mot de passe</a>
+            <a href="mon-compte">Retour à mon compte</a> · <a href="modifier_mdp">Changer mon mot de passe</a>
         </p>
     </div>
 
     <?php if ($afficherPreferences): ?>
         <section class="carte-formulaire carte-formulaire--large preferences-lecture" id="preferences" aria-labelledby="titre-preferences">
             <h2 id="titre-preferences" class="preferences-lecture__titre"><?= iconeDessin('lunettes') ?> Mes préférences de lecture</h2>
-            <p class="preferences-lecture__intro">Facultatif : cochez ce que vous aimez lire pour recevoir des <a href="suggestions.php">suggestions</a> qui vous ressemblent. Vous pouvez tout décocher à tout moment.</p>
+            <p class="preferences-lecture__intro">Facultatif : cochez ce que vous aimez lire pour recevoir des <a href="suggestions">suggestions</a> qui vous ressemblent. Vous pouvez tout décocher à tout moment.</p>
 
             <?php if ($succesPreferences): ?>
                 <div class="alert alert-success small" role="status"><i class="bi bi-check-circle" aria-hidden="true"></i> Vos préférences de lecture sont enregistrées.</div>
@@ -142,7 +142,7 @@ include 'header.php';
                 <div class="alert alert-danger small" role="alert"><?= htmlspecialchars($erreurPreferences) ?></div>
             <?php endif; ?>
 
-            <form action="modifier_profil.php#preferences" method="POST">
+            <form action="modifier_profil#preferences" method="POST">
                 <input type="hidden" name="csrf" value="<?= jetonCsrf() ?>">
                 <input type="hidden" name="action" value="preferences">
                 <?php foreach ($arbrePreferences as $universPreference): ?>

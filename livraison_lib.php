@@ -90,8 +90,8 @@ function avancerSuiviCommandes(PDO $pdo, ?int $idUser = null): int
             continue;
         }
         [$sujet, $texte, $notification] = texteMailEtapeCommande($commande, $etape);
-        notifierMembre($pdo, (int) $commande['id_user'], 'commande', $notification, 'commandes.php#commande-' . (int) $commande['id_commande']);
-        if (notifierParMail($commande['email'], $sujet, $texte, SITE_URL . '/commandes.php', 'Suivre ma commande')) {
+        notifierMembre($pdo, (int) $commande['id_user'], 'commande', $notification, 'commandes#commande-' . (int) $commande['id_commande']);
+        if (notifierParMail($commande['email'], $sujet, $texte, SITE_URL . '/commandes', 'Suivre ma commande')) {
             $envoyes++;
         }
     }

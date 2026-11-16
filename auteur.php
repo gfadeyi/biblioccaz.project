@@ -16,7 +16,7 @@ if (!$fiche) {
         <div class="carte-compte text-center p-5">
             <h1 class="titre-page-compte">Page auteur introuvable</h1>
             <p class="text-muted">Cette page n'existe pas ou n'est plus publiée.</p>
-            <a href="auteurs.php" class="bouton bouton-principal bouton-petit">Voir nos auteurs</a>
+            <a href="auteurs" class="bouton bouton-principal bouton-petit">Voir nos auteurs</a>
         </div>
     </div>
     <?php
@@ -37,7 +37,7 @@ include 'header.php';
 
 <div class="container mt-4 mb-5 page-auteur">
     <nav aria-label="Fil d'Ariane" class="fil-ariane">
-        <a href="auteurs.php">Nos auteurs</a>
+        <a href="auteurs">Nos auteurs</a>
         <span aria-hidden="true">›</span>
         <span aria-current="page"><?= htmlspecialchars($fiche['nom_plume']) ?></span>
     </nav>
@@ -76,7 +76,7 @@ include 'header.php';
                     <?php $idLivreCatalogue = $ouvrage['isbn'] ? ($livresCatalogue[strtoupper($ouvrage['isbn'])] ?? null) : null; ?>
                     <li>
                         <?php if ($idLivreCatalogue): ?>
-                            <a href="detail_livre.php?id=<?= $idLivreCatalogue ?>"><strong><?= htmlspecialchars($ouvrage['titre']) ?></strong></a>
+                            <a href="livre?id=<?= $idLivreCatalogue ?>"><strong><?= htmlspecialchars($ouvrage['titre']) ?></strong></a>
                         <?php else: ?>
                             <strong><?= htmlspecialchars($ouvrage['titre']) ?></strong>
                         <?php endif; ?>
@@ -98,14 +98,14 @@ include 'header.php';
                 <?php foreach ($livresSurLeSite as $l): include 'partie_carte_livre.php'; endforeach; ?>
             </div>
         <?php else: ?>
-            <p class="text-muted">Aucun livre de cet auteur n'est disponible en ce moment. <a href="catalogue.php?q=<?= rawurlencode($fiche['nom_plume']) ?>">Chercher dans le catalogue</a></p>
+            <p class="text-muted">Aucun livre de cet auteur n'est disponible en ce moment. <a href="catalogue?q=<?= rawurlencode($fiche['nom_plume']) ?>">Chercher dans le catalogue</a></p>
         <?php endif; ?>
     </section>
 
     <section class="mt-4" aria-labelledby="titre-evenements-auteur">
         <h2 class="titre-section-auteur" id="titre-evenements-auteur">Ses rencontres</h2>
         <?php if (!$evenements['a_venir'] && !$evenements['passes']): ?>
-            <p class="text-muted">Aucune rencontre prévue pour le moment. <a href="evenements.php">Voir tout le programme</a></p>
+            <p class="text-muted">Aucune rencontre prévue pour le moment. <a href="evenements">Voir tout le programme</a></p>
         <?php endif; ?>
         <?php foreach (['a_venir' => 'À venir', 'passes' => 'Passées'] as $periode => $libellePeriode): ?>
             <?php if ($evenements[$periode]): ?>
@@ -114,7 +114,7 @@ include 'header.php';
                     <?php foreach ($evenements[$periode] as $evenement): ?>
                         <?php $debut = strtotime($evenement['date_debut']); ?>
                         <li>
-                            <a href="evenement.php?id=<?= (int) $evenement['id_evenement'] ?>">
+                            <a href="evenement?id=<?= (int) $evenement['id_evenement'] ?>">
                                 <span class="auteur-evenements__date">
                                     <strong><?= date('j', $debut) ?></strong>
                                     <small><?= EVT_MOIS_COURTS[(int) date('n', $debut) - 1] ?> <?= date('Y', $debut) ?></small>

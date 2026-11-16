@@ -392,12 +392,12 @@ function texteMailDecisionAuteur(array $candidat, array $candidature, string $me
     if ($candidature['statut'] === 'acceptee') {
         return ["Votre candidature auteur est acceptée",
             "Bonjour " . $candidat['prenom'] . ",\n\nBonne nouvelle : l'équipe BIBLIOccaz a accepté votre candidature d'auteur. Votre page publique « " . $candidature['nom_plume'] . " » est en ligne.\n\nReconnectez-vous pour accéder à votre espace créateur : vous pourrez y proposer vos livres et vos rencontres, et modifier votre page." . $complement,
-            SITE_URL . '/login.php', 'Me reconnecter'];
+            SITE_URL . '/connexion', 'Me reconnecter'];
     }
     $datePossible = date('d/m/Y', strtotime('+' . AUTEUR_DELAI_NOUVELLE_DEMANDE_JOURS . ' days'));
     return ["Votre candidature auteur",
         "Bonjour " . $candidat['prenom'] . ",\n\nMerci pour l'intérêt que vous portez à BIBLIOccaz. Après étude, l'équipe n'a pas retenu votre candidature d'auteur pour le moment." . $complement . "\n\nVotre compte lecteur reste actif. Vous pourrez déposer une nouvelle candidature à partir du $datePossible.",
-        SITE_URL . '/profil.php', 'Mon compte'];
+        SITE_URL . '/mon-compte', 'Mon compte'];
 }
 
 function conditionFichePublique(string $aliasFiche = 'f', string $aliasMembre = 'u'): string

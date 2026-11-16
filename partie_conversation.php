@@ -15,7 +15,7 @@ if (($_SESSION['brouillon_message'][0] ?? null) === (int) $conversation['id_conv
          data-membre="<?= (int) $idUser ?>" data-jour="<?= $messages ? date('Y-m-d', strtotime(end($messages)['date_envoi'])) : '' ?>" data-envoi="<?= ($flashConversation[0] ?? '') === 'envoye' ? 'reussi' : '' ?>">
     <header class="conversation__entete">
         <?php if (!empty($lienRetourListe)): ?>
-            <a href="messages.php" class="conversation__retour" aria-label="Retour à mes messages"><i class="bi bi-arrow-left" aria-hidden="true"></i></a>
+            <a href="messages" class="conversation__retour" aria-label="Retour à mes messages"><i class="bi bi-arrow-left" aria-hidden="true"></i></a>
         <?php endif; ?>
         <?= $autre ? avatarMembre($autre['pseudo'], $autre['photo'], 'conversation__avatar') : '' ?>
         <div class="conversation__qui">
@@ -52,7 +52,7 @@ if (($_SESSION['brouillon_message'][0] ?? null) === (int) $conversation['id_conv
 
     <div role="status">
         <p class="conversation__nouveaux" hidden>
-            <a href="<?= htmlspecialchars($retourConversation === 'objet' && $conversation['objet']['lien'] ? $conversation['objet']['lien'] . '#conversation' : 'messages.php?id=' . (int) $conversation['id_conversation'] . '#conversation') ?>">
+            <a href="<?= htmlspecialchars($retourConversation === 'objet' && $conversation['objet']['lien'] ? $conversation['objet']['lien'] . '#conversation' : 'messages?id=' . (int) $conversation['id_conversation'] . '#conversation') ?>">
                 <i class="bi bi-arrow-down-circle" aria-hidden="true"></i> <span>Nouveau message</span> · afficher
             </a>
         </p>
@@ -63,7 +63,7 @@ if (($_SESSION['brouillon_message'][0] ?? null) === (int) $conversation['id_conv
     </div>
 
     <?php if ($conversationOuverte && !$autreSuspendu): ?>
-        <form action="message_action.php" method="POST" class="conversation__saisie">
+        <form action="message_action" method="POST" class="conversation__saisie">
             <input type="hidden" name="csrf" value="<?= $csrf ?>">
             <input type="hidden" name="action" value="envoyer">
             <input type="hidden" name="id_conversation" value="<?= (int) $conversation['id_conversation'] ?>">

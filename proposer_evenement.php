@@ -5,7 +5,7 @@ require_once 'evenements_lib.php';
 require_once 'upload_lib.php';
 
 if (($_SESSION['role'] ?? '') !== 'auteur') {
-    header("Location: login.php");
+    header("Location: connexion");
     exit();
 }
 $idAuteur = (int) $_SESSION['user_id'];
@@ -13,18 +13,18 @@ $idAuteur = (int) $_SESSION['user_id'];
 $id = (int) ($_GET['id'] ?? $_POST['id_evenement'] ?? 0);
 $evt = $id ? chargerEvenement($pdo, $id) : null;
 if ($id && (!$evt || (int) $evt['id_createur'] !== $idAuteur)) {
-    header("Location: dashboard_auteur.php");
+    header("Location: dashboard_auteur");
     exit();
 }
 if ($evt && $evt['statut'] !== 'en_attente') {
     $_SESSION['flash_auteur'] = ['warning', "Cette proposition a déjà été traitée par l'équipe : elle ne peut plus être modifiée."];
-    header("Location: dashboard_auteur.php");
+    header("Location: dashboard_auteur");
     exit();
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && !verifierCsrf()) {
     $_SESSION['flash_auteur'] = ['danger', "Session expirée, merci de réessayer."];
-    header("Location: " . ($evt ? "proposer_evenement.php?id=$id" : "proposer_evenement.php"));
+    header("Location: " . ($evt ? "proposer_evenement?id=$id" : "proposer_evenement"));
     exit();
 }
 
@@ -32,7 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'retir
     $_SESSION['flash_auteur'] = retirerPropositionEvenement($pdo, $id, $idAuteur)
         ? ['success', "Votre proposition « {$evt['titre']} » a été retirée."]
         : ['warning', "Cette proposition a déjà été traitée par l'équipe."];
-    header("Location: dashboard_auteur.php");
+    header("Location: dashboard_auteur");
     exit();
 }
 
@@ -112,7 +112,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['flash_auteur'] = ['success', $evt
             ? "Votre proposition a été mise à jour."
             : "Merci ! Votre proposition « {$valeurs['titre']} » est envoyée à l'équipe. Vous recevrez un mail dès qu'elle sera examinée."];
-        header("Location: dashboard_auteur.php");
+        header("Location: dashboard_auteur");
         exit();
     }
 }
@@ -129,9 +129,9 @@ include 'header.php';
 
 <div class="container mt-4 mb-5 page-proposition">
     <nav aria-label="Fil d'Ariane" class="fil-ariane">
-        <a href="profil.php">Mon compte</a>
+        <a href="mon-compte">Mon compte</a>
         <span aria-hidden="true">›</span>
-        <a href="dashboard_auteur.php">Espace créateur</a>
+        <a href="dashboard_auteur">Espace créateur</a>
         <span aria-hidden="true">›</span>
         <span aria-current="page"><?= $evt ? 'Modifier ma proposition' : 'Proposer un événement' ?></span>
     </nav>
@@ -213,7 +213,7 @@ include 'header.php';
 
             <div class="d-flex flex-wrap gap-2 mt-4">
                 <button class="bouton bouton-principal"><i class="bi bi-send" aria-hidden="true"></i> <?= $evt ? 'Enregistrer les modifications' : 'Envoyer ma proposition' ?></button>
-                <a href="dashboard_auteur.php" class="bouton bouton-discret">Annuler</a>
+                <a href="dashboard_auteur" class="bouton bouton-discret">Annuler</a>
             </div>
         </form>
 

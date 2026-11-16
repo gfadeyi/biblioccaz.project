@@ -5,7 +5,7 @@ require_once 'avis_lib.php';
 
 $evt = chargerEvenement($pdo, (int) ($_GET['id'] ?? 0));
 if (!$evt) {
-    header("Location: evenements.php");
+    header("Location: evenements");
     exit();
 }
 
@@ -14,7 +14,7 @@ $estEquipe = in_array($_SESSION['role'] ?? '', ['admin', 'gestionnaire'], true);
 $estPublic = in_array($evt['statut'], ['publie', 'annule'], true);
 $estCreateur = $idUser > 0 && (int) $evt['id_createur'] === $idUser;
 if (!$estPublic && !$estEquipe && !$estCreateur) {
-    header("Location: evenements.php");
+    header("Location: evenements");
     exit();
 }
 $proposeur = proposeurEvenement($pdo, $evt);
@@ -50,7 +50,7 @@ include 'header.php';
 
 <div class="container mt-4 mb-5 page-evenement">
     <nav aria-label="Fil d'Ariane" class="fil-ariane">
-        <a href="evenements.php">Événements</a>
+        <a href="evenements">Événements</a>
         <span aria-hidden="true">›</span>
         <span aria-current="page"><?= htmlspecialchars($evt['titre']) ?></span>
     </nav>
@@ -133,10 +133,10 @@ include 'header.php';
                     <h2 class="evt-panneau__titre"><?= EVT_STATUTS[$evt['statut']][0] ?? 'Proposition' ?></h2>
                     <p class="small text-muted">Les inscriptions ouvriront quand l'équipe aura validé l'événement.</p>
                     <?php if ($estCreateur && $evt['statut'] === 'en_attente'): ?>
-                        <a href="proposer_evenement.php?id=<?= (int) $evt['id_evenement'] ?>" class="bouton bouton-contour bouton-petit w-100 mb-2"><i class="bi bi-pencil" aria-hidden="true"></i> Modifier ma proposition</a>
+                        <a href="proposer_evenement?id=<?= (int) $evt['id_evenement'] ?>" class="bouton bouton-contour bouton-petit w-100 mb-2"><i class="bi bi-pencil" aria-hidden="true"></i> Modifier ma proposition</a>
                     <?php endif; ?>
                     <?php if ($estCreateur): ?>
-                        <a href="dashboard_auteur.php" class="bouton bouton-discret bouton-petit w-100">Retour à mon espace créateur</a>
+                        <a href="dashboard_auteur" class="bouton bouton-discret bouton-petit w-100">Retour à mon espace créateur</a>
                     <?php endif; ?>
                 </section>
 
@@ -196,7 +196,7 @@ include 'header.php';
                         'termine'  => "Cet événement est terminé. Retrouvez les prochains rendez-vous dans le calendrier.",
                         default    => "Cet événement a été annulé.",
                     } ?></p>
-                    <a href="evenements.php" class="lien-voir-tout mt-2">Voir les prochains événements <i class="bi bi-chevron-right" aria-hidden="true"></i></a>
+                    <a href="evenements" class="lien-voir-tout mt-2">Voir les prochains événements <i class="bi bi-chevron-right" aria-hidden="true"></i></a>
                 </section>
             <?php endif; ?>
 
@@ -211,7 +211,7 @@ include 'header.php';
             <h2 class="evt-fiche__sous-titre" id="titreLivresEvenement">Les livres à découvrir pendant l'événement</h2>
             <div class="livres-evenement__liste">
                 <?php foreach ($livresAssocies as $livre): ?>
-                    <a href="detail_livre.php?id=<?= (int) $livre['id_livre'] ?>" class="livres-evenement__livre">
+                    <a href="livre?id=<?= (int) $livre['id_livre'] ?>" class="livres-evenement__livre">
                         <img src="<?= htmlspecialchars(urlImage($livre['couverture'])) ?>" alt="" loading="lazy">
                         <strong><?= htmlspecialchars($livre['titre']) ?></strong>
                         <small><?= htmlspecialchars($livre['auteur'] ?? '') ?></small>

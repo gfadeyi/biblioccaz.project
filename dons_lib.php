@@ -47,7 +47,7 @@ function genererCodeCourt(PDO $pdo): string
 
 function urlValidationDon(array $don): string
 {
-    return SITE_URL . '/don_valider.php?code=' . $don['code'];
+    return SITE_URL . '/don_valider?code=' . $don['code'];
 }
 
 function photoDon(?string $photo, ?string $couverture = null): string

@@ -105,7 +105,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </form>
 
         <div class="d-flex justify-content-between mt-4 small">
-            <a href="../recuparation_mdp.php" class="text-muted">Mot de passe oublié ?</a>
+            <a href="../recuparation_mdp" class="text-muted">Mot de passe oublié ?</a>
             <a href="../" class="text-muted"><i class="bi bi-arrow-left"></i> Retour au site</a>
         </div>
     </div>

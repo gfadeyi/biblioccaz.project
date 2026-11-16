@@ -8,7 +8,7 @@ header('Cache-Control: no-store');
 $liaison = $_SESSION['liaison_google'] ?? null;
 if (!connexionGoogleActive() || isset($_SESSION['user_id']) || !is_array($liaison) || time() - (int) $liaison['cree_le'] > GOOGLE_DUREE_DEMANDE) {
     unset($_SESSION['liaison_google']);
-    header('Location: login.php' . (is_array($liaison) ? '?error=google_expire' : ''));
+    header('Location: connexion' . (is_array($liaison) ? '?error=google_expire' : ''));
     exit();
 }
 
@@ -18,7 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $erreur = 'La page a expiré. Merci de réessayer.';
     } elseif (isset($_POST['annuler'])) {
         unset($_SESSION['liaison_google']);
-        header('Location: login.php');
+        header('Location: connexion');
         exit();
     } else {
         $requete = $pdo->prepare('SELECT * FROM user WHERE id = ? AND email = ?');
@@ -35,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
             unset($_SESSION['liaison_google']);
             if (!$liaisonFaite) {
-                header('Location: login.php?error=' . ($refus !== '' ? $refus : 'google_autre_compte'));
+                header('Location: connexion?error=' . ($refus !== '' ? $refus : 'google_autre_compte'));
                 exit();
             }
             insertLog('COMPTE', "Compte @{$user['pseudo']} lié à Google");
@@ -46,7 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($liaison['essais'] >= GOOGLE_ESSAIS_LIAISON) {
             unset($_SESSION['liaison_google']);
             insertLog('SECURITE', "Liaison Google abandonnée après " . GOOGLE_ESSAIS_LIAISON . " mots de passe incorrects pour le compte #{$liaison['id_user']}");
-            header('Location: login.php?error=google_essais');
+            header('Location: connexion?error=google_essais');
             exit();
         }
         $essaisRestants = GOOGLE_ESSAIS_LIAISON - $liaison['essais'];
@@ -75,7 +75,7 @@ include 'header.php';
             <input type="hidden" name="csrf" value="<?= htmlspecialchars(jetonCsrf()) ?>">
             <button type="submit" name="annuler" value="1" class="bouton bouton-discret">Annuler</button>
         </form>
-        <p class="carte-formulaire__pied"><a href="recuparation_mdp.php">Mot de passe oublié ?</a></p>
+        <p class="carte-formulaire__pied"><a href="recuparation_mdp">Mot de passe oublié ?</a></p>
     </div>
 </div>
 <?php include 'footer.php'; ?>

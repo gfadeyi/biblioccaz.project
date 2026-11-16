@@ -88,7 +88,7 @@ echo etoilesStyle();
     <article class="carte p-3 mb-3 avis-a-valider">
         <div class="d-flex flex-wrap justify-content-between gap-2">
             <div>
-                <a href="../detail_livre.php?id=<?= (int) $a['id_livre'] ?>#avis" target="_blank" rel="noopener" class="fw-bold"><?= e($a['titre_livre']) ?></a>
+                <a href="../livre?id=<?= (int) $a['id_livre'] ?>#avis" target="_blank" rel="noopener" class="fw-bold"><?= e($a['titre_livre']) ?></a>
                 <span class="text-muted small"> · par @<?= e($a['pseudo']) ?> · <?= date('d/m/Y à H:i', strtotime($a['date_creation'])) ?></span>
             </div>
             <?php if ($a['statut_points'] === 'en_attente'): ?>

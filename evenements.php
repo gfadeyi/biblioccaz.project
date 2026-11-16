@@ -86,13 +86,13 @@ include 'header.php';
             <p class="text-muted mb-0">Dédicaces, rencontres et ateliers autour du livre d'occasion. Événements gratuits ou payants, sur inscription.</p>
         </div>
         <?php if (isset($_SESSION['user_id'])): ?>
-            <a href="mes_evenements.php" class="btn btn-outline-success rounded-pill fw-bold"><i class="bi bi-ticket-perforated"></i> Mes inscriptions</a>
+            <a href="mes_evenements" class="btn btn-outline-success rounded-pill fw-bold"><i class="bi bi-ticket-perforated"></i> Mes inscriptions</a>
         <?php endif; ?>
     </div>
 
     <ul class="nav nav-pills mb-3">
-        <li class="nav-item"><a class="nav-link <?= $periode === 'a_venir' ? 'active' : '' ?>" href="evenements.php">À venir</a></li>
-        <li class="nav-item"><a class="nav-link <?= $periode === 'passes' ? 'active' : '' ?>" href="evenements.php?periode=passes">Passés</a></li>
+        <li class="nav-item"><a class="nav-link <?= $periode === 'a_venir' ? 'active' : '' ?>" href="evenements">À venir</a></li>
+        <li class="nav-item"><a class="nav-link <?= $periode === 'passes' ? 'active' : '' ?>" href="evenements?periode=passes">Passés</a></li>
     </ul>
 
     <form method="GET" class="row g-2 mb-4">
@@ -154,7 +154,7 @@ include 'header.php';
         <div class="d-flex flex-column gap-3">
             <?php foreach ($liste as $e): ?>
                 <?php $t = strtotime($e['date_debut']); $restantes = placesRestantes($e); ?>
-                <a href="evenement.php?id=<?= $e['id_evenement'] ?>" class="card border-0 shadow-sm text-decoration-none text-dark carte-evenement" style="border-radius: 15px;">
+                <a href="evenement?id=<?= $e['id_evenement'] ?>" class="card border-0 shadow-sm text-decoration-none text-dark carte-evenement" style="border-radius: 15px;">
                     <div class="card-body d-flex gap-3 align-items-center">
                         <div class="date-evenement text-center flex-shrink-0">
                             <div class="small text-uppercase"><?= mb_substr(EVT_JOURS[(int) date('w', $t)], 0, 3) ?></div>
@@ -197,7 +197,7 @@ include 'header.php';
             <?php foreach ($evenementsPasses as $passe): ?>
                 <?php $debutPasse = strtotime($passe['date_debut']); ?>
                 <li>
-                    <a href="evenement.php?id=<?= (int) $passe['id_evenement'] ?>">
+                    <a href="evenement?id=<?= (int) $passe['id_evenement'] ?>">
                         <span class="evenements-passes__date"><?= date('j', $debutPasse) ?> <?= EVT_MOIS_COURTS[(int) date('n', $debutPasse) - 1] ?> <?= date('Y', $debutPasse) ?></span>
                         <span class="evenements-passes__titre"><?= htmlspecialchars($passe['titre']) ?></span>
                         <span class="evenements-passes__lieu"><?= htmlspecialchars($passe['lieu']) ?> · <?= htmlspecialchars(libellePrixEvenement($passe)) ?></span>
@@ -206,7 +206,7 @@ include 'header.php';
             <?php endforeach; ?>
         </ul>
         <?php if ($nbEvenementsPasses > count($evenementsPasses)): ?>
-            <a href="evenements.php?periode=passes" class="lien-voir-tout mt-2">Voir les <?= $nbEvenementsPasses ?> événements passés <i class="bi bi-arrow-right" aria-hidden="true"></i></a>
+            <a href="evenements?periode=passes" class="lien-voir-tout mt-2">Voir les <?= $nbEvenementsPasses ?> événements passés <i class="bi bi-arrow-right" aria-hidden="true"></i></a>
         <?php endif; ?>
     </details>
 <?php endif; ?>

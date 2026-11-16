@@ -1,3 +1,3 @@
 <?php
-header('Location: rejoindre_equipe.php?role=moderateur', true, 301);
+header('Location: rejoindre_equipe?role=moderateur', true, 301);
 exit();

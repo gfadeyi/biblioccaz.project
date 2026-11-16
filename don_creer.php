@@ -7,7 +7,7 @@ require_once 'upload_lib.php';
 if (session_status() === PHP_SESSION_NONE) { session_start(); }
 
 if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php");
+    header("Location: connexion");
     exit();
 }
 
@@ -19,7 +19,7 @@ if ($idDon) {
     $donAModifier = $requete->fetch();
     if (!$donAModifier || !in_array(statutDon($donAModifier), ['en_validation', 'refuse', 'disponible', 'expire'], true)) {
         $_SESSION['flash_don'] = ['warning', 'Ce don ne peut pas être modifié.'];
-        header('Location: mes_dons.php'); exit();
+        header('Location: mes_dons'); exit();
     }
 }
 $photosDisponibles = photosDonDisponibles($pdo);
@@ -37,7 +37,7 @@ if ($idLigneDemandee > 0) {
     $ligneCommande = ligneCommandeADonner($pdo, $idLigneDemandee, (int) $_SESSION['user_id']);
     if (!$ligneCommande) {
         $_SESSION['flash_message'] = ['warning', 'Ce livre ne peut pas être donné depuis cette commande : elle doit être livrée et chaque exemplaire ne se donne qu’une fois.'];
-        header('Location: commandes.php'); exit();
+        header('Location: commandes'); exit();
     }
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
         $v = array_merge($v, ['id_livre' => (string) $ligneCommande['id_livre'], 'titre' => (string) $ligneCommande['titre'], 'auteur' => (string) ($ligneCommande['auteur'] ?? ''), 'id_categorie' => (string) ($ligneCommande['id_categorie'] ?? ''), 'etat' => etatDonDepuisCommande((string) $ligneCommande['etat'])]);
@@ -153,7 +153,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
             insertLog('DON', 'Don #' . $idDon . ' soumis à validation');
             $_SESSION['flash_don'] = ['success', 'Votre don a été envoyé à l’équipe pour validation. Il sera réservable après acceptation.'];
-            header('Location: don_detail.php?id=' . $idDon); exit();
+            header('Location: don_detail?id=' . $idDon); exit();
         } catch (Throwable $erreur) {
             if ($pdo->inTransaction()) { $pdo->rollBack(); }
             foreach (array_filter([$photo, ...$nouvellesPhotos]) as $fichierPhoto) {
@@ -170,7 +170,7 @@ include 'header.php';
 ?>
 
 <div class="container my-5" style="max-width: 760px;">
-    <a href="vendre.php" class="text-decoration-none small text-muted"><i class="bi bi-arrow-left"></i> Donner ou revendre</a>
+    <a href="vendre" class="text-decoration-none small text-muted"><i class="bi bi-arrow-left"></i> Donner ou revendre</a>
     <h2 class="fw-bold mt-2 mb-4"><?= $donAModifier ? 'Modifier mon don' : 'Proposer un livre en don' ?></h2>
 
     <?php if ($erreurs): ?>

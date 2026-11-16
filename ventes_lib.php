@@ -192,7 +192,7 @@ function creerDemande(PDO $pdo, int $idAnnonce, int $idAcheteur, string $modeRem
     notifierParMail($annonce['vendeur_email'], "Nouvelle demande d'achat",
         "Bonjour {$annonce['vendeur_pseudo']},\n\n@$pseudoAcheteur souhaite acheter « {$annonce['titre']} » à " . formaterPrix($annonce['prix']) . ".\n\n"
         . "Acceptez ou refusez la demande depuis BIBLIOccaz, sous " . DEMANDE_EXPIRATION_JOURS . " jours. Vous pouvez aussi lui écrire dans la conversation.",
-        SITE_URL . "/transaction.php?id=$idDemande", "Voir la demande");
+        SITE_URL . "/transaction?id=$idDemande", "Voir la demande");
     return ['success', $statut === 'en_file'
         ? "Demande envoyée. L'annonce est déjà réservée : vous êtes en file d'attente et serez prévenu si elle se libère."
         : "Demande envoyée au vendeur. Il a " . DEMANDE_EXPIRATION_JOURS . " jours pour répondre.", $idDemande];
@@ -238,11 +238,11 @@ function accepterDemande(PDO $pdo, int $idDemande, int $idVendeur): array
     notifierParMail($demande['acheteur_email'], "Votre demande est acceptée",
         "Bonjour {$demande['acheteur_pseudo']},\n\n@{$demande['vendeur_pseudo']} a accepté votre demande pour « {$demande['titre']} » (" . formaterPrix($demande['prix']) . ").\n\n"
         . "Convenez de l'échange dans la conversation. Le paiement se fait directement au vendeur ; une fois le livre remis, le vendeur indiquera la vente conclue et vous aurez " . CONFIRMATION_JOURS . " jours pour confirmer la réception.",
-        SITE_URL . "/transaction.php?id=$idDemande", "Organiser l'échange");
+        SITE_URL . "/transaction?id=$idDemande", "Organiser l'échange");
     foreach ($autres as $autre) {
         notifierParMail($autre['email'], "Votre demande est en file d'attente",
             "Bonjour {$autre['pseudo']},\n\nLe vendeur de « {$demande['titre']} » a accepté une autre demande. La vôtre reste en file d'attente : nous vous prévenons si le livre redevient disponible.",
-            SITE_URL . "/transaction.php?id={$autre['id_demande']}", "Voir ma demande");
+            SITE_URL . "/transaction?id={$autre['id_demande']}", "Voir ma demande");
     }
     return ['success', "Demande acceptée : l'annonce est réservée pour @{$demande['acheteur_pseudo']}." . ($autres ? ' ' . count($autres) . ' autre' . (count($autres) > 1 ? 's demandes passent' : ' demande passe') . " en file d'attente." : '')];
 }
@@ -261,7 +261,7 @@ function refuserDemande(PDO $pdo, int $idDemande, int $idVendeur, string $motif)
     notifierParMail($demande['acheteur_email'], "Votre demande n'a pas été retenue",
         "Bonjour {$demande['acheteur_pseudo']},\n\n@{$demande['vendeur_pseudo']} n'a pas retenu votre demande pour « {$demande['titre']} »." . ($motif !== '' ? "\n\nSon message : $motif" : '')
         . "\n\nD'autres lecteurs proposent peut-être ce livre : jetez un œil aux autres offres.",
-        SITE_URL . "/detail_livre.php?id={$demande['id_livre']}#offres", "Voir les autres offres");
+        SITE_URL . "/livre?id={$demande['id_livre']}#offres", "Voir les autres offres");
     return ['success', "Demande refusée. L'acheteur est prévenu."];
 }
 
@@ -311,12 +311,12 @@ function annulerDemande(PDO $pdo, int $idDemande, int $idUser, string $motif): a
         notifierParMail($destinataireEmail, $demande['statut'] === 'acceptee' ? "Vente annulée" : "Demande d'achat annulée",
             "Bonjour $destinatairePseudo,\n\n@$auteur a annulé " . ($demande['statut'] === 'acceptee' ? 'la vente' : 'sa demande') . " pour « {$demande['titre']} »." . ($motif !== '' ? "\n\nMotif : $motif" : '')
             . ($demande['statut'] === 'acceptee' && $estAcheteur ? "\n\nVotre annonce est de nouveau en vente." : ''),
-            SITE_URL . "/transaction.php?id=$idDemande", "Voir la transaction");
+            SITE_URL . "/transaction?id=$idDemande", "Voir la transaction");
     }
     foreach ($enFile as $attente) {
         notifierParMail($attente['email'], "Le livre est de nouveau disponible",
             "Bonjour {$attente['pseudo']},\n\n« {$demande['titre']} » est de nouveau disponible : votre demande sort de la file d'attente et le vendeur va pouvoir y répondre.",
-            SITE_URL . "/transaction.php?id={$attente['id_demande']}", "Voir ma demande");
+            SITE_URL . "/transaction?id={$attente['id_demande']}", "Voir ma demande");
     }
     return ['success', $demande['statut'] === 'acceptee' ? "Vente annulée : l'annonce est de nouveau en vente." : "Demande annulée."];
 }
@@ -374,7 +374,7 @@ function conclureVente(PDO $pdo, int $idDemande, ?int $idVendeur, ?int $idModera
     $pdo->commit();
 
     insertLog('VENTE', "Vente #$idDemande conclue" . ($idModerateur ? " par l'équipe" : ' par le vendeur') . ($pointsPrevus ? ' (' . pointsRegle($pdo, 'vente') . ' points en attente)' : ''));
-    $lien = SITE_URL . "/transaction.php?id=$idDemande";
+    $lien = SITE_URL . "/transaction?id=$idDemande";
     notifierParMail($demande['acheteur_email'], "Confirmez la réception de votre livre",
         "Bonjour {$demande['acheteur_pseudo']},\n\n@{$demande['vendeur_pseudo']} a indiqué que la vente de « {$demande['titre']} » (" . formaterPrix($demande['prix']) . ") est conclue.\n\n"
         . "Confirmez la réception du livre, ou signalez un problème, avant le $dateLimite. Sans signalement de votre part, la vente sera confirmée automatiquement.\n\nLe reçu de la vente est disponible sur la page de la transaction.",
@@ -386,7 +386,7 @@ function conclureVente(PDO $pdo, int $idDemande, ?int $idVendeur, ?int $idModera
     foreach ($autres as $autre) {
         notifierParMail($autre['email'], "Le livre a été vendu",
             "Bonjour {$autre['pseudo']},\n\n« {$demande['titre']} » a été vendu à un autre lecteur. D'autres offres existent peut-être pour ce livre.",
-            SITE_URL . "/detail_livre.php?id={$demande['id_livre']}#offres", "Voir les autres offres");
+            SITE_URL . "/livre?id={$demande['id_livre']}#offres", "Voir les autres offres");
     }
     return ['success', $idModerateur ? "Vente conclue par l'équipe." : "Vente conclue, merci ! Le reçu est disponible. @{$demande['acheteur_pseudo']} a jusqu'au $dateLimite pour confirmer la réception."];
 }
@@ -422,7 +422,7 @@ function confirmerVente(PDO $pdo, int $idDemande, ?int $idAcheteur, string $mode
             'equipe' => "L'équipe BIBLIOccaz a confirmé la vente de « {$demande['titre']} ».",
             default => "@{$demande['acheteur_pseudo']} a confirmé avoir bien reçu « {$demande['titre']} ».",
         } . ($pointsCredites ? "\n\nVous gagnez " . pointsMouvement($pdo, $idVendeur, 'vente', 'vente:' . $idDemande) . " points BIBLIOccaz. Merci d'avoir donné une seconde vie à ce livre !" : ''),
-        SITE_URL . "/transaction.php?id=$idDemande", "Voir la transaction");
+        SITE_URL . "/transaction?id=$idDemande", "Voir la transaction");
     return ['success', match ($mode) {
         'equipe' => "Vente confirmée par l'équipe" . ($pointsCredites ? ' : les points du vendeur sont crédités.' : '.'),
         'auto' => "Vente confirmée automatiquement.",
@@ -512,12 +512,12 @@ function annulerVenteParEquipe(PDO $pdo, int $idDemande, int $idModerateur, stri
         notifierParMail($email, "Transaction annulée par l'équipe",
             "Bonjour $pseudo,\n\nL'équipe BIBLIOccaz a annulé la transaction pour « {$demande['titre']} ».\n\nMotif : $motif"
             . ($pointsRetires ? "\n\nLes points liés à cette vente sont annulés." : ''),
-            SITE_URL . "/transaction.php?id=$idDemande", "Voir la transaction");
+            SITE_URL . "/transaction?id=$idDemande", "Voir la transaction");
     }
     foreach ($enFile as $attente) {
         notifierParMail($attente['email'], "Le livre est de nouveau disponible",
             "Bonjour {$attente['pseudo']},\n\n« {$demande['titre']} » est de nouveau disponible : votre demande sort de la file d'attente.",
-            SITE_URL . "/transaction.php?id={$attente['id_demande']}", "Voir ma demande");
+            SITE_URL . "/transaction?id={$attente['id_demande']}", "Voir ma demande");
     }
     return ['success', "Transaction annulée. Les deux membres sont prévenus" . ($pointsRetires ? " et les points du vendeur annulés." : '.')];
 }
@@ -588,7 +588,7 @@ function cloreDemandesEnAttente(PDO $pdo, int $idAnnonce, string $motif): void
             fermerConversationsObjet($pdo, 'vente', (int) $demande['id_demande'], "Demande close : $motif.");
             notifierParMail($demande['email'], "Votre demande d'achat est close",
                 "Bonjour {$demande['pseudo']},\n\nVotre demande pour « {$demande['titre']} » est close : $motif.",
-                SITE_URL . "/transaction.php?id={$demande['id_demande']}", "Voir la demande");
+                SITE_URL . "/transaction?id={$demande['id_demande']}", "Voir la demande");
         }
     } catch (PDOException $e) {
     }

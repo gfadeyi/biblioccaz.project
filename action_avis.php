@@ -7,7 +7,7 @@ if (session_status() === PHP_SESSION_NONE) { session_start(); }
 
 $idLivre = (int) ($_POST['id_livre'] ?? 0);
 $retour = $_POST['retour'] ?? '';
-$urlRetour = $retour === 'mes_avis' ? 'avis.php' : "detail_livre.php?id=$idLivre#avis";
+$urlRetour = $retour === 'mes_avis' ? 'avis' : "livre?id=$idLivre#avis";
 
 function finir(string $url, string $type, string $message): void
 {
@@ -17,7 +17,7 @@ function finir(string $url, string $type, string $message): void
 }
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !isset($_SESSION['user_id'])) {
-    header("Location: login.php");
+    header("Location: connexion");
     exit();
 }
 if (!verifierCsrf()) {

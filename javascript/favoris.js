@@ -4,15 +4,15 @@ document.addEventListener('click', function (e) {
     e.preventDefault();
     if (bouton.dataset.envoi === '1') return;
     const jeton = document.querySelector('meta[name="csrf"]');
-    const pageActuelle = (decodeURIComponent(window.location.pathname.split('/').pop()) || 'index.php') + window.location.search;
+    const pageActuelle = (decodeURIComponent(window.location.pathname.split('/').pop()) || './') + window.location.search;
     const corps = new URLSearchParams({ action: 'favori_basculer', id_livre: bouton.dataset.livre, csrf: jeton ? jeton.content : '', retour_page: pageActuelle });
     bouton.dataset.envoi = '1';
     if (bouton.tagName === 'BUTTON') bouton.disabled = true;
-    fetch('compte_action.php', { method: 'POST', body: corps, credentials: 'same-origin' })
+    fetch('compte_action', { method: 'POST', body: corps, credentials: 'same-origin' })
         .then(reponse => {
             if (reponse.status === 401) {
                 return reponse.json().catch(() => ({})).then(data => {
-                    window.location.href = data.connexion || bouton.getAttribute('href') || 'login.php';
+                    window.location.href = data.connexion || bouton.getAttribute('href') || 'connexion';
                     return null;
                 });
             }
@@ -30,7 +30,7 @@ document.addEventListener('click', function (e) {
                 b.classList.add('anime');
             });
             let compteur = document.getElementById('compteur-favoris');
-            const lien = document.querySelector('a[href="wishlist.php"].icone-entete');
+            const lien = document.querySelector('a[href="wishlist"].icone-entete');
             if (!compteur && lien && data.nb > 0) {
                 compteur = document.createElement('span');
                 compteur.className = 'pastille';

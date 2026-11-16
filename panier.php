@@ -44,7 +44,7 @@ include 'header.php';
             <?php endif; ?>
         </div>
         <?php if ($panier): ?>
-            <a href="catalogue.php" class="lien-voir-tout"><i class="bi bi-arrow-left"></i> Continuer mes achats</a>
+            <a href="catalogue" class="lien-voir-tout"><i class="bi bi-arrow-left"></i> Continuer mes achats</a>
         <?php endif; ?>
     </div>
 
@@ -58,8 +58,8 @@ include 'header.php';
             <h2>Votre panier attend sa première lecture</h2>
             <p>Romans, mangas, manuels… des milliers de pages vous attendent à petit prix.</p>
             <div class="d-flex flex-wrap justify-content-center gap-2">
-                <a href="catalogue.php" class="bouton bouton-action"><i class="bi bi-book"></i> Parcourir le catalogue</a>
-                <a href="petits_prix.php" class="bouton bouton-contour"><i class="bi bi-tag"></i> Voir les petits prix</a>
+                <a href="catalogue" class="bouton bouton-action"><i class="bi bi-book"></i> Parcourir le catalogue</a>
+                <a href="petits_prix" class="bouton bouton-contour"><i class="bi bi-tag"></i> Voir les petits prix</a>
             </div>
         </div>
     <?php else: ?>
@@ -72,15 +72,15 @@ include 'header.php';
                 <div class="liste-panier">
                     <?php foreach ($panier as $cle => $item): ?>
                         <article class="ligne-panier">
-                            <a href="detail_livre.php?id=<?= (int) $item['id_livre'] ?>" class="ligne-panier__couverture">
+                            <a href="livre?id=<?= (int) $item['id_livre'] ?>" class="ligne-panier__couverture">
                                 <img src="<?= htmlspecialchars(urlImage($item['image'])) ?>" alt="Couverture de <?= htmlspecialchars($item['titre']) ?>">
                             </a>
                             <div class="ligne-panier__infos">
-                                <h2><a href="detail_livre.php?id=<?= (int) $item['id_livre'] ?>"><?= htmlspecialchars($item['titre']) ?></a></h2>
+                                <h2><a href="livre?id=<?= (int) $item['id_livre'] ?>"><?= htmlspecialchars($item['titre']) ?></a></h2>
                                 <p class="ligne-panier__etat"><i class="bi bi-bookmark-check" aria-hidden="true"></i> État : <strong><?= htmlspecialchars(libelleEtat((string) $item['etat'])) ?></strong></p>
                                 <p><?= formaterPrix((float) $item['prix']) ?> l'unité</p>
                             </div>
-                            <form method="POST" action="action_modifier_panier.php" data-panier-formulaire class="ligne-panier__actions">
+                            <form method="POST" action="action_modifier_panier" data-panier-formulaire class="ligne-panier__actions">
                                 <input type="hidden" name="csrf" value="<?= jetonCsrf() ?>">
                                 <input type="hidden" name="key" value="<?= htmlspecialchars($cle) ?>">
                                 <div class="selecteur-quantite">
@@ -96,7 +96,7 @@ include 'header.php';
                         </article>
                     <?php endforeach; ?>
                 </div>
-                <form method="POST" action="panier_action.php" class="vider-panier" data-panier-formulaire data-panier-vider
+                <form method="POST" action="panier_action" class="vider-panier" data-panier-formulaire data-panier-vider
                       data-confirmer="Retirer tous les livres du panier ? Ils redeviennent aussitôt disponibles pour les autres lecteurs." data-titre-confirmer="Vider le panier" data-bouton-confirmer="Vider le panier">
                     <input type="hidden" name="csrf" value="<?= $jetonPanier ?>">
                     <input type="hidden" name="action" value="vider">
@@ -129,7 +129,7 @@ include 'header.php';
                             <span>Un bon jusqu'à <strong>-<?= formaterPrix($meilleurBon['montant']) ?></strong> est disponible : vous pourrez l'utiliser à l'étape suivante.</span>
                         </p>
                     <?php endif; ?>
-                    <a href="achat.php" class="bouton bouton-action w-100"><i class="bi bi-lock"></i> Valider mon panier</a>
+                    <a href="achat" class="bouton bouton-action w-100"><i class="bi bi-lock"></i> Valider mon panier</a>
                     <ul class="recap-panier__garanties">
                         <li><i class="bi bi-shield-check"></i> Paiement 100 % sécurisé</li>
                         <li><i class="bi bi-patch-check"></i> Livres vérifiés à la main</li>

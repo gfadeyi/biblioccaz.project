@@ -5,7 +5,7 @@ require_once 'service_client_lib.php';
 if (session_status() === PHP_SESSION_NONE) { session_start(); }
 
 if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php");
+    header("Location: connexion");
     exit();
 }
 $idUser = (int) $_SESSION['user_id'];
@@ -24,7 +24,7 @@ if ($disponible && $_SERVER['REQUEST_METHOD'] === 'POST') {
         $resultat = creerDemandeClient($pdo, $idUser, $saisie['categorie'], $saisie['sujet'], $saisie['message'], $saisie['id_commande']);
         if ($resultat[0] === 'success') {
             $_SESSION['flash_message'] = [$resultat[0], $resultat[1]];
-            header('Location: service_client.php?id=' . (int) $resultat[2]);
+            header('Location: service_client?id=' . (int) $resultat[2]);
             exit();
         }
         $erreur = $resultat[1];
@@ -40,7 +40,7 @@ if ($disponible && $_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     if ($action !== 'creer') {
         $_SESSION['flash_message'] = $resultat;
-        header('Location: service_client.php?id=' . $idDemande . '#fil');
+        header('Location: service_client?id=' . $idDemande . '#fil');
         exit();
     }
 }
@@ -71,10 +71,10 @@ include 'header.php';
 
 <div class="container my-4 page-service" style="max-width: 900px;">
     <nav aria-label="Fil d'Ariane" class="fil-ariane">
-        <a href="profil.php">Mon compte</a>
+        <a href="mon-compte">Mon compte</a>
         <span aria-hidden="true">›</span>
         <?php if ($demande): ?>
-            <a href="service_client.php">Service client</a>
+            <a href="service_client">Service client</a>
             <span aria-hidden="true">›</span>
             <span aria-current="page"><?= htmlspecialchars((string) $demande['reference']) ?></span>
         <?php else: ?>
@@ -113,7 +113,7 @@ include 'header.php';
 
         <?php $close = $demande['statut'] === 'resolue'; $tropAncienne = demandeTropAnciennePourReouverture($demande); ?>
         <?php if ($tropAncienne): ?>
-            <p class="demande-fermee"><i class="bi bi-lock" aria-hidden="true"></i> Demande fermée depuis plus de <?= SERVICE_REOUVERTURE_JOURS ?> jours : elle ne peut plus être rouverte. <a href="service_client.php#nouvelle">Ouvrir une nouvelle demande</a></p>
+            <p class="demande-fermee"><i class="bi bi-lock" aria-hidden="true"></i> Demande fermée depuis plus de <?= SERVICE_REOUVERTURE_JOURS ?> jours : elle ne peut plus être rouverte. <a href="service_client#nouvelle">Ouvrir une nouvelle demande</a></p>
         <?php else: ?>
             <?php if ($close): ?>
                 <p class="demande-fermee"><i class="bi bi-lock" aria-hidden="true"></i> Demande résolue et fermée le <?= date('d/m/Y', strtotime((string) ($demande['date_cloture'] ?: $demande['date_maj']))) ?>. Vous pouvez encore la rouvrir en écrivant jusqu’au <?= date('d/m/Y', strtotime((string) ($demande['date_cloture'] ?: $demande['date_maj'])) + SERVICE_REOUVERTURE_JOURS * 86400) ?>.</p>
@@ -147,7 +147,7 @@ include 'header.php';
             <ul class="liste-retours mb-4">
                 <?php foreach ($demandes as $ligne): ?>
                     <li>
-                        <a href="service_client.php?id=<?= (int) $ligne['id_demande'] ?>" class="liste-retours__lien<?= (int) $ligne['non_lu_client'] ? ' liste-retours__lien--nouveau' : '' ?>">
+                        <a href="service_client?id=<?= (int) $ligne['id_demande'] ?>" class="liste-retours__lien<?= (int) $ligne['non_lu_client'] ? ' liste-retours__lien--nouveau' : '' ?>">
                             <span><strong><?= htmlspecialchars($ligne['sujet']) ?></strong><?= (int) $ligne['non_lu_client'] ? ' <span class="pastille-reponse">Nouvelle réponse</span>' : '' ?><small class="d-block text-muted"><?= htmlspecialchars((string) $ligne['reference']) ?> · <?= htmlspecialchars(SERVICE_CATEGORIES[$ligne['categorie']] ?? 'Autre') ?> · <?= (int) $ligne['nb_messages'] ?> message<?= (int) $ligne['nb_messages'] > 1 ? 's' : '' ?> · <?= date('d/m/Y', strtotime($ligne['date_maj'])) ?></small></span>
                             <span class="statut-retour statut-retour--<?= SERVICE_STATUTS[$ligne['statut']][1] ?? 'attente' ?>"><?= libelleStatutDemande($ligne['statut']) ?></span>
                         </a>

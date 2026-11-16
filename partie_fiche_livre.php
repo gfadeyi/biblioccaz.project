@@ -1,7 +1,7 @@
 <section class="fiche-livre" id="fiche-livre">
     <nav class="fiche-livre__chemin" aria-label="Fil d’Ariane">
-        <a href="./">Accueil</a><span aria-hidden="true">›</span><a href="catalogue.php">Livres</a>
-        <?php if ($catLivre): ?><span aria-hidden="true">›</span><a href="catalogue.php?categorie=<?= rawurlencode($catLivre['slug']) ?>"><?= htmlspecialchars($catLivre['nom']) ?></a><?php endif; ?>
+        <a href="./">Accueil</a><span aria-hidden="true">›</span><a href="catalogue">Livres</a>
+        <?php if ($catLivre): ?><span aria-hidden="true">›</span><a href="catalogue?categorie=<?= rawurlencode($catLivre['slug']) ?>"><?= htmlspecialchars($catLivre['nom']) ?></a><?php endif; ?>
     </nav>
     <div class="fiche-livre__grille">
             <div class="fiche-livre__visuel">
@@ -10,7 +10,7 @@
                 <div class="fiche-livre__badges">
                     <?php if (stockEstBas($stockTotal)): ?><?= badgeStockBas() ?><?php endif; ?>
                     <?php if (!empty($livre['date_ajout']) && strtotime($livre['date_ajout']) >= strtotime('-30 days')): ?><span class="badge-bibli badge-nouveau">Nouveauté</span><?php endif; ?>
-                    <?php if ($serieLivre): ?><a href="serie.php?id=<?= (int) $serieLivre['id_serie'] ?>" class="badge-bibli badge-etat">Série<?= $serieLivre['numero_tome'] !== null ? ' · tome ' . htmlspecialchars(numeroVolumeSerie($serieLivre)) : '' ?></a><?php endif; ?>
+                    <?php if ($serieLivre): ?><a href="serie?id=<?= (int) $serieLivre['id_serie'] ?>" class="badge-bibli badge-etat">Série<?= $serieLivre['numero_tome'] !== null ? ' · tome ' . htmlspecialchars(numeroVolumeSerie($serieLivre)) : '' ?></a><?php endif; ?>
                 </div>
                 <img class="fiche-livre__couverture" src="<?= htmlspecialchars(urlImage($livre['couverture'])) ?>" alt="Couverture de <?= htmlspecialchars($livre['titre']) ?>" fetchpriority="high">
                 <?php if ($publicsLivre): ?><p class="fiche-livre__audience"><?= htmlspecialchars(implode(' · ', array_column($publicsLivre, 'nom'))) ?></p><?php endif; ?>
@@ -18,7 +18,7 @@
 
             <section class="fiche-livre__achat" data-achat-livre data-prix-neuf="<?= $prixNeufLivre ?? 0 ?>">
                 <?php if ($flashCompte): ?><div class="alert alert-<?= htmlspecialchars($flashCompte[0]) ?>"><?= htmlspecialchars($flashCompte[1]) ?></div><?php endif; ?>
-                <p class="fiche-livre__auteur"><?php if($livre['auteur']!==''): ?><a href="livres_auteur.php?auteur=<?= rawurlencode($livre['auteur']) ?>"><?= htmlspecialchars($livre['auteur']) ?></a><?php else: ?>Auteur non renseigné<?php endif; ?><?php if ($serieLivre): ?> · <a href="serie.php?id=<?= (int) $serieLivre['id_serie'] ?>"><?= htmlspecialchars($serieLivre['nom']) ?><?= $serieLivre['numero_tome'] !== null ? ' #' . htmlspecialchars(numeroVolumeSerie($serieLivre)) : '' ?></a><?php endif; ?></p>
+                <p class="fiche-livre__auteur"><?php if($livre['auteur']!==''): ?><a href="livres_auteur?auteur=<?= rawurlencode($livre['auteur']) ?>"><?= htmlspecialchars($livre['auteur']) ?></a><?php else: ?>Auteur non renseigné<?php endif; ?><?php if ($serieLivre): ?> · <a href="serie?id=<?= (int) $serieLivre['id_serie'] ?>"><?= htmlspecialchars($serieLivre['nom']) ?><?= $serieLivre['numero_tome'] !== null ? ' #' . htmlspecialchars(numeroVolumeSerie($serieLivre)) : '' ?></a><?php endif; ?></p>
                 <h1><?= htmlspecialchars($livre['titre']) ?></h1>
                 <a href="#avis" class="fiche-livre__avis"><?php if ($noteEntete['nb']): ?><?= etoiles($noteEntete['moyenne']) ?> <span><?= number_format($noteEntete['moyenne'], 1, ',', '') ?> · <?= (int) $noteEntete['nb'] ?> avis</span><?php else: ?><i class="bi bi-star" aria-hidden="true"></i> Donner le premier avis<?php endif; ?></a>
                 <ul class="fiche-livre__reperes" aria-label="Repères sur cette édition">
@@ -32,7 +32,7 @@
                     <span class="fiche-livre__economie" data-economie-fiche <?= !$selectionMagasin || !$prixNeufLivre || $prixNeufLivre <= $selectionMagasin['prix'] ? 'hidden' : '' ?>><?= $selectionMagasin && $prixNeufLivre > $selectionMagasin['prix'] ? '−' . round((1 - $selectionMagasin['prix'] / $prixNeufLivre) * 100) . ' %' : '' ?></span>
                 </div>
                 <h2 class="h6">Sélectionnez la condition</h2>
-                <form method="POST" action="panier_action.php" data-panier-formulaire>
+                <form method="POST" action="panier_action" data-panier-formulaire>
                     <input type="hidden" name="csrf" value="<?= jetonCsrf() ?>">
                     <input type="hidden" name="id_exemplaire" value="<?= (int) ($selectionMagasin['id_exemplaire'] ?? 0) ?>">
                     <div class="conditions-livre" role="group" aria-label="Conditions disponibles">
@@ -53,7 +53,7 @@
                 <div class="fiche-livre__boutons">
                     <?php if ($idUserConnecte): ?><?= $enFavori ? formulaireCompte('favori_retirer', (int) $id, '<i class="bi bi-heart-fill"></i> Retirer des favoris', 'btn btn-outline-success', 'Retirer de mes favoris') : formulaireCompte('favori_ajouter', (int) $id, '<i class="bi bi-heart"></i> Ajouter aux favoris', 'btn btn-outline-success', 'Ajouter à mes favoris') ?><?php else: ?><a href="<?= htmlspecialchars(lienConnexion()) ?>" class="btn btn-outline-success" data-favori-connexion data-livre="<?= (int) $id ?>"><i class="bi bi-heart" aria-hidden="true"></i> Ajouter aux favoris</a><?php endif; ?>
                 </div>
-                <?php if ($nombreEditions > 0): ?><a class="fiche-livre__editions" href="editions_livre.php?id=<?= (int) $id ?>">Découvrir <?= $nombreEditions ?> autre<?= $nombreEditions > 1 ? 's' : '' ?> édition<?= $nombreEditions > 1 ? 's' : '' ?> <i class="bi bi-arrow-right" aria-hidden="true"></i></a><?php endif; ?>
+                <?php if ($nombreEditions > 0): ?><a class="fiche-livre__editions" href="editions_livre?id=<?= (int) $id ?>">Découvrir <?= $nombreEditions ?> autre<?= $nombreEditions > 1 ? 's' : '' ?> édition<?= $nombreEditions > 1 ? 's' : '' ?> <i class="bi bi-arrow-right" aria-hidden="true"></i></a><?php endif; ?>
                 <p class="fiche-livre__demo"><i class="bi bi-info-circle" aria-hidden="true"></i> Commande de démonstration : aucun paiement ni envoi réel.</p>
                 <div class="fiche-informations">
                     <?php $informationsAchat = [
@@ -88,8 +88,8 @@
                             </div>
                         <?php else: ?><p class="fiche-livre__resume"><?= nl2br(htmlspecialchars($livre['description'] ?: 'Le résumé de cette édition sera complété prochainement.')) ?></p><?php endif; ?>
                         <div class="fiche-livre__tags">
-                            <?php foreach (array_slice($tagsLivre, 0, 4) as $tagLivre): ?><a class="tag-livre" href="catalogue.php?tag=<?= rawurlencode($tagLivre['slug']) ?>">#<?= htmlspecialchars($tagLivre['nom']) ?></a><?php endforeach; ?>
-                            <?php if (count($tagsLivre) > 4): ?><details><summary>+<?= count($tagsLivre) - 4 ?></summary><?php foreach (array_slice($tagsLivre, 4) as $tagLivre): ?><a class="tag-livre" href="catalogue.php?tag=<?= rawurlencode($tagLivre['slug']) ?>">#<?= htmlspecialchars($tagLivre['nom']) ?></a><?php endforeach; ?></details><?php endif; ?>
+                            <?php foreach (array_slice($tagsLivre, 0, 4) as $tagLivre): ?><a class="tag-livre" href="catalogue?tag=<?= rawurlencode($tagLivre['slug']) ?>">#<?= htmlspecialchars($tagLivre['nom']) ?></a><?php endforeach; ?>
+                            <?php if (count($tagsLivre) > 4): ?><details><summary>+<?= count($tagsLivre) - 4 ?></summary><?php foreach (array_slice($tagsLivre, 4) as $tagLivre): ?><a class="tag-livre" href="catalogue?tag=<?= rawurlencode($tagLivre['slug']) ?>">#<?= htmlspecialchars($tagLivre['nom']) ?></a><?php endforeach; ?></details><?php endif; ?>
                         </div>
                     </div>
                     <div class="tab-pane" id="contenu-details" role="tabpanel" aria-labelledby="onglet-details" tabindex="0">
@@ -100,8 +100,8 @@
                     <div class="tab-pane" id="contenu-auteur" role="tabpanel" aria-labelledby="onglet-auteur" tabindex="0">
                         <h2 class="h5 mt-3"><?= htmlspecialchars($livre['auteur'] ?: 'Auteur non renseigné') ?></h2>
                         <p class="text-muted"><?= $livre['auteur']!==''?'Retrouvez les livres de cet auteur disponibles dans notre catalogue.':'Les informations sur l’auteur de cette édition ne sont pas encore renseignées.' ?></p>
-                        <?php if($livre['auteur']!==''): ?><a class="btn btn-outline-success" href="livres_auteur.php?auteur=<?= rawurlencode($livre['auteur']) ?>">Voir ses livres</a><?php endif; ?>
-                        <?php if ($slugAuteur): ?><a class="d-block mt-3" href="auteur.php?a=<?= rawurlencode($slugAuteur) ?>">Découvrir sa page auteur</a><?php endif; ?>
+                        <?php if($livre['auteur']!==''): ?><a class="btn btn-outline-success" href="livres_auteur?auteur=<?= rawurlencode($livre['auteur']) ?>">Voir ses livres</a><?php endif; ?>
+                        <?php if ($slugAuteur): ?><a class="d-block mt-3" href="auteur?a=<?= rawurlencode($slugAuteur) ?>">Découvrir sa page auteur</a><?php endif; ?>
                     </div>
                 </div>
             </section>
@@ -130,7 +130,7 @@
                 <?php if (!$selectionMagasin): ?>
                     <?php if (!$idUserConnecte): ?><a class="btn btn-outline-success mb-3" href="<?= htmlspecialchars(lienConnexion()) ?>">Être averti du retour en stock</a><?php elseif ($alerteActive): ?><p>Vous serez averti du retour en stock.</p><?= formulaireCompte('alerte_retirer', (int) $id, 'Annuler l’alerte', 'btn btn-link') ?><?php else: ?><?= formulaireCompte('alerte_ajouter', (int) $id, 'M’avertir du retour en stock', 'btn btn-outline-success') ?><?php endif; ?>
                 <?php endif; ?>
-                <p class="mb-2">Vous avez ce livre ? <a href="annonce_creer.php?livre=<?= (int) $id ?>">Vendez-le</a> ou <a href="don_creer.php?livre=<?= (int) $id ?>">donnez-le</a>.</p>
+                <p class="mb-2">Vous avez ce livre ? <a href="annonce_creer?livre=<?= (int) $id ?>">Vendez-le</a> ou <a href="don_creer?livre=<?= (int) $id ?>">donnez-le</a>.</p>
                 <a class="small" href="#offres">Voir toutes les offres : magasin, lecteurs, dons et emprunts</a>
                 <?php if (in_array($_SESSION['role'] ?? '', ['admin', 'gestionnaire'], true)): ?><div class="d-flex flex-wrap gap-2 mt-3"><a href="admin/livre.php?id=<?= (int) $id ?>" class="btn btn-sm btn-outline-secondary">Modifier la fiche</a><a href="admin/exemplaires.php?id=<?= (int) $id ?>" class="btn btn-sm btn-outline-success">Gérer le stock</a></div><?php endif; ?>
             </section>
@@ -143,10 +143,10 @@
         <h2 id="titre-serie-complete"><?= ($serieLivre['nature'] ?? 'cycle') === 'regroupement' ? 'Les livres de cette collection' : 'Acheter la série complète' ?></h2>
         <p class="mb-1"><?= htmlspecialchars($serieLivre['nom']) ?></p>
         <p class="small text-muted"><?= count($selectionSerie['tomes']) ?> volume(s) au catalogue · <?= count($selectionSerie['offres']) ?> disponible(s)</p>
-        <a href="serie.php?id=<?= (int) $serieLivre['id_serie'] ?>">Voir toute la série</a>
+        <a href="serie?id=<?= (int) $serieLivre['id_serie'] ?>">Voir toute la série</a>
         <div class="serie-complete__total"><?= formaterPrix($selectionSerie['total']) ?></div>
         <?php if ($selectionSerie['total_neuf'] !== null && $selectionSerie['total_neuf'] > $selectionSerie['total']): ?><p class="small">Économisez <?= formaterPrix($selectionSerie['total_neuf'] - $selectionSerie['total']) ?> par rapport au neuf sur les volumes disponibles.</p><?php endif; ?>
-        <form method="POST" action="panier_action.php" data-panier-formulaire>
+        <form method="POST" action="panier_action" data-panier-formulaire>
             <input type="hidden" name="csrf" value="<?= jetonCsrf() ?>"><input type="hidden" name="action" value="serie"><input type="hidden" name="id_serie" value="<?= (int) $serieLivre['id_serie'] ?>">
             <button class="bouton bouton-action w-100" <?= !$selectionSerie['offres'] ? 'disabled' : '' ?>>Ajouter les <?= count($selectionSerie['offres']) ?> volumes disponibles</button>
         </form>
@@ -155,7 +155,7 @@
     <div style="min-width:0;">
         <div class="serie-complete__navigation"><button type="button" data-carrousel-cible="tomes-serie" data-direction="-1" aria-label="Tomes précédents"><i class="bi bi-chevron-left" aria-hidden="true"></i></button><button type="button" data-carrousel-cible="tomes-serie" data-direction="1" aria-label="Tomes suivants"><i class="bi bi-chevron-right" aria-hidden="true"></i></button></div>
         <div class="serie-complete__tomes" id="tomes-serie">
-            <?php foreach ($selectionSerie['tomes'] as $tome): ?><a class="serie-tome" href="detail_livre.php?id=<?= (int) $tome['id_livre'] ?>"><img src="<?= htmlspecialchars(urlImage($tome['couverture'])) ?>" alt="Couverture de <?= htmlspecialchars($tome['titre']) ?>" loading="lazy"><?php if ($tome['numero_tome'] !== null): ?><span>Tome <?= htmlspecialchars(numeroVolumeSerie($tome)) ?></span><?php endif; ?><strong><?= htmlspecialchars($tome['titre']) ?></strong></a><?php endforeach; ?>
+            <?php foreach ($selectionSerie['tomes'] as $tome): ?><a class="serie-tome" href="livre?id=<?= (int) $tome['id_livre'] ?>"><img src="<?= htmlspecialchars(urlImage($tome['couverture'])) ?>" alt="Couverture de <?= htmlspecialchars($tome['titre']) ?>" loading="lazy"><?php if ($tome['numero_tome'] !== null): ?><span>Tome <?= htmlspecialchars(numeroVolumeSerie($tome)) ?></span><?php endif; ?><strong><?= htmlspecialchars($tome['titre']) ?></strong></a><?php endforeach; ?>
         </div>
     </div>
 </section>

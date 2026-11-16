@@ -124,7 +124,7 @@ document.querySelectorAll('.conversation').forEach(function (conversation) {
         Object.keys(valeurs || {}).forEach(function (cle) {
             corps.append(cle, valeurs[cle]);
         });
-        return fetch('message_nouveaux.php', { method: 'POST', body: corps, credentials: 'same-origin', headers: { Accept: 'application/json' } })
+        return fetch('message_nouveaux', { method: 'POST', body: corps, credentials: 'same-origin', headers: { Accept: 'application/json' } })
             .then(function (reponse) {
                 return reponse.json().then(function (donnees) {
                     return { statut: reponse.status, donnees: donnees };
@@ -150,7 +150,7 @@ document.querySelectorAll('.conversation').forEach(function (conversation) {
     };
 
     const majCompteurs = function (total, parConversation) {
-        document.querySelectorAll('a[href="messages.php"]').forEach(function (lien) {
+        document.querySelectorAll('a[href="messages"]').forEach(function (lien) {
             const classe = lien.classList.contains('icone-entete') ? 'pastille' : (lien.classList.contains('lien-menu-compte') ? 'compteur-menu' : '');
             if (!classe) {
                 return;

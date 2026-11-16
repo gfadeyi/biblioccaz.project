@@ -105,7 +105,7 @@ include __DIR__ . '/_haut.php';
                     <div class="min-w-0 flex-grow-1">
                         <div class="d-flex flex-wrap justify-content-between gap-2">
                             <div class="min-w-0">
-                                <a href="../annonce.php?id=<?= (int) $v['id_annonce'] ?>" class="fw-bold text-decoration-none" target="_blank" rel="noopener"><?= e($v['titre']) ?></a>
+                                <a href="../annonce?id=<?= (int) $v['id_annonce'] ?>" class="fw-bold text-decoration-none" target="_blank" rel="noopener"><?= e($v['titre']) ?></a>
                                 <div class="small text-muted">Demande n° <?= $id ?> · <?= date('d/m/Y', strtotime($v['date_demande'])) ?></div>
                             </div>
                             <span class="fw-bold text-success"><?= formaterPrix($v['prix']) ?></span>

@@ -2,7 +2,7 @@
 require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/avis_lib.php';
 require_once __DIR__ . '/collection_personnelle_lib.php';
-if (!isset($_SESSION['user_id'])) { header('Location: login.php'); exit; }
+if (!isset($_SESSION['user_id'])) { header('Location: connexion'); exit; }
 if (!in_array($_SESSION['role'] ?? '',['client','auteur'],true)) { http_response_code(403); exit('Accès réservé aux lecteurs et auteurs.'); }
 $idUser = (int) $_SESSION['user_id'];
 $disponible = collectionPersonnelleDisponible($pdo);
@@ -33,7 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['flash_collection'] = 'La série a été retirée de votre collection.';
                 $idSerie = 0;
             } else { throw new DomainException('Action inconnue.'); }
-            header('Location: ma_collection.php' . ($idSerie ? '?serie=' . $idSerie : '')); exit;
+            header('Location: ma_collection' . ($idSerie ? '?serie=' . $idSerie : '')); exit;
         } catch (DomainException $e) { http_response_code(422); $erreur = $e->getMessage(); }
         catch (PDOException $e) { http_response_code(503); $erreur = 'L’enregistrement est momentanément indisponible. Vos choix précédents sont conservés.'; insertLog('ERREUR','Enregistrement de collection indisponible'); }
     }
@@ -71,20 +71,20 @@ include __DIR__.'/header.php';
     <?php if($erreur): ?><p class="alert alert-danger" role="alert"><?= htmlspecialchars($erreur) ?></p><?php endif; ?>
     <?php if($flash): ?><p class="alert alert-success" role="status"><?= htmlspecialchars($flash) ?></p><?php endif; ?>
     <?php if(!$disponible): ?><p class="alert alert-secondary">Le suivi n’est pas encore activé. Vous pouvez consulter les séries, mais aucun choix ne sera enregistré.</p><?php endif; ?>
-    <form method="get" action="ma_collection.php" class="d-flex flex-wrap gap-2 align-items-end my-4">
+    <form method="get" action="ma_collection" class="d-flex flex-wrap gap-2 align-items-end my-4">
         <div class="flex-grow-1"><label for="recherche-serie" class="form-label">Chercher une série ou une collection</label><input class="form-control" type="search" name="q" id="recherche-serie" maxlength="100" value="<?= htmlspecialchars($recherche) ?>" placeholder="Ex. One Piece, Agatha Christie…"></div>
         <button class="bouton bouton-action" type="submit">Chercher</button>
     </form>
     <?php if($recherche !== ''): ?>
         <section class="carte-compte mb-4"><h2 class="h4">Résultats de recherche</h2>
             <?php if(!$resultats): ?><p>Aucune série trouvée. Essayez un autre titre.</p><?php endif; ?>
-            <ul><?php foreach($resultats as $r): ?><li><a href="ma_collection.php?serie=<?= (int)$r['id_serie'] ?>"><?= htmlspecialchars($r['nom']) ?></a> — <?= htmlspecialchars((string)$r['auteur']) ?></li><?php endforeach; ?></ul>
+            <ul><?php foreach($resultats as $r): ?><li><a href="ma_collection?serie=<?= (int)$r['id_serie'] ?>"><?= htmlspecialchars($r['nom']) ?></a> — <?= htmlspecialchars((string)$r['auteur']) ?></li><?php endforeach; ?></ul>
             <?php if(count($resultats)===50): ?><p class="small">50 résultats affichés. Précisez votre recherche pour retrouver les autres séries.</p><?php endif; ?>
         </section>
     <?php endif; ?>
     <section class="mb-4"><h2 class="h4">Mon coin des collectionneurs</h2><p class="small">Votre progression parmi les volumes référencés dans notre catalogue.</p>
         <?php if(!$mesSeries): ?><p>Votre collection commence ici : cherchez une série, puis enregistrez les volumes que vous possédez.</p><?php endif; ?>
-        <ul class="collection-series"><?php foreach($mesSeries as $s): $message=messageProgressionCollection($s['nom'],(int)$s['possedes'],(int)$s['total']); ?><li><a href="ma_collection.php?serie=<?= (int)$s['id_serie'] ?>"><?= htmlspecialchars($s['nom']) ?></a><span class="small"><?php if($message['complete']): ?><i class="bi bi-stars" aria-hidden="true"></i> <?php endif; ?><?= htmlspecialchars($message['court']) ?></span></li><?php endforeach; ?></ul>
+        <ul class="collection-series"><?php foreach($mesSeries as $s): $message=messageProgressionCollection($s['nom'],(int)$s['possedes'],(int)$s['total']); ?><li><a href="ma_collection?serie=<?= (int)$s['id_serie'] ?>"><?= htmlspecialchars($s['nom']) ?></a><span class="small"><?php if($message['complete']): ?><i class="bi bi-stars" aria-hidden="true"></i> <?php endif; ?><?= htmlspecialchars($message['court']) ?></span></li><?php endforeach; ?></ul>
     </section>
     <?php if($serie): ?>
         <section class="carte-compte mb-4">
@@ -96,7 +96,7 @@ include __DIR__.'/header.php';
             </div>
             <p class="small">Un tome simple et un volume double ou intégral sont suivis séparément. Les autres éditions du même volume sont regroupées dans cette série. Les éditions Perfect, Deluxe et les autres découpages ont leur propre série lorsqu’ils sont distingués au catalogue. Les références absentes du catalogue ne sont pas comptées.</p>
             <?php if($disponible && count($tomes)<=COLLECTION_VOLUMES_MAX): ?>
-                <form method="post" action="ma_collection.php?serie=<?= $idSerie ?>" data-selection-collection>
+                <form method="post" action="ma_collection?serie=<?= $idSerie ?>" data-selection-collection>
                     <input type="hidden" name="csrf" value="<?= htmlspecialchars(jetonCsrf()) ?>"><input type="hidden" name="serie" value="<?= $idSerie ?>"><input type="hidden" name="action" value="enregistrer">
                     <?php if($lectureDisponible): ?><input type="hidden" name="lectures_compte" value="<?= count($tomes) ?>"><?php endif; ?>
                     <?php $livresRanges=array_values(array_filter($tomes,fn($t)=>isset($possedes[cleVolumeCollection($t)]))); ?>
@@ -139,12 +139,12 @@ include __DIR__.'/header.php';
                 </form>
             <?php endif; ?>
             <?php if(count($tomes)>COLLECTION_VOLUMES_MAX): ?><p class="alert alert-secondary">Cette série dépasse les 500 volumes gérés par ce formulaire. Son suivi détaillé n’est pas encore disponible.</p><?php endif; ?>
-            <?php if($disponible): ?><form method="post" action="ma_collection.php" class="mt-3" data-confirmer="Retirer cette série et ses volumes de votre collection ?"><input type="hidden" name="csrf" value="<?= htmlspecialchars(jetonCsrf()) ?>"><input type="hidden" name="serie" value="<?= $idSerie ?>"><input type="hidden" name="action" value="retirer"><button type="submit" class="bouton bouton-discret bouton-petit">Ne plus suivre cette série</button></form><?php endif; ?>
+            <?php if($disponible): ?><form method="post" action="ma_collection" class="mt-3" data-confirmer="Retirer cette série et ses volumes de votre collection ?"><input type="hidden" name="csrf" value="<?= htmlspecialchars(jetonCsrf()) ?>"><input type="hidden" name="serie" value="<?= $idSerie ?>"><input type="hidden" name="action" value="retirer"><button type="submit" class="bouton bouton-discret bouton-petit">Ne plus suivre cette série</button></form><?php endif; ?>
         </section>
         <section id="volumes-manquants"><h2>Les volumes qui me manquent</h2><p>Offres magasin consultées maintenant ; prix et stock revérifiés dans le panier. Aucun achat n’est ajouté automatiquement à votre collection.</p>
-            <?php if(!$tomes): ?><p>Aucun volume public référencé pour le moment.</p><?php elseif(!$manquants): ?><p>Votre étagère est à jour ! Envie de commencer une nouvelle aventure ? <a href="ma_collection.php">Cherchez une autre série</a>.</p><?php endif; ?>
+            <?php if(!$tomes): ?><p>Aucun volume public référencé pour le moment.</p><?php elseif(!$manquants): ?><p>Votre étagère est à jour ! Envie de commencer une nouvelle aventure ? <a href="ma_collection">Cherchez une autre série</a>.</p><?php endif; ?>
             <div class="collection-manquants"><?php foreach($manquants as $tome): $offre=$offres[$tome['id_livre']]??null; ?>
-                <article class="carte-compte"><h3 class="h5"><a href="detail_livre.php?id=<?= (int)$tome['id_livre'] ?>"><?= htmlspecialchars($tome['titre']) ?></a></h3>
+                <article class="carte-compte"><h3 class="h5"><a href="livre?id=<?= (int)$tome['id_livre'] ?>"><?= htmlspecialchars($tome['titre']) ?></a></h3>
                     <?php if($tome['numero_tome']!==null): ?><p class="small">Volume <?= htmlspecialchars(numeroVolumeSerie($tome)) ?></p><?php endif; ?>
                     <p class="mb-0"><?= $offre?'Dès '.number_format((float)$offre['prix'],2,',',' ').' € — '.htmlspecialchars(libelleEtat($offre['etat'])):'Indisponible en magasin pour le moment' ?></p>
                 </article>

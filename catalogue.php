@@ -372,7 +372,7 @@ function lienFiltres(array $f, array $preset, array $changements): string
     $p = array_merge($f, $changements);
     foreach ($preset as $cle => $v) { unset($p[$cle]); }
     $p = array_filter($p, fn($v) => $v !== '' && $v !== null);
-    return basename($_SERVER['PHP_SELF']) . ($p ? '?' . http_build_query($p) : '');
+    return urlPropre(basename($_SERVER['PHP_SELF'])) . ($p ? '?' . http_build_query($p) : '');
 }
 
 include 'header.php';
@@ -385,7 +385,7 @@ echo etoilesStyle();
 <div class="container mt-4 mb-5">
     <?php if ($universCourant): ?>
         <nav aria-label="Fil d'Ariane" class="fil-ariane">
-            <a href="catalogue.php">Catalogue</a>
+            <a href="catalogue">Catalogue</a>
             <span aria-hidden="true">›</span>
             <?php if ($categorieCourante): ?>
                 <a href="<?= htmlspecialchars(lienCategorie($universCourant['slug'])) ?>"><?= htmlspecialchars($universCourant['nom']) ?></a>
@@ -540,7 +540,7 @@ echo etoilesStyle();
 
                 <button type="submit" class="btn btn-bibli w-100 rounded-pill btn-sm fw-bold d-none d-lg-block mb-3">Filtrer</button>
 
-                <a href="<?= htmlspecialchars(basename($_SERVER['PHP_SELF'])) ?>" class="btn btn-link w-100 btn-sm text-muted">Réinitialiser</a>
+                <a href="<?= htmlspecialchars(urlPropre(basename($_SERVER['PHP_SELF']))) ?>" class="btn btn-link w-100 btn-sm text-muted">Réinitialiser</a>
             </form>
             </div>
             <div class="pied-volet-filtres d-lg-none">
@@ -574,13 +574,13 @@ echo etoilesStyle();
                     <?php if ($classementActif !== '' && !$filtresActifs): ?>
                         <h2>Pas encore de livre disponible dans ce classement</h2>
                         <p><?= $classementActif === 'emprunts' ? 'Les livres apparaissent après le retrait effectif d’un emprunt.' : 'Les livres apparaissent après la récupération effective d’un don.' ?> Seuls les titres encore proposés sur le site sont affichés.</p>
-                        <a href="catalogue.php" class="bouton bouton-principal">Explorer le catalogue</a>
+                        <a href="catalogue" class="bouton bouton-principal">Explorer le catalogue</a>
                     <?php elseif ($categorieSansLivre): ?>
                         <h2>Ce rayon attend ses premiers livres</h2>
                         <p>Aucun livre n'est en vente dans « <?= htmlspecialchars($categorieCourante['nom']) ?> » pour le moment. Revenez bientôt, ou explorez les autres rayons de l'univers <?= htmlspecialchars($universCourant['nom']) ?>.</p>
                         <div class="etat-vide-catalogue__actions">
                             <a href="<?= htmlspecialchars(lienCategorie($universCourant['slug'])) ?>" class="bouton bouton-principal">Explorer <?= htmlspecialchars($universCourant['nom']) ?></a>
-                            <a href="don_creer.php" class="bouton bouton-contour">Vous en avez à donner ?</a>
+                            <a href="don_creer" class="bouton bouton-contour">Vous en avez à donner ?</a>
                         </div>
                     <?php else: ?>
                         <h2>Aucun livre ne correspond à ces critères</h2>
@@ -589,7 +589,7 @@ echo etoilesStyle();
                             <?php if ($filtresActifs): ?>
                                 <a href="<?= htmlspecialchars(lienFiltres($f, $preset, retraitFiltres($f, array_keys($filtresActifs)))) ?>" class="bouton bouton-principal">Effacer les filtres</a>
                             <?php endif; ?>
-                            <a href="catalogue.php" class="bouton bouton-contour">Voir tout le catalogue</a>
+                            <a href="catalogue" class="bouton bouton-contour">Voir tout le catalogue</a>
                         </div>
                     <?php endif; ?>
                     <?php if ($categoriesVoisines): ?>

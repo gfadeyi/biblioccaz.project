@@ -299,10 +299,10 @@ function repondreDemandeEquipe(PDO $pdo, int $idDemande, int $idActeur, string $
         insertLog('ERREUR', 'Service client : ' . $e->getMessage());
         return ['danger', 'La réponse n’a pas pu être envoyée.'];
     }
-    notifierMembre($pdo, (int) $demande['id_user'], 'service_client', 'Réponse de l’équipe à votre demande ' . $demande['reference'] . ($resoudre ? ' (marquée comme résolue).' : '.'), 'service_client.php?id=' . $idDemande);
+    notifierMembre($pdo, (int) $demande['id_user'], 'service_client', 'Réponse de l’équipe à votre demande ' . $demande['reference'] . ($resoudre ? ' (marquée comme résolue).' : '.'), 'service_client?id=' . $idDemande);
     $envoye = notifierParMail($demande['email'], 'Réponse à votre demande ' . $demande['reference'],
         "Bonjour {$demande['pseudo']},\n\nL’équipe BIBLIOccaz a répondu à votre demande « {$demande['sujet']} » :\n\n" . mb_substr($message, 0, 600) . (mb_strlen($message) > 600 ? '…' : '') . "\n\nRépondez directement depuis votre espace.",
-        SITE_URL . '/service_client.php?id=' . $idDemande, 'Voir la conversation');
+        SITE_URL . '/service_client?id=' . $idDemande, 'Voir la conversation');
     insertLog('SERVICE', "Réponse de l'équipe à {$demande['reference']}" . ($resoudre ? ' (résolue)' : ''));
     return ['success', 'Réponse envoyée' . ($resoudre ? ', demande résolue' : '') . '.' . ($envoye ? ' Le client est prévenu par mail.' : ' Le mail n’a pas pu partir.')];
 }
@@ -362,7 +362,7 @@ function changerStatutDemandeEquipe(PDO $pdo, int $idDemande, int $idActeur, str
     $pdo->prepare("INSERT INTO demande_client_message (id_demande, id_auteur, cote, contenu) VALUES (?, ?, 'interne', ?)")
         ->execute([$idDemande, $idActeur, $statut === 'resolue' ? 'Demande marquée comme résolue.' : 'Demande rouverte.']);
     if ($statut === 'resolue' && ($demande = demandeClient($pdo, $idDemande))) {
-        notifierMembre($pdo, (int) $demande['id_user'], 'service_client', 'Votre demande ' . $demande['reference'] . ' est marquée comme résolue.', 'service_client.php?id=' . $idDemande);
+        notifierMembre($pdo, (int) $demande['id_user'], 'service_client', 'Votre demande ' . $demande['reference'] . ' est marquée comme résolue.', 'service_client?id=' . $idDemande);
     }
     return ['success', $statut === 'resolue' ? 'Demande résolue.' : 'Demande rouverte.'];
 }

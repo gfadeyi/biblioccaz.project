@@ -260,7 +260,7 @@ include __DIR__ . '/_haut.php';
                                 <td class="text-end cellule-actions">
                                     <div class="d-inline-flex flex-wrap gap-2 justify-content-end">
                                         <?php if ($visible): ?>
-                                            <a href="../auteur.php?a=<?= rawurlencode($p['slug']) ?>" class="btn btn-sm btn-outline-secondary" target="_blank" rel="noopener">Voir<span class="visually-hidden"> la page de <?= e($p['nom_plume']) ?></span></a>
+                                            <a href="../auteur?a=<?= rawurlencode($p['slug']) ?>" class="btn btn-sm btn-outline-secondary" target="_blank" rel="noopener">Voir<span class="visually-hidden"> la page de <?= e($p['nom_plume']) ?></span></a>
                                         <?php endif; ?>
                                         <?php if ($p['est_masquee']): ?>
                                             <form method="POST" class="d-inline">

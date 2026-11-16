@@ -4,7 +4,7 @@ require_once 'connexion_lib.php';
 require_once 'avis_lib.php';
 
 if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST' || !verifierCsrf()) {
-    header('Location: login.php?error=csrf');
+    header('Location: connexion?error=csrf');
     exit();
 }
 if (session_status() === PHP_SESSION_NONE) { session_start(); }
@@ -12,19 +12,19 @@ if (session_status() === PHP_SESSION_NONE) { session_start(); }
 $pseudo = is_string($_POST['pseudo'] ?? null) ? trim($_POST['pseudo']) : '';
 $mdp = is_string($_POST['mdp'] ?? null) ? $_POST['mdp'] : '';
 if ($pseudo === '' || mb_strlen($pseudo) > 150 || strlen($mdp) > 72 || str_contains($mdp, "\0")) {
-    header('Location: login.php?error=1');
+    header('Location: connexion?error=1');
     exit();
 }
 
 require_once 'captcha_lib.php';
 if (!captchaRecent()) {
-    header("Location: login.php?error=captcha");
+    header("Location: connexion?error=captcha");
     exit();
 }
 
 require_once 'anti_abus_lib.php';
 if (!autoriserActionPublique('connexion_client', 30, 900)) {
-    header('Location: login.php?error=limite');
+    header('Location: connexion?error=limite');
     exit();
 }
 
@@ -37,7 +37,7 @@ try {
         
         $refus = refusConnexionMembre($user);
         if ($refus !== '') {
-            header("Location: login.php?error=$refus");
+            header("Location: connexion?error=$refus");
             exit();
         }
 
@@ -49,12 +49,12 @@ try {
     } else {
         $_SESSION['identifiant_connexion'] = $pseudo;
         compterEchecConnexionCaptcha();
-        header("Location: login.php?error=1");
+        header("Location: connexion?error=1");
         exit();
     }
 } catch (RuntimeException $e) {
     insertLog('ERREUR', 'Connexion temporairement indisponible');
-    header('Location: login.php?error=technique');
+    header('Location: connexion?error=technique');
     exit();
 }
 ?>

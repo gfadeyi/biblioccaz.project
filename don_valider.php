@@ -46,13 +46,13 @@ if ($don && $idUser && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['co
             verifierBadges($pdo, (int) $don['id_donneur']);
             fermerConversationsObjet($pdo, 'don', (int) $don['id_don'], "Livre récupéré : l'échange est terminé. Bonne lecture !");
             insertLog('DON', "Don #{$don['id_don']} récupéré (+" . pointsRegle($pdo, 'don') . " points pour le donneur)");
-            notifierMembre($pdo, (int) $don['id_donneur'], 'don_recupere', 'Votre don « ' . $don['titre'] . ' » a été récupéré par ' . $_SESSION['pseudo'] . ' : +' . pointsRegle($pdo, 'don') . ' points.', 'mes_dons.php');
+            notifierMembre($pdo, (int) $don['id_donneur'], 'don_recupere', 'Votre don « ' . $don['titre'] . ' » a été récupéré par ' . $_SESSION['pseudo'] . ' : +' . pointsRegle($pdo, 'don') . ' points.', 'mes_dons');
             notifierParMail($don['donneur_email'], "Votre don a été récupéré",
                 "Bonjour {$don['donneur_pseudo']},\n\nVotre livre « {$don['titre']} » a bien été récupéré par {$_SESSION['pseudo']}.\n"
                 . "Merci pour votre générosité ! Vous gagnez " . pointsRegle($pdo, 'don') . " points BIBLIOccaz.");
             notifierParMail(emailMembreDon($pdo, $idUser), "Retrait confirmé : " . $don['titre'],
                 "Bonjour {$_SESSION['pseudo']},\n\nVous avez bien récupéré « {$don['titre']} », offert par {$don['donneur_pseudo']}. Merci de faire vivre le don de livres !\n\nUne fois lu, pourquoi ne pas le donner à votre tour ?",
-                SITE_URL . '/mes_dons.php#dons-recus', 'Voir mes dons');
+                SITE_URL . '/mes_dons#dons-recus', 'Voir mes dons');
             $succes = "Retrait validé ! Bonne lecture avec « {$don['titre']} ».";
             $don['statut'] = 'recupere';
         } else {
@@ -72,11 +72,11 @@ include 'header.php';
 
         <?php if ($succes): ?>
             <div class="alert alert-success"><?= htmlspecialchars($succes) ?></div>
-            <a href="mes_dons.php" class="btn btn-success rounded-pill">Voir mes dons</a>
+            <a href="mes_dons" class="btn btn-success rounded-pill">Voir mes dons</a>
 
         <?php elseif (!$idUser): ?>
             <p class="text-muted">Connectez-vous avec le compte qui récupère le livre, puis scannez à nouveau le QR code.</p>
-            <a href="login.php" class="btn btn-success rounded-pill">Se connecter</a>
+            <a href="connexion" class="btn btn-success rounded-pill">Se connecter</a>
 
         <?php elseif ($don && !$erreur && in_array(statutDon($don), ['disponible', 'reserve'], true)): ?>
             <div class="bg-light rounded-3 p-3 mb-3 text-start">

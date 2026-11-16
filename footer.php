@@ -15,7 +15,7 @@ $messageNewsletter = $messagesNewsletter[$cleNewsletter] ?? null;
             <h2>La newsletter BIBLIOccaz</h2>
             <p>Nos dernières pépites d'occasion, les dons et les événements, une fois par mois.</p>
         </div>
-        <form method="POST" action="envoyer_newsletter.php">
+        <form method="POST" action="envoyer_newsletter">
             <input type="hidden" name="csrf" value="<?= jetonCsrf() ?>">
             <label for="email-newsletter" class="visually-hidden">Votre adresse email</label>
             <input type="email" id="email-newsletter" name="email_newsletter" placeholder="Votre adresse email" required>
@@ -38,36 +38,36 @@ $messageNewsletter = $messagesNewsletter[$cleNewsletter] ?? null;
             <div class="col-6 col-lg-2">
                 <h3>Acheter</h3>
                 <ul>
-                    <li><a href="catalogue.php">Catalogue</a></li>
-                    <li><a href="plus_emprunts.php">Les plus empruntés</a></li>
-                    <li><a href="plus_dons.php">Les plus donnés</a></li>
-                    <li><a href="nouveauté.php">Nouveautés</a></li>
-                    <li><a href="petits_prix.php">Petits prix</a></li>
+                    <li><a href="catalogue">Catalogue</a></li>
+                    <li><a href="plus_emprunts">Les plus empruntés</a></li>
+                    <li><a href="plus_dons">Les plus donnés</a></li>
+                    <li><a href="nouveautes">Nouveautés</a></li>
+                    <li><a href="petits_prix">Petits prix</a></li>
                 </ul>
             </div>
             <div class="col-6 col-lg-2">
                 <h3>Communauté</h3>
                 <ul>
                     <li><a href="qui-sommes-nous">Qui sommes-nous ?</a></li>
-                    <li><a href="dons.php">Voir les livres à donner</a></li>
-                    <li><a href="evenements.php">Événements</a></li>
-                    <li><a href="auteurs.php">Nos auteurs</a></li>
-                    <li><a href="vendre.php">Donner ou revendre</a></li>
+                    <li><a href="dons">Voir les livres à donner</a></li>
+                    <li><a href="evenements">Événements</a></li>
+                    <li><a href="auteurs">Nos auteurs</a></li>
+                    <li><a href="vendre">Donner ou revendre</a></li>
                 </ul>
             </div>
             <div class="col-6 col-lg-2">
                 <h3>Mon compte</h3>
                 <ul>
-                    <li><a href="profil.php">Mon profil</a></li>
-                    <li><a href="commandes.php">Mes achats</a></li>
-                    <li><a href="wishlist.php">Mes favoris</a></li>
-                    <li><a href="service_client.php">Service client</a></li>
+                    <li><a href="mon-compte">Mon profil</a></li>
+                    <li><a href="commandes">Mes achats</a></li>
+                    <li><a href="wishlist">Mes favoris</a></li>
+                    <li><a href="service_client">Service client</a></li>
                 </ul>
             </div>
             <div class="col-6 col-lg-2">
                 <h3>Contribuer</h3>
                 <ul>
-                    <li><a href="rejoindre_equipe.php">Rejoindre l’équipe</a></li>
+                    <li><a href="rejoindre_equipe">Rejoindre l’équipe</a></li>
                     <li><a href="#newsletter">Recevoir la lettre</a></li>
                 </ul>
             </div>
@@ -75,9 +75,9 @@ $messageNewsletter = $messagesNewsletter[$cleNewsletter] ?? null;
         <div class="pied-bas">
             <span>&copy; <?= date('Y') ?> BIBLIOccaz · Projet ESGI</span>
             <nav class="liens-legaux" aria-label="Informations légales">
-                <a href="mentions_legales.php">Mentions légales</a>
-                <?php if (texteLegalPersonnalise('texte_cgu') !== ''): ?><a href="cgu.php">Conditions d’utilisation</a><?php endif; ?>
-                <a href="confidentialite.php">Confidentialité</a>
+                <a href="mentions_legales">Mentions légales</a>
+                <?php if (texteLegalPersonnalise('texte_cgu') !== ''): ?><a href="cgu">Conditions d’utilisation</a><?php endif; ?>
+                <a href="confidentialite">Confidentialité</a>
             </nav>
             <span class="message-paiement-demo"><i class="bi bi-receipt" aria-hidden="true"></i> Paiement simulé · aucun débit, aucune expédition</span>
         </div>

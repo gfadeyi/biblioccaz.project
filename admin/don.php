@@ -80,7 +80,7 @@ include __DIR__ . '/_haut.php';
                 <?php endforeach; ?>
             </dl>
             <?php if ($don['description']): ?><hr><h3 class="h6">Description</h3><p class="mb-0" style="overflow-wrap:anywhere;"><?= nl2br(e($don['description'])) ?></p><?php endif; ?>
-            <a href="../don_detail.php?id=<?= $idDon ?>" class="btn btn-outline-success mt-3" target="_blank" rel="noopener">Voir l’annonce publique</a>
+            <a href="../don_detail?id=<?= $idDon ?>" class="btn btn-outline-success mt-3" target="_blank" rel="noopener">Voir l’annonce publique</a>
         </section>
         <section class="carte p-4 mb-4">
             <h2 class="h5">Historique des interventions</h2>

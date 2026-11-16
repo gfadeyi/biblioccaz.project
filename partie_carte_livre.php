@@ -4,7 +4,7 @@ require_once __DIR__ . '/couvertures_lib.php';
 $favori = in_array((int) $l['id_livre'], $idsFavoris ?? [], true);
 $couverture = !empty($l['couverture']) ? $l['couverture'] : 'default.png';
 $imageCarte = couverturePourCarte($couverture);
-$lienLivre = 'detail_livre.php?id=' . (int) $l['id_livre'];
+$lienLivre = 'livre?id=' . (int) $l['id_livre'];
 $stockLivre = isset($l['stock']) ? (int) $l['stock'] : null;
 $nbOffres = isset($l['nb_offres']) ? (int) $l['nb_offres'] : 0;
 $originesLivre = explode(',', $l['origines'] ?? 'magasin');

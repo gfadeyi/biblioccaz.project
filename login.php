@@ -45,7 +45,7 @@ if ($identifiantsIncorrects && is_string($_SESSION['identifiant_connexion'] ?? n
     if (filter_var($identifiantSaisi, FILTER_VALIDATE_EMAIL)) { $_SESSION['email_inscription'] = $identifiantSaisi; }
 }
 unset($_SESSION['identifiant_connexion']);
-$lienInscription = $identifiantsIncorrects && filter_var($identifiantSaisi, FILTER_VALIDATE_EMAIL) ? 'inscription.php?depuis=connexion' : 'inscription.php';
+$lienInscription = $identifiantsIncorrects && filter_var($identifiantSaisi, FILTER_VALIDATE_EMAIL) ? 'inscription?depuis=connexion' : 'inscription';
 
 if (isset($_GET['verif'])) { $success = "Compte validé ! Vous pouvez vous connecter."; }
 if (isset($_GET['mdp'])) { $success = "Mot de passe modifié ! Vous pouvez vous connecter avec le nouveau."; }
@@ -59,7 +59,7 @@ if (isset($_GET['inscription'])) { $success = "Compte créé ! Un mail de valida
         <p class="carte-formulaire__intro">Retrouvez vos favoris, vos points et vos commandes.</p>
         <?php if ($livreEnAttente !== null): ?>
             <div class="alert alert-success small" role="status" data-action-en-attente><i class="bi bi-heart" aria-hidden="true"></i> Connectez-vous : « <?= htmlspecialchars($livreEnAttente) ?> » sera ajouté à vos favoris et vous reviendrez sur la page que vous consultiez.</div>
-        <?php elseif (isset($_SESSION['retour_apres_connexion']) && $_SESSION['retour_apres_connexion'] !== 'achat.php'): ?>
+        <?php elseif (isset($_SESSION['retour_apres_connexion']) && $_SESSION['retour_apres_connexion'] !== 'achat'): ?>
             <div class="alert alert-info small" role="status" data-retour-connexion>Une fois connecté, vous reviendrez sur la page que vous consultiez.</div>
         <?php endif; ?>
 
@@ -77,7 +77,7 @@ if (isset($_GET['inscription'])) { $success = "Compte créé ! Un mail de valida
         <?php endif; ?>
         <?php if ($success): ?><div class="alert alert-success small" role="status"><?= htmlspecialchars($success) ?></div><?php endif; ?>
 
-        <form action="traitement_login.php" method="POST">
+        <form action="traitement_login" method="POST">
             <input type="hidden" name="csrf" value="<?= jetonCsrf() ?>">
             <div class="mb-3">
                 <label for="identifiant" class="form-label">Email ou pseudo</label>
@@ -92,7 +92,7 @@ if (isset($_GET['inscription'])) { $success = "Compte créé ! Un mail de valida
                     <label class="form-check-label" for="rester-connecte">Rester connecté</label>
                     <div class="form-text" id="aide-rester-connecte">30 jours sur cet appareil, pour les comptes lecteurs. À éviter sur un appareil partagé.</div>
                 </div>
-                <a href="recuparation_mdp.php" class="carte-formulaire__lien-discret">Mot de passe oublié ?</a>
+                <a href="recuparation_mdp" class="carte-formulaire__lien-discret">Mot de passe oublié ?</a>
             </div>
 
             <?php include 'partie_captcha.php'; ?>

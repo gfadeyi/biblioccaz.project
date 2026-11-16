@@ -5,7 +5,7 @@ require_once 'upload_lib.php';
 require_once 'categories_lib.php';
 
 if (($_SESSION['role'] ?? '') !== 'auteur') {
-    header("Location: login.php");
+    header("Location: connexion");
     exit();
 }
 $idAuteur = (int) $_SESSION['user_id'];
@@ -87,7 +87,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         insertLog('AUTEUR', "Proposition du livre #$idLivre « {$valeurs['titre']} » par l'auteur #$idAuteur");
         $_SESSION['flash_auteur'] = ['success', "Merci ! « {$valeurs['titre']} » est envoyé à l'équipe de modération. Il apparaîtra dans le catalogue une fois validé."];
-        header("Location: dashboard_auteur.php");
+        header("Location: dashboard_auteur");
         exit();
     }
 }
@@ -99,9 +99,9 @@ include 'header.php';
 
 <div class="container mt-4 mb-5 page-proposition">
     <nav aria-label="Fil d'Ariane" class="fil-ariane">
-        <a href="profil.php">Mon compte</a>
+        <a href="mon-compte">Mon compte</a>
         <span aria-hidden="true">›</span>
-        <a href="dashboard_auteur.php">Espace créateur</a>
+        <a href="dashboard_auteur">Espace créateur</a>
         <span aria-hidden="true">›</span>
         <span aria-current="page">Proposer un livre</span>
     </nav>
@@ -126,7 +126,7 @@ include 'header.php';
                 <div class="col-md-6">
                     <label class="form-label fw-bold small" for="isbn">ISBN</label>
                     <input type="text" id="isbn" name="isbn" class="form-control" maxlength="20" inputmode="numeric" value="<?= $v('isbn') ?>" placeholder="978…" aria-describedby="isbn-scanner-info">
-                    <button type="button" class="bouton-scanner-isbn" data-scanner-isbn data-scanner-mode="champ" data-scanner-cible="isbn" data-scanner-recherche="don_recherche_livre.php" data-scanner-info="isbn-scanner-info" data-scanner-lien="detail_livre.php?id=" hidden><i class="bi bi-upc-scan" aria-hidden="true"></i><span>Scanner un ISBN</span></button>
+                    <button type="button" class="bouton-scanner-isbn" data-scanner-isbn data-scanner-mode="champ" data-scanner-cible="isbn" data-scanner-recherche="don_recherche_livre" data-scanner-info="isbn-scanner-info" data-scanner-lien="livre?id=" hidden><i class="bi bi-upc-scan" aria-hidden="true"></i><span>Scanner un ISBN</span></button>
                     <div class="form-text" id="isbn-scanner-info" aria-live="polite"></div>
                 </div>
                 <div class="col-md-6">
@@ -169,7 +169,7 @@ include 'header.php';
             </div>
             <div class="d-flex flex-wrap gap-2 mt-4">
                 <button class="bouton bouton-principal"><i class="bi bi-send" aria-hidden="true"></i> Envoyer mon livre</button>
-                <a href="dashboard_auteur.php" class="bouton bouton-discret">Annuler</a>
+                <a href="dashboard_auteur" class="bouton bouton-discret">Annuler</a>
             </div>
         </form>
 

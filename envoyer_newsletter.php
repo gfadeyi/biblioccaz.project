@@ -34,7 +34,7 @@ try {
         $mail->addAddress($email);
         habillerMail($mail, 'Confirmez votre abonnement à BibliOccaz',
             "Vous avez demandé à recevoir la newsletter BibliOccaz.\n\n" . NOTICE_NEWSLETTER . "\n\nConfirmez votre choix sur la page ouverte par ce bouton, dans les 24 heures. Si vous n’êtes pas à l’origine de cette demande, ignorez ce message : aucun abonnement ne sera activé.",
-            SITE_URL . '/newsletter_confirmer.php?token=' . $jeton, 'Vérifier ma demande');
+            SITE_URL . '/newsletter_confirmer?token=' . $jeton, 'Vérifier ma demande');
         $mail->send();
     }
 } catch (Throwable $e) {

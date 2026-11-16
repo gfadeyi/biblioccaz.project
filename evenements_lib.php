@@ -239,7 +239,7 @@ function inscrireAEvenement(PDO $pdo, int $idEvt, int $idUser): array
     if ($statut === 'inscrit') {
         notifierParMail($email, "Inscription confirmée : " . $evt['titre'],
             "Votre place est réservée pour « {$evt['titre']} ».\n\nQuand : " . horaireEvenement($evt) . "\nOù : {$evt['lieu']}\n\n"
-            . "Votre billet (avec son QR code) est dans votre espace : " . SITE_URL . "/mes_evenements.php");
+            . "Votre billet (avec son QR code) est dans votre espace : " . SITE_URL . "/mes_evenements");
         return ['success', "C'est noté, votre place est réservée ! Votre billet est disponible ci-dessous."];
     }
     notifierParMail($email, "Liste d'attente : " . $evt['titre'],
@@ -307,7 +307,7 @@ function prevenirEvenementComplet(PDO $pdo, array $evt): void
     $stmt = $pdo->prepare("SELECT role FROM user WHERE id = ?");
     $stmt->execute([(int) ($evt['id_createur'] ?? 0)]);
     if (in_array($stmt->fetchColumn(), ['auteur', 'client'], true)) {
-        notifierMembre($pdo, (int) $evt['id_createur'], 'evenement_complet', 'Votre événement « ' . $evt['titre'] . ' » est complet : les ' . (int) $evt['places_max'] . ' places sont réservées.', estPropositionAuteur($evt) ? 'dashboard_auteur.php' : 'evenement.php?id=' . (int) $evt['id_evenement']);
+        notifierMembre($pdo, (int) $evt['id_createur'], 'evenement_complet', 'Votre événement « ' . $evt['titre'] . ' » est complet : les ' . (int) $evt['places_max'] . ' places sont réservées.', estPropositionAuteur($evt) ? 'dashboard_auteur' : 'evenement?id=' . (int) $evt['id_evenement']);
     }
 }
 
@@ -315,7 +315,7 @@ function prevenirPromus(array $promus, array $evt, ?PDO $pdo = null): void
 {
     foreach ($promus as $p) {
         if ($pdo && isset($p['id_user'])) {
-            notifierMembre($pdo, (int) $p['id_user'], 'evenement_place', 'Une place s’est libérée pour « ' . $evt['titre'] . ' » : elle est à vous !', 'mes_evenements.php');
+            notifierMembre($pdo, (int) $p['id_user'], 'evenement_place', 'Une place s’est libérée pour « ' . $evt['titre'] . ' » : elle est à vous !', 'mes_evenements');
         }
         insertLog('EVENEMENT', "Inscription #{$p['id_inscription']} passée de la liste d'attente à inscrit (événement #{$evt['id_evenement']})");
         notifierParMail($p['email'], "Une place s'est libérée : " . $evt['titre'],
@@ -495,12 +495,12 @@ function validerEvenementPropose(PDO $pdo, int $idEvt, int $idValidateur): array
     insertLog('EVENEMENT', "Validation de l'événement proposé #$idEvt : {$evt['titre']}");
     $proposeur = proposeurEvenement($pdo, $evt);
     if ($proposeur) {
-        notifierMembre($pdo, (int) $proposeur['id'], 'evenement_proposition', 'Votre événement « ' . $evt['titre'] . ' » est validé et publié.', 'evenement.php?id=' . $idEvt);
+        notifierMembre($pdo, (int) $proposeur['id'], 'evenement_proposition', 'Votre événement « ' . $evt['titre'] . ' » est validé et publié.', 'evenement?id=' . $idEvt);
         notifierParMail($proposeur['email'], "Votre événement est publié : " . $evt['titre'],
             "Bonne nouvelle : l'équipe a validé votre événement « {$evt['titre']} ». Il est maintenant visible dans le calendrier et ouvert aux inscriptions.\n\n"
             . "Quand : " . horaireEvenement($evt) . "\nOù : {$evt['lieu']}\nPlaces : {$evt['places_max']}\n\n"
-            . "Page de l'événement : " . SITE_URL . "/evenement.php?id=$idEvt\n"
-            . "Suivez les inscriptions depuis votre espace créateur : " . SITE_URL . "/dashboard_auteur.php");
+            . "Page de l'événement : " . SITE_URL . "/evenement?id=$idEvt\n"
+            . "Suivez les inscriptions depuis votre espace créateur : " . SITE_URL . "/dashboard_auteur");
     }
     return ['success', "Événement validé : il est publié dans le calendrier" . ($proposeur ? " et l'auteur a été prévenu par mail." : ".")];
 }
@@ -532,11 +532,11 @@ function refuserEvenementPropose(PDO $pdo, int $idEvt, int $idValidateur, string
     insertLog('EVENEMENT', "Refus de l'événement proposé #$idEvt : {$evt['titre']}");
     $proposeur = proposeurEvenement($pdo, $evt);
     if ($proposeur) {
-        notifierMembre($pdo, (int) $proposeur['id'], 'evenement_proposition', 'Votre proposition « ' . $evt['titre'] . ' » n’a pas été retenue : le motif vous attend par mail.', 'dashboard_auteur.php');
+        notifierMembre($pdo, (int) $proposeur['id'], 'evenement_proposition', 'Votre proposition « ' . $evt['titre'] . ' » n’a pas été retenue : le motif vous attend par mail.', 'dashboard_auteur');
         notifierParMail($proposeur['email'], "Votre proposition d'événement : " . $evt['titre'],
             "L'équipe a examiné votre proposition « {$evt['titre']} » (" . horaireEvenement($evt) . ") et ne peut pas la publier.\n\n"
             . "Motif :\n$motif\n\n"
-            . "Vous pouvez proposer un nouvel événement en tenant compte de cette remarque depuis votre espace créateur : " . SITE_URL . "/dashboard_auteur.php");
+            . "Vous pouvez proposer un nouvel événement en tenant compte de cette remarque depuis votre espace créateur : " . SITE_URL . "/dashboard_auteur");
     }
     return ['success', "Proposition refusée" . ($proposeur ? " : l'auteur a reçu le motif par mail." : ".")];
 }
@@ -547,7 +547,7 @@ function prevenirAuteurAnnulation(PDO $pdo, array $evt, string $motif): void
     if (!$proposeur) {
         return;
     }
-    notifierMembre($pdo, (int) $proposeur['id'], 'evenement_proposition', 'Votre événement « ' . $evt['titre'] . ' » a été annulé par l’équipe.', 'dashboard_auteur.php');
+    notifierMembre($pdo, (int) $proposeur['id'], 'evenement_proposition', 'Votre événement « ' . $evt['titre'] . ' » a été annulé par l’équipe.', 'dashboard_auteur');
     notifierParMail($proposeur['email'], "Votre événement est annulé : " . $evt['titre'],
         "L'équipe a annulé votre événement « {$evt['titre']} » prévu " . horaireEvenement($evt) . "."
         . ($motif !== '' ? "\n\nRaison : $motif" : '')

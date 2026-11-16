@@ -4,7 +4,7 @@ require_once 'compte_lib.php';
 require_once 'avis_lib.php';
 
 if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php");
+    header("Location: connexion");
     exit();
 }
 $idUser = (int) $_SESSION['user_id'];
@@ -12,7 +12,7 @@ $idUser = (int) $_SESSION['user_id'];
 function revenir(string $type, string $message): void
 {
     $_SESSION['flash_compte'] = [$type, $message];
-    header("Location: adresses.php");
+    header("Location: adresses");
     exit();
 }
 
@@ -109,7 +109,7 @@ include 'header.php';
 <div class="container my-4" style="max-width: 1000px;">
     <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
         <h1 class="h3 fw-bold mb-0" style="color:#274e13;"><i class="bi bi-geo-alt"></i> Mes adresses</h1>
-        <a href="profil.php" class="btn btn-outline-secondary rounded-pill"><i class="bi bi-arrow-left"></i> Mon compte</a>
+        <a href="mon-compte" class="btn btn-outline-secondary rounded-pill"><i class="bi bi-arrow-left"></i> Mon compte</a>
     </div>
 
     <?php if ($flash): ?>
@@ -141,7 +141,7 @@ include 'header.php';
                                         <?php if ($a['telephone']): ?><br><i class="bi bi-telephone"></i> <?= htmlspecialchars($a['telephone']) ?><?php endif; ?>
                                     </div>
                                 </div>
-                                <a href="adresses.php?modifier=<?= $a['id_adresse'] ?>" class="btn btn-sm btn-outline-secondary rounded-pill" title="Modifier"><i class="bi bi-pencil"></i></a>
+                                <a href="adresses?modifier=<?= $a['id_adresse'] ?>" class="btn btn-sm btn-outline-secondary rounded-pill" title="Modifier"><i class="bi bi-pencil"></i></a>
                             </div>
                             <div class="d-flex gap-2 mt-3">
                                 <?php if (!$a['par_defaut']): ?>
@@ -210,7 +210,7 @@ include 'header.php';
                 </div>
                 <div class="d-flex gap-2 mt-3">
                     <button class="btn btn-success rounded-pill px-4 fw-bold"><?= $enEdition ? 'Enregistrer' : 'Ajouter l\'adresse' ?></button>
-                    <?php if ($enEdition): ?><a href="adresses.php" class="btn btn-link text-muted">Annuler</a><?php endif; ?>
+                    <?php if ($enEdition): ?><a href="adresses" class="btn btn-link text-muted">Annuler</a><?php endif; ?>
                 </div>
             </form>
         </div>

@@ -216,7 +216,7 @@ include __DIR__ . '/_haut.php';
                                     <a href="exemplaires.php?id=<?= $l['id_livre'] ?>" class="btn btn-vert bouton-action-texte" title="Ajouter ou retirer des exemplaires"><i class="bi bi-box-seam" aria-hidden="true"></i> Stock</a>
                                     <a href="livre.php?id=<?= $l['id_livre'] ?>" class="btn btn-outline-secondary bouton-action" title="Modifier la fiche"><i class="bi bi-pencil" aria-hidden="true"></i></a>
                                     <?php if ($l['is_valide']): ?>
-                                        <a href="../detail_livre.php?id=<?= $l['id_livre'] ?>" target="_blank" rel="noopener" class="btn btn-outline-secondary bouton-action" title="Voir sur le site"><i class="bi bi-eye" aria-hidden="true"></i></a>
+                                        <a href="../livre?id=<?= $l['id_livre'] ?>" target="_blank" rel="noopener" class="btn btn-outline-secondary bouton-action" title="Voir sur le site"><i class="bi bi-eye" aria-hidden="true"></i></a>
                                     <?php endif; ?>
                                     <?php if ($archivageDisponible): ?>
                                         <form method="POST" data-confirmer="<?= $filtreArchive ? 'Réactiver cette fiche ?' : 'Archiver cette fiche en conservant ses exemplaires et son historique ?' ?>">

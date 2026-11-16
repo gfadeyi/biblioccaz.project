@@ -3,7 +3,7 @@ require_once 'config.php';
 require_once 'evenements_lib.php';
 
 if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php");
+    header("Location: connexion");
     exit();
 }
 
@@ -39,7 +39,7 @@ function ligneEvenement(array $e): void
             ? '<span class="pastille-evt ouvert">Inscrit</span>'
             : '<span class="pastille-evt complet">Liste d\'attente</span>';
     } ?>
-    <a href="evenement.php?id=<?= $e['id_evenement'] ?>" class="list-group-item list-group-item-action d-flex align-items-center gap-3 py-3">
+    <a href="evenement?id=<?= $e['id_evenement'] ?>" class="list-group-item list-group-item-action d-flex align-items-center gap-3 py-3">
         <div class="text-center flex-shrink-0 rounded-3 py-1" style="width: 56px; background: #d9ead3; color: #274e13;">
             <div class="fw-bold fs-5 lh-1"><?= date('j', $t) ?></div>
             <div class="small"><?= EVT_MOIS_COURTS[(int) date('n', $t) - 1] ?></div>
@@ -56,7 +56,7 @@ function ligneEvenement(array $e): void
 <div class="container my-4" style="max-width: 860px;">
     <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
         <h1 class="h3 fw-bold mb-0" style="color:#274e13;"><i class="bi bi-ticket-perforated"></i> Mes événements</h1>
-        <a href="evenements.php" class="btn btn-outline-success rounded-pill"><i class="bi bi-calendar-event"></i> Voir le calendrier</a>
+        <a href="evenements" class="btn btn-outline-success rounded-pill"><i class="bi bi-calendar-event"></i> Voir le calendrier</a>
     </div>
 
     <?php if ($flash): ?>
@@ -67,7 +67,7 @@ function ligneEvenement(array $e): void
     <?php if (!$aVenir): ?>
         <div class="card border-0 shadow-sm p-4 text-center text-muted mb-4" style="border-radius: 15px;">
             Vous n'êtes inscrit à aucun événement à venir.
-            <a href="evenements.php" class="btn btn-success rounded-pill mt-3 mx-auto px-4">Découvrir les événements</a>
+            <a href="evenements" class="btn btn-success rounded-pill mt-3 mx-auto px-4">Découvrir les événements</a>
         </div>
     <?php else: ?>
         <div class="list-group shadow-sm mb-4" style="border-radius: 15px; overflow: hidden;">

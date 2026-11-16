@@ -19,17 +19,17 @@ function repondreNotification(bool $enJson, array $donnees, int $code, string $r
 }
 
 if (!isset($_SESSION['user_id'])) {
-    repondreNotification($enJson, ['ok' => false, 'authentification_requise' => true], 401, 'login.php');
+    repondreNotification($enJson, ['ok' => false, 'authentification_requise' => true], 401, 'connexion');
 }
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    header("Location: notifications.php");
+    header("Location: notifications");
     exit();
 }
 if (!verifierCsrf()) {
     if (!$enJson) {
         $_SESSION['flash_message'] = ['danger', "Session expirée, merci de réessayer."];
     }
-    repondreNotification($enJson, ['ok' => false, 'message' => 'Session expirée, rechargez la page.'], 403, 'notifications.php');
+    repondreNotification($enJson, ['ok' => false, 'message' => 'Session expirée, rechargez la page.'], 403, 'notifications');
 }
 
 $idUser = (int) $_SESSION['user_id'];
@@ -37,7 +37,7 @@ $action = $_POST['action'] ?? '';
 
 if ($action === 'ouvrir') {
     $lien = ouvrirNotification($pdo, $idUser, (int) ($_POST['id_notification'] ?? 0));
-    header("Location: " . ($lien ?? 'notifications.php'));
+    header("Location: " . ($lien ?? 'notifications'));
     exit();
 }
 if ($action === 'tout_lire') {
@@ -47,5 +47,5 @@ if ($action === 'tout_lire') {
     }
     $_SESSION['flash_message'] = ['success', $nombre > 0 ? "Toutes vos notifications sont marquées comme lues." : "Aucune notification non lue."];
 }
-header("Location: notifications.php");
+header("Location: notifications");
 exit();

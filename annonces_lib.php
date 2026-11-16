@@ -200,7 +200,7 @@ function modererAnnonce(PDO $pdo, int $idAnnonce, string $decision, int $idModer
     }
 
     $annonce = annonceParId($pdo, $idAnnonce);
-    $lien = SITE_URL . '/' . ($decision === 'valider' ? 'annonce.php?id=' . $idAnnonce : 'mes_annonces.php');
+    $lien = SITE_URL . '/' . ($decision === 'valider' ? 'annonce?id=' . $idAnnonce : 'mes_annonces');
     $textes = [
         'valider' => ["Votre annonce est en ligne", "Bonne nouvelle : votre annonce « {$annonce['titre']} » a été validée par l'équipe. Elle est maintenant visible sur BIBLIOccaz et les lecteurs peuvent la consulter.", "Voir mon annonce"],
         'refuser' => ["Votre annonce n'a pas été validée", "Votre annonce « {$annonce['titre']} » n'a pas été validée par l'équipe.\n\nMotif : $motif\n\nVous pouvez la modifier depuis « Mes annonces » : elle repassera en validation.", "Mes annonces"],

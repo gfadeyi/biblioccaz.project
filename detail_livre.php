@@ -14,7 +14,7 @@ if (!$livre) {
     http_response_code(404);
     $titreDocument='Livre introuvable';
     include 'header.php';
-    echo '<section class="container-xxl py-5"><h1>Ce livre n’est plus sur cette étagère</h1><p>Cette fiche est introuvable ou n’est plus publiée. Une autre lecture vous attend peut-être dans le catalogue.</p><a class="bouton bouton-action" href="catalogue.php">Retrouver un livre</a></section>';
+    echo '<section class="container-xxl py-5"><h1>Ce livre n’est plus sur cette étagère</h1><p>Cette fiche est introuvable ou n’est plus publiée. Une autre lecture vous attend peut-être dans le catalogue.</p><a class="bouton bouton-action" href="catalogue">Retrouver un livre</a></section>';
     include 'footer.php'; exit;
 }
 
@@ -54,7 +54,7 @@ $livresProches = (int) $livre['is_valide'] === 1 ? livresSimilaires($pdo, $livre
 
 function formulaireCompte(string $action, int $idLivre, string $contenu, string $classe, string $titre = ''): string
 {
-    return '<form action="compte_action.php" method="POST" class="d-inline">'
+    return '<form action="compte_action" method="POST" class="d-inline">'
         . '<input type="hidden" name="csrf" value="' . jetonCsrf() . '">'
         . '<input type="hidden" name="action" value="' . $action . '">'
         . '<input type="hidden" name="id_livre" value="' . $idLivre . '">'
@@ -162,7 +162,7 @@ include 'partie_fiche_livre.php';
                 <nav class="offres-livre__tris" aria-label="Trier les offres">
                     <span class="small text-muted">Trier par</span>
                     <?php foreach (TRIS_OFFRES as $cleTri => $libelleTri): ?>
-                        <a href="detail_livre.php?id=<?= (int) $id ?>&offre=<?= (int) $offre_index ?>&tri_offres=<?= $cleTri ?>#offres"
+                        <a href="livre?id=<?= (int) $id ?>&offre=<?= (int) $offre_index ?>&tri_offres=<?= $cleTri ?>#offres"
                            class="puce-univers <?= $triOffres === $cleTri ? 'actif' : '' ?>" <?= $triOffres === $cleTri ? 'aria-current="true"' : '' ?>><?= $libelleTri ?></a>
                     <?php endforeach; ?>
                 </nav>
@@ -186,9 +186,9 @@ include 'partie_fiche_livre.php';
                         <span class="ligne-offre__prix"><?= $offreListe['origine'] === 'don' ? 'Gratuit' : ($offreListe['origine'] === 'emprunt' ? 'Prêt gratuit' : formaterPrix($offreListe['prix'])) ?></span>
                         <span class="ligne-offre__action">
                             <?php if ($offreListe['origine'] === 'don'): ?>
-                                <a href="don_detail.php?id=<?= $offreListe['id_don'] ?>" class="bouton bouton-contour bouton-petit">Voir le don</a>
+                                <a href="don_detail?id=<?= $offreListe['id_don'] ?>" class="bouton bouton-contour bouton-petit">Voir le don</a>
                             <?php elseif ($offreListe['origine'] === 'emprunt' && $offreListe['libre'] && $peutReserverEmprunt): ?>
-                                <form action="emprunt_action.php" method="POST">
+                                <form action="emprunt_action" method="POST">
                                     <input type="hidden" name="csrf" value="<?= jetonCsrf() ?>">
                                     <input type="hidden" name="action" value="reserver">
                                     <input type="hidden" name="id_livre" value="<?= (int) $id ?>">
@@ -198,9 +198,9 @@ include 'partie_fiche_livre.php';
                             <?php elseif ($offreListe['origine'] === 'emprunt'): ?>
                                 <a href="#emprunt" class="bouton bouton-contour bouton-petit"><?= $offreListe['libre'] ? 'Emprunter' : "Liste d'attente" ?></a>
                             <?php elseif ($offreListe['origine'] === 'particulier'): ?>
-                                <a href="annonce.php?id=<?= $offreListe['id_annonce'] ?>" class="bouton bouton-contour bouton-petit">Voir l'annonce</a>
+                                <a href="annonce?id=<?= $offreListe['id_annonce'] ?>" class="bouton bouton-contour bouton-petit">Voir l'annonce</a>
                             <?php elseif ($peutAcheterEnMagasin): ?>
-                                <form action="action_ajouter_panier.php" method="POST">
+                                <form action="action_ajouter_panier" method="POST">
                                     <input type="hidden" name="csrf" value="<?= jetonCsrf() ?>">
                                     <input type="hidden" name="id_exemplaire" value="<?= $offreListe['id_exemplaire'] ?>">
                                     <button type="submit" name="action" value="ajouter" class="bouton bouton-principal bouton-petit">
@@ -208,7 +208,7 @@ include 'partie_fiche_livre.php';
                                     </button>
                                 </form>
                             <?php else: ?>
-                                <a href="detail_livre.php?id=<?= (int) $id ?>&offre=<?= $offreListe['index'] ?>" class="bouton bouton-contour bouton-petit">Choisir</a>
+                                <a href="livre?id=<?= (int) $id ?>&offre=<?= $offreListe['index'] ?>" class="bouton bouton-contour bouton-petit">Choisir</a>
                             <?php endif; ?>
                         </span>
                     </li>
@@ -228,7 +228,7 @@ include 'partie_fiche_livre.php';
                 <p>Des livres disponibles proches de celui-ci<?= $idLecteurSuggestions ? ', choisis aussi selon vos goûts' : '' ?>.</p>
             </div>
             <?php if ($idLecteurSuggestions): ?>
-                <a href="suggestions.php" class="lien-voir-tout">Mes suggestions <i class="bi bi-chevron-right" aria-hidden="true"></i></a>
+                <a href="suggestions" class="lien-voir-tout">Mes suggestions <i class="bi bi-chevron-right" aria-hidden="true"></i></a>
             <?php endif; ?>
         </div>
         <div class="carrousel">

@@ -4,7 +4,7 @@ require_once __DIR__ . '/profil_actif_lib.php';
 if (session_status() === PHP_SESSION_NONE) { session_start(); }
 
 if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php");
+    header("Location: connexion");
     exit();
 }
 
@@ -18,7 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
     if (!verifierCsrf()) {
         $_SESSION['flash_profil'] = ['danger', "Votre session a expiré, merci de réessayer."];
-        header("Location: profil.php");
+        header("Location: mon-compte");
         exit();
     }
 
@@ -30,7 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } catch (RuntimeException $e) {
             $_SESSION['flash_profil'] = ['danger', $e->getMessage()];
         }
-        header("Location: profil.php");
+        header("Location: mon-compte");
         exit();
     }
 
@@ -38,7 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         supprimerPhotoProfil($pdo, $idUser);
         insertLog('PROFIL', "Photo de profil retirée");
         $_SESSION['flash_profil'] = ['success', "Votre photo a été retirée : votre initiale la remplace."];
-        header("Location: profil.php");
+        header("Location: mon-compte");
         exit();
     }
 
@@ -53,7 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ? ['success', $nombre > 1 ? "$nombre appareils ont été déconnectés." : "L'appareil a été déconnecté."]
                 : ['info', "Aucun autre appareil n'était connecté."];
         }
-        header("Location: profil.php#appareils");
+        header("Location: mon-compte#appareils");
         exit();
     }
 
@@ -68,19 +68,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         try { enregistrerPreferenceNewsletter($pdo, $emailMembre, $abonner, 'profil'); }
         catch (DomainException $e) {
             $_SESSION['flash_profil'] = ['warning', $e->getMessage()];
-            header('Location: profil.php'); exit;
+            header('Location: mon-compte'); exit;
         }
         insertLog('NEWSLETTER', $abonner ? "Abonnement à la newsletter depuis le profil" : "Désabonnement de la newsletter depuis le profil");
         notifierParMail($emailMembre,
             $abonner ? "Inscription à la newsletter confirmée" : "Désinscription de la newsletter confirmée",
-            $abonner ? "Merci ! Vous recevrez désormais les nouveautés et pépites d'occasion de BIBLIOccaz.\nVous pouvez vous désabonner à tout moment depuis votre espace : " . SITE_URL . "/profil.php"
-                     : "Vous ne recevrez plus la newsletter de BIBLIOccaz.\nVous pouvez vous réabonner à tout moment depuis votre espace : " . SITE_URL . "/profil.php");
+            $abonner ? "Merci ! Vous recevrez désormais les nouveautés et pépites d'occasion de BIBLIOccaz.\nVous pouvez vous désabonner à tout moment depuis votre espace : " . SITE_URL . "/mon-compte"
+                     : "Vous ne recevrez plus la newsletter de BIBLIOccaz.\nVous pouvez vous réabonner à tout moment depuis votre espace : " . SITE_URL . "/mon-compte");
         $_SESSION['flash_profil'] = ['success', $abonner ? "Vous êtes abonné à la newsletter." : "Vous êtes désabonné de la newsletter."];
-        header("Location: profil.php");
+        header("Location: mon-compte");
         exit();
     }
 
-    header("Location: profil.php");
+    header("Location: mon-compte");
     exit();
 }
 
@@ -230,16 +230,16 @@ include 'header.php';
         </div>
 
         <div class="profil-identite__actions">
-            <a href="modifier_profil.php" class="bouton bouton-contour bouton-petit"><i class="bi bi-pencil" aria-hidden="true"></i> Modifier mes infos</a>
-            <a href="modifier_mdp.php" class="bouton bouton-discret bouton-petit"><i class="bi bi-key" aria-hidden="true"></i> Mot de passe</a>
+            <a href="modifier_profil" class="bouton bouton-contour bouton-petit"><i class="bi bi-pencil" aria-hidden="true"></i> Modifier mes infos</a>
+            <a href="modifier_mdp" class="bouton bouton-discret bouton-petit"><i class="bi bi-key" aria-hidden="true"></i> Mot de passe</a>
             <?php if ($estClient): ?>
-                <a href="adresses.php" class="bouton bouton-discret bouton-petit"><i class="bi bi-geo" aria-hidden="true"></i> Mes adresses</a>
-                <a href="avis.php" class="bouton bouton-discret bouton-petit"><i class="bi bi-chat-square-text" aria-hidden="true"></i> Mes avis</a>
+                <a href="adresses" class="bouton bouton-discret bouton-petit"><i class="bi bi-geo" aria-hidden="true"></i> Mes adresses</a>
+                <a href="avis" class="bouton bouton-discret bouton-petit"><i class="bi bi-chat-square-text" aria-hidden="true"></i> Mes avis</a>
             <?php endif; ?>
             <?php if ($estEquipe): ?>
                 <a href="admin/index.php" class="bouton bouton-principal bouton-petit"><i class="bi bi-speedometer2" aria-hidden="true"></i> Back-office</a>
             <?php endif; ?>
-            <form method="POST" action="logout.php"><input type="hidden" name="csrf" value="<?= htmlspecialchars(jetonCsrf(), ENT_QUOTES, 'UTF-8') ?>"><button type="submit" class="bouton bouton-discret bouton-petit"><i class="bi bi-box-arrow-right" aria-hidden="true"></i> Déconnexion</button></form>
+            <form method="POST" action="logout"><input type="hidden" name="csrf" value="<?= htmlspecialchars(jetonCsrf(), ENT_QUOTES, 'UTF-8') ?>"><button type="submit" class="bouton bouton-discret bouton-petit"><i class="bi bi-box-arrow-right" aria-hidden="true"></i> Déconnexion</button></form>
         </div>
     </section>
 
@@ -260,7 +260,7 @@ include 'header.php';
     <?php endif; ?>
 
     <?php if ($estClient): ?>
-        <a href="points_badges.php" class="carte-compte profil-niveau">
+        <a href="points_badges" class="carte-compte profil-niveau">
             <span class="profil-niveau__embleme" aria-hidden="true"><?= iconeDessin('medaille') ?><span><?= $niveau['index'] + 1 ?>/<?= count(NIVEAUX) ?></span></span>
             <span class="profil-niveau__texte">
                 <span class="profil-niveau__surtitre">Votre niveau</span>
@@ -294,14 +294,14 @@ include 'header.php';
                 <h2 class="carte-compte__titre"><?= iconeDessin('plume') ?> Espace créateur</h2>
                 <p class="texte-profil">Proposez vos livres et vos rencontres, suivez leur validation et les inscriptions à vos événements.</p>
                 <div class="d-flex flex-wrap gap-2">
-                    <a href="dashboard_auteur.php" class="bouton bouton-principal bouton-petit">Mon espace créateur</a>
-                    <a href="proposer_evenement.php" class="bouton bouton-contour bouton-petit">Proposer un événement</a>
-                    <a href="proposer_ouvrage.php" class="bouton bouton-discret bouton-petit">Proposer un livre</a>
+                    <a href="dashboard_auteur" class="bouton bouton-principal bouton-petit">Mon espace créateur</a>
+                    <a href="proposer_evenement" class="bouton bouton-contour bouton-petit">Proposer un événement</a>
+                    <a href="proposer_ouvrage" class="bouton bouton-discret bouton-petit">Proposer un livre</a>
                 </div>
                 <?php if ($ficheAuteur && $ficheAuteur['est_publique']): ?>
-                    <a href="auteur.php?a=<?= rawurlencode($ficheAuteur['slug']) ?>" class="lien-voir-tout">Ma page publique <i class="bi bi-chevron-right" aria-hidden="true"></i></a>
+                    <a href="auteur?a=<?= rawurlencode($ficheAuteur['slug']) ?>" class="lien-voir-tout">Ma page publique <i class="bi bi-chevron-right" aria-hidden="true"></i></a>
                 <?php else: ?>
-                    <a href="modifier_fiche_auteur.php" class="lien-voir-tout"><?= $ficheAuteur ? 'Ma page auteur (masquée)' : 'Créer ma page auteur' ?> <i class="bi bi-chevron-right" aria-hidden="true"></i></a>
+                    <a href="modifier_fiche_auteur" class="lien-voir-tout"><?= $ficheAuteur ? 'Ma page auteur (masquée)' : 'Créer ma page auteur' ?> <i class="bi bi-chevron-right" aria-hidden="true"></i></a>
                 <?php endif; ?>
             </section>
         <?php endif; ?>
@@ -319,7 +319,7 @@ include 'header.php';
                     <p class="texte-profil mb-0">Nouvelle demande possible à partir du <strong><?= date('d/m/Y à H:i', strtotime($candidatureAuteur['date_possible'])) ?></strong>.</p>
                 <?php else: ?>
                     <p class="texte-profil">Vous écrivez ? Présentez-vous et présentez vos livres : après validation, vous aurez votre page d'auteur et pourrez proposer vos rencontres.</p>
-                    <a href="candidature_auteur.php" class="bouton bouton-contour bouton-petit"><?= $candidatureAuteur['candidature'] ? 'Déposer une nouvelle candidature' : 'Proposer ma candidature' ?></a>
+                    <a href="candidature_auteur" class="bouton bouton-contour bouton-petit"><?= $candidatureAuteur['candidature'] ? 'Déposer une nouvelle candidature' : 'Proposer ma candidature' ?></a>
                 <?php endif; ?>
             </section>
         <?php endif; ?>
@@ -333,7 +333,7 @@ include 'header.php';
                     <p class="texte-profil mb-0">Votre dernière candidature n'a pas été retenue. Nouvelle demande possible à partir du <strong><?= date('d/m/Y', strtotime($candidatureEquipe['date_possible'])) ?></strong>.</p>
                 <?php else: ?>
                     <p class="texte-profil">Envie de donner un coup de main ? Devenez modérateur ou gestionnaire de BIBLIOccaz.</p>
-                    <a href="rejoindre_equipe.php" class="bouton bouton-contour bouton-petit">Proposer ma candidature</a>
+                    <a href="rejoindre_equipe" class="bouton bouton-contour bouton-petit">Proposer ma candidature</a>
                 <?php endif; ?>
             </section>
         <?php endif; ?>
@@ -344,7 +344,7 @@ include 'header.php';
                 <ul class="suggestions-profil">
                     <?php foreach ($suggestionsProfil as $suggestion): ?>
                         <li>
-                            <a href="detail_livre.php?id=<?= (int) $suggestion['id_livre'] ?>">
+                            <a href="livre?id=<?= (int) $suggestion['id_livre'] ?>">
                                 <img src="<?= htmlspecialchars(urlImage($suggestion['couverture'] ?: 'default.png')) ?>" alt="" loading="lazy">
                                 <span>
                                     <strong><?= htmlspecialchars($suggestion['titre']) ?></strong>
@@ -354,7 +354,7 @@ include 'header.php';
                         </li>
                     <?php endforeach; ?>
                 </ul>
-                <a href="suggestions.php" class="lien-voir-tout">Toutes mes suggestions <i class="bi bi-chevron-right" aria-hidden="true"></i></a>
+                <a href="suggestions" class="lien-voir-tout">Toutes mes suggestions <i class="bi bi-chevron-right" aria-hidden="true"></i></a>
             </section>
         <?php endif; ?>
 
@@ -363,7 +363,7 @@ include 'header.php';
                 <h2 class="carte-compte__titre"><?= iconeDessin('colis') ?> Mes dernières commandes</h2>
                 <?php if (!$dernieresCommandes): ?>
                     <p class="texte-profil">Aucune commande pour l'instant. Votre première vous rapportera 20 points de bienvenue.</p>
-                    <a href="catalogue.php" class="lien-voir-tout">Découvrir le catalogue <i class="bi bi-chevron-right" aria-hidden="true"></i></a>
+                    <a href="catalogue" class="lien-voir-tout">Découvrir le catalogue <i class="bi bi-chevron-right" aria-hidden="true"></i></a>
                 <?php else: ?>
                     <ul class="liste-profil">
                         <?php foreach ($dernieresCommandes as $commande): ?>
@@ -380,7 +380,7 @@ include 'header.php';
                             </li>
                         <?php endforeach; ?>
                     </ul>
-                    <a href="commandes.php" class="lien-voir-tout">Toutes mes commandes <i class="bi bi-chevron-right" aria-hidden="true"></i></a>
+                    <a href="commandes" class="lien-voir-tout">Toutes mes commandes <i class="bi bi-chevron-right" aria-hidden="true"></i></a>
                 <?php endif; ?>
             </section>
 
@@ -391,13 +391,13 @@ include 'header.php';
                 <?php else: ?>
                     <div class="couvertures-profil">
                         <?php foreach (array_slice($favoris, 0, 5) as $favori): ?>
-                            <a href="detail_livre.php?id=<?= (int) $favori['id_livre'] ?>" title="<?= htmlspecialchars($favori['titre']) ?>">
+                            <a href="livre?id=<?= (int) $favori['id_livre'] ?>" title="<?= htmlspecialchars($favori['titre']) ?>">
                                 <img src="<?= htmlspecialchars(urlImage($favori['couverture'])) ?>" alt="<?= htmlspecialchars($favori['titre']) ?>" loading="lazy">
                             </a>
                         <?php endforeach; ?>
                     </div>
                 <?php endif; ?>
-                <a href="wishlist.php" class="lien-voir-tout">Ma liste d'envies <i class="bi bi-chevron-right" aria-hidden="true"></i></a>
+                <a href="wishlist" class="lien-voir-tout">Ma liste d'envies <i class="bi bi-chevron-right" aria-hidden="true"></i></a>
             </section>
 
             <section class="carte-compte">
@@ -407,11 +407,11 @@ include 'header.php';
                 <?php else: ?>
                     <ul class="liste-profil">
                         <?php foreach (array_slice($alertes, 0, 3) as $alerte): ?>
-                            <li><a href="detail_livre.php?id=<?= (int) $alerte['id_livre'] ?>"><?= htmlspecialchars($alerte['titre']) ?></a><span class="etiquette-profil">En attente</span></li>
+                            <li><a href="livre?id=<?= (int) $alerte['id_livre'] ?>"><?= htmlspecialchars($alerte['titre']) ?></a><span class="etiquette-profil">En attente</span></li>
                         <?php endforeach; ?>
                     </ul>
                 <?php endif; ?>
-                <a href="alertes.php" class="lien-voir-tout">Gérer mes alertes <i class="bi bi-chevron-right" aria-hidden="true"></i></a>
+                <a href="alertes" class="lien-voir-tout">Gérer mes alertes <i class="bi bi-chevron-right" aria-hidden="true"></i></a>
             </section>
         <?php endif; ?>
 
@@ -419,20 +419,20 @@ include 'header.php';
             <h2 class="carte-compte__titre"><?= iconeDessin('ticket') ?> Événements à venir</h2>
             <?php if (!$evenementsAVenir): ?>
                 <p class="texte-profil">Aucune inscription en cours. Rencontres, ateliers et dédicaces vous attendent.</p>
-                <a href="evenements.php" class="lien-voir-tout">Voir le programme <i class="bi bi-chevron-right" aria-hidden="true"></i></a>
+                <a href="evenements" class="lien-voir-tout">Voir le programme <i class="bi bi-chevron-right" aria-hidden="true"></i></a>
             <?php else: ?>
                 <ul class="liste-profil">
                     <?php foreach ($evenementsAVenir as $evenement): ?>
                         <li>
                             <span>
-                                <a href="evenement.php?id=<?= (int) $evenement['id_evenement'] ?>"><?= htmlspecialchars($evenement['titre']) ?></a>
+                                <a href="evenement?id=<?= (int) $evenement['id_evenement'] ?>"><?= htmlspecialchars($evenement['titre']) ?></a>
                                 <small class="d-block"><?= htmlspecialchars(dateLongue($evenement['date_debut'])) ?></small>
                             </span>
                             <span class="etiquette-profil<?= $evenement['statut_inscription'] === 'attente' ? ' attente' : '' ?>"><?= $evenement['statut_inscription'] === 'attente' ? "Liste d'attente" : 'Inscrit' ?></span>
                         </li>
                     <?php endforeach; ?>
                 </ul>
-                <a href="mes_evenements.php" class="lien-voir-tout">Mes billets <i class="bi bi-chevron-right" aria-hidden="true"></i></a>
+                <a href="mes_evenements" class="lien-voir-tout">Mes billets <i class="bi bi-chevron-right" aria-hidden="true"></i></a>
             <?php endif; ?>
         </section>
 
@@ -445,8 +445,8 @@ include 'header.php';
                 </div>
                 <p class="texte-profil">Chaque don récupéré vous rapporte <?= pointsRegle($pdo, 'don') ?> points.</p>
                 <div class="d-flex flex-wrap gap-2 align-items-center">
-                    <a href="don_creer.php" class="bouton bouton-contour bouton-petit"><i class="bi bi-plus-lg" aria-hidden="true"></i> Donner un livre</a>
-                    <a href="mes_dons.php" class="lien-voir-tout">Mes dons <i class="bi bi-chevron-right" aria-hidden="true"></i></a>
+                    <a href="don_creer" class="bouton bouton-contour bouton-petit"><i class="bi bi-plus-lg" aria-hidden="true"></i> Donner un livre</a>
+                    <a href="mes_dons" class="lien-voir-tout">Mes dons <i class="bi bi-chevron-right" aria-hidden="true"></i></a>
                 </div>
             </section>
         <?php endif; ?>

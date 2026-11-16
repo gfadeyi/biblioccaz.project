@@ -4,11 +4,11 @@ require_once 'demonstration_lib.php';
 if (session_status() === PHP_SESSION_NONE) { session_start(); }
 
 if (!isset($_SESSION['user_id'])) {
-    memoriserRetourConnexion('achat.php');
-    header('Location: login.php'); exit();
+    memoriserRetourConnexion('achat');
+    header('Location: connexion'); exit();
 }
 if (empty($_SESSION['panier'])) {
-    header("Location: panier.php");
+    header("Location: panier");
     exit();
 }
 
@@ -49,7 +49,7 @@ include 'header.php';
                 <?php if ($erreurAdresse): ?>
                     <div class="alert alert-danger small py-2"><?= htmlspecialchars($erreurAdresse) ?></div>
                 <?php endif; ?>
-                <form id="form-achat" action="confirmation_achat.php" method="POST">
+                <form id="form-achat" action="confirmation_achat" method="POST">
                     <input type="hidden" name="csrf" value="<?= htmlspecialchars($csrf) ?>">
                     <?php if ($adresses): ?>
                         <div class="d-flex flex-column gap-2 mb-3">

@@ -37,11 +37,11 @@
         } catch (erreur) {
             adresse = null;
         }
-        if (adresse && /don_valider\.php$/.test(adresse.pathname)) {
+        if (adresse && /don_valider(\.php)?$/.test(adresse.pathname)) {
             const code = adresse.searchParams.get('code') || '';
             if (/^[a-f0-9]{32}$/.test(code)) {
                 etat.textContent = 'QR code lu : ouverture du don…';
-                window.location.assign('don_valider.php?code=' + encodeURIComponent(code));
+                window.location.assign('don_valider?code=' + encodeURIComponent(code));
                 return true;
             }
         }

@@ -11,9 +11,9 @@ $pdoSitemap = new PDO('mysql:host=' . DB_HOST . ';dbname=' . DB_NAME . ';charset
 $requete = $pdoSitemap->prepare('SELECT id_livre FROM livre WHERE is_valide = 1 ORDER BY id_livre LIMIT 45000');
 $requete->execute();
 $ids = $requete->fetchAll(PDO::FETCH_COLUMN);
-$pages = ['', 'qui-sommes-nous', 'catalogue.php', 'bd_mangas.php', 'jeunesse.php', 'roman.php', 'scolaire.php', 'petits_prix.php', 'dons.php', 'evenements.php', 'auteurs.php'];
+$pages = ['', 'qui-sommes-nous', 'catalogue', 'bd_mangas', 'jeunesse', 'roman', 'scolaire', 'petits_prix', 'dons', 'evenements', 'auteurs'];
 $xml = '<?xml version="1.0" encoding="UTF-8"?>' . "\n" . '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">';
-foreach (array_merge($pages, array_map(fn($id) => 'detail_livre.php?id=' . (int) $id, $ids)) as $page) {
+foreach (array_merge($pages, array_map(fn($id) => 'livre?id=' . (int) $id, $ids)) as $page) {
     $xml .= '<url><loc>' . htmlspecialchars(rtrim(SITE_URL, '/') . '/' . $page, ENT_XML1 | ENT_QUOTES, 'UTF-8') . '</loc></url>';
 }
 echo $xml . '</urlset>';

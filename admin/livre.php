@@ -100,7 +100,7 @@ $v = fn(string $c) => e((string) ($valeurs[$c] ?? ''));
     <a href="inventaire.php" class="btn btn-sm btn-outline-secondary"><i class="bi bi-arrow-left"></i> Inventaire</a>
     <?php if ($livre): ?>
         <a href="exemplaires.php?id=<?= $id ?>" class="btn btn-sm btn-outline-success"><i class="bi bi-box-seam"></i> Gérer le stock</a>
-        <a href="../detail_livre.php?id=<?= $id ?>" target="_blank" class="btn btn-sm btn-outline-secondary"><i class="bi bi-eye"></i> Voir sur le site</a>
+        <a href="../livre?id=<?= $id ?>" target="_blank" class="btn btn-sm btn-outline-secondary"><i class="bi bi-eye"></i> Voir sur le site</a>
     <?php endif; ?>
 </div>
 

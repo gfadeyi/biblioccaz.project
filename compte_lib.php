@@ -238,7 +238,7 @@ function notifierRetourEnStock(PDO $pdo, int $idLivre, ?int $quantiteAjoutee = n
     foreach ($alertes as $a) {
         notifierParMail($a['email'], "« {$a['titre']} » est de nouveau disponible",
             "Bonne nouvelle : le livre « {$a['titre']} » que vous attendiez est de nouveau en stock.\n\n"
-            . "Les exemplaires d'occasion partent vite, ne tardez pas : " . SITE_URL . "/detail_livre.php?id=$idLivre");
+            . "Les exemplaires d'occasion partent vite, ne tardez pas : " . SITE_URL . "/livre?id=$idLivre");
         $maj->execute([$a['id_alerte']]);
     }
     if ($alertes) {

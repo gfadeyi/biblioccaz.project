@@ -39,7 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $etat['etat'] === 'ouverte') {
             deposerCandidatureEquipe($pdo, $valeurs, $membre);
             insertLog('CANDIDATURE', 'Nouvelle candidature ' . $valeurs['role_vise'] . ' de ' . ($membre ? '@' . $membre['pseudo'] : $valeurs['prenom'] . ' ' . $valeurs['nom']));
             $_SESSION['candidature_equipe_envoyee'] = true;
-            header('Location: rejoindre_equipe.php');
+            header('Location: rejoindre_equipe');
             exit();
         } catch (DomainException $e) {
             $erreurs[] = $e->getMessage();
@@ -124,7 +124,7 @@ include 'header.php';
                             <div id="aide-email" class="form-text">L'adresse de votre compte : la réponse de l'équipe y sera envoyée.</div>
                         <?php else: ?>
                             <input type="email" id="email" name="email" class="form-control" maxlength="150" autocomplete="email" value="<?= htmlspecialchars($valeurs['email']) ?>" aria-describedby="aide-email" required>
-                            <div id="aide-email" class="form-text">Si votre candidature est acceptée, votre compte sera créé avec cette adresse. Vous avez déjà un compte ? <a href="login.php">Connectez-vous</a> pour postuler.</div>
+                            <div id="aide-email" class="form-text">Si votre candidature est acceptée, votre compte sera créé avec cette adresse. Vous avez déjà un compte ? <a href="connexion">Connectez-vous</a> pour postuler.</div>
                         <?php endif; ?>
                     </div>
                     <div class="col-12">
@@ -135,13 +135,13 @@ include 'header.php';
                     <div class="col-12 mt-4">
                         <?php if (!$membre) { include 'partie_captcha.php'; } ?>
                         <button type="submit" class="bouton bouton-principal">Envoyer ma candidature</button>
-                        <p class="small text-muted mt-3 mb-0">Ces informations servent uniquement à étudier votre candidature. Pour en savoir plus et exercer vos droits, consultez la <a href="confidentialite.php">politique de confidentialité</a>.</p>
+                        <p class="small text-muted mt-3 mb-0">Ces informations servent uniquement à étudier votre candidature. Pour en savoir plus et exercer vos droits, consultez la <a href="confidentialite">politique de confidentialité</a>.</p>
                     </div>
                 </div>
             </form>
         <?php endif; ?>
         <?php if (!$membre): ?>
-            <p class="carte-formulaire__pied">Vous cherchez plutôt un compte lecteur ? <a href="inscription.php">Créer un compte</a></p>
+            <p class="carte-formulaire__pied">Vous cherchez plutôt un compte lecteur ? <a href="inscription">Créer un compte</a></p>
         <?php endif; ?>
     </div>
 </div>

@@ -4,7 +4,7 @@ require_once 'avis_lib.php';
 require_once 'auteurs_lib.php';
 
 if (($_SESSION['role'] ?? '') !== 'auteur') {
-    header('Location: ' . (isset($_SESSION['user_id']) ? 'candidature_auteur.php' : 'login.php'));
+    header('Location: ' . (isset($_SESSION['user_id']) ? 'candidature_auteur' : 'connexion'));
     exit();
 }
 $idAuteur = (int) $_SESSION['user_id'];
@@ -45,7 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $disponible) {
             $resultat = enregistrerFicheAuteur($pdo, $idAuteur, $valeursAuteur, $ouvragesAuteur, $photo, !empty($_POST['retirer_photo']));
             insertLog('AUTEUR', ($resultat['creation'] ? 'Page auteur créée' : 'Page auteur modifiée') . " par @{$_SESSION['pseudo']} (« {$valeursAuteur['nom_plume']} »)");
             $_SESSION['flash_auteur'] = ['success', $resultat['creation'] ? 'Votre page auteur est créée et publiée.' : 'Votre page auteur est mise à jour.'];
-            header('Location: dashboard_auteur.php');
+            header('Location: dashboard_auteur');
             exit();
         } catch (DomainException $e) {
             $erreurs[] = $e->getMessage();
@@ -66,9 +66,9 @@ include 'header.php';
 
 <div class="container mt-4 mb-5 page-proposition page-candidature-auteur">
     <nav aria-label="Fil d'Ariane" class="fil-ariane">
-        <a href="profil.php">Mon compte</a>
+        <a href="mon-compte">Mon compte</a>
         <span aria-hidden="true">›</span>
-        <a href="dashboard_auteur.php">Espace créateur</a>
+        <a href="dashboard_auteur">Espace créateur</a>
         <span aria-hidden="true">›</span>
         <span aria-current="page">Ma page auteur</span>
     </nav>
@@ -81,7 +81,7 @@ include 'header.php';
         <?php if ($fiche && $fiche['est_masquee']): ?>
             <div class="alert alert-warning rounded-3" role="status"><i class="bi bi-eye-slash me-1" aria-hidden="true"></i> Votre page est masquée par l'équipe depuis le <?= date('d/m/Y', strtotime($fiche['date_masquage'])) ?>. Vous pouvez la corriger ; elle reviendra en ligne quand l'équipe la réaffichera.</div>
         <?php elseif ($fiche): ?>
-            <p class="mb-3"><a href="auteur.php?a=<?= rawurlencode($fiche['slug']) ?>" class="lien-voir-tout"><i class="bi bi-box-arrow-up-right" aria-hidden="true"></i> Voir ma page publique</a></p>
+            <p class="mb-3"><a href="auteur?a=<?= rawurlencode($fiche['slug']) ?>" class="lien-voir-tout"><i class="bi bi-box-arrow-up-right" aria-hidden="true"></i> Voir ma page publique</a></p>
         <?php endif; ?>
 
         <?php if ($erreurs): ?>
@@ -100,7 +100,7 @@ include 'header.php';
             <?php include 'partie_formulaire_auteur.php'; ?>
             <div class="d-flex flex-wrap gap-2 mt-4">
                 <button type="submit" class="bouton bouton-principal"><i class="bi bi-check-lg" aria-hidden="true"></i> <?= $fiche ? 'Enregistrer' : 'Publier ma page' ?></button>
-                <a href="dashboard_auteur.php" class="bouton bouton-discret">Annuler</a>
+                <a href="dashboard_auteur" class="bouton bouton-discret">Annuler</a>
             </div>
         </form>
     <?php endif; ?>

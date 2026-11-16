@@ -35,7 +35,7 @@
         afficherTemps();
     }
     async function actualiserPagePanier() {
-        const reponse = await fetch('panier.php', {cache: 'no-store', credentials: 'same-origin'});
+        const reponse = await fetch('panier', {cache: 'no-store', credentials: 'same-origin'});
         if (!reponse.ok) return;
         const page = new DOMParser().parseFromString(await reponse.text(), 'text/html');
         const actuel = document.getElementById('page-panier');
@@ -79,7 +79,7 @@
     }
     async function envoyerPanier(donnees, image = null) {
         if (!donnees.has('csrf')) donnees.set('csrf', csrf());
-        const reponse = await fetch('panier_action.php', {method: 'POST', body: donnees, headers: {'X-Requested-With': 'XMLHttpRequest'}, credentials: 'same-origin'});
+        const reponse = await fetch('panier_action', {method: 'POST', body: donnees, headers: {'X-Requested-With': 'XMLHttpRequest'}, credentials: 'same-origin'});
         const resultat = await reponse.json();
         if (!reponse.ok || !resultat.ok) throw new Error(resultat.message || 'Le panier n’a pas pu être mis à jour.');
         actualiserCompteur(resultat);
@@ -93,7 +93,7 @@
         if (verificationExpiration) return;
         verificationExpiration = true;
         try {
-            const reponse = await fetch('panier_action.php', {cache: 'no-store', credentials: 'same-origin'});
+            const reponse = await fetch('panier_action', {cache: 'no-store', credentials: 'same-origin'});
             if (!reponse.ok) return;
             const resultat = await reponse.json();
             const avaitReservation = etat.expiration > 0;
@@ -130,7 +130,7 @@
         if (evenement.clientX < rect.left || evenement.clientX > rect.right || evenement.clientY < rect.top || evenement.clientY > rect.bottom) fermerApercu();
     });
     async function lireApercu(id) {
-        const reponse = await fetch(`apercu_livre.php?id=${encodeURIComponent(id)}`, {cache: 'no-store', credentials: 'same-origin'});
+        const reponse = await fetch(`apercu_livre?id=${encodeURIComponent(id)}`, {cache: 'no-store', credentials: 'same-origin'});
         const livre = await reponse.json();
         if (!reponse.ok) throw new Error(livre.message || 'Cet aperçu n’est pas disponible.');
         return livre;
@@ -228,7 +228,7 @@
                 return;
             }
             await envoyerPanier(donnees, formulaire.closest('.fiche-livre, .ligne-panier')?.querySelector('img'));
-            if (donnees.get('action') === 'acheter') window.location.assign('panier.php');
+            if (donnees.get('action') === 'acheter') window.location.assign('panier');
         } catch (erreur) { informer(erreur.message); if (document.getElementById('page-panier')) await actualiserPagePanier(); }
         finally { boutons.forEach(b => b.disabled = false); }
     });

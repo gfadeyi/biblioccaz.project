@@ -129,6 +129,6 @@ function mailAnnulationCommande(array $annulation): void
         $texte[] = "- Nouveau solde : {$annulation['solde']} points";
     }
     $texte[] = "";
-    $texte[] = "Vos commandes : " . SITE_URL . "/commandes.php";
+    $texte[] = "Vos commandes : " . SITE_URL . "/commandes";
     notifierParMail($commande['email'], "Annulation de votre commande n° {$commande['id_commande']}", implode("\n", $texte));
 }

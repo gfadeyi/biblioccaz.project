@@ -35,10 +35,10 @@ $exemplaireReference = $etatEmprunt['exemplaires'][0];
                 <i class="bi bi-book" aria-hidden="true"></i> Vous l'empruntez : à rendre le <?= date('d/m/Y', strtotime($monEmprunt['date_retour_prevue'])) ?>.
             <?php endif; ?>
         </p>
-        <a href="mes_emprunts.php#emprunt-<?= (int) $monEmprunt['id_emprunt'] ?>" class="bouton bouton-contour w-100">Voir mes emprunts</a>
+        <a href="mes_emprunts#emprunt-<?= (int) $monEmprunt['id_emprunt'] ?>" class="bouton bouton-contour w-100">Voir mes emprunts</a>
     <?php elseif ($positionAttenteLivre > 0): ?>
         <p class="bloc-emprunt__info"><i class="bi bi-people" aria-hidden="true"></i> Vous êtes n° <?= $positionAttenteLivre ?> sur la liste d'attente : il vous sera réservé dès son retour.</p>
-        <form action="emprunt_action.php" method="POST">
+        <form action="emprunt_action" method="POST">
             <input type="hidden" name="csrf" value="<?= jetonCsrf() ?>">
             <input type="hidden" name="action" value="quitter_attente">
             <input type="hidden" name="id_livre" value="<?= (int) $id ?>">
@@ -48,10 +48,10 @@ $exemplaireReference = $etatEmprunt['exemplaires'][0];
     <?php elseif ($raisonEmprunt !== ''): ?>
         <p class="bloc-emprunt__refus"><i class="bi bi-info-circle" aria-hidden="true"></i> <?= htmlspecialchars($raisonEmprunt) ?></p>
         <?php if (in_array($roleConnecte, ROLES_EMPRUNTEURS, true)): ?>
-            <a href="mes_emprunts.php" class="small text-muted">Voir mes emprunts</a>
+            <a href="mes_emprunts" class="small text-muted">Voir mes emprunts</a>
         <?php endif; ?>
     <?php elseif ($etatEmprunt['libres'] > 0): ?>
-        <form action="emprunt_action.php" method="POST">
+        <form action="emprunt_action" method="POST">
             <input type="hidden" name="csrf" value="<?= jetonCsrf() ?>">
             <input type="hidden" name="action" value="reserver">
             <input type="hidden" name="id_livre" value="<?= (int) $id ?>">
@@ -60,7 +60,7 @@ $exemplaireReference = $etatEmprunt['exemplaires'][0];
         </form>
         <p class="bloc-emprunt__aide">À retirer en magasin sous <?= regleEmprunt($pdo, 'reservation_jours_ouvres') ?> jours ouvrés.</p>
     <?php else: ?>
-        <form action="emprunt_action.php" method="POST">
+        <form action="emprunt_action" method="POST">
             <input type="hidden" name="csrf" value="<?= jetonCsrf() ?>">
             <input type="hidden" name="action" value="attendre">
             <input type="hidden" name="id_livre" value="<?= (int) $id ?>">

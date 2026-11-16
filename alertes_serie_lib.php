@@ -99,7 +99,7 @@ function notifierAlertesSerie(PDO $pdo, int $idLivre): int
         return 0;
     }
     $marquer = $pdo->prepare("INSERT INTO alerte_serie_envoi (id_user, id_livre, date_envoi) VALUES (?, ?, NOW()) ON DUPLICATE KEY UPDATE date_envoi = NOW()");
-    $lien = "detail_livre.php?id=$idLivre";
+    $lien = "livre?id=$idLivre";
     $prevenus = [];
     foreach ($destinataires as $abonne) {
         $idUser = (int) $abonne['id_user'];

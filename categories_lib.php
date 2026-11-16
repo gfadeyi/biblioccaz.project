@@ -30,7 +30,7 @@ function arbreCategories(PDO $pdo): array
 
 function lienCategorie(string $slug): string
 {
-    return PAGES_CATEGORIES[$slug] ?? 'catalogue.php?categorie=' . urlencode($slug);
+    return urlPropre(PAGES_CATEGORIES[$slug] ?? 'catalogue.php?categorie=' . urlencode($slug));
 }
 
 function categorieParSlug(PDO $pdo, string $slug): ?array
@@ -113,7 +113,7 @@ function redirigerAnciennesAdresses(): void
         $aChange = true;
     }
     if ($aChange) {
-        header('Location: ' . basename($_SERVER['PHP_SELF']) . '?' . http_build_query($parametres), true, 301);
+        header('Location: ' . urlPropre(basename($_SERVER['PHP_SELF'])) . '?' . http_build_query($parametres), true, 301);
         exit;
     }
 }

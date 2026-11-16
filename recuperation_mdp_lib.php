@@ -60,7 +60,7 @@ function envoyerInvitationCompte(PDO $pdo, array $compte, string $sujet, string 
         $mail->addAddress($compte['email'], trim($compte['prenom'] . ' ' . $compte['nom']));
         habillerMail($mail, $sujet,
             "Bonjour {$compte['prenom']},\n\n$presentation\n\nPour l'activer, choisissez votre mot de passe avec le bouton ci-dessous. Ce lien est valable " . INVITATION_DUREE_HEURES . " heures. Passé ce délai, utilisez « Mot de passe oublié » sur la page de connexion." . $complement,
-            SITE_URL . '/modifier_mdp.php?token=' . $jeton, 'Choisir mon mot de passe');
+            SITE_URL . '/modifier_mdp?token=' . $jeton, 'Choisir mon mot de passe');
         $mail->send();
         return true;
     } catch (Throwable $e) {

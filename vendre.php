@@ -26,8 +26,8 @@ include 'header.php';
                 <h3 class="fw-bold">Donner un livre</h3>
                 <p class="text-muted">Publiez votre don en 2 minutes. Un lecteur le réserve et vient le récupérer : il scanne le QR code de votre don, et le don est validé. Vous gagnez <strong><?= pointsRegle($pdo, 'don') ?> points</strong> par livre récupéré.</p>
                 <div class="d-grid gap-2 mt-auto">
-                    <a href="don_creer.php" class="btn btn-success rounded-pill fw-bold py-2">Proposer un don</a>
-                    <a href="dons.php" class="btn btn-outline-success rounded-pill">Voir les <?= $nbDonsDisponibles ?> livre<?= $nbDonsDisponibles > 1 ? 's' : '' ?> à donner</a>
+                    <a href="don_creer" class="btn btn-success rounded-pill fw-bold py-2">Proposer un don</a>
+                    <a href="dons" class="btn btn-outline-success rounded-pill">Voir les <?= $nbDonsDisponibles ?> livre<?= $nbDonsDisponibles > 1 ? 's' : '' ?> à donner</a>
                 </div>
             </div>
         </div>
@@ -37,8 +37,8 @@ include 'header.php';
                 <h3 class="fw-bold">Revendre un livre</h3>
                 <p class="text-muted">Fixez votre prix et publiez votre annonce : l'équipe la vérifie, puis les lecteurs vous envoient leurs demandes d'achat. Le paiement se fait entre vous, au moment de l'échange.</p>
                 <div class="d-grid gap-2 mt-auto">
-                    <a href="annonce_creer.php" class="btn btn-success rounded-pill fw-bold py-2">Vendre un livre</a>
-                    <a href="catalogue.php?offre=particulier" class="btn btn-outline-success rounded-pill">Voir les annonces entre particuliers</a>
+                    <a href="annonce_creer" class="btn btn-success rounded-pill fw-bold py-2">Vendre un livre</a>
+                    <a href="catalogue?offre=particulier" class="btn btn-outline-success rounded-pill">Voir les annonces entre particuliers</a>
                 </div>
             </div>
         </div>

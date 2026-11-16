@@ -90,7 +90,7 @@ include __DIR__ . '/_haut.php';
                             <?php endif; ?>
                             <div class="lignes-commande__infos">
                                 <?php if ($ligne['id_livre']): ?>
-                                    <a href="../detail_livre.php?id=<?= (int) $ligne['id_livre'] ?>" target="_blank" rel="noopener" class="fw-bold"><?= e($ligne['titre']) ?></a>
+                                    <a href="../livre?id=<?= (int) $ligne['id_livre'] ?>" target="_blank" rel="noopener" class="fw-bold"><?= e($ligne['titre']) ?></a>
                                 <?php else: ?>
                                     <strong><?= e($ligne['titre']) ?></strong> <span class="etiquette etiquette-neutre">retiré du catalogue</span>
                                 <?php endif; ?>

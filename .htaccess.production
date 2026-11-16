@@ -11,14 +11,45 @@ RewriteRule ^robots\.txt$ robots.php [END]
 RewriteRule ^\.well-known/acme-challenge/[A-Za-z0-9_-]+$ - [END]
 RewriteRule (^|/)(\.[^/]+|secure_data|sauvegardes|sql|docs|vendor|nbproject|cron|outils)(/|$) - [F,END,NC]
 RewriteCond %{REQUEST_METHOD} ^(GET|HEAD)$
-RewriteCond %{THE_REQUEST} \s(/(?:[^?\s]*/)?)index\.php[?\s]
-RewriteRule ^index\.php$ %1 [R=301,L]
+RewriteCond %{THE_REQUEST} \s(/(?:[^?\s]*/)?)index(?:\.php)?[?\s]
+RewriteRule ^index(?:\.php)?$ %1 [R=301,L]
 RewriteCond %{REQUEST_METHOD} ^(GET|HEAD)$
-RewriteCond %{THE_REQUEST} \s(/(?:[^?\s]*/)?)qui_sommes_nous\.php[?\s]
-RewriteRule ^qui_sommes_nous\.php$ %1qui-sommes-nous [R=301,L]
-RewriteCond %{THE_REQUEST} \s(/(?:[^?\s]*/)?)qui-sommes-nous/[?\s]
-RewriteRule ^qui-sommes-nous/$ %1qui-sommes-nous [R=301,L]
+RewriteCond %{THE_REQUEST} \s(/(?:[^?\s]*/)?)login(?:\.php)?[?\s]
+RewriteRule ^login(?:\.php)?$ %1connexion [R=301,L]
+RewriteCond %{REQUEST_METHOD} ^(GET|HEAD)$
+RewriteCond %{THE_REQUEST} \s(/(?:[^?\s]*/)?)profil(?:\.php)?[?\s]
+RewriteRule ^profil(?:\.php)?$ %1mon-compte [R=301,L]
+RewriteCond %{REQUEST_METHOD} ^(GET|HEAD)$
+RewriteCond %{THE_REQUEST} \s(/(?:[^?\s]*/)?)detail_livre(?:\.php)?[?\s]
+RewriteRule ^detail_livre(?:\.php)?$ %1livre [R=301,L]
+RewriteCond %{REQUEST_METHOD} ^(GET|HEAD)$
+RewriteCond %{THE_REQUEST} \s(/(?:[^?\s]*/)?)qui_sommes_nous(?:\.php)?[?\s]
+RewriteRule ^qui_sommes_nous(?:\.php)?$ %1qui-sommes-nous [R=301,L]
+RewriteCond %{REQUEST_METHOD} ^(GET|HEAD)$
+RewriteCond %{THE_REQUEST} \s(/(?:[^?\s]*/)?)nouveaut(?:%C3%A9|é)\.php[?\s] [NC]
+RewriteRule ^nouveauté\.php$ %1nouveautes [R=301,L]
+RewriteCond %{REQUEST_METHOD} ^(GET|HEAD)$
+RewriteCond %{THE_REQUEST} \s(/(?:[^?\s]*/)?)derni(?:%C3%A8|è)re_chance\.php[?\s] [NC]
+RewriteRule ^dernière_chance\.php$ %1derniere-chance [R=301,L]
+RewriteCond %{REQUEST_METHOD} ^(GET|HEAD)$
+RewriteCond %{HTTP:X-Requested-With} !=XMLHttpRequest
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteCond $1 !(^secrets|^config$|^mailer$|_lib$|^partie_|^(header|footer|panier_calcul|connexion_google|liaison_google)$)
+RewriteCond %{THE_REQUEST} \s(/(?:[^?\s]*/)?)([A-Za-z0-9_]+)\.php[?\s]
+RewriteRule ^([A-Za-z0-9_]+)\.php$ %1%2 [R=301,L]
+RewriteCond %{THE_REQUEST} \s(/(?:[^?\s]*/)?)([A-Za-z0-9-]+)/[?\s]
+RewriteRule ^(connexion|mon-compte|livre|qui-sommes-nous|nouveautes|derniere-chance)/$ %1%2 [R=301,L]
+RewriteRule ^connexion$ login.php [END]
+RewriteRule ^mon-compte$ profil.php [END]
+RewriteRule ^livre$ detail_livre.php [END]
 RewriteRule ^qui-sommes-nous$ qui_sommes_nous.php [END]
+RewriteRule ^nouveautes$ nouveauté.php [END]
+RewriteRule ^derniere-chance$ dernière_chance.php [END]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond $1 !(^secrets|^config$|^mailer$|_lib$|^partie_|^(header|footer|panier_calcul|index|login|profil|detail_livre|qui_sommes_nous)$)
+RewriteCond %{REQUEST_FILENAME}.php -f
+RewriteRule ^([A-Za-z0-9_]+)$ $1.php [END]
 
 <FilesMatch "(?i)(\.(md|sql|log|ini|env|bak|old|orig|save|swp|dist|ya?ml|toml|lock|zip|7z|tar|gz)$|~$|^composer\.(json|lock)$|^secrets.*\.php$|^config\.php$|^mailer\.php$|_lib\.php$|^partie_.*\.php$|^(header|footer|panier_calcul)\.php$)">
     Require all denied

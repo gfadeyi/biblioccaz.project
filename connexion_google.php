@@ -22,11 +22,11 @@ if (!isset($_GET['state'])) {
 $demande = $_SESSION['google_oauth'] ?? [];
 unset($_SESSION['google_oauth']);
 if (!is_string($_GET['state']) || !demandeGoogleValide($demande, $_GET['state'])) {
-    header('Location: login.php?error=google_expire');
+    header('Location: connexion?error=google_expire');
     exit();
 }
 if (!is_string($_GET['code'] ?? null) || $_GET['code'] === '') {
-    header('Location: login.php?error=google_annule');
+    header('Location: connexion?error=google_annule');
     exit();
 }
 
@@ -44,11 +44,11 @@ try {
         if ($existant) {
             $refus = refusConnexionGoogle(array_merge($existant, ['email_verifie' => 1]));
             if ($refus !== '') {
-                header("Location: login.php?error=$refus");
+                header("Location: connexion?error=$refus");
                 exit();
             }
             if ($existant['google_sub'] !== null) {
-                header('Location: login.php?error=google_autre_compte');
+                header('Location: connexion?error=google_autre_compte');
                 exit();
             }
             $_SESSION['liaison_google'] = ['id_user' => (int) $existant['id'], 'sub' => $identite['sub'], 'email' => $identite['email'], 'essais' => 0, 'cree_le' => time()];
@@ -60,16 +60,16 @@ try {
 
     $refus = refusConnexionGoogle($user);
     if ($refus !== '') {
-        header("Location: login.php?error=$refus");
+        header("Location: connexion?error=$refus");
         exit();
     }
     header('Location: ' . ouvrirSessionMembre($pdo, $user, 'Connexion réussie avec Google'));
     exit();
 } catch (DomainException $e) {
-    header('Location: login.php?error=google_email');
+    header('Location: connexion?error=google_email');
     exit();
 } catch (Throwable $e) {
     insertLog('ERREUR', 'Connexion Google impossible : ' . $e->getMessage());
-    header('Location: login.php?error=technique');
+    header('Location: connexion?error=technique');
     exit();
 }

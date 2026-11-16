@@ -23,7 +23,7 @@ if (!$visible) {
             <div class="carte-formulaire__icone"><?= iconeDessin('etiquette') ?></div>
             <h1>Annonce indisponible</h1>
             <p class="carte-formulaire__intro">Cette annonce a été vendue, retirée par son vendeur ou n'existe pas.</p>
-            <a href="catalogue.php?offre=particulier" class="bouton bouton-principal">Voir les annonces entre particuliers</a>
+            <a href="catalogue?offre=particulier" class="bouton bouton-principal">Voir les annonces entre particuliers</a>
         </div>
     </div>
     <?php
@@ -59,10 +59,10 @@ include 'header.php';
 
 <div class="container mt-4 mb-5 page-annonce">
     <nav aria-label="Fil d'Ariane" class="fil-ariane">
-        <a href="catalogue.php?offre=particulier">Entre particuliers</a>
+        <a href="catalogue?offre=particulier">Entre particuliers</a>
         <?php if ((int) $annonce['livre_valide']): ?>
             <span aria-hidden="true">›</span>
-            <a href="detail_livre.php?id=<?= (int) $annonce['id_livre'] ?>"><?= htmlspecialchars($annonce['titre']) ?></a>
+            <a href="livre?id=<?= (int) $annonce['id_livre'] ?>"><?= htmlspecialchars($annonce['titre']) ?></a>
         <?php endif; ?>
         <span aria-hidden="true">›</span>
         <span aria-current="page">Annonce de @<?= htmlspecialchars($annonce['vendeur_pseudo']) ?></span>
@@ -80,7 +80,7 @@ include 'header.php';
     <?php elseif ($estVendeur && $annonce['statut_annonce'] === 'reservee'): ?>
         <div class="bandeau-statut-annonce" role="status">
             <?= pastilleStatutAnnonce('reservee') ?>
-            <span>Vous avez accepté une demande : l'annonce est réservée jusqu'à la fin de l'échange. <a href="mes_transactions.php">Voir mes ventes</a></span>
+            <span>Vous avez accepté une demande : l'annonce est réservée jusqu'à la fin de l'échange. <a href="mes_transactions">Voir mes ventes</a></span>
         </div>
     <?php elseif ($estVendeur && $annonce['statut_annonce'] !== 'publiee'): ?>
         <div class="bandeau-statut-annonce" role="status">
@@ -128,7 +128,7 @@ include 'header.php';
                 <p class="annonce-infos__description text-muted">Le vendeur n'a pas ajouté de description.</p>
             <?php endif; ?>
             <?php if ((int) $annonce['livre_valide']): ?>
-                <a href="detail_livre.php?id=<?= (int) $annonce['id_livre'] ?>#offres" class="lien-voir-tout mt-2">
+                <a href="livre?id=<?= (int) $annonce['id_livre'] ?>#offres" class="lien-voir-tout mt-2">
                     <i class="bi bi-book" aria-hidden="true"></i> Fiche du livre<?= $nbAutresOffres ? ' · ' . $nbAutresOffres . ' autre' . ($nbAutresOffres > 1 ? 's offres' : ' offre') : '' ?>
                 </a>
             <?php endif; ?>
@@ -140,15 +140,15 @@ include 'header.php';
                 <p class="annonce-achat__note">Paiement directement au vendeur, lors de l'échange.</p>
                 <?php if ($estVendeur): ?>
                     <?php if (in_array($annonce['statut_annonce'], ANNONCE_STATUTS_MODIFIABLES, true)): ?>
-                        <a href="annonce_creer.php?id=<?= $idAnnonce ?>" class="bouton bouton-contour w-100"><i class="bi bi-pencil" aria-hidden="true"></i> Modifier mon annonce</a>
+                        <a href="annonce_creer?id=<?= $idAnnonce ?>" class="bouton bouton-contour w-100"><i class="bi bi-pencil" aria-hidden="true"></i> Modifier mon annonce</a>
                     <?php endif; ?>
                     <?php if ($nbDemandes): ?>
-                        <a href="mes_transactions.php" class="bouton bouton-principal w-100 mt-2"><i class="bi bi-inbox" aria-hidden="true"></i> <?= $nbDemandes ?> demande<?= $nbDemandes > 1 ? 's' : '' ?> en cours</a>
+                        <a href="mes_transactions" class="bouton bouton-principal w-100 mt-2"><i class="bi bi-inbox" aria-hidden="true"></i> <?= $nbDemandes ?> demande<?= $nbDemandes > 1 ? 's' : '' ?> en cours</a>
                     <?php endif; ?>
-                    <a href="mes_annonces.php" class="annonce-achat__lien">Toutes mes annonces</a>
+                    <a href="mes_annonces" class="annonce-achat__lien">Toutes mes annonces</a>
                 <?php elseif ($maDemande): ?>
                     <div class="annonce-achat__demande"><?= pastilleStatutDemande($maDemande) ?></div>
-                    <a href="transaction.php?id=<?= (int) $maDemande['id_demande'] ?>" class="bouton bouton-principal w-100"><i class="bi bi-chat-dots" aria-hidden="true"></i> Suivre ma demande</a>
+                    <a href="transaction?id=<?= (int) $maDemande['id_demande'] ?>" class="bouton bouton-principal w-100"><i class="bi bi-chat-dots" aria-hidden="true"></i> Suivre ma demande</a>
                 <?php elseif (!$idUser): ?>
                     <a href="<?= htmlspecialchars(lienConnexion()) ?>" class="bouton bouton-principal w-100">Se connecter pour acheter</a>
                     <p class="annonce-achat__lien">Une conversation s'ouvre avec le vendeur ; votre email reste privé.</p>
@@ -156,7 +156,7 @@ include 'header.php';
                     <button type="button" class="bouton bouton-principal w-100" disabled aria-describedby="annonce-raison">Demander à acheter</button>
                     <p class="annonce-achat__lien" id="annonce-raison"><?= htmlspecialchars($raisonAchat) ?></p>
                 <?php else: ?>
-                    <form method="POST" action="vente_action.php" class="formulaire-demande">
+                    <form method="POST" action="vente_action" class="formulaire-demande">
                         <input type="hidden" name="csrf" value="<?= htmlspecialchars($csrf) ?>">
                         <input type="hidden" name="action" value="demander">
                         <input type="hidden" name="id_annonce" value="<?= $idAnnonce ?>">

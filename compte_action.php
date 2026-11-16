@@ -14,7 +14,7 @@ if (($_POST['action'] ?? '') === 'favori_basculer') {
             memoriserFavoriApresConnexion((int) ($_POST['id_livre'] ?? 0), $retourPage);
         }
         http_response_code(401);
-        echo json_encode(['erreur' => 'connexion', 'connexion' => lienConnexion($retourPage ?? 'index.php')]);
+        echo json_encode(['erreur' => 'connexion', 'connexion' => lienConnexion($retourPage ?? './')]);
         exit();
     }
     if (!verifierCsrf()) {
@@ -44,7 +44,7 @@ if (($_POST['action'] ?? '') === 'favori_basculer') {
 }
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !isset($_SESSION['user_id'])) {
-    header("Location: login.php");
+    header("Location: connexion");
     exit();
 }
 
@@ -52,9 +52,9 @@ $idUser = (int) $_SESSION['user_id'];
 $idLivre = (int) ($_POST['id_livre'] ?? 0);
 $action = $_POST['action'] ?? '';
 $retour = match ($_POST['retour'] ?? '') {
-    'wishlist' => 'wishlist.php',
-    'alertes'  => 'alertes.php',
-    default    => "detail_livre.php?id=$idLivre",
+    'wishlist' => 'wishlist',
+    'alertes'  => 'alertes',
+    default    => "livre?id=$idLivre",
 };
 
 function finir(string $retour, string $type, string $message): void

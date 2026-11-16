@@ -5,7 +5,7 @@ require_once 'retours_lib.php';
 if (session_status() === PHP_SESSION_NONE) { session_start(); }
 
 if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php");
+    header("Location: connexion");
     exit();
 }
 $idUser = (int) $_SESSION['user_id'];
@@ -15,7 +15,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $_SESSION['flash_message'] = !verifierCsrf()
         ? ['danger', 'Session expirée, merci de réessayer.']
         : (($_POST['action'] ?? '') === 'annuler' ? annulerDemandeRetour($pdo, $idRetour, $idUser) : ['warning', 'Action inconnue.']);
-    header('Location: retours.php?id=' . $idRetour);
+    header('Location: retours?id=' . $idRetour);
     exit();
 }
 
@@ -34,10 +34,10 @@ include 'header.php';
 
 <div class="container my-4 page-retours" style="max-width: 900px;">
     <nav aria-label="Fil d'Ariane" class="fil-ariane">
-        <a href="profil.php">Mon compte</a>
+        <a href="mon-compte">Mon compte</a>
         <span aria-hidden="true">›</span>
         <?php if ($retour): ?>
-            <a href="retours.php">Mes retours</a>
+            <a href="retours">Mes retours</a>
             <span aria-hidden="true">›</span>
             <span aria-current="page"><?= htmlspecialchars($retour['reference']) ?></span>
         <?php else: ?>
@@ -124,13 +124,13 @@ include 'header.php';
             <div class="carte-compte text-center text-muted py-5">
                 <?= iconeDessin('colis') ?>
                 <p class="mt-2 mb-3">Aucune demande de retour pour le moment.</p>
-                <a href="commandes.php" class="btn btn-outline-bibli rounded-pill">Voir mes commandes</a>
+                <a href="commandes" class="btn btn-outline-bibli rounded-pill">Voir mes commandes</a>
             </div>
         <?php else: ?>
             <ul class="liste-retours">
                 <?php foreach ($retours as $ligne): ?>
                     <li>
-                        <a href="retours.php?id=<?= (int) $ligne['id_retour'] ?>" class="liste-retours__lien">
+                        <a href="retours?id=<?= (int) $ligne['id_retour'] ?>" class="liste-retours__lien">
                             <span><strong><?= htmlspecialchars((string) $ligne['reference']) ?></strong> · <?= $ligne['type'] === 'retour' ? 'Retour' : 'Remboursement' ?> · commande n°<?= (int) $ligne['id_commande'] ?><small class="d-block text-muted"><?= date('d/m/Y', strtotime($ligne['date_demande'])) ?> · <?= formaterPrix((float) $ligne['montant']) ?></small></span>
                             <span class="statut-retour statut-retour--<?= RETOUR_STATUTS[$ligne['statut']][1] ?? 'attente' ?>"><?= libelleStatutRetour($ligne['statut']) ?></span>
                         </a>

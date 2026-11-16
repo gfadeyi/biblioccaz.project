@@ -6,7 +6,7 @@ require_once 'avis_lib.php';
 if (session_status() === PHP_SESSION_NONE) { session_start(); }
 
 if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php");
+    header("Location: connexion");
     exit();
 }
 $idUser = (int) $_SESSION['user_id'];
@@ -31,7 +31,7 @@ if (!$estVendeur && !$estAcheteur) {
             <div class="carte-formulaire__icone"><?= iconeDessin('etiquette') ?></div>
             <h1>Transaction introuvable</h1>
             <p class="carte-formulaire__intro">Cette transaction n'existe pas ou ne vous concerne pas.</p>
-            <a href="mes_transactions.php" class="bouton bouton-principal">Mes ventes et achats</a>
+            <a href="mes_transactions" class="bouton bouton-principal">Mes ventes et achats</a>
         </div>
     </div>
     <?php
@@ -75,7 +75,7 @@ $scriptsPage = ['messagerie.js'];
 function formulaireVente(string $action, int $idDemande, string $csrf, string $contenu, string $confirmation = '', string $classe = ''): string
 {
     $attributConfirmation = $confirmation ? ' data-confirmer="' . htmlspecialchars($confirmation) . '"' : '';
-    return '<form action="vente_action.php" method="POST" class="' . $classe . '"' . $attributConfirmation . '>'
+    return '<form action="vente_action" method="POST" class="' . $classe . '"' . $attributConfirmation . '>'
         . '<input type="hidden" name="csrf" value="' . htmlspecialchars($csrf) . '">'
         . '<input type="hidden" name="action" value="' . $action . '">'
         . '<input type="hidden" name="id_demande" value="' . $idDemande . '">' . $contenu . '</form>';
@@ -96,7 +96,7 @@ include 'header.php';
 
 <div class="container mt-4 mb-5 page-transaction">
     <nav aria-label="Fil d'Ariane" class="fil-ariane">
-        <a href="profil.php">Mon compte</a>
+        <a href="mon-compte">Mon compte</a>
         <span aria-hidden="true">›</span>
         <a href="mes_transactions.php<?= $estVendeur ? '?onglet=ventes' : '' ?>">Mes ventes et achats</a>
         <span aria-hidden="true">›</span>
@@ -109,7 +109,7 @@ include 'header.php';
 
     <div class="transaction-grille">
         <section class="carte-compte transaction-resume">
-            <a href="annonce.php?id=<?= (int) $demande['id_annonce'] ?>" class="transaction-resume__visuel" tabindex="-1" aria-hidden="true">
+            <a href="annonce?id=<?= (int) $demande['id_annonce'] ?>" class="transaction-resume__visuel" tabindex="-1" aria-hidden="true">
                 <img src="<?= htmlspecialchars($visuel) ?>" alt="">
             </a>
             <div class="transaction-resume__contenu">
@@ -129,7 +129,7 @@ include 'header.php';
                         <dd class="transaction-resume__membre"><?= avatarMembre($autrePseudo, $autrePhoto, 'transaction-resume__avatar') ?> @<?= htmlspecialchars($autrePseudo) ?></dd>
                     </div>
                 </dl>
-                <a href="annonce.php?id=<?= (int) $demande['id_annonce'] ?>" class="lien-voir-tout">Voir l'annonce</a>
+                <a href="annonce?id=<?= (int) $demande['id_annonce'] ?>" class="lien-voir-tout">Voir l'annonce</a>
             </div>
         </section>
 
@@ -147,7 +147,7 @@ include 'header.php';
                     <p class="transaction-actions__motif-texte"><strong>Motif :</strong> <?= htmlspecialchars($demande['motif']) ?></p>
                 <?php endif; ?>
                 <?php if ($estAcheteur): ?>
-                    <a href="detail_livre.php?id=<?= (int) $demande['id_livre'] ?>#offres" class="bouton bouton-contour bouton-petit">Voir les autres offres</a>
+                    <a href="livre?id=<?= (int) $demande['id_livre'] ?>#offres" class="bouton bouton-contour bouton-petit">Voir les autres offres</a>
                 <?php endif; ?>
 
             <?php elseif ($estVendeur && $statut === 'en_attente'): ?>
@@ -201,7 +201,7 @@ include 'header.php';
                     <?= formulaireVente('confirmer', $idDemande, $csrf, '<button class="bouton bouton-principal w-100"><i class="bi bi-box-seam" aria-hidden="true"></i> J\'ai bien reçu le livre</button>',
                         'Confirmer que vous avez bien reçu « ' . $demande['titre'] . ' » ?') ?>
                 <?php endif; ?>
-                <a href="recu_vente.php?id=<?= $idDemande ?>" class="bouton bouton-contour w-100"><i class="bi bi-file-earmark-pdf" aria-hidden="true"></i> Télécharger le reçu</a>
+                <a href="recu_vente?id=<?= $idDemande ?>" class="bouton bouton-contour w-100"><i class="bi bi-file-earmark-pdf" aria-hidden="true"></i> Télécharger le reçu</a>
 
             <?php elseif ($statut === 'validee' && $aConfirmer): ?>
                 <div class="transaction-actions__succes"><i class="bi bi-bag-check" aria-hidden="true"></i></div>
@@ -210,7 +210,7 @@ include 'header.php';
                     En attente de la confirmation de @<?= htmlspecialchars($demande['acheteur_pseudo']) ?>.
                     <?= (int) $demande['en_litige'] ? '' : 'Vos ' . pointsMouvement($pdo, (int) $demande['id_vendeur'], 'vente', 'vente:' . $idDemande) . ' points seront crédités à sa confirmation, ou automatiquement le ' . dateLimiteConfirmation($demande) . ' sans signalement.' ?>
                 </p>
-                <a href="recu_vente.php?id=<?= $idDemande ?>" class="bouton bouton-principal w-100"><i class="bi bi-file-earmark-pdf" aria-hidden="true"></i> Télécharger le reçu</a>
+                <a href="recu_vente?id=<?= $idDemande ?>" class="bouton bouton-principal w-100"><i class="bi bi-file-earmark-pdf" aria-hidden="true"></i> Télécharger le reçu</a>
                 <p class="transaction-actions__note">Reçu n° <?= htmlspecialchars((string) $demande['numero_recu']) ?></p>
 
             <?php elseif ($statut === 'validee'): ?>
@@ -220,7 +220,7 @@ include 'header.php';
                     Le <?= date('d/m/Y', strtotime($demande['date_validation'])) ?>, réception confirmée le <?= date('d/m/Y', strtotime($demande['date_confirmation'])) ?>.
                     <?= $estVendeur ? 'Merci d\'avoir donné une seconde vie à ce livre !' : 'Bonne lecture !' ?>
                 </p>
-                <a href="recu_vente.php?id=<?= $idDemande ?>" class="bouton bouton-principal w-100"><i class="bi bi-file-earmark-pdf" aria-hidden="true"></i> Télécharger le reçu</a>
+                <a href="recu_vente?id=<?= $idDemande ?>" class="bouton bouton-principal w-100"><i class="bi bi-file-earmark-pdf" aria-hidden="true"></i> Télécharger le reçu</a>
                 <p class="transaction-actions__note">Reçu n° <?= htmlspecialchars((string) $demande['numero_recu']) ?></p>
             <?php endif; ?>
 

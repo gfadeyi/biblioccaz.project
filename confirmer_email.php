@@ -25,13 +25,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$reussite) {
         try {
             $membre = confirmerChangementEmail($pdo,$jeton,isset($_SESSION['user_id']) ? (int) $_SESSION['user_id'] : null);
             notifierParMail($membre['ancienne_email'],'Votre adresse email a été modifiée',"Bonjour {$membre['pseudo']},\n\nL’adresse email de votre compte BibliOccaz vient d’être changée après confirmation de la nouvelle adresse. Si vous n’êtes pas à l’origine de ce changement, contactez l’équipe du site.");
-            notifierParMail($membre['nouvelle_email'],'Votre nouvelle adresse email est confirmée',"Bonjour {$membre['pseudo']},\n\nVotre nouvelle adresse email est confirmée. Vous pouvez vous reconnecter avec cette adresse ou votre pseudo.",SITE_URL . '/login.php','Me connecter');
+            notifierParMail($membre['nouvelle_email'],'Votre nouvelle adresse email est confirmée',"Bonjour {$membre['pseudo']},\n\nVotre nouvelle adresse email est confirmée. Vous pouvez vous reconnecter avec cette adresse ou votre pseudo.",SITE_URL . '/connexion','Me connecter');
             insertLog('COMPTE','Changement d’adresse email confirmé pour le membre #' . $membre['id_user']);
             detruireSessionCourante();
             demarrerSession();
             session_regenerate_id(true);
             $_SESSION['confirmation_email_reussie'] = true;
-            header('Location: confirmer_email.php');
+            header('Location: confirmer_email');
             exit();
         } catch (DomainException $exception) {
             $erreur = $exception->getMessage();
@@ -49,20 +49,20 @@ include 'header.php';
         <h1><?= $reussite ? 'Adresse email confirmée' : 'Confirmer mon adresse email' ?></h1>
         <?php if ($reussite): ?>
             <p class="carte-formulaire__intro">Votre nouvelle adresse est maintenant utilisée. Reconnectez-vous avec cette adresse ou votre pseudo.</p>
-            <a href="login.php" class="bouton bouton-principal w-100">Me connecter</a>
+            <a href="connexion" class="bouton bouton-principal w-100">Me connecter</a>
         <?php elseif ($demande): ?>
             <p class="carte-formulaire__intro">Confirmez l’utilisation de cette adresse pour votre compte BibliOccaz.</p>
             <p class="text-break fw-bold"><?= htmlspecialchars($demande['nouvelle_email']) ?></p>
             <?php if ($erreur): ?><div class="alert alert-danger small" role="alert"><?= htmlspecialchars($erreur) ?></div><?php endif; ?>
             <p class="small text-muted">Vos sessions seront fermées après confirmation. Vous pourrez ensuite vous reconnecter.</p>
-            <form method="POST" action="confirmer_email.php">
+            <form method="POST" action="confirmer_email">
                 <input type="hidden" name="csrf" value="<?= htmlspecialchars(jetonCsrf()) ?>">
                 <input type="hidden" name="token" value="<?= htmlspecialchars($jeton) ?>">
                 <button class="bouton bouton-principal w-100">Confirmer cette adresse</button>
             </form>
         <?php else: ?>
             <div class="alert alert-warning small" role="status"><?= htmlspecialchars($erreur ?: 'Ce lien est invalide ou expiré. Demandez un nouveau lien depuis votre compte.') ?></div>
-            <a href="modifier_email.php" class="bouton bouton-principal w-100">Demander un nouveau lien</a>
+            <a href="modifier_email" class="bouton bouton-principal w-100">Demander un nouveau lien</a>
         <?php endif; ?>
     </div>
 </div>

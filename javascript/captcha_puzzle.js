@@ -1,5 +1,5 @@
 function initCaptchaPuzzle(racine, fichiers) {
-    const urls = Object.assign({ image: 'get_captcha_image.php', piece: 'captcha_piece.php', verifier: 'captcha_verifier.php' }, fichiers || {});
+    const urls = Object.assign({ image: 'get_captcha_image', piece: 'captcha_piece', verifier: 'captcha_verifier' }, fichiers || {});
     const grid = document.getElementById('captchaGrid');
     const triggerBtn = document.getElementById('captchaTriggerBtn');
     const tokenInput = document.getElementById('captchaToken');

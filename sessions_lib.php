@@ -202,7 +202,7 @@ function refuserSession(PDO $pdo, string $motif, string $raison = 'inconnue'): v
         echo json_encode(['nouveaux' => 0, 'authentification_requise' => true]);
         exit;
     }
-    header('Location: login.php');
+    header('Location: connexion');
     exit;
 }
 

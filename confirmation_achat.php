@@ -5,7 +5,7 @@ if (session_status() === PHP_SESSION_NONE) { session_start(); }
 require_once 'panier_calcul.php';
 
 if (!isset($_SESSION['user_id']) || empty($_SESSION['panier']) || $_SERVER['REQUEST_METHOD'] !== 'POST') {
-    header("Location: panier.php");
+    header("Location: panier");
     exit();
 }
 
@@ -19,7 +19,7 @@ require_once 'livres_lib.php';
 require_once 'demonstration_lib.php';
 
 if (!verifierCsrf()) {
-    header("Location: achat.php?erreur=" . urlencode("Session expirée, merci de valider à nouveau votre commande."));
+    header("Location: achat?erreur=" . urlencode("Session expirée, merci de valider à nouveau votre commande."));
     exit();
 }
 
@@ -29,7 +29,7 @@ if ($idAdresse > 0) {
     $stmtA->execute([$idAdresse, $_SESSION['user_id']]);
     $choisie = $stmtA->fetch();
     if (!$choisie) {
-        header("Location: achat.php?erreur=" . urlencode("Adresse introuvable, merci d'en choisir une autre."));
+        header("Location: achat?erreur=" . urlencode("Adresse introuvable, merci d'en choisir une autre."));
         exit();
     }
     $prenom = $choisie['prenom'];
@@ -41,7 +41,7 @@ if ($idAdresse > 0) {
         $nouvelle[$c] = trim($_POST[$c] ?? '');
     }
     if ($nouvelle['prenom'] === '' || $nouvelle['nom'] === '' || $nouvelle['adresse'] === '' || $nouvelle['ville'] === '' || !preg_match('/^\d{5}$/', $nouvelle['code_postal'])) {
-        header("Location: achat.php?erreur=" . urlencode("Adresse incomplète : vérifiez la rue, le code postal (5 chiffres) et la ville."));
+        header("Location: achat?erreur=" . urlencode("Adresse incomplète : vérifiez la rue, le code postal (5 chiffres) et la ville."));
         exit();
     }
     $prenom = $nouvelle['prenom'];
@@ -170,7 +170,7 @@ try {
     }
     insertLog('ERREUR', "Echec de la validation de commande : " . $e->getMessage());
     $message = ($e instanceof DomainException || ($e instanceof RuntimeException && !$e instanceof PDOException)) ? $e->getMessage() : "Une erreur est survenue lors de la validation de la commande.";
-    header("Location: panier.php?error=" . urlencode($message));
+    header("Location: panier?error=" . urlencode($message));
     exit();
 }
 
@@ -208,8 +208,8 @@ if ($changementNiveau) {
     $lignesMail[] = "Bravo, vous devenez « {$niveauApres['nom']} » !";
 }
 $lignesMail[] = "";
-$lignesMail[] = "Suivre votre commande : " . SITE_URL . "/commandes.php";
-$lignesMail[] = "Vos points et badges : " . SITE_URL . "/points_badges.php";
+$lignesMail[] = "Suivre votre commande : " . SITE_URL . "/commandes";
+$lignesMail[] = "Vos points et badges : " . SITE_URL . "/points_badges";
 notifierParMail((string) $stmtEmail->fetchColumn(), "Confirmation de votre commande n° $idCommande", implode("\n", $lignesMail));
 
 unset($_SESSION['panier']);
@@ -261,8 +261,8 @@ include 'header.php';
                 </div>
 
                 <div class="confirmation-actions mt-4">
-                    <a href="points_badges.php" class="btn btn-bibli py-3 rounded-pill fw-bold">Voir mes points et badges</a>
-                    <a href="commandes.php" class="btn btn-outline-bibli py-3 rounded-pill fw-bold">Voir mes commandes</a>
+                    <a href="points_badges" class="btn btn-bibli py-3 rounded-pill fw-bold">Voir mes points et badges</a>
+                    <a href="commandes" class="btn btn-outline-bibli py-3 rounded-pill fw-bold">Voir mes commandes</a>
                 </div>
             </div>
         </div>

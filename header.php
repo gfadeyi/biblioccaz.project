@@ -221,7 +221,7 @@ $nomOnglet = trim((string) ($titreDocument ?? $titrePage ?? $titresOnglets[$page
         <i class="bi bi-eye" aria-hidden="true"></i>
         <span><strong>Mode aperçu back-office</strong><span class="bandeau-apercu__detail"> · @<?= htmlspecialchars($apercuEquipe['pseudo']) ?> · le site tel que le voient les visiteurs et les membres</span></span>
         <a href="admin/">Retour au back-office</a>
-        <a href="apercu_quitter.php">Quitter l’aperçu</a>
+        <a href="apercu_quitter">Quitter l’aperçu</a>
     </div>
 <?php endif; ?>
 <a class="lien-evitement" href="#contenu">Aller au contenu</a>
@@ -242,7 +242,7 @@ $nomOnglet = trim((string) ($titreDocument ?? $titrePage ?? $titresOnglets[$page
             <span class="logo-slogan">Donnez une seconde vie à vos lectures</span>
         </a>
 
-        <form action="catalogue.php" method="GET" class="recherche-entete flex-grow-1 position-relative" role="search">
+        <form action="catalogue" method="GET" class="recherche-entete flex-grow-1 position-relative" role="search">
             <label for="barre-recherche" class="visually-hidden">Rechercher un livre</label>
             <input type="search" id="barre-recherche" name="q" autocomplete="off" class="champ-recherche"
                    maxlength="200" placeholder="Titre, auteur, ISBN…" value="<?= htmlspecialchars(is_string($_GET['q'] ?? null) ? mb_substr($_GET['q'], 0, 200) : '') ?>" role="combobox" aria-autocomplete="list" aria-haspopup="listbox" aria-controls="suggestions-recherche" aria-expanded="false" aria-describedby="aide-recherche">
@@ -254,34 +254,34 @@ $nomOnglet = trim((string) ($titreDocument ?? $titrePage ?? $titresOnglets[$page
         </form>
 
         <?php if ($userRole === 'auteur'): ?>
-            <a href="proposer_ouvrage.php" class="btn btn-outline-bibli rounded-pill fw-bold d-none d-lg-inline-flex align-items-center gap-2">
+            <a href="proposer_ouvrage" class="btn btn-outline-bibli rounded-pill fw-bold d-none d-lg-inline-flex align-items-center gap-2">
                 <i class="bi bi-journal-plus"></i> Proposer une œuvre
             </a>
         <?php elseif ($userRole === 'client' || !$connected): ?>
-            <a href="vendre.php" class="btn btn-outline-bibli rounded-pill fw-bold d-none d-xl-inline-flex align-items-center gap-2">
+            <a href="vendre" class="btn btn-outline-bibli rounded-pill fw-bold d-none d-xl-inline-flex align-items-center gap-2">
                 <i class="bi bi-arrow-repeat"></i> Donner ou revendre
             </a>
         <?php endif; ?>
 
         <nav class="d-flex align-items-start gap-1" aria-label="Mon compte">
             <?php if ($connected && $userRole === 'client'): ?>
-                <a href="points_badges.php" class="icone-entete" title="Mes points et badges" aria-label="Mes points et badges, <?= (int) $solde_points ?> points">
+                <a href="points_badges" class="icone-entete" title="Mes points et badges" aria-label="Mes points et badges, <?= (int) $solde_points ?> points">
                     <?= iconeDessin('medaille') ?><span><?= htmlspecialchars($solde_points) ?> pts</span>
                 </a>
-                <a href="wishlist.php" class="icone-entete d-none d-sm-flex">
+                <a href="wishlist" class="icone-entete d-none d-sm-flex">
                     <?= iconeDessin('marque-page') ?><span>Favoris</span>
                     <?php if ($nb_favoris > 0): ?><span class="pastille" id="compteur-favoris"><?= $nb_favoris ?></span><?php endif; ?>
                 </a>
             <?php endif; ?>
             <?php if ($connected && in_array($userRole, ['client', 'auteur'], true)): ?>
-                <a href="messages.php" class="icone-entete d-none d-sm-flex"<?= $nbMessagesNonLus ? ' aria-label="Messages, ' . $nbMessagesNonLus . ' non lu' . ($nbMessagesNonLus > 1 ? 's' : '') . '"' : '' ?>>
+                <a href="messages" class="icone-entete d-none d-sm-flex"<?= $nbMessagesNonLus ? ' aria-label="Messages, ' . $nbMessagesNonLus . ' non lu' . ($nbMessagesNonLus > 1 ? 's' : '') . '"' : '' ?>>
                     <?= iconeDessin('bulle') ?><span>Messages</span>
                     <?php if ($nbMessagesNonLus > 0): ?><span class="pastille"><?= $nbMessagesNonLus ?></span><?php endif; ?>
                 </a>
             <?php endif; ?>
             <?php if ($avecCloche): ?>
                 <div class="dropdown dropdown-hover position-relative" id="entete-notifications" data-tiroir-notifications>
-                    <a href="notifications.php" class="icone-entete" aria-haspopup="true" aria-expanded="false" aria-controls="menu-notifications" aria-label="Notifications<?= $nbNotificationsNonLues ? ', ' . $nbNotificationsNonLues . ' non lue' . ($nbNotificationsNonLues > 1 ? 's' : '') : '' ?>">
+                    <a href="notifications" class="icone-entete" aria-haspopup="true" aria-expanded="false" aria-controls="menu-notifications" aria-label="Notifications<?= $nbNotificationsNonLues ? ', ' . $nbNotificationsNonLues . ' non lue' . ($nbNotificationsNonLues > 1 ? 's' : '') : '' ?>">
                         <?= iconeDessin('clochette') ?><span>Notifs</span>
                         <?php if ($nbNotificationsNonLues > 0): ?><span class="pastille" data-compteur-notifications><?= $nbNotificationsNonLues > 99 ? '99+' : $nbNotificationsNonLues ?></span><?php endif; ?>
                     </a>
@@ -291,7 +291,7 @@ $nomOnglet = trim((string) ($titreDocument ?? $titrePage ?? $titresOnglets[$page
                         <li class="menu-notifications__titre">
                             <span data-titre-notifications>Notifications<?= $nbNotificationsNonLues ? ' (' . $nbNotificationsNonLues . ' non lue' . ($nbNotificationsNonLues > 1 ? 's' : '') . ')' : '' ?></span>
                             <?php if ($nbNotificationsNonLues > 0): ?>
-                                <form method="POST" action="notification_action.php" class="menu-notifications__tout-lire" data-tout-lire>
+                                <form method="POST" action="notification_action" class="menu-notifications__tout-lire" data-tout-lire>
                                     <input type="hidden" name="csrf" value="<?= htmlspecialchars(jetonCsrf(), ENT_QUOTES, 'UTF-8') ?>">
                                     <input type="hidden" name="action" value="tout_lire">
                                     <button type="submit">Tout marquer comme lu</button>
@@ -303,7 +303,7 @@ $nomOnglet = trim((string) ($titreDocument ?? $titrePage ?? $titresOnglets[$page
                         <?php endif; ?>
                         <?php foreach ($apercuNotifications as $notificationEntete): ?>
                             <li>
-                                <form method="POST" action="notification_action.php">
+                                <form method="POST" action="notification_action">
                                     <input type="hidden" name="csrf" value="<?= htmlspecialchars(jetonCsrf(), ENT_QUOTES, 'UTF-8') ?>">
                                     <input type="hidden" name="action" value="ouvrir">
                                     <input type="hidden" name="id_notification" value="<?= (int) $notificationEntete['id_notification'] ?>">
@@ -314,13 +314,13 @@ $nomOnglet = trim((string) ($titreDocument ?? $titrePage ?? $titresOnglets[$page
                                 </form>
                             </li>
                         <?php endforeach; ?>
-                        <li class="menu-notifications__pied"><a href="notifications.php">Voir toutes mes notifications</a></li>
+                        <li class="menu-notifications__pied"><a href="notifications">Voir toutes mes notifications</a></li>
                     </ul>
                 </div>
             <?php endif; ?>
 
             <div class="dropdown dropdown-hover zone-menu-compte" data-menu-compte>
-                <a href="<?= $connected ? 'profil.php' : htmlspecialchars(lienConnexion()) ?>" class="icone-entete" aria-label="<?= $connected ? 'Mon compte' : 'Connexion' ?>" aria-haspopup="true" aria-expanded="false" aria-controls="menu-compte">
+                <a href="<?= $connected ? 'mon-compte' : htmlspecialchars(lienConnexion()) ?>" class="icone-entete" aria-label="<?= $connected ? 'Mon compte' : 'Connexion' ?>" aria-haspopup="true" aria-expanded="false" aria-controls="menu-compte">
                     <?= $connected && cheminPhotoMembre($photoMembre) ? avatarMembre($_SESSION['pseudo'], $photoMembre, 'entete') : iconeDessin('lecteur') ?>
                     <span class="text-truncate" style="max-width: 90px;"><?= $connected ? htmlspecialchars(pseudoAffiche($_SESSION['pseudo'])) : 'Connexion' ?></span>
                     <?php if ($total_notif_admin > 0): ?>
@@ -340,7 +340,7 @@ $nomOnglet = trim((string) ($titreDocument ?? $titrePage ?? $titresOnglets[$page
                         </li>
                         <?php if ($resumeCompte): ?>
                             <li>
-                                <a href="points_badges.php" class="menu-entete__points">
+                                <a href="points_badges" class="menu-entete__points">
                                     <span class="menu-entete__solde"><?= iconeDessin('medaille') ?><strong><?= (int) $solde_points ?></strong> points à utiliser <span class="menu-entete__voir">Points et badges <i class="bi bi-chevron-right" aria-hidden="true"></i></span></span>
                                     <span class="jauge-niveau" style="--progression: <?= round($resumeCompte['niveau']['progression'], 3) ?>;"><span></span></span>
                                     <small>
@@ -363,7 +363,7 @@ $nomOnglet = trim((string) ($titreDocument ?? $titrePage ?? $titresOnglets[$page
                                         <?php foreach ($liensColonne as $entreeMenu): ?>
                                             <?php [$lienMenu, $iconeMenu, $libelleMenu, $compteurMenu] = $entreeMenu; ?>
                                             <li<?= !empty($entreeMenu[4]) ? ' class="menu-entete__petit-ecran"' : '' ?>>
-                                                <a class="lien-menu-compte" href="<?= $lienMenu ?>">
+                                                <a class="lien-menu-compte" href="<?= urlPropre($lienMenu) ?>">
                                                     <?= iconeDessin($iconeMenu) ?><span><?= $libelleMenu ?></span>
                                                     <?php if ($compteurMenu > 0): ?><span class="compteur-menu<?= $resumeCompte ? '' : ' urgent' ?>"><?= $compteurMenu ?></span><?php endif; ?>
                                                 </a>
@@ -376,23 +376,23 @@ $nomOnglet = trim((string) ($titreDocument ?? $titrePage ?? $titresOnglets[$page
                         <li class="menu-entete__pied">
                             <?php if ($serviceClientMenu): ?>
                                 <?php [$lienMenu, $iconeMenu, $libelleMenu, $compteurMenu] = $serviceClientMenu; ?>
-                                <a class="lien-menu-compte" href="<?= $lienMenu ?>">
+                                <a class="lien-menu-compte" href="<?= urlPropre($lienMenu) ?>">
                                     <?= iconeDessin($iconeMenu) ?><span><?= $libelleMenu ?></span>
                                     <?php if ($compteurMenu > 0): ?><span class="compteur-menu<?= $resumeCompte ? '' : ' urgent' ?>"><?= $compteurMenu ?></span><?php endif; ?>
                                 </a>
                             <?php endif; ?>
-                            <form method="POST" action="logout.php" class="menu-entete__deconnexion"><input type="hidden" name="csrf" value="<?= htmlspecialchars(jetonCsrf(), ENT_QUOTES, 'UTF-8') ?>"><button type="submit" class="lien-menu-compte deconnexion border-0 bg-transparent text-start"><?= iconeDessin('porte') ?><span>Déconnexion</span></button></form>
+                            <form method="POST" action="logout" class="menu-entete__deconnexion"><input type="hidden" name="csrf" value="<?= htmlspecialchars(jetonCsrf(), ENT_QUOTES, 'UTF-8') ?>"><button type="submit" class="lien-menu-compte deconnexion border-0 bg-transparent text-start"><?= iconeDessin('porte') ?><span>Déconnexion</span></button></form>
                         </li>
                     <?php else: ?>
                         <li class="menu-entete__accueil">Bienvenue ! Retrouvez vos favoris, vos points et vos commandes.</li>
                         <li><a class="lien-menu-compte" href="<?= htmlspecialchars(lienConnexion()) ?>"><?= iconeDessin('porte') ?><span>Se connecter</span></a></li>
-                        <li><a class="lien-menu-compte" href="inscription.php"><?= iconeDessin('lecteur') ?><span>Créer un compte</span></a></li>
+                        <li><a class="lien-menu-compte" href="inscription"><?= iconeDessin('lecteur') ?><span>Créer un compte</span></a></li>
                     <?php endif; ?>
                 </ul>
             </div>
 
             <div class="dropdown dropdown-hover position-relative" id="entete-panier">
-                <a href="panier.php" class="icone-entete" aria-label="Mon panier">
+                <a href="panier" class="icone-entete" aria-label="Mon panier">
                     <?= iconeDessin('cabas', $livreAjoute ? 'secousse' : '') ?><span>Panier</span>
                     <?php if ($totalArticles > 0): ?>
                         <span data-panier-compteur class="pastille<?= $livreAjoute ? ' rebond' : '' ?>"><?= $totalArticles ?></span>
@@ -420,7 +420,7 @@ $nomOnglet = trim((string) ($titreDocument ?? $titrePage ?? $titresOnglets[$page
                             <?php endforeach; ?>
                         </li>
                         <li class="pt-2 mt-1">
-                            <a href="panier.php" class="btn btn-bibli btn-sm w-100 rounded-pill py-2">Voir tout le panier</a>
+                            <a href="panier" class="btn btn-bibli btn-sm w-100 rounded-pill py-2">Voir tout le panier</a>
                         </li>
                     <?php endif; ?>
                 </ul>
@@ -433,13 +433,13 @@ $nomOnglet = trim((string) ($titreDocument ?? $titrePage ?? $titresOnglets[$page
             <?= iconeDessin('pile') ?> <span>Toutes les catégories</span>
         </button>
         <nav class="defilement-raccourcis" aria-label="Raccourcis">
-        <a href="nouveauté.php" class="<?= $classeRaccourci(['nouveauté.php']) ?>"><i class="bi bi-stars"></i> Nouveautés</a>
-        <a href="meilleures_ventes.php" class="<?= $classeRaccourci(['meilleures_ventes.php']) ?>"><i class="bi bi-award"></i> Meilleures ventes</a>
-        <a href="petits_prix.php" class="<?= $classeRaccourci(['petits_prix.php']) ?>"><i class="bi bi-tag"></i> Moins de 10 €</a>
-        <a href="dernière_chance.php" class="<?= $classeRaccourci(['dernière_chance.php']) ?>"><i class="bi bi-hourglass-split"></i> Dernière chance</a>
-        <a href="dons.php" class="<?= $classeRaccourci(['dons.php', 'don_detail.php']) ?>"><i class="bi bi-gift"></i> Voir les livres à donner</a>
-        <a href="evenements.php" class="<?= $classeRaccourci(['evenements.php', 'evenement.php', 'mes_evenements.php']) ?>"><i class="bi bi-calendar-event"></i> Événements</a>
-        <a href="catalogue.php" class="<?= $pageActuelle === 'catalogue.php' && !$menuCatActive ? 'puce actif' : 'puce' ?>"><i class="bi bi-grid"></i> Tout le catalogue</a>
+        <a href="nouveautes" class="<?= $classeRaccourci(['nouveauté.php']) ?>"><i class="bi bi-stars"></i> Nouveautés</a>
+        <a href="meilleures_ventes" class="<?= $classeRaccourci(['meilleures_ventes.php']) ?>"><i class="bi bi-award"></i> Meilleures ventes</a>
+        <a href="petits_prix" class="<?= $classeRaccourci(['petits_prix.php']) ?>"><i class="bi bi-tag"></i> Moins de 10 €</a>
+        <a href="derniere-chance" class="<?= $classeRaccourci(['dernière_chance.php']) ?>"><i class="bi bi-hourglass-split"></i> Dernière chance</a>
+        <a href="dons" class="<?= $classeRaccourci(['dons.php', 'don_detail.php']) ?>"><i class="bi bi-gift"></i> Voir les livres à donner</a>
+        <a href="evenements" class="<?= $classeRaccourci(['evenements.php', 'evenement.php', 'mes_evenements.php']) ?>"><i class="bi bi-calendar-event"></i> Événements</a>
+        <a href="catalogue" class="<?= $pageActuelle === 'catalogue.php' && !$menuCatActive ? 'puce actif' : 'puce' ?>"><i class="bi bi-grid"></i> Tout le catalogue</a>
         </nav>
     </div>
 </header>
@@ -448,7 +448,7 @@ $nomOnglet = trim((string) ($titreDocument ?? $titrePage ?? $titresOnglets[$page
     <div class="toast-panier" role="status">
         <i class="bi bi-check-circle-fill"></i>
         <span>« <?= htmlspecialchars(mb_strimwidth($livreAjoute, 0, 40, '…')) ?> » est dans votre panier</span>
-        <a href="panier.php">Voir le panier</a>
+        <a href="panier">Voir le panier</a>
     </div>
 <?php endif; ?>
 
@@ -469,7 +469,7 @@ $nomOnglet = trim((string) ($titreDocument ?? $titrePage ?? $titresOnglets[$page
                     <p class="titre-panneau">Bons plans</p>
                     <ul class="list-unstyled mb-0">
                         <?php foreach ($bonsPlansMenu as [$lienBonPlan, $iconeBonPlan, $libelleBonPlan]): ?>
-                            <li><a href="<?= $lienBonPlan ?>" class="lien-panneau <?= $pageActuelle === $lienBonPlan ? 'actif' : '' ?>"><i class="bi <?= $iconeBonPlan ?>" aria-hidden="true"></i> <?= $libelleBonPlan ?></a></li>
+                            <li><a href="<?= urlPropre($lienBonPlan) ?>" class="lien-panneau <?= $pageActuelle === $lienBonPlan ? 'actif' : '' ?>"><i class="bi <?= $iconeBonPlan ?>" aria-hidden="true"></i> <?= $libelleBonPlan ?></a></li>
                         <?php endforeach; ?>
                     </ul>
                 </div>
@@ -492,25 +492,25 @@ $nomOnglet = trim((string) ($titreDocument ?? $titrePage ?? $titresOnglets[$page
                         </ul>
                         <p class="titre-panneau titre-raccourcis">À découvrir</p>
                         <ul class="list-unstyled mb-0 raccourcis-panneau">
-                            <li><a href="catalogue.php?<?= htmlspecialchars(http_build_query(['categorie' => $universLigne['slug'], 'tri' => 'ventes'])) ?>" class="lien-panneau"><i class="bi bi-award" aria-hidden="true"></i> Meilleures ventes</a></li>
-                            <li><a href="catalogue.php?<?= htmlspecialchars(http_build_query(['categorie' => $universLigne['slug'], 'prix_max' => 10])) ?>" class="lien-panneau"><i class="bi bi-tag" aria-hidden="true"></i> Petits prix</a></li>
+                            <li><a href="catalogue?<?= htmlspecialchars(http_build_query(['categorie' => $universLigne['slug'], 'tri' => 'ventes'])) ?>" class="lien-panneau"><i class="bi bi-award" aria-hidden="true"></i> Meilleures ventes</a></li>
+                            <li><a href="catalogue?<?= htmlspecialchars(http_build_query(['categorie' => $universLigne['slug'], 'prix_max' => 10])) ?>" class="lien-panneau"><i class="bi bi-tag" aria-hidden="true"></i> Petits prix</a></li>
                         </ul>
                     </div>
                 </li>
             <?php endforeach; ?>
-            <li><a href="catalogue.php" class="lien-lateral">Tout le catalogue <i class="bi bi-chevron-right"></i></a></li>
+            <li><a href="catalogue" class="lien-lateral">Tout le catalogue <i class="bi bi-chevron-right"></i></a></li>
         </ul>
         <hr class="my-2 separateur-menu">
         <ul class="list-unstyled mb-0 liens-secondaires">
             <?php if ($userRole === 'auteur'): ?>
-                <li><a href="proposer_ouvrage.php" class="lien-lateral-secondaire"><i class="bi bi-journal-plus"></i> Proposer une œuvre</a></li>
-                <li><a href="proposer_evenement.php" class="lien-lateral-secondaire"><i class="bi bi-calendar-plus"></i> Proposer un événement</a></li>
+                <li><a href="proposer_ouvrage" class="lien-lateral-secondaire"><i class="bi bi-journal-plus"></i> Proposer une œuvre</a></li>
+                <li><a href="proposer_evenement" class="lien-lateral-secondaire"><i class="bi bi-calendar-plus"></i> Proposer un événement</a></li>
             <?php else: ?>
-                <li><a href="vendre.php" class="lien-lateral-secondaire"><i class="bi bi-arrow-repeat"></i> Donner ou revendre mes livres</a></li>
+                <li><a href="vendre" class="lien-lateral-secondaire"><i class="bi bi-arrow-repeat"></i> Donner ou revendre mes livres</a></li>
             <?php endif; ?>
-            <li><a href="evenements.php" class="lien-lateral-secondaire"><i class="bi bi-calendar-event"></i> Événements</a></li>
+            <li><a href="evenements" class="lien-lateral-secondaire"><i class="bi bi-calendar-event"></i> Événements</a></li>
             <?php if ($connected): ?>
-                <li><a href="profil.php" class="lien-lateral-secondaire"><i class="bi bi-person"></i> Mon compte</a></li>
+                <li><a href="mon-compte" class="lien-lateral-secondaire"><i class="bi bi-person"></i> Mon compte</a></li>
             <?php else: ?>
                 <li><a href="<?= htmlspecialchars(lienConnexion()) ?>" class="lien-lateral-secondaire"><i class="bi bi-box-arrow-in-right"></i> Se connecter</a></li>
             <?php endif; ?>
@@ -523,7 +523,7 @@ $nomOnglet = trim((string) ($titreDocument ?? $titrePage ?? $titresOnglets[$page
 <?php $messageConnexion = messageApresConnexion(); if ($messageConnexion !== null): ?>
     <div class="container-xxl pt-3">
         <div class="alert alert-success alert-dismissible fade show mb-0" role="status" data-message-apres-connexion>
-            <i class="bi bi-heart-fill me-1" aria-hidden="true"></i> <?= htmlspecialchars($messageConnexion) ?> <a href="wishlist.php" class="alert-link">Voir mes favoris</a>
+            <i class="bi bi-heart-fill me-1" aria-hidden="true"></i> <?= htmlspecialchars($messageConnexion) ?> <a href="wishlist" class="alert-link">Voir mes favoris</a>
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fermer"></button>
         </div>
     </div>

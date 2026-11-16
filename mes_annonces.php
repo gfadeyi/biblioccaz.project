@@ -5,7 +5,7 @@ require_once 'avis_lib.php';
 if (session_status() === PHP_SESSION_NONE) { session_start(); }
 
 if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php");
+    header("Location: connexion");
     exit();
 }
 $idUser = (int) $_SESSION['user_id'];
@@ -37,7 +37,7 @@ include 'header.php';
 
 <div class="container mt-4 mb-5 page-mes-annonces">
     <nav aria-label="Fil d'Ariane" class="fil-ariane">
-        <a href="profil.php">Mon compte</a>
+        <a href="mon-compte">Mon compte</a>
         <span aria-hidden="true">›</span>
         <span aria-current="page">Mes annonces</span>
     </nav>
@@ -48,7 +48,7 @@ include 'header.php';
             <p class="text-muted mb-0"><?= $nbActives ?> / <?= ANNONCES_ACTIVES_MAX ?> annonces en cours · vos livres vendus entre lecteurs</p>
         </div>
         <?php if ($raisonInterdiction === ''): ?>
-            <a href="annonce_creer.php" class="bouton bouton-principal bouton-petit"><i class="bi bi-plus-lg" aria-hidden="true"></i> Vendre un livre</a>
+            <a href="annonce_creer" class="bouton bouton-principal bouton-petit"><i class="bi bi-plus-lg" aria-hidden="true"></i> Vendre un livre</a>
         <?php endif; ?>
     </div>
 
@@ -65,7 +65,7 @@ include 'header.php';
             <h2 class="h5">Vous n'avez encore rien mis en vente</h2>
             <p>Des livres qui dorment sur vos étagères ? Fixez votre prix, l'équipe vérifie l'annonce, et les lecteurs vous font leurs demandes.</p>
             <?php if ($raisonInterdiction === ''): ?>
-                <a href="annonce_creer.php" class="bouton bouton-principal bouton-petit">Vendre mon premier livre</a>
+                <a href="annonce_creer" class="bouton bouton-principal bouton-petit">Vendre mon premier livre</a>
             <?php endif; ?>
         </div>
     <?php endif; ?>
@@ -78,13 +78,13 @@ include 'header.php';
             $retireeParEquipe = $statut === 'retiree' && $a['motif_moderation'];
             ?>
             <article class="carte-compte mon-annonce mon-annonce--<?= htmlspecialchars($statut) ?>">
-                <a href="annonce.php?id=<?= $id ?>" class="mon-annonce__visuel" tabindex="-1" aria-hidden="true">
+                <a href="annonce?id=<?= $id ?>" class="mon-annonce__visuel" tabindex="-1" aria-hidden="true">
                     <img src="<?= htmlspecialchars(urlPhotoAnnonce($photos[$id] ?? null, $a['couverture'])) ?>" alt="" loading="lazy">
                 </a>
                 <div class="mon-annonce__contenu">
                     <div class="mon-annonce__entete">
                         <div>
-                            <h2 class="mon-annonce__titre"><a href="annonce.php?id=<?= $id ?>"><?= htmlspecialchars($a['titre']) ?></a></h2>
+                            <h2 class="mon-annonce__titre"><a href="annonce?id=<?= $id ?>"><?= htmlspecialchars($a['titre']) ?></a></h2>
                             <span class="mon-annonce__auteur"><?= htmlspecialchars((string) $a['auteur']) ?></span>
                         </div>
                         <span class="mon-annonce__prix"><?= formaterPrix($a['prix']) ?></span>
@@ -94,7 +94,7 @@ include 'header.php';
                         <span class="pastille-etat neutre"><?= htmlspecialchars(libelleEtat($a['etat'])) ?></span>
                         <span class="pastille-etat neutre"><i class="bi bi-<?= MODES_REMISE[$a['mode_remise']][1] ?? 'question' ?>" aria-hidden="true"></i> <?= htmlspecialchars(libelleModeRemise($a['mode_remise'], $a['ville_remise'])) ?></span>
                         <?php if ($nbDemandes = (int) ($demandesParAnnonce[$id] ?? 0)): ?>
-                            <a href="mes_transactions.php?onglet=ventes" class="pastille-etat"><i class="bi bi-inbox" aria-hidden="true"></i> <?= $nbDemandes ?> demande<?= $nbDemandes > 1 ? 's' : '' ?> en cours</a>
+                            <a href="mes_transactions?onglet=ventes" class="pastille-etat"><i class="bi bi-inbox" aria-hidden="true"></i> <?= $nbDemandes ?> demande<?= $nbDemandes > 1 ? 's' : '' ?> en cours</a>
                         <?php endif; ?>
                         <?php if (!(int) $a['livre_valide']): ?>
                             <span class="pastille-etat attente"><i class="bi bi-journal-plus" aria-hidden="true"></i> Nouvelle fiche à créer</span>
@@ -103,16 +103,16 @@ include 'header.php';
                     <?php if (in_array($statut, ['refusee', 'retiree'], true) && $a['motif_moderation']): ?>
                         <p class="mon-annonce__motif"><strong><?= $statut === 'refusee' ? 'Motif du refus' : "Retirée par l'équipe" ?> :</strong> <?= htmlspecialchars($a['motif_moderation']) ?></p>
                     <?php elseif ($statut === 'vendue'): ?>
-                        <p class="mon-annonce__aide">Vendu ! Le reçu est dans <a href="mes_transactions.php?onglet=ventes">Mes ventes entre lecteurs</a>.</p>
+                        <p class="mon-annonce__aide">Vendu ! Le reçu est dans <a href="mes_transactions?onglet=ventes">Mes ventes entre lecteurs</a>.</p>
                     <?php elseif ($statut === 'en_validation'): ?>
                         <p class="mon-annonce__aide">L'équipe vérifie votre annonce : vous recevrez un mail dès sa mise en ligne.</p>
                     <?php endif; ?>
                     <div class="mon-annonce__actions">
                         <?php if (in_array($statut, ANNONCE_STATUTS_MODIFIABLES, true)): ?>
-                            <a href="annonce_creer.php?id=<?= $id ?>" class="bouton bouton-contour bouton-petit"><i class="bi bi-pencil" aria-hidden="true"></i> Modifier</a>
+                            <a href="annonce_creer?id=<?= $id ?>" class="bouton bouton-contour bouton-petit"><i class="bi bi-pencil" aria-hidden="true"></i> Modifier</a>
                         <?php endif; ?>
                         <?php if (in_array($statut, ['en_validation', 'publiee'], true)): ?>
-                            <form action="annonce_action.php" method="POST"
+                            <form action="annonce_action" method="POST"
                                   data-confirmer="Retirer l'annonce « <?= htmlspecialchars($a['titre']) ?> » ? Elle ne sera plus visible, vous pourrez la remettre en ligne plus tard."
                                   data-titre-confirmer="Retirer cette annonce" data-bouton-confirmer="Retirer">
                                 <input type="hidden" name="csrf" value="<?= $csrf ?>">
@@ -122,7 +122,7 @@ include 'header.php';
                             </form>
                         <?php endif; ?>
                         <?php if ($statut === 'retiree' && !$retireeParEquipe && $raisonInterdiction === ''): ?>
-                            <form action="annonce_action.php" method="POST">
+                            <form action="annonce_action" method="POST">
                                 <input type="hidden" name="csrf" value="<?= $csrf ?>">
                                 <input type="hidden" name="action" value="remettre">
                                 <input type="hidden" name="id_annonce" value="<?= $id ?>">
@@ -130,7 +130,7 @@ include 'header.php';
                             </form>
                         <?php endif; ?>
                         <?php if (!in_array($statut, ['reservee', 'vendue'], true)): ?>
-                            <form action="annonce_action.php" method="POST"
+                            <form action="annonce_action" method="POST"
                                   data-confirmer="Supprimer définitivement l'annonce « <?= htmlspecialchars($a['titre']) ?> » et ses photos ?"
                                   data-titre-confirmer="Supprimer cette annonce" data-bouton-confirmer="Supprimer">
                                 <input type="hidden" name="csrf" value="<?= $csrf ?>">

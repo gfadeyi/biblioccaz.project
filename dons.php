@@ -61,7 +61,7 @@ $dons = $stmt->fetchAll();
 $arbreCategoriesDons = arbreCategories($pdo);
 
 $criteres = array_filter(['q' => $q, 'lieu' => $lieu, 'categorie' => $categorie, 'etat' => $etat, 'tri' => $tri !== 'recents' ? $tri : '']);
-$lienDons = fn(array $changements) => 'dons.php' . (($requete = http_build_query(array_filter(array_merge($criteres, $changements), fn($valeur) => $valeur !== '' && $valeur !== null))) !== '' ? '?' . $requete : '');
+$lienDons = fn(array $changements) => 'dons' . (($requete = http_build_query(array_filter(array_merge($criteres, $changements), fn($valeur) => $valeur !== '' && $valeur !== null))) !== '' ? '?' . $requete : '');
 $filtresActifs = array_filter([
     'q' => $q !== '' ? '« ' . $q . ' »' : '',
     'lieu' => $lieu !== '' ? 'Lieu : ' . $lieu : '',
@@ -79,7 +79,7 @@ include 'header.php';
             <h1 class="fw-bold mb-1" style="color:#274e13;"><i class="bi bi-gift"></i> Livres à donner</h1>
             <p class="text-muted mb-0">Gratuits, à récupérer en main propre auprès d’autres lecteurs.</p>
         </div>
-        <a href="don_creer.php" class="btn btn-success rounded-pill fw-bold"><i class="bi bi-plus-lg"></i> Donner un livre</a>
+        <a href="don_creer" class="btn btn-success rounded-pill fw-bold"><i class="bi bi-plus-lg"></i> Donner un livre</a>
     </div>
 
     <form method="GET" class="filtres-dons" role="search" aria-label="Rechercher un livre à donner">
@@ -115,21 +115,21 @@ include 'header.php';
         <?php foreach ($filtresActifs as $cle => $libelle): ?>
             <a class="puce-filtre" href="<?= htmlspecialchars($lienDons([$cle => '', 'page' => ''])) ?>" aria-label="Retirer le filtre <?= htmlspecialchars($libelle) ?>"><?= htmlspecialchars($libelle) ?> <i class="bi bi-x" aria-hidden="true"></i></a>
         <?php endforeach; ?>
-        <?php if ($filtresActifs): ?><a href="dons.php" class="ms-1">Effacer les filtres</a><?php endif; ?>
+        <?php if ($filtresActifs): ?><a href="dons" class="ms-1">Effacer les filtres</a><?php endif; ?>
     </div>
 
     <?php if (!$dons): ?>
         <div class="card p-5 text-center shadow-sm border-0" style="border-radius: 15px;">
             <i class="bi bi-gift text-muted fs-1 mb-3"></i>
             <h5 class="text-secondary">Aucun don disponible pour ces critères.</h5>
-            <?php if ($filtresActifs): ?><p class="text-muted mb-0">Essayez un autre mot, une ville voisine ou <a href="dons.php">voyez tous les livres à donner</a>.</p><?php endif; ?>
-            <a href="don_creer.php" class="btn btn-success rounded-pill px-4 mt-3 mx-auto">Soyez le premier à donner un livre</a>
+            <?php if ($filtresActifs): ?><p class="text-muted mb-0">Essayez un autre mot, une ville voisine ou <a href="dons">voyez tous les livres à donner</a>.</p><?php endif; ?>
+            <a href="don_creer" class="btn btn-success rounded-pill px-4 mt-3 mx-auto">Soyez le premier à donner un livre</a>
         </div>
     <?php else: ?>
         <div class="row g-3">
             <?php foreach ($dons as $d): ?>
                 <div class="col-sm-6 col-lg-3">
-                    <a href="don_detail.php?id=<?= $d['id_don'] ?>" class="card h-100 border-0 shadow-sm text-decoration-none text-dark" style="border-radius: 15px; overflow: hidden;">
+                    <a href="don_detail?id=<?= $d['id_don'] ?>" class="card h-100 border-0 shadow-sm text-decoration-none text-dark" style="border-radius: 15px; overflow: hidden;">
                         <div class="bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
                             <img src="<?= htmlspecialchars(photoDon($d['photo'], $d['couverture_don'])) ?>" alt="<?= htmlspecialchars(legendePhotoDon($d['photo'], $d['couverture_don']) . ' : ' . $d['titre']) ?>" loading="lazy" style="max-height: 180px; max-width: 90%; object-fit: contain;">
                         </div>

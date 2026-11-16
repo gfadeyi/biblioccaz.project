@@ -109,7 +109,7 @@ function infosObjetConversation(PDO $pdo, string $type, int $idObjet): array
         $stmt->execute([$idObjet]);
         if ($don = $stmt->fetch()) {
             $infos = ['titre' => $don['titre'], 'image' => $don['photo'] ? 'img/dons/' . rawurlencode($don['photo']) : 'img/default.png',
-                      'lien' => 'don_detail.php?id=' . $idObjet, 'libelle_statut' => ''];
+                      'lien' => 'don_detail?id=' . $idObjet, 'libelle_statut' => ''];
         }
     }
     if ($type === 'vente') {
@@ -120,14 +120,14 @@ function infosObjetConversation(PDO $pdo, string $type, int $idObjet): array
         $stmt->execute([$idObjet]);
         if ($vente = $stmt->fetch()) {
             $infos = ['titre' => $vente['titre'], 'image' => $vente['photo'] ? 'img/annonces/' . rawurlencode($vente['photo']) : urlImage($vente['couverture']),
-                      'lien' => 'transaction.php?id=' . $idObjet, 'libelle_statut' => ''];
+                      'lien' => 'transaction?id=' . $idObjet, 'libelle_statut' => ''];
         }
     }
     if ($type === 'emprunt') {
         $stmt = $pdo->prepare("SELECT l.titre, l.couverture FROM emprunt em INNER JOIN exemplaire e ON e.id_exemplaire = em.id_exemplaire INNER JOIN livre l ON l.id_livre = e.id_livre WHERE em.id_emprunt = ?");
         $stmt->execute([$idObjet]);
         if ($emprunt = $stmt->fetch()) {
-            $infos = ['titre' => $emprunt['titre'], 'image' => urlImage($emprunt['couverture']), 'lien' => 'mes_emprunts.php#emprunt-' . $idObjet, 'libelle_statut' => ''];
+            $infos = ['titre' => $emprunt['titre'], 'image' => urlImage($emprunt['couverture']), 'lien' => 'mes_emprunts#emprunt-' . $idObjet, 'libelle_statut' => ''];
         }
     }
     return $infos;
@@ -318,7 +318,7 @@ function prevenirParticipants(PDO $pdo, array $conversation, int $idAuteur, stri
         $email->execute([$idDestinataire]);
         notifierParMail((string) $email->fetchColumn(), "Nouveau message de $pseudoAuteur",
             "Bonjour {$destinataire['pseudo']},\n\n$pseudoAuteur vous a écrit à propos de « {$conversation['objet']['titre']} » :\n\n« $extrait »\n\nRépondez directement sur BIBLIOccaz : votre adresse email n'est jamais communiquée.",
-            SITE_URL . '/messages.php?id=' . $conversation['id_conversation'], "Répondre");
+            SITE_URL . '/messages?id=' . $conversation['id_conversation'], "Répondre");
     }
 }
 
@@ -440,7 +440,7 @@ function htmlMessageConversation(array $message, array $conversation, int $idUse
             $options .= '<option value="' . $cle . '">' . htmlspecialchars($libelle) . '</option>';
         }
         $html .= '<details class="message__signaler"><summary>Signaler</summary>'
-            . '<form action="message_action.php" method="POST" class="signalement-message">'
+            . '<form action="message_action" method="POST" class="signalement-message">'
             . '<input type="hidden" name="csrf" value="' . htmlspecialchars($csrf) . '">'
             . '<input type="hidden" name="action" value="signaler">'
             . '<input type="hidden" name="id_conversation" value="' . (int) $conversation['id_conversation'] . '">'

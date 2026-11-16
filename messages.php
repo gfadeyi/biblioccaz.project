@@ -6,7 +6,7 @@ require_once 'avis_lib.php';
 if (session_status() === PHP_SESSION_NONE) { session_start(); }
 
 if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php");
+    header("Location: connexion");
     exit();
 }
 $idUser = (int) $_SESSION['user_id'];
@@ -46,10 +46,10 @@ include 'header.php';
 
 <div class="container mt-4 mb-5 page-messages<?= $conversation ? ' page-messages--fil' : '' ?>">
     <nav aria-label="Fil d'Ariane" class="fil-ariane">
-        <a href="profil.php">Mon compte</a>
+        <a href="mon-compte">Mon compte</a>
         <span aria-hidden="true">›</span>
         <?php if ($conversation): ?>
-            <a href="messages.php">Mes messages</a>
+            <a href="messages">Mes messages</a>
             <span aria-hidden="true">›</span>
             <span aria-current="page"><?= htmlspecialchars($conversation['objet']['titre']) ?></span>
         <?php else: ?>
@@ -72,7 +72,7 @@ include 'header.php';
             <?= iconeDessin('bulle') ?>
             <h2 class="h5">Aucune conversation pour l'instant</h2>
             <p>Quand vous réservez un don ou qu'un lecteur réserve le vôtre, une conversation s'ouvre ici pour organiser l'échange, sans jamais partager votre adresse email.</p>
-            <a href="dons.php" class="bouton bouton-principal bouton-petit">Voir les livres à donner</a>
+            <a href="dons" class="bouton bouton-principal bouton-petit">Voir les livres à donner</a>
         </div>
     <?php else: ?>
         <div class="messagerie">
@@ -87,7 +87,7 @@ include 'header.php';
                         }
                         ?>
                         <li>
-                            <a href="messages.php?id=<?= (int) $c['id_conversation'] ?>#conversation"
+                            <a href="messages?id=<?= (int) $c['id_conversation'] ?>#conversation"
                                class="ligne-conversation<?= $c['non_lus'] ? ' ligne-conversation--non-lue' : '' ?><?= $c['statut'] !== 'ouverte' ? ' ligne-conversation--fermee' : '' ?>"
                                <?= $active ? 'aria-current="page"' : '' ?>>
                                 <img src="<?= htmlspecialchars($c['objet']['image']) ?>" alt="" class="ligne-conversation__visuel" loading="lazy">

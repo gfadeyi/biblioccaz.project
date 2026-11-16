@@ -21,9 +21,9 @@ function pointsQuiSommesNous(PDO $pdo, string $action, int $defaut): int
 }
 
 $chiffresCles = [
-    ['pile', chiffreCleSite($pdo, 'SELECT COUNT(*) FROM livre WHERE is_valide = 1'), 'livre au catalogue', 'livres au catalogue', 'catalogue.php', 'Parcourir le catalogue'],
-    ['seconde-vie', chiffreCleSite($pdo, "SELECT COUNT(*) FROM don WHERE statut = 'recupere'"), 'don réalisé', 'dons réalisés', 'dons.php', 'Voir les livres à donner'],
-    ['lecteur', chiffreCleSite($pdo, "SELECT COUNT(*) FROM user WHERE role IN ('client', 'auteur') AND statut <> 'refuse_definitif'"), 'membre inscrit', 'membres inscrits', 'inscription.php', 'Rejoindre la communauté'],
+    ['pile', chiffreCleSite($pdo, 'SELECT COUNT(*) FROM livre WHERE is_valide = 1'), 'livre au catalogue', 'livres au catalogue', 'catalogue', 'Parcourir le catalogue'],
+    ['seconde-vie', chiffreCleSite($pdo, "SELECT COUNT(*) FROM don WHERE statut = 'recupere'"), 'don réalisé', 'dons réalisés', 'dons', 'Voir les livres à donner'],
+    ['lecteur', chiffreCleSite($pdo, "SELECT COUNT(*) FROM user WHERE role IN ('client', 'auteur') AND statut <> 'refuse_definitif'"), 'membre inscrit', 'membres inscrits', 'inscription', 'Rejoindre la communauté'],
 ];
 $pointsDon = pointsQuiSommesNous($pdo, 'don', 20);
 $pointsPresence = pointsQuiSommesNous($pdo, 'presence', 10);
@@ -127,9 +127,9 @@ include 'header.php';
                 <p>Donnez un livre qui dort sur votre étagère, trouvez votre prochaine lecture ou rejoignez l’équipe.</p>
             </div>
             <div class="qsn-appel__actions">
-                <a href="vendre.php" class="bouton bouton-principal">Donner ou revendre</a>
-                <a href="catalogue.php" class="bouton bouton-contour">Voir le catalogue</a>
-                <a href="rejoindre_equipe.php" class="bouton bouton-contour">Rejoindre l’équipe</a>
+                <a href="vendre" class="bouton bouton-principal">Donner ou revendre</a>
+                <a href="catalogue" class="bouton bouton-contour">Voir le catalogue</a>
+                <a href="rejoindre_equipe" class="bouton bouton-contour">Rejoindre l’équipe</a>
             </div>
         </div>
     </section>

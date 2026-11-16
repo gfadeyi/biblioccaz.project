@@ -43,7 +43,7 @@ if (isset($_SESSION['user_id']) && in_array($_SESSION['role'] ?? '', ROLES_SUGGE
 
 $couverturesBandeau = livresBandeauAccueil($pdo);
 
-$univers = [['classe' => 'univers-bons-plans', 'illustration' => 'bons-plans', 'nom' => 'Bons plans', 'detail' => 'Moins de 10 €, dernière chance, nouveautés', 'lien' => 'petits_prix.php']];
+$univers = [['classe' => 'univers-bons-plans', 'illustration' => 'bons-plans', 'nom' => 'Bons plans', 'detail' => 'Moins de 10 €, dernière chance, nouveautés', 'lien' => 'petits_prix']];
 foreach (arbreCategories($pdo) as $universCategorie) {
     $univers[] = [
         'classe' => 'univers-' . ($universCategorie['couleur'] ?: 'litterature'),
@@ -111,10 +111,10 @@ include 'header.php';
                 <h1>Chaque livre mérite une <em>seconde lecture</em>.</h1>
                 <p class="chapo fs-5 mb-4">Romans, mangas, BD, manuels scolaires : des lectures à petits prix, et une communauté qui donne, échange et se retrouve.</p>
                 <div class="d-flex flex-wrap gap-2">
-                    <a href="catalogue.php" class="bouton bouton-action"><?= iconeDessin('cabas') ?> Acheter des livres</a>
-                    <a href="vendre.php" class="bouton bouton-contour"><?= iconeDessin('carton') ?> Donner ou revendre mes livres</a>
+                    <a href="catalogue" class="bouton bouton-action"><?= iconeDessin('cabas') ?> Acheter des livres</a>
+                    <a href="vendre" class="bouton bouton-contour"><?= iconeDessin('carton') ?> Donner ou revendre mes livres</a>
                 </div>
-                <p class="mt-3 mb-0">Pas encore d’idée ? <a href="trouver_lecture.php" class="lien-voir-tout">Trouver ma prochaine lecture <i class="bi bi-arrow-right" aria-hidden="true"></i></a></p>
+                <p class="mt-3 mb-0">Pas encore d’idée ? <a href="trouver_lecture" class="lien-voir-tout">Trouver ma prochaine lecture <i class="bi bi-arrow-right" aria-hidden="true"></i></a></p>
                 <div class="atouts-courts">
                     <span><?= iconeDessin('camion') ?> Livraison offerte dès 20 €</span>
                     <span><?= iconeDessin('etiquette') ?> -10 % dès 50 €</span>
@@ -167,7 +167,7 @@ include 'header.php';
                 <h2><?= $titreSelectionLecteurs ?></h2>
                 <p><?= $sousTitreSelectionLecteurs ?></p>
             </div>
-            <a href="<?= count($coupsDeCoeur) < 4 ? 'meilleures_ventes.php' : 'catalogue.php?tri=note' ?>" class="lien-voir-tout">Voir tout <i class="bi bi-chevron-right"></i></a>
+            <a href="<?= count($coupsDeCoeur) < 4 ? 'meilleures_ventes' : 'catalogue?tri=note' ?>" class="lien-voir-tout">Voir tout <i class="bi bi-chevron-right"></i></a>
         </div>
         <div class="carrousel">
             <?php foreach ($selectionLecteurs as $l): include 'partie_carte_livre.php'; endforeach; ?>
@@ -182,7 +182,7 @@ include 'header.php';
                 <h2 id="titre-pour-vous">Pour vous</h2>
                 <p>Choisis d'après vos goûts, vos lectures et vos notes.</p>
             </div>
-            <a href="suggestions.php" class="lien-voir-tout">Toutes mes suggestions <i class="bi bi-chevron-right"></i></a>
+            <a href="suggestions" class="lien-voir-tout">Toutes mes suggestions <i class="bi bi-chevron-right"></i></a>
         </div>
         <div class="carrousel">
             <?php foreach ($suggestionsAccueil as $l): include 'partie_carte_livre.php'; endforeach; ?>
@@ -197,7 +197,7 @@ include 'header.php';
                 <h2>Nouveau chez nous</h2>
                 <p>Les derniers livres arrivés sur les étagères.</p>
             </div>
-            <a href="nouveauté.php" class="lien-voir-tout">Voir tout <i class="bi bi-chevron-right"></i></a>
+            <a href="nouveautes" class="lien-voir-tout">Voir tout <i class="bi bi-chevron-right"></i></a>
         </div>
         <div class="carrousel">
             <?php foreach ($nouveautes as $l): include 'partie_carte_livre.php'; endforeach; ?>
@@ -210,9 +210,9 @@ include 'header.php';
         <div class="bandeau-remise__entete">
             <p class="titre"><?= iconeDessin('cabas') ?> Le panier malin</p>
             <?php if ($totauxPanierAccueil['nb_articles']): ?>
-                <a href="panier.php" class="lien-voir-tout">Mon panier · <?= $totauxPanierAccueil['nb_articles'] ?> livre<?= $totauxPanierAccueil['nb_articles'] > 1 ? 's' : '' ?> · <?= formaterPrix($totauxPanierAccueil['sous_total']) ?> <i class="bi bi-chevron-right"></i></a>
+                <a href="panier" class="lien-voir-tout">Mon panier · <?= $totauxPanierAccueil['nb_articles'] ?> livre<?= $totauxPanierAccueil['nb_articles'] > 1 ? 's' : '' ?> · <?= formaterPrix($totauxPanierAccueil['sous_total']) ?> <i class="bi bi-chevron-right"></i></a>
             <?php else: ?>
-                <a href="petits_prix.php" class="lien-voir-tout">Voir les bons plans <i class="bi bi-chevron-right"></i></a>
+                <a href="petits_prix" class="lien-voir-tout">Voir les bons plans <i class="bi bi-chevron-right"></i></a>
             <?php endif; ?>
         </div>
         <?php $sousTotal = $totauxPanierAccueil['sous_total']; include 'partie_jauge_panier.php'; ?>
@@ -226,7 +226,7 @@ include 'header.php';
                 <h2>Petits prix, grandes lectures</h2>
                 <p>Moins de 10 € : de quoi remplir la bibliothèque.</p>
             </div>
-            <a href="petits_prix.php" class="lien-voir-tout">Voir tout <i class="bi bi-chevron-right"></i></a>
+            <a href="petits_prix" class="lien-voir-tout">Voir tout <i class="bi bi-chevron-right"></i></a>
         </div>
         <div class="carrousel">
             <?php foreach ($petitsPrix as $l): include 'partie_carte_livre.php'; endforeach; ?>
@@ -246,7 +246,7 @@ include 'header.php';
                     <li class="etape"><?= iconeDessin('medaille') ?><strong>Je gagne des points</strong><span>+<?= pointsRegle($pdo, 'don') ?> points à utiliser sur mes achats.</span></li>
                 </ol>
                 <div class="d-flex flex-wrap align-items-center gap-3">
-                    <a href="don_creer.php" class="bouton bouton-action"><?= iconeDessin('carton') ?> Donner mes livres</a>
+                    <a href="don_creer" class="bouton bouton-action"><?= iconeDessin('carton') ?> Donner mes livres</a>
                     <ul class="chiffres-communaute">
                         <?php if ($chiffresCommunaute['livres'] > 0): ?>
                             <li><strong><?= $chiffresCommunaute['livres'] ?></strong> livre<?= $chiffresCommunaute['livres'] > 1 ? 's' : '' ?> sur nos étagères</li>
@@ -279,7 +279,7 @@ include 'header.php';
             <div class="bloc-communaute">
                 <h3><?= iconeDessin('carton') ?> Derniers dons</h3>
                 <?php foreach ($derniersDons as $don): ?>
-                    <a href="don_detail.php?id=<?= (int) $don['id_don'] ?>" class="ligne-communaute">
+                    <a href="don_detail?id=<?= (int) $don['id_don'] ?>" class="ligne-communaute">
                         <span class="couverture-mini"><img src="<?= htmlspecialchars(photoDon($don['photo'], $don['couverture_don'])) ?>" alt="" loading="lazy"></span>
                         <span class="ligne-communaute__texte">
                             <strong><?= htmlspecialchars($don['titre']) ?></strong>
@@ -296,10 +296,10 @@ include 'header.php';
                         <span class="vide-dons__illustration" aria-hidden="true"><?= iconeDessin('carton') ?></span>
                         <strong>Le carton est vide… pour l'instant&nbsp;!</strong>
                         <p>Vos livres méritent un second lecteur. Proposez-en un : +<?= pointsRegle($pdo, 'don') ?> points dès qu'il est récupéré.</p>
-                        <a href="don_creer.php" class="bouton bouton-action"><?= iconeDessin('carton') ?> Proposer un don</a>
+                        <a href="don_creer" class="bouton bouton-action"><?= iconeDessin('carton') ?> Proposer un don</a>
                     </div>
                 <?php endif; ?>
-                <a href="dons.php" class="lien-voir-tout mt-3">Tous les dons <i class="bi bi-chevron-right"></i></a>
+                <a href="dons" class="lien-voir-tout mt-3">Tous les dons <i class="bi bi-chevron-right"></i></a>
             </div>
         </div>
         <div class="col-md-6 col-lg-4">
@@ -311,7 +311,7 @@ include 'header.php';
                     $placesEvt = placesRestantes($evt);
                     $remplissageEvt = $evt['places_max'] > 0 ? min(1, $evt['nb_inscrits'] / $evt['places_max']) : 1;
                     ?>
-                    <a href="evenement.php?id=<?= (int) $evt['id_evenement'] ?>" class="ligne-communaute ligne-evenement">
+                    <a href="evenement?id=<?= (int) $evt['id_evenement'] ?>" class="ligne-communaute ligne-evenement">
                         <span class="page-calendrier" aria-hidden="true">
                             <small><?= $moisCourts[(int) date('n', $debutEvt) - 1] ?></small>
                             <strong><?= date('d', $debutEvt) ?></strong>
@@ -328,7 +328,7 @@ include 'header.php';
                 <?php if (!$prochainsEvenements): ?>
                     <p class="vide-communaute">Pas d'événement prévu pour l'instant.</p>
                 <?php endif; ?>
-                <a href="evenements.php" class="lien-voir-tout mt-3">Le calendrier <i class="bi bi-chevron-right"></i></a>
+                <a href="evenements" class="lien-voir-tout mt-3">Le calendrier <i class="bi bi-chevron-right"></i></a>
             </div>
         </div>
         <div class="col-md-12 col-lg-4">
@@ -337,7 +337,7 @@ include 'header.php';
                 <?php if ($derniersAvis): ?>
                     <div class="carrousel-avis" data-carrousel-avis>
                         <?php foreach ($derniersAvis as $avis): ?>
-                            <a href="detail_livre.php?id=<?= (int) $avis['id_livre'] ?>#avis" class="avis-lecteur">
+                            <a href="livre?id=<?= (int) $avis['id_livre'] ?>#avis" class="avis-lecteur">
                                 <span class="couverture-mini"><img src="<?= htmlspecialchars(urlImage($avis['couverture'])) ?>" alt="" loading="lazy"></span>
                                 <span class="avis-lecteur__texte">
                                     <span class="avis-lecteur__auteur">

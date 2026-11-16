@@ -7,12 +7,12 @@ if (session_status() === PHP_SESSION_NONE) { session_start(); }
 function retourMesAnnonces(string $type, string $message): never
 {
     $_SESSION['flash_annonce'] = [$type, $message];
-    header("Location: mes_annonces.php");
+    header("Location: mes_annonces");
     exit();
 }
 
 if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php");
+    header("Location: connexion");
     exit();
 }
 if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !verifierCsrf()) {

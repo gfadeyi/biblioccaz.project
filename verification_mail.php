@@ -22,7 +22,7 @@ include 'header.php';
         <?php if ($erreur): ?><p class="alert alert-danger" role="alert"><?= htmlspecialchars($erreur) ?></p><?php endif; ?>
         <?php if ($reussite): ?>
             <p role="status">Votre adresse email est validée. Vous pouvez maintenant vous connecter.</p>
-            <a href="login.php" class="bouton bouton-principal">Se connecter</a>
+            <a href="connexion" class="bouton bouton-principal">Se connecter</a>
         <?php elseif ($valide): ?>
             <p>Confirmez que cette adresse email vous appartient pour activer votre compte.</p>
             <form method="POST">
@@ -32,7 +32,7 @@ include 'header.php';
             </form>
         <?php else: ?>
             <p>Ce lien est invalide, a expiré ou a déjà été utilisé. Demandez un nouveau lien si nécessaire.</p>
-            <a href="renvoyer_validation.php" class="bouton bouton-principal">Recevoir un nouveau lien</a>
+            <a href="renvoyer_validation" class="bouton bouton-principal">Recevoir un nouveau lien</a>
         <?php endif; ?>
     </section>
 </div>

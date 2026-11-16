@@ -5,7 +5,7 @@ require_once 'compte_lib.php';
 require_once 'recommandations_lib.php';
 
 if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php");
+    header("Location: connexion");
     exit();
 }
 
@@ -32,7 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['flash_suggestions'] = ['danger', "Cette option n'est pas encore disponible."];
         }
     }
-    header("Location: suggestions.php#historique");
+    header("Location: suggestions#historique");
     exit();
 }
 
@@ -66,7 +66,7 @@ echo etoilesStyle();
                 Une sélection de livres disponibles choisie d'après vos préférences, vos lectures et vos notes. Sous chaque livre, nous vous disons pourquoi.
             <?php else: ?>
                 Nous ne connaissons pas encore vos goûts : voici les livres disponibles les plus appréciés.
-                <a href="modifier_profil.php#preferences">Indiquez vos préférences de lecture</a> pour une sélection qui vous ressemble.
+                <a href="modifier_profil#preferences">Indiquez vos préférences de lecture</a> pour une sélection qui vous ressemble.
             <?php endif; ?>
         </p>
 
@@ -77,7 +77,7 @@ echo etoilesStyle();
         <?php else: ?>
             <div class="carte-compte">
                 <p class="texte-profil mb-2">Aucun livre à vous proposer pour le moment : vous avez peut-être déjà tout lu !</p>
-                <a href="catalogue.php" class="lien-voir-tout">Parcourir le catalogue <i class="bi bi-chevron-right" aria-hidden="true"></i></a>
+                <a href="catalogue" class="lien-voir-tout">Parcourir le catalogue <i class="bi bi-chevron-right" aria-hidden="true"></i></a>
             </div>
         <?php endif; ?>
 
@@ -93,7 +93,7 @@ echo etoilesStyle();
                     <ul class="historique-consultation">
                         <?php foreach ($historique as $consulte): ?>
                             <li>
-                                <a href="detail_livre.php?id=<?= (int) $consulte['id_livre'] ?>">
+                                <a href="livre?id=<?= (int) $consulte['id_livre'] ?>">
                                     <img src="<?= htmlspecialchars(urlImage($consulte['couverture'] ?: 'default.png')) ?>" alt="" loading="lazy">
                                     <span><?= htmlspecialchars($consulte['titre']) ?></span>
                                 </a>
@@ -121,7 +121,7 @@ echo etoilesStyle();
             <section class="carte-compte" aria-labelledby="titre-fonctionnement">
                 <h2 class="carte-compte__titre" id="titre-fonctionnement"><?= iconeDessin('loupe') ?> Comment nous choisissons</h2>
                 <ul class="liste-explications">
-                    <li>Vos <a href="modifier_profil.php#preferences">préférences de lecture</a>, si vous en avez indiqué.</li>
+                    <li>Vos <a href="modifier_profil#preferences">préférences de lecture</a>, si vous en avez indiqué.</li>
                     <li>Vos achats, emprunts, favoris et les notes de vos avis.</li>
                     <li>Les <?= HISTORIQUE_TAILLE_MAX ?> dernières fiches consultées, gardées <?= HISTORIQUE_DUREE_JOURS ?> jours au plus.</li>
                     <li>La popularité et la note moyenne de chaque livre.</li>

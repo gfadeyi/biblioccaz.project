@@ -27,7 +27,7 @@ if (isset($_POST['token']) || isset($_GET['token'])) {
     $user = $stmt->fetch();
     $mode = 'connecte';
 } else {
-    header("Location: recuparation_mdp.php");
+    header("Location: recuparation_mdp");
     exit();
 }
 
@@ -63,7 +63,7 @@ if ($user && $_SERVER['REQUEST_METHOD'] === 'POST') {
             terminerSuiviSession($pdo);
             $_SESSION = [];
             session_regenerate_id(true);
-            header("Location: login.php?mdp=1");
+            header("Location: connexion?mdp=1");
             exit();
         } else {
             insertLog('SECURITE', "Mot de passe modifié depuis le profil");
@@ -76,7 +76,7 @@ if ($user && $_SERVER['REQUEST_METHOD'] === 'POST') {
             } catch (RuntimeException $e) {
                 refuserSession($pdo, 'Reconnexion nécessaire après modification simultanée du compte');
             }
-            header("Location: profil.php?mdp=1");
+            header("Location: mon-compte?mdp=1");
             exit();
         }
     }
@@ -92,7 +92,7 @@ include 'header.php';
 
         <?php if ($lienInvalide): ?>
             <p class="carte-formulaire__intro">Ce lien n'est plus valide : il a déjà été utilisé ou il a expiré (validité : 1 heure).</p>
-            <a href="recuparation_mdp.php" class="bouton bouton-principal">Demander un nouveau lien</a>
+            <a href="recuparation_mdp" class="bouton bouton-principal">Demander un nouveau lien</a>
         <?php else: ?>
             <p class="carte-formulaire__intro">
                 <?= $mode === 'reset' ? 'Bonjour ' . htmlspecialchars($user['prenom'] ?? '') . ', choisissez votre nouveau mot de passe.' : 'Pour votre sécurité, confirmez d\'abord votre mot de passe actuel.' ?>
@@ -123,7 +123,7 @@ include 'header.php';
         <?php endif; ?>
 
         <p class="carte-formulaire__pied">
-            <a href="<?= $mode === 'connecte' ? 'profil.php' : 'login.php' ?>"><?= $mode === 'connecte' ? 'Retour à mon compte' : 'Retour à la connexion' ?></a>
+            <a href="<?= $mode === 'connecte' ? 'mon-compte' : 'connexion' ?>"><?= $mode === 'connecte' ? 'Retour à mon compte' : 'Retour à la connexion' ?></a>
         </p>
     </div>
 </div>

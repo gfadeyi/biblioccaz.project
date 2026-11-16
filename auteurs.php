@@ -23,7 +23,7 @@ include 'header.php';
     </div>
 
     <?php if ($recherche !== ''): ?>
-        <p class="small text-muted" role="status"><?= count($fiches) ?> résultat<?= count($fiches) > 1 ? 's' : '' ?> pour « <?= htmlspecialchars($recherche) ?> » · <a href="auteurs.php">Voir tous les auteurs</a></p>
+        <p class="small text-muted" role="status"><?= count($fiches) ?> résultat<?= count($fiches) > 1 ? 's' : '' ?> pour « <?= htmlspecialchars($recherche) ?> » · <a href="auteurs">Voir tous les auteurs</a></p>
     <?php endif; ?>
 
     <?php if (!$fiches): ?>
@@ -43,7 +43,7 @@ include 'header.php';
                         <?php endif; ?>
                     </span>
                     <div class="carte-auteur__texte">
-                        <h2><a href="auteur.php?a=<?= rawurlencode($ficheAuteur['slug']) ?>"><?= htmlspecialchars($ficheAuteur['nom_plume']) ?></a></h2>
+                        <h2><a href="auteur?a=<?= rawurlencode($ficheAuteur['slug']) ?>"><?= htmlspecialchars($ficheAuteur['nom_plume']) ?></a></h2>
                         <p><?= htmlspecialchars(extraitBiographie($ficheAuteur['biographie'])) ?></p>
                         <small><?= (int) $ficheAuteur['nb_ouvrages'] ?> ouvrage<?= $ficheAuteur['nb_ouvrages'] > 1 ? 's' : '' ?> présenté<?= $ficheAuteur['nb_ouvrages'] > 1 ? 's' : '' ?></small>
                     </div>

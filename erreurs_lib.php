@@ -21,7 +21,7 @@ function repondreErreurTechnique(int $statut = 500): void
     }
     header('Content-Type: text/html; charset=utf-8');
     $racine = htmlspecialchars(rtrim(defined('SITE_URL') ? SITE_URL : '', '/') . '/', ENT_QUOTES, 'UTF-8');
-    echo '<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex, nofollow"><title>Service indisponible — BIBLIOccaz</title><link rel="stylesheet" href="' . $racine . 'style.css"></head><body><main class="page-formulaire"><section class="carte-formulaire"><h1>Une pause imprévue</h1><p>Le service est momentanément indisponible. Merci de réessayer dans quelques minutes.</p><a class="bouton bouton-principal" href="' . $racine . 'index.php">Retour à l’accueil</a></section></main></body></html>';
+    echo '<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex, nofollow"><title>Service indisponible — BIBLIOccaz</title><link rel="stylesheet" href="' . $racine . 'style.css"></head><body><main class="page-formulaire"><section class="carte-formulaire"><h1>Une pause imprévue</h1><p>Le service est momentanément indisponible. Merci de réessayer dans quelques minutes.</p><a class="bouton bouton-principal" href="' . $racine . '">Retour à l’accueil</a></section></main></body></html>';
 }
 
 function installerGestionErreurs(): void

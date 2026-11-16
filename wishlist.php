@@ -4,7 +4,7 @@ require_once 'compte_lib.php';
 require_once 'avis_lib.php';
 
 if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php");
+    header("Location: connexion");
     exit();
 }
 $idUser = (int) $_SESSION['user_id'];
@@ -45,7 +45,7 @@ include 'header.php';
             <h1 class="h3 fw-bold mb-1" style="color:#274e13;"><i class="bi bi-heart"></i> Mes favoris</h1>
             <p class="text-muted mb-0"><?= count($favoris) ?> livre<?= count($favoris) > 1 ? 's' : '' ?> mis de côté</p>
         </div>
-        <a href="alertes.php" class="btn btn-outline-success rounded-pill"><i class="bi bi-bell"></i> Mes alertes</a>
+        <a href="alertes" class="btn btn-outline-success rounded-pill"><i class="bi bi-bell"></i> Mes alertes</a>
     </div>
 
     <?php if ($flash): ?>
@@ -57,7 +57,7 @@ include 'header.php';
             <i class="bi bi-heart text-muted fs-1 mb-3"></i>
             <h5 class="text-secondary">Vous n'avez encore aucun favori.</h5>
             <p class="text-muted small mb-0">Sur la page d'un livre, cliquez sur le cœur pour le garder ici.</p>
-            <a href="catalogue.php" class="btn btn-success rounded-pill px-4 mt-3 mx-auto">Parcourir le catalogue</a>
+            <a href="catalogue" class="btn btn-success rounded-pill px-4 mt-3 mx-auto">Parcourir le catalogue</a>
         </div>
     <?php endif; ?>
 
@@ -65,11 +65,11 @@ include 'header.php';
         <?php foreach ($favoris as $f): ?>
             <div class="card border-0 shadow-sm" style="border-radius: 15px;">
                 <div class="card-body d-flex flex-wrap align-items-center gap-3">
-                    <a href="detail_livre.php?id=<?= $f['id_livre'] ?>">
+                    <a href="livre?id=<?= $f['id_livre'] ?>">
                         <img src="<?= htmlspecialchars(urlImage($f['couverture'])) ?>" alt="" loading="lazy" class="rounded border" style="width: 60px; height: 85px; object-fit: cover;">
                     </a>
                     <div class="flex-grow-1" style="min-width: 180px;">
-                        <a href="detail_livre.php?id=<?= $f['id_livre'] ?>" class="fw-bold text-dark text-decoration-none"><?= htmlspecialchars($f['titre']) ?></a>
+                        <a href="livre?id=<?= $f['id_livre'] ?>" class="fw-bold text-dark text-decoration-none"><?= htmlspecialchars($f['titre']) ?></a>
                         <div class="small text-muted"><?= htmlspecialchars($f['auteur']) ?></div>
                         <?php if ($f['stock'] > 0): ?>
                             <div class="small mt-1"><span class="text-success fw-bold">En stock</span> · dès <?= formaterPrix($f['prix_min']) ?></div>
@@ -79,7 +79,7 @@ include 'header.php';
                     </div>
                     <div class="d-flex flex-wrap gap-2">
                         <?php if ($f['stock'] > 0): ?>
-                            <a href="detail_livre.php?id=<?= $f['id_livre'] ?>" class="btn btn-sm btn-success rounded-pill">Voir les offres</a>
+                            <a href="livre?id=<?= $f['id_livre'] ?>" class="btn btn-sm btn-success rounded-pill">Voir les offres</a>
                         <?php elseif (!$f['alerte']): ?>
                             <?= boutonCompte('alerte_ajouter', (int) $f['id_livre'], $csrf, '<i class="bi bi-bell"></i> M\'alerter', 'btn-outline-success', 'wishlist') ?>
                         <?php endif; ?>

@@ -5,7 +5,7 @@ require_once 'avis_lib.php';
 if (session_status() === PHP_SESSION_NONE) { session_start(); }
 
 if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php");
+    header("Location: connexion");
     exit();
 }
 $idUser = (int) $_SESSION['user_id'];
@@ -51,7 +51,7 @@ include 'header.php';
 
 <div class="container mt-4 mb-5 page-mes-emprunts">
     <nav aria-label="Fil d'Ariane" class="fil-ariane">
-        <a href="profil.php">Mon compte</a>
+        <a href="mon-compte">Mon compte</a>
         <span aria-hidden="true">›</span>
         <span aria-current="page">Mes emprunts</span>
     </nav>
@@ -61,7 +61,7 @@ include 'header.php';
             <h1 class="titre-page-compte mb-1">Mes emprunts</h1>
             <p class="text-muted mb-0">Empruntez gratuitement jusqu'à <?= regleEmprunt($pdo, 'emprunts_max') ?> livres du magasin, à retirer et à rendre en boutique.</p>
         </div>
-        <a href="catalogue.php?offre=emprunt" class="bouton bouton-contour bouton-petit"><i class="bi bi-search" aria-hidden="true"></i> Livres à emprunter</a>
+        <a href="catalogue?offre=emprunt" class="bouton bouton-contour bouton-petit"><i class="bi bi-search" aria-hidden="true"></i> Livres à emprunter</a>
     </div>
 
     <?php if ($flash): ?>
@@ -98,7 +98,7 @@ include 'header.php';
                 <?= iconeDessin('livre-ouvert') ?>
                 <h2 class="h5">Aucun emprunt pour le moment</h2>
                 <p>Certains livres du magasin s'empruntent gratuitement : réservez-en un en ligne, retirez-le en boutique, rendez-le après votre lecture.</p>
-                <a href="catalogue.php?offre=emprunt" class="bouton bouton-principal bouton-petit">Voir les livres à emprunter</a>
+                <a href="catalogue?offre=emprunt" class="bouton bouton-principal bouton-petit">Voir les livres à emprunter</a>
             </div>
         <?php endif; ?>
 
@@ -109,16 +109,16 @@ include 'header.php';
                     <article class="carte-compte carte-emprunt carte-emprunt--reserve" id="emprunt-<?= (int) $emprunt['id_emprunt'] ?>">
                         <img src="<?= htmlspecialchars(urlImage($emprunt['couverture'])) ?>" alt="" class="carte-emprunt__couverture" loading="lazy">
                         <div class="carte-emprunt__contenu">
-                            <h3 class="carte-emprunt__titre"><a href="detail_livre.php?id=<?= (int) $emprunt['id_livre'] ?>"><?= htmlspecialchars($emprunt['titre']) ?></a></h3>
+                            <h3 class="carte-emprunt__titre"><a href="livre?id=<?= (int) $emprunt['id_livre'] ?>"><?= htmlspecialchars($emprunt['titre']) ?></a></h3>
                             <p class="carte-emprunt__auteur"><?= htmlspecialchars($emprunt['auteur'] ?? '') ?></p>
                             <p class="carte-emprunt__pastilles"><?= pastilleStatutEmprunt($emprunt) ?></p>
                             <p class="carte-emprunt__date">À retirer avant le <strong><?= date('d/m/Y', strtotime($emprunt['date_expiration_reservation'])) ?></strong> · <?= (int) $emprunt['duree_jours'] ?> jours d'emprunt à partir du retrait</p>
                             <div class="carte-emprunt__actions">
-                                <a href="emprunt_ticket.php?id=<?= (int) $emprunt['id_emprunt'] ?>" class="bouton bouton-contour bouton-petit"><i class="bi bi-file-earmark-pdf" aria-hidden="true"></i> Bon de réservation</a>
+                                <a href="emprunt_ticket?id=<?= (int) $emprunt['id_emprunt'] ?>" class="bouton bouton-contour bouton-petit"><i class="bi bi-file-earmark-pdf" aria-hidden="true"></i> Bon de réservation</a>
                                 <?php if (isset($conversations[$emprunt['id_emprunt']])): ?>
-                                    <a href="messages.php?id=<?= (int) $conversations[$emprunt['id_emprunt']] ?>#conversation" class="bouton bouton-contour bouton-petit"><i class="bi bi-chat" aria-hidden="true"></i> Écrire à l'équipe</a>
+                                    <a href="messages?id=<?= (int) $conversations[$emprunt['id_emprunt']] ?>#conversation" class="bouton bouton-contour bouton-petit"><i class="bi bi-chat" aria-hidden="true"></i> Écrire à l'équipe</a>
                                 <?php endif; ?>
-                                <form action="emprunt_action.php" method="POST" data-confirmer="Annuler la réservation de « <?= htmlspecialchars($emprunt['titre']) ?> » ? L'exemplaire sera proposé à un autre lecteur." data-titre-confirmer="Annuler la réservation" data-bouton-confirmer="Annuler la réservation">
+                                <form action="emprunt_action" method="POST" data-confirmer="Annuler la réservation de « <?= htmlspecialchars($emprunt['titre']) ?> » ? L'exemplaire sera proposé à un autre lecteur." data-titre-confirmer="Annuler la réservation" data-bouton-confirmer="Annuler la réservation">
                                     <input type="hidden" name="csrf" value="<?= $csrf ?>">
                                     <input type="hidden" name="action" value="annuler">
                                     <input type="hidden" name="id_emprunt" value="<?= (int) $emprunt['id_emprunt'] ?>">
@@ -144,7 +144,7 @@ include 'header.php';
                     <article class="carte-compte carte-emprunt<?= $retard ? ' carte-emprunt--retard' : '' ?>" id="emprunt-<?= (int) $emprunt['id_emprunt'] ?>">
                         <img src="<?= htmlspecialchars(urlImage($emprunt['couverture'])) ?>" alt="" class="carte-emprunt__couverture" loading="lazy">
                         <div class="carte-emprunt__contenu">
-                            <h3 class="carte-emprunt__titre"><a href="detail_livre.php?id=<?= (int) $emprunt['id_livre'] ?>"><?= htmlspecialchars($emprunt['titre']) ?></a></h3>
+                            <h3 class="carte-emprunt__titre"><a href="livre?id=<?= (int) $emprunt['id_livre'] ?>"><?= htmlspecialchars($emprunt['titre']) ?></a></h3>
                             <p class="carte-emprunt__auteur"><?= htmlspecialchars($emprunt['auteur'] ?? '') ?></p>
                             <p class="carte-emprunt__pastilles"><?= pastilleStatutEmprunt($emprunt) ?></p>
                             <p class="carte-emprunt__date">
@@ -157,16 +157,16 @@ include 'header.php';
                             <?php endif; ?>
                             <div class="carte-emprunt__actions">
                                 <?php if ($refusRenouvellement === ''): ?>
-                                    <form action="emprunt_action.php" method="POST">
+                                    <form action="emprunt_action" method="POST">
                                         <input type="hidden" name="csrf" value="<?= $csrf ?>">
                                         <input type="hidden" name="action" value="renouveler">
                                         <input type="hidden" name="id_emprunt" value="<?= (int) $emprunt['id_emprunt'] ?>">
                                         <button class="bouton bouton-principal bouton-petit"><i class="bi bi-arrow-repeat" aria-hidden="true"></i> Renouveler (+<?= joursRenouvellementEmprunt($emprunt) ?> jours)</button>
                                     </form>
                                 <?php endif; ?>
-                                <a href="emprunt_ticket.php?id=<?= (int) $emprunt['id_emprunt'] ?>" class="bouton bouton-contour bouton-petit"><i class="bi bi-file-earmark-pdf" aria-hidden="true"></i> Ticket d'emprunt</a>
+                                <a href="emprunt_ticket?id=<?= (int) $emprunt['id_emprunt'] ?>" class="bouton bouton-contour bouton-petit"><i class="bi bi-file-earmark-pdf" aria-hidden="true"></i> Ticket d'emprunt</a>
                                 <?php if (isset($conversations[$emprunt['id_emprunt']])): ?>
-                                    <a href="messages.php?id=<?= (int) $conversations[$emprunt['id_emprunt']] ?>#conversation" class="bouton bouton-contour bouton-petit"><i class="bi bi-chat" aria-hidden="true"></i> Écrire à l'équipe</a>
+                                    <a href="messages?id=<?= (int) $conversations[$emprunt['id_emprunt']] ?>#conversation" class="bouton bouton-contour bouton-petit"><i class="bi bi-chat" aria-hidden="true"></i> Écrire à l'équipe</a>
                                 <?php endif; ?>
                             </div>
                             <?php if ($refusRenouvellement !== '' && !$retard): ?>
@@ -191,13 +191,13 @@ include 'header.php';
                         <li class="carte-compte ligne-attente">
                             <img src="<?= htmlspecialchars(urlImage($attente['couverture'])) ?>" alt="" class="ligne-attente__couverture" loading="lazy">
                             <span class="ligne-attente__texte">
-                                <a href="detail_livre.php?id=<?= (int) $attente['id_livre'] ?>" class="ligne-attente__titre"><?= htmlspecialchars($attente['titre']) ?></a>
+                                <a href="livre?id=<?= (int) $attente['id_livre'] ?>" class="ligne-attente__titre"><?= htmlspecialchars($attente['titre']) ?></a>
                                 <span class="ligne-attente__detail">
                                     Position <?= (int) $attente['position'] ?> · inscrit le <?= date('d/m/Y', strtotime($attente['date_demande'])) ?>
                                     <?= $attente['prochain_retour'] ? ' · prochain retour prévu le ' . date('d/m/Y', strtotime($attente['prochain_retour'])) : '' ?>
                                 </span>
                             </span>
-                            <form action="emprunt_action.php" method="POST">
+                            <form action="emprunt_action" method="POST">
                                 <input type="hidden" name="csrf" value="<?= $csrf ?>">
                                 <input type="hidden" name="action" value="quitter_attente">
                                 <input type="hidden" name="id_livre" value="<?= (int) $attente['id_livre'] ?>">
@@ -221,13 +221,13 @@ include 'header.php';
                         <tbody>
                             <?php foreach ($historique as $emprunt): ?>
                                 <tr id="emprunt-<?= (int) $emprunt['id_emprunt'] ?>">
-                                    <td><a href="detail_livre.php?id=<?= (int) $emprunt['id_livre'] ?>"><?= htmlspecialchars($emprunt['titre']) ?></a></td>
+                                    <td><a href="livre?id=<?= (int) $emprunt['id_livre'] ?>"><?= htmlspecialchars($emprunt['titre']) ?></a></td>
                                     <td><?= pastilleStatutEmprunt($emprunt) ?></td>
                                     <td><?= $emprunt['date_retrait'] ? date('d/m/Y', strtotime($emprunt['date_retrait'])) : '—' ?></td>
                                     <td><?= $emprunt['date_retour'] ? date('d/m/Y', strtotime($emprunt['date_retour'])) : '—' ?></td>
                                     <td class="text-end">
                                         <?php if ($emprunt['statut'] === 'rendu'): ?>
-                                            <a href="emprunt_ticket.php?id=<?= (int) $emprunt['id_emprunt'] ?>" class="small" aria-label="Ticket de l'emprunt de <?= htmlspecialchars($emprunt['titre']) ?>"><i class="bi bi-file-earmark-pdf" aria-hidden="true"></i> Ticket</a>
+                                            <a href="emprunt_ticket?id=<?= (int) $emprunt['id_emprunt'] ?>" class="small" aria-label="Ticket de l'emprunt de <?= htmlspecialchars($emprunt['titre']) ?>"><i class="bi bi-file-earmark-pdf" aria-hidden="true"></i> Ticket</a>
                                         <?php endif; ?>
                                     </td>
                                 </tr>

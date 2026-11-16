@@ -22,7 +22,7 @@ include __DIR__ . '/header.php';
     <p class="small">Les programmes évoluent : vérifiez l’édition demandée par votre établissement et comparez son ISBN.</p>
     <?php if($erreur): ?><p class="alert alert-danger" role="alert"><?= htmlspecialchars($erreur) ?></p><?php endif; ?>
     <div class="parcours-scolaire__etapes">
-        <form method="get" action="scolaire.php#choix-matiere" class="carte-compte">
+        <form method="get" action="scolaire#choix-matiere" class="carte-compte">
             <h2 class="h4">1. Votre niveau</h2>
             <label for="scolaire-niveau" class="form-label">Niveau scolaire</label>
             <select id="scolaire-niveau" name="niveau" class="form-select mb-3" required>
@@ -34,7 +34,7 @@ include __DIR__ . '/header.php';
         <section class="carte-compte" id="choix-matiere" aria-labelledby="titre-matiere">
             <h2 id="titre-matiere" class="h4">2. Votre matière</h2>
             <?php if(in_array($niveau,$options['niveaux'],true)): ?>
-                <form method="get" action="scolaire.php#livres-scolaires">
+                <form method="get" action="scolaire#livres-scolaires">
                     <input type="hidden" name="niveau" value="<?= htmlspecialchars($niveau) ?>">
                     <label for="scolaire-matiere" class="form-label">Matière pour <?= htmlspecialchars($niveau) ?></label>
                     <select id="scolaire-matiere" name="matiere" class="form-select mb-3"><option value="">Toutes les matières de ce niveau</option><?php foreach($options['matieres'] as $choix): ?><option value="<?= htmlspecialchars($choix) ?>" <?= $choix===$matiere?'selected':'' ?>><?= htmlspecialchars($choix) ?></option><?php endforeach; ?></select>
@@ -49,9 +49,9 @@ include __DIR__ . '/header.php';
             <p>Une première sélection disponible en magasin. Les prix et les stocks sont revérifiés dans le panier.</p>
             <?php if(!$selection): ?><p role="status">Aucun exemplaire disponible pour ce choix pour le moment. Essayez une autre matière ou consultez le rayon complet.</p><?php endif; ?>
             <div class="grille-livres"><?php foreach($selection as $l): ?><div class="selection-scolaire"><p class="selection-scolaire__annee">Édition <?= $l['annee_parution']?(int)$l['annee_parution']:'non renseignée' ?></p><?php include __DIR__.'/partie_carte_livre.php'; ?></div><?php endforeach; ?></div>
-            <a class="bouton bouton-contour mt-4" href="<?= htmlspecialchars('catalogue.php?'.http_build_query(['categorie'=>'scolaire-etudes','niveau'=>$niveau,'matiere'=>$matiere,'offre'=>'magasin'])) ?>">Tous les résultats avec ces filtres</a>
+            <a class="bouton bouton-contour mt-4" href="<?= htmlspecialchars('catalogue?'.http_build_query(['categorie'=>'scolaire-etudes','niveau'=>$niveau,'matiere'=>$matiere,'offre'=>'magasin'])) ?>">Tous les résultats avec ces filtres</a>
         </section>
     <?php endif; ?>
-    <p class="mt-4"><a href="catalogue.php?categorie=scolaire-etudes">Explorer tout le rayon Scolaire &amp; Études</a></p>
+    <p class="mt-4"><a href="catalogue?categorie=scolaire-etudes">Explorer tout le rayon Scolaire &amp; Études</a></p>
 </section>
 <?php include __DIR__.'/footer.php'; ?>

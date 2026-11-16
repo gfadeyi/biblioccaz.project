@@ -6,7 +6,7 @@ require_once 'avis_spoiler_lib.php';
 if (session_status() === PHP_SESSION_NONE) { session_start(); }
 
 if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php");
+    header("Location: connexion");
     exit();
 }
 
@@ -42,7 +42,7 @@ echo etoilesStyle();
 
 <div class="container mt-4 mb-5 page-mes-avis">
     <nav aria-label="Fil d'Ariane" class="fil-ariane">
-        <a href="profil.php">Mon compte</a>
+        <a href="mon-compte">Mon compte</a>
         <span aria-hidden="true">›</span>
         <span aria-current="page">Mes avis</span>
     </nav>
@@ -60,7 +60,7 @@ echo etoilesStyle();
             <?= iconeDessin('plume') ?>
             <h2 class="h5">Vous n'avez encore donné aucun avis</h2>
             <p>Ouvrez la fiche d'un livre que vous avez lu pour le noter : les avis éligibles validés rapportent <?= pointsRegle($pdo, 'avis') ?> points selon le barème actuel.</p>
-            <a href="catalogue.php" class="bouton bouton-principal bouton-petit">Parcourir le catalogue</a>
+            <a href="catalogue" class="bouton bouton-principal bouton-petit">Parcourir le catalogue</a>
         </div>
     <?php endif; ?>
 
@@ -68,13 +68,13 @@ echo etoilesStyle();
         <?php foreach ($mesAvis as $a): ?>
             <?php $statutPoints = $statutsPoints['livre:' . $a['id_livre']] ?? null; ?>
             <article class="carte-compte mon-avis<?= $a['statut'] === 'masque' ? ' masque' : '' ?>">
-                <a href="detail_livre.php?id=<?= (int) $a['id_livre'] ?>" class="mon-avis__couverture" tabindex="-1" aria-hidden="true">
+                <a href="livre?id=<?= (int) $a['id_livre'] ?>" class="mon-avis__couverture" tabindex="-1" aria-hidden="true">
                     <img src="<?= htmlspecialchars(urlImage($a['couverture'])) ?>" alt="" loading="lazy">
                 </a>
                 <div class="mon-avis__contenu">
                     <div class="mon-avis__entete">
                         <div>
-                            <h2 class="mon-avis__livre"><a href="detail_livre.php?id=<?= (int) $a['id_livre'] ?>"><?= htmlspecialchars($a['titre_livre']) ?></a></h2>
+                            <h2 class="mon-avis__livre"><a href="livre?id=<?= (int) $a['id_livre'] ?>"><?= htmlspecialchars($a['titre_livre']) ?></a></h2>
                             <span class="mon-avis__auteur"><?= htmlspecialchars($a['auteur']) ?></span>
                         </div>
                         <small class="mon-avis__date">
@@ -98,10 +98,10 @@ echo etoilesStyle();
                     </div>
 
                     <div class="mon-avis__actions">
-                        <a href="detail_livre.php?id=<?= (int) $a['id_livre'] ?>#avis" class="bouton bouton-contour bouton-petit">
+                        <a href="livre?id=<?= (int) $a['id_livre'] ?>#avis" class="bouton bouton-contour bouton-petit">
                             <i class="bi bi-pencil" aria-hidden="true"></i> Modifier
                         </a>
-                        <form action="action_avis.php" method="POST"
+                        <form action="action_avis" method="POST"
                               data-confirmer="Supprimer votre avis sur « <?= htmlspecialchars($a['titre_livre']) ?> » ? <?= $statutPoints === 'en_attente' ? 'Les points en attente seront annulés.' : 'Cette action est définitive.' ?>"
                               data-titre-confirmer="Supprimer cet avis" data-bouton-confirmer="Supprimer">
                             <input type="hidden" name="csrf" value="<?= $csrf ?>">

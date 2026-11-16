@@ -138,7 +138,7 @@ include __DIR__ . '/_haut.php';
     <a href="evenements.php" class="btn btn-sm btn-outline-secondary"><i class="bi bi-arrow-left"></i> Événements</a>
     <?php if ($evt && !$estProposition): ?>
         <a href="evenement_participants.php?id=<?= $id ?>" class="btn btn-sm btn-outline-success"><i class="bi bi-people"></i> Participants (<?= $evt['nb_inscrits'] ?>)</a>
-        <a href="../evenement.php?id=<?= $id ?>" target="_blank" class="btn btn-sm btn-outline-secondary"><i class="bi bi-eye"></i> Voir sur le site</a>
+        <a href="../evenement?id=<?= $id ?>" target="_blank" class="btn btn-sm btn-outline-secondary"><i class="bi bi-eye"></i> Voir sur le site</a>
     <?php endif; ?>
 </div>
 

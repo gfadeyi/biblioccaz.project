@@ -3,7 +3,7 @@ require_once 'config.php';
 require_once 'evenements_lib.php';
 
 if (($_SESSION['role'] ?? '') !== 'auteur') {
-    header("Location: login.php");
+    header("Location: connexion");
     exit();
 }
 $idAuteur = (int) $_SESSION['user_id'];
@@ -55,7 +55,7 @@ include 'header.php';
 
 <div class="container mt-4 mb-5 page-createur">
     <nav aria-label="Fil d'Ariane" class="fil-ariane">
-        <a href="profil.php">Mon compte</a>
+        <a href="mon-compte">Mon compte</a>
         <span aria-hidden="true">›</span>
         <span aria-current="page">Espace créateur</span>
     </nav>
@@ -65,8 +65,8 @@ include 'header.php';
             <p class="text-muted mb-0">Proposez vos rencontres et vos livres, et suivez leur validation par l'équipe.</p>
         </div>
         <div class="d-flex flex-wrap gap-2">
-            <a href="proposer_evenement.php" class="bouton bouton-principal bouton-petit"><i class="bi bi-calendar-plus" aria-hidden="true"></i> Proposer un événement</a>
-            <a href="proposer_ouvrage.php" class="bouton bouton-contour bouton-petit"><i class="bi bi-journal-plus" aria-hidden="true"></i> Proposer un livre</a>
+            <a href="proposer_evenement" class="bouton bouton-principal bouton-petit"><i class="bi bi-calendar-plus" aria-hidden="true"></i> Proposer un événement</a>
+            <a href="proposer_ouvrage" class="bouton bouton-contour bouton-petit"><i class="bi bi-journal-plus" aria-hidden="true"></i> Proposer un livre</a>
         </div>
     </div>
 
@@ -86,9 +86,9 @@ include 'header.php';
             </div>
             <div class="d-flex flex-wrap gap-2">
                 <?php if ($ficheAuteur && $ficheAuteur['est_publique']): ?>
-                    <a href="auteur.php?a=<?= rawurlencode($ficheAuteur['slug']) ?>" class="bouton bouton-discret bouton-petit"><i class="bi bi-eye" aria-hidden="true"></i> Voir ma page</a>
+                    <a href="auteur?a=<?= rawurlencode($ficheAuteur['slug']) ?>" class="bouton bouton-discret bouton-petit"><i class="bi bi-eye" aria-hidden="true"></i> Voir ma page</a>
                 <?php endif; ?>
-                <a href="modifier_fiche_auteur.php" class="bouton bouton-contour bouton-petit"><i class="bi bi-pencil" aria-hidden="true"></i> <?= $ficheAuteur ? 'Modifier ma page' : 'Créer ma page' ?></a>
+                <a href="modifier_fiche_auteur" class="bouton bouton-contour bouton-petit"><i class="bi bi-pencil" aria-hidden="true"></i> <?= $ficheAuteur ? 'Modifier ma page' : 'Créer ma page' ?></a>
             </div>
         </section>
     <?php endif; ?>
@@ -110,7 +110,7 @@ include 'header.php';
                 <?= iconeDessin('ticket') ?>
                 <h3 class="h5">Aucun événement proposé pour l'instant</h3>
                 <p>Une dédicace, une lecture, un atelier d'écriture ? Proposez-le : l'équipe le valide puis il apparaît dans le calendrier.</p>
-                <a href="proposer_evenement.php" class="bouton bouton-principal bouton-petit">Proposer mon premier événement</a>
+                <a href="proposer_evenement" class="bouton bouton-principal bouton-petit">Proposer mon premier événement</a>
             </div>
         <?php else: ?>
             <ul class="liste-propositions">
@@ -147,13 +147,13 @@ include 'header.php';
                             <?php endif; ?>
                             <div class="proposition__actions">
                                 <?php if ($e['statut'] === 'en_attente'): ?>
-                                    <a href="proposer_evenement.php?id=<?= (int) $e['id_evenement'] ?>" class="bouton bouton-contour bouton-petit"><i class="bi bi-pencil" aria-hidden="true"></i> Modifier</a>
-                                    <a href="evenement.php?id=<?= (int) $e['id_evenement'] ?>" class="bouton bouton-discret bouton-petit"><i class="bi bi-eye" aria-hidden="true"></i> Aperçu</a>
+                                    <a href="proposer_evenement?id=<?= (int) $e['id_evenement'] ?>" class="bouton bouton-contour bouton-petit"><i class="bi bi-pencil" aria-hidden="true"></i> Modifier</a>
+                                    <a href="evenement?id=<?= (int) $e['id_evenement'] ?>" class="bouton bouton-discret bouton-petit"><i class="bi bi-eye" aria-hidden="true"></i> Aperçu</a>
                                 <?php elseif ($publieOuPasse): ?>
-                                    <a href="evenement_inscrits.php?id=<?= (int) $e['id_evenement'] ?>" class="bouton <?= $aVenir ? 'bouton-principal' : 'bouton-contour' ?> bouton-petit"><i class="bi bi-people" aria-hidden="true"></i> Voir les inscrits</a>
-                                    <a href="evenement.php?id=<?= (int) $e['id_evenement'] ?>" class="bouton bouton-discret bouton-petit"><i class="bi bi-box-arrow-up-right" aria-hidden="true"></i> Page publique</a>
+                                    <a href="evenement_inscrits?id=<?= (int) $e['id_evenement'] ?>" class="bouton <?= $aVenir ? 'bouton-principal' : 'bouton-contour' ?> bouton-petit"><i class="bi bi-people" aria-hidden="true"></i> Voir les inscrits</a>
+                                    <a href="evenement?id=<?= (int) $e['id_evenement'] ?>" class="bouton bouton-discret bouton-petit"><i class="bi bi-box-arrow-up-right" aria-hidden="true"></i> Page publique</a>
                                 <?php elseif ($e['statut'] === 'refuse'): ?>
-                                    <a href="proposer_evenement.php" class="bouton bouton-discret bouton-petit"><i class="bi bi-arrow-repeat" aria-hidden="true"></i> Proposer un autre événement</a>
+                                    <a href="proposer_evenement" class="bouton bouton-discret bouton-petit"><i class="bi bi-arrow-repeat" aria-hidden="true"></i> Proposer un autre événement</a>
                                 <?php endif; ?>
                             </div>
                         </div>
@@ -166,7 +166,7 @@ include 'header.php';
     <section class="carte-compte">
         <h2 class="carte-compte__titre"><?= iconeDessin('plume') ?> Mes livres proposés</h2>
         <?php if (!$mesLivres): ?>
-            <p class="text-muted mb-0">Vous n'avez pas encore proposé de livre au catalogue. <a href="proposer_ouvrage.php" class="lien-voir-tout">Proposer un livre <i class="bi bi-chevron-right" aria-hidden="true"></i></a></p>
+            <p class="text-muted mb-0">Vous n'avez pas encore proposé de livre au catalogue. <a href="proposer_ouvrage" class="lien-voir-tout">Proposer un livre <i class="bi bi-chevron-right" aria-hidden="true"></i></a></p>
         <?php else: ?>
             <ul class="liste-profil">
                 <?php foreach ($mesLivres as $livre): ?>
@@ -175,7 +175,7 @@ include 'header.php';
                             <img src="<?= htmlspecialchars(urlImage($livre['couverture'])) ?>" alt="" class="miniature-livre" loading="lazy">
                             <span>
                                 <?php if ($livre['is_valide']): ?>
-                                    <a href="detail_livre.php?id=<?= (int) $livre['id_livre'] ?>"><?= htmlspecialchars($livre['titre']) ?></a>
+                                    <a href="livre?id=<?= (int) $livre['id_livre'] ?>"><?= htmlspecialchars($livre['titre']) ?></a>
                                 <?php else: ?>
                                     <strong><?= htmlspecialchars($livre['titre']) ?></strong>
                                 <?php endif; ?>

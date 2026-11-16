@@ -5,7 +5,7 @@ require_once 'avis_lib.php';
 if (session_status() === PHP_SESSION_NONE) { session_start(); }
 
 if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php");
+    header("Location: connexion");
     exit();
 }
 $idUser = (int) $_SESSION['user_id'];
@@ -14,7 +14,7 @@ $idConversation = (int) ($_POST['id_conversation'] ?? 0);
 function retourConversation(?array $conversation, string $type, string $message): never
 {
     $_SESSION['flash_message'] = [$type, $message];
-    $destination = 'messages.php' . ($conversation ? '?id=' . (int) $conversation['id_conversation'] : '');
+    $destination = 'messages' . ($conversation ? '?id=' . (int) $conversation['id_conversation'] : '');
     if ($conversation && ($_POST['retour'] ?? '') === 'objet' && $conversation['objet']['lien']) {
         $destination = $conversation['objet']['lien'];
     }

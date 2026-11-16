@@ -5,7 +5,7 @@ require_once 'avis_lib.php';
 require_once 'alertes_serie_lib.php';
 
 if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php");
+    header("Location: connexion");
     exit();
 }
 $idUser = (int) $_SESSION['user_id'];
@@ -32,7 +32,7 @@ include 'header.php';
 <div class="container my-4" style="max-width: 860px;">
     <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
         <h1 class="h3 fw-bold mb-0" style="color:#274e13;"><i class="bi bi-bell"></i> Mes alertes</h1>
-        <a href="wishlist.php" class="btn btn-outline-success rounded-pill"><i class="bi bi-heart"></i> Mes favoris</a>
+        <a href="wishlist" class="btn btn-outline-success rounded-pill"><i class="bi bi-heart"></i> Mes favoris</a>
     </div>
     <p class="text-muted mb-4">Quand un livre épuisé revient en stock, vous recevez un mail. Pour créer une alerte, ouvrez la page d'un livre épuisé et cliquez sur « M'avertir », ou suivez une série depuis la page d'un de ses tomes.</p>
 
@@ -47,11 +47,11 @@ include 'header.php';
             <?php foreach ($alertesSerie as $serieSuivie): ?>
                 <div class="list-group-item d-flex flex-wrap align-items-center gap-3 py-3">
                     <div class="flex-grow-1" style="min-width: 180px;">
-                        <a href="serie.php?id=<?= (int) $serieSuivie['id_serie'] ?>" class="fw-bold text-dark text-decoration-none"><?= htmlspecialchars($serieSuivie['nom']) ?></a>
+                        <a href="serie?id=<?= (int) $serieSuivie['id_serie'] ?>" class="fw-bold text-dark text-decoration-none"><?= htmlspecialchars($serieSuivie['nom']) ?></a>
                         <div class="small text-muted"><?= htmlspecialchars($serieSuivie['auteur']) ?> · suivie depuis le <?= date('d/m/Y', strtotime($serieSuivie['date_creation'])) ?></div>
                     </div>
                     <?php if ($serieSuivie['id_livre_exemple']): ?>
-                        <form action="compte_action.php" method="POST">
+                        <form action="compte_action" method="POST">
                             <input type="hidden" name="csrf" value="<?= $csrf ?>">
                             <input type="hidden" name="action" value="serie_ne_plus_suivre">
                             <input type="hidden" name="id_livre" value="<?= (int) $serieSuivie['id_livre_exemple'] ?>">
@@ -76,7 +76,7 @@ include 'header.php';
                 <div class="list-group-item d-flex flex-wrap align-items-center gap-3 py-3">
                     <img src="<?= htmlspecialchars(urlImage($a['couverture'])) ?>" alt="" class="rounded border" style="width: 45px; height: 62px; object-fit: cover;">
                     <div class="flex-grow-1" style="min-width: 180px;">
-                        <a href="detail_livre.php?id=<?= $a['id_livre'] ?>" class="fw-bold text-dark text-decoration-none"><?= htmlspecialchars($a['titre']) ?></a>
+                        <a href="livre?id=<?= $a['id_livre'] ?>" class="fw-bold text-dark text-decoration-none"><?= htmlspecialchars($a['titre']) ?></a>
                         <div class="small text-muted">
                             <?php if ($a['date_envoi']): ?>
                                 <i class="bi bi-envelope-check text-success"></i> Prévenu le <?= date('d/m/Y', strtotime($a['date_envoi'])) ?>
@@ -88,7 +88,7 @@ include 'header.php';
                     </div>
                     <div class="d-flex gap-2">
                         <?php if ($a['date_envoi'] && $a['stock'] == 0): ?>
-                            <form action="compte_action.php" method="POST">
+                            <form action="compte_action" method="POST">
                                 <input type="hidden" name="csrf" value="<?= $csrf ?>">
                                 <input type="hidden" name="action" value="alerte_ajouter">
                                 <input type="hidden" name="id_livre" value="<?= $a['id_livre'] ?>">
@@ -96,7 +96,7 @@ include 'header.php';
                                 <button class="btn btn-sm btn-outline-success rounded-pill"><i class="bi bi-arrow-repeat"></i> Réactiver</button>
                             </form>
                         <?php endif; ?>
-                        <form action="compte_action.php" method="POST">
+                        <form action="compte_action" method="POST">
                             <input type="hidden" name="csrf" value="<?= $csrf ?>">
                             <input type="hidden" name="action" value="alerte_retirer">
                             <input type="hidden" name="id_livre" value="<?= $a['id_livre'] ?>">

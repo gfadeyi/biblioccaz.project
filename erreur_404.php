@@ -14,7 +14,7 @@ include 'header.php';
         <h1>Ce livre n'est pas dans nos rayons</h1>
         <p class="carte-formulaire__intro">La page que vous cherchez a peut-être été déplacée, retirée du catalogue ou n'a jamais existé.</p>
 
-        <form action="catalogue.php" method="GET" class="page-introuvable__recherche" role="search">
+        <form action="catalogue" method="GET" class="page-introuvable__recherche" role="search">
             <label for="recherche-404" class="visually-hidden">Rechercher un livre</label>
             <input type="search" id="recherche-404" name="q" class="form-control" placeholder="Titre, auteur, ISBN…">
             <button type="submit" class="bouton bouton-principal"><?= iconeDessin('loupe') ?> Rechercher</button>
@@ -22,8 +22,8 @@ include 'header.php';
 
         <div class="page-introuvable__liens">
             <a href="./" class="bouton bouton-contour bouton-petit">Retour à l'accueil</a>
-            <a href="catalogue.php" class="bouton bouton-contour bouton-petit">Voir le catalogue</a>
-            <a href="dons.php" class="bouton bouton-contour bouton-petit">Voir les livres à donner</a>
+            <a href="catalogue" class="bouton bouton-contour bouton-petit">Voir le catalogue</a>
+            <a href="dons" class="bouton bouton-contour bouton-petit">Voir les livres à donner</a>
             <a href="qui-sommes-nous" class="bouton bouton-contour bouton-petit">Qui sommes-nous ?</a>
         </div>
     </div>

@@ -5,7 +5,7 @@ require_once 'retours_lib.php';
 if (session_status() === PHP_SESSION_NONE) { session_start(); }
 
 if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php");
+    header("Location: connexion");
     exit();
 }
 $idUser = (int) $_SESSION['user_id'];
@@ -13,7 +13,7 @@ $idCommande = (int) ($_GET['commande'] ?? $_POST['id_commande'] ?? 0);
 
 if (!retoursDisponibles($pdo)) {
     $_SESSION['flash_message'] = ['warning', 'Les demandes de retour ne sont pas encore disponibles.'];
-    header('Location: commandes.php');
+    header('Location: commandes');
     exit();
 }
 $commande = commandeDuMembre($pdo, $idCommande, $idUser);
@@ -21,7 +21,7 @@ $type = $commande ? typeRetourPossible($commande) : null;
 $dejaDemande = $commande ? retourActifCommande(retoursParCommande($pdo, [$idCommande])[$idCommande] ?? []) : null;
 if (!$commande || $type === null || $dejaDemande) {
     $_SESSION['flash_message'] = ['warning', $dejaDemande ? 'Une demande existe déjà pour cette commande : suivez-la dans « Mes retours ».' : 'Cette commande ne permet pas de demande de retour ou de remboursement (délai dépassé ou livraison en cours).'];
-    header('Location: ' . ($dejaDemande ? 'retours.php?id=' . (int) $dejaDemande['id_retour'] : 'commandes.php'));
+    header('Location: ' . ($dejaDemande ? 'retours?id=' . (int) $dejaDemande['id_retour'] : 'commandes'));
     exit();
 }
 
@@ -40,7 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $resultat = creerDemandeRetour($pdo, $idUser, $idCommande, $saisie['motif'], $saisie['message'], $saisie['quantites']);
         if ($resultat[0] === 'success') {
             $_SESSION['flash_message'] = ['success', $resultat[1]];
-            header('Location: retours.php?id=' . (int) $resultat[2]);
+            header('Location: retours?id=' . (int) $resultat[2]);
             exit();
         }
         $erreur = $resultat[1];
@@ -53,7 +53,7 @@ include 'header.php';
 
 <div class="container my-4 page-retour" style="max-width: 780px;">
     <nav aria-label="Fil d'Ariane" class="fil-ariane">
-        <a href="commandes.php">Mes commandes</a>
+        <a href="commandes">Mes commandes</a>
         <span aria-hidden="true">›</span>
         <span aria-current="page"><?= htmlspecialchars($titreDocument) ?></span>
     </nav>
@@ -108,7 +108,7 @@ include 'header.php';
             <textarea id="retour-message" name="message" class="form-control" rows="4" maxlength="<?= RETOUR_MESSAGE_MAX ?>" placeholder="Ex : coin de la couverture déchiré, mauvais tome reçu…"><?= htmlspecialchars($saisie['message']) ?></textarea>
         </div>
         <button type="submit" class="btn btn-success rounded-pill fw-bold px-4">Envoyer ma demande</button>
-        <a href="commandes.php" class="btn btn-link">Annuler</a>
+        <a href="commandes" class="btn btn-link">Annuler</a>
     </form>
 </div>
 

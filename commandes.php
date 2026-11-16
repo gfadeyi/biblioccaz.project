@@ -6,7 +6,7 @@ require_once 'retours_lib.php';
 if (session_status() === PHP_SESSION_NONE) { session_start(); }
 
 if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php");
+    header("Location: connexion");
     exit();
 }
 $idClient = (int) $_SESSION['user_id'];
@@ -37,7 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
     $_SESSION['flash_message'] = $resultat;
-    header('Location: commandes.php#commande-' . $idCommandeAnnulee);
+    header('Location: commandes#commande-' . $idCommandeAnnulee);
     exit();
 }
 avancerSuiviCommandes($pdo, $idClient);
@@ -93,7 +93,7 @@ include 'header.php';
 <div class="container mt-5 mb-5">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2 class="fw-bold mb-0">Mes commandes</h2>
-        <a href="profil.php" class="btn btn-outline-secondary rounded-pill px-4"><i class="bi bi-arrow-left me-1"></i> Mon compte</a>
+        <a href="mon-compte" class="btn btn-outline-secondary rounded-pill px-4"><i class="bi bi-arrow-left me-1"></i> Mon compte</a>
     </div>
 
     <?php if ($flash): ?>
@@ -163,7 +163,7 @@ include 'header.php';
                                     <?php $donnes = $donsDesLignes[(int) $l['id_ligne']] ?? 0; ?>
                                     <div class="mt-1">
                                         <?php if ($donnes < (int) $l['quantite']): ?>
-                                            <a href="don_creer.php?ligne=<?= (int) $l['id_ligne'] ?>" class="don-commande link-success"><i class="bi bi-gift" aria-hidden="true"></i> Donner ce livre</a>
+                                            <a href="don_creer?ligne=<?= (int) $l['id_ligne'] ?>" class="don-commande link-success"><i class="bi bi-gift" aria-hidden="true"></i> Donner ce livre</a>
                                         <?php else: ?>
                                             <span class="don-commande text-muted"><i class="bi bi-check2" aria-hidden="true"></i> Don proposé</span>
                                         <?php endif; ?>
@@ -201,10 +201,10 @@ include 'header.php';
                     <?php if ($demandeRetour || $typeRetour): ?>
                         <div class="liens-retour-commande">
                             <?php if ($demandeRetour): ?>
-                                <a href="retours.php?id=<?= (int) $demandeRetour['id_retour'] ?>" class="btn btn-sm btn-outline-bibli rounded-pill"><i class="bi bi-arrow-return-left" aria-hidden="true"></i> Suivre la demande <?= htmlspecialchars((string) $demandeRetour['reference']) ?></a>
+                                <a href="retours?id=<?= (int) $demandeRetour['id_retour'] ?>" class="btn btn-sm btn-outline-bibli rounded-pill"><i class="bi bi-arrow-return-left" aria-hidden="true"></i> Suivre la demande <?= htmlspecialchars((string) $demandeRetour['reference']) ?></a>
                                 <span class="statut-retour statut-retour--<?= RETOUR_STATUTS[$demandeRetour['statut']][1] ?? 'attente' ?>"><?= libelleStatutRetour($demandeRetour['statut']) ?></span>
                             <?php else: ?>
-                                <a href="retour_demander.php?commande=<?= (int) $cmd['id_commande'] ?>" class="btn btn-sm btn-outline-bibli rounded-pill"><i class="bi bi-arrow-return-left" aria-hidden="true"></i> <?= $typeRetour === 'retour' ? 'Retourner des livres' : 'Suivre le remboursement' ?></a>
+                                <a href="retour_demander?commande=<?= (int) $cmd['id_commande'] ?>" class="btn btn-sm btn-outline-bibli rounded-pill"><i class="bi bi-arrow-return-left" aria-hidden="true"></i> <?= $typeRetour === 'retour' ? 'Retourner des livres' : 'Suivre le remboursement' ?></a>
                                 <small class="text-muted">jusqu’au <?= date('d/m/Y', strtotime(dateLimiteRetour($cmd))) ?></small>
                             <?php endif; ?>
                         </div>

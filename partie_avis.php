@@ -49,7 +49,7 @@ if ($idUserCourant) {
 }
 
 $csrf = $idUserCourant ? jetonCsrf() : '';
-$lienTri = fn($t) => 'detail_livre.php?' . http_build_query(['id' => $idLivreAvis, 'offre' => $_GET['offre'] ?? null, 'tri_avis' => $t]) . '#avis';
+$lienTri = fn($t) => 'livre?' . http_build_query(['id' => $idLivreAvis, 'offre' => $_GET['offre'] ?? null, 'tri_avis' => $t]) . '#avis';
 ?>
 <?= etoilesStyle() ?>
 <style>
@@ -106,7 +106,7 @@ $lienTri = fn($t) => 'detail_livre.php?' . http_build_query(['id' => $idLivreAvi
                         <div class="alert alert-warning small py-2">Votre avis a été masqué par la modération et n'est plus visible publiquement.</div>
                     <?php endif; ?>
                     <?php $reglePointsAvis = !$monAvis && ($_SESSION['role'] ?? '') === 'client' && pointsRegle($pdo, 'avis') > 0; ?>
-                    <form action="action_avis.php" method="POST">
+                    <form action="action_avis" method="POST">
                         <input type="hidden" name="csrf" value="<?= $csrf ?>">
                         <input type="hidden" name="action" value="enregistrer">
                         <input type="hidden" name="id_livre" value="<?= $idLivreAvis ?>">
@@ -143,7 +143,7 @@ $lienTri = fn($t) => 'detail_livre.php?' . http_build_query(['id' => $idLivreAvi
                         <?php endif; ?>
                     </form>
                     <?php if ($monAvis): ?>
-                        <form action="action_avis.php" method="POST" class="mt-2" data-confirmer="Supprimer votre avis sur ce livre ? Les points en attente pour cet avis seront annulés." data-titre-confirmer="Supprimer mon avis" data-bouton-confirmer="Supprimer">
+                        <form action="action_avis" method="POST" class="mt-2" data-confirmer="Supprimer votre avis sur ce livre ? Les points en attente pour cet avis seront annulés." data-titre-confirmer="Supprimer mon avis" data-bouton-confirmer="Supprimer">
                             <input type="hidden" name="csrf" value="<?= $csrf ?>">
                             <input type="hidden" name="action" value="supprimer">
                             <input type="hidden" name="id_livre" value="<?= $idLivreAvis ?>">
@@ -212,7 +212,7 @@ $lienTri = fn($t) => 'detail_livre.php?' . http_build_query(['id' => $idLivreAvi
                             <?php else: ?>
                                 <details class="small">
                                     <summary class="text-muted" style="cursor:pointer;"><i class="bi bi-flag" aria-hidden="true"></i> Signaler</summary>
-                                    <form action="action_avis.php" method="POST" class="d-flex gap-2 mt-2">
+                                    <form action="action_avis" method="POST" class="d-flex gap-2 mt-2">
                                         <input type="hidden" name="csrf" value="<?= $csrf ?>">
                                         <input type="hidden" name="action" value="signaler">
                                         <input type="hidden" name="id_livre" value="<?= $idLivreAvis ?>">

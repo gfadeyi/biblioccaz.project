@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/urls_lib.php';
 
 const NOTIFICATIONS_TYPES = [
     'don_valide' => 'carton',
@@ -26,7 +27,7 @@ function lienNotificationValide(?string $lien): ?string
     if ($lien === null || $lien === '') {
         return null;
     }
-    return preg_match('/^[a-z0-9_]+\.php(\?[A-Za-z0-9_=&%.\-]*)?(#[A-Za-z0-9_\-]+)?$/', $lien) ? $lien : null;
+    return preg_match('/^[a-z0-9_-]+(\.php)?(\?[A-Za-z0-9_=&%.\-]*)?(#[A-Za-z0-9_\-]+)?$/', $lien) ? urlPropre($lien) : null;
 }
 
 function notifierMembre(PDO $pdo, int $idUser, string $type, string $message, ?string $lien = null): bool
@@ -127,7 +128,7 @@ function ouvrirNotification(PDO $pdo, int $idUser, int $idNotification): ?string
         }
         $pdo->prepare("UPDATE notification SET lu = 1, date_lecture = COALESCE(date_lecture, NOW()) WHERE id_notification = ? AND id_user = ?")
             ->execute([$idNotification, $idUser]);
-        return lienNotificationValide($lien) ?? 'notifications.php';
+        return lienNotificationValide($lien) ?? 'notifications';
     } catch (PDOException $e) {
         return null;
     }

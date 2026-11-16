@@ -32,7 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         try {
             $user = autoriserActionPublique('recuperation', 5, 900) && autoriserDemandeRecuperation() ? preparerRecuperation($pdo, $email) : null;
             if ($user) {
-                $url = SITE_URL . "/modifier_mdp.php?token=" . $user['jeton'];
+                $url = SITE_URL . "/modifier_mdp?token=" . $user['jeton'];
                 $mail = creerMailer();
                 $mail->Timeout = 5;
                 $mail->addAddress($user['email'], $user['prenom'] ?? '');
@@ -81,7 +81,7 @@ include 'header.php';
             <?php include 'partie_captcha.php'; ?>
             <button type="submit" class="bouton bouton-principal">Recevoir le lien</button>
         </form>
-        <p class="carte-formulaire__pied"><a href="login.php">Retour à la connexion</a></p>
+        <p class="carte-formulaire__pied"><a href="connexion">Retour à la connexion</a></p>
     </div>
 </div>
 

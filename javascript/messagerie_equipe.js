@@ -108,7 +108,7 @@
         fetch(messagerie.dataset.actualisation, { method: 'POST', body: parametres, credentials: 'same-origin', cache: 'no-store', headers: { 'Accept': 'application/json' } })
             .then(function (reponse) {
                 if (reponse.status === 401) {
-                    window.location.assign('login.php');
+                    window.location.assign('connexion');
                     throw new Error('Session terminée');
                 }
                 if (reponse.status === 404) {
@@ -122,7 +122,7 @@
             })
             .then(function (donnees) {
                 if (donnees.authentification_requise === true) {
-                    window.location.assign('login.php');
+                    window.location.assign('connexion');
                     return;
                 }
                 ajouterMessages(donnees.messages || []);

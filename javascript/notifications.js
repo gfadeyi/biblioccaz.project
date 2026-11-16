@@ -30,7 +30,7 @@ document.querySelectorAll('form[data-tout-lire]').forEach(function (formulaire) 
                 if (titre) {
                     titre.textContent = 'Notifications · tout est lu';
                 }
-                document.querySelectorAll('a.lien-menu-compte[href="notifications.php"] .compteur-menu').forEach(function (compteur) {
+                document.querySelectorAll('a.lien-menu-compte[href="notifications"] .compteur-menu').forEach(function (compteur) {
                     compteur.remove();
                 });
                 formulaire.remove();

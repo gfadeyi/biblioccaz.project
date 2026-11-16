@@ -59,7 +59,7 @@ echo etoilesStyle();
     <div class="carte p-3 mb-3 <?= $a['statut'] === 'masque' ? 'opacity-75' : '' ?>">
         <div class="d-flex flex-wrap justify-content-between gap-2">
             <div>
-                <a href="../detail_livre.php?id=<?= $a['id_livre'] ?>#avis" target="_blank" class="fw-bold text-dark"><?= e($a['titre_livre']) ?></a>
+                <a href="../livre?id=<?= $a['id_livre'] ?>#avis" target="_blank" class="fw-bold text-dark"><?= e($a['titre_livre']) ?></a>
                 <span class="text-muted small"> · par <?= e($a['pseudo']) ?> · <?= date('d/m/Y', strtotime($a['date_creation'])) ?></span>
             </div>
             <div class="d-flex gap-2 align-items-center">

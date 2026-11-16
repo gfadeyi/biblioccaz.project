@@ -199,13 +199,13 @@ function creerDemandeRetour(PDO $pdo, int $idUser, int $idCommande, string $moti
         return ['danger', 'La demande n’a pas pu être enregistrée. Merci de réessayer.'];
     }
     insertLog('RETOUR', "Demande $reference ($type) pour la commande #$idCommande");
-    notifierMembre($pdo, $idUser, 'retour', "Votre demande $reference est enregistrée : l’équipe vous répond rapidement.", 'retours.php?id=' . $idRetour);
+    notifierMembre($pdo, $idUser, 'retour', "Votre demande $reference est enregistrée : l’équipe vous répond rapidement.", 'retours?id=' . $idRetour);
     $stmt = $pdo->prepare("SELECT email, pseudo FROM user WHERE id = ?");
     $stmt->execute([$idUser]);
     if ($membre = $stmt->fetch()) {
         notifierParMail($membre['email'], "Demande $reference enregistrée",
             "Bonjour {$membre['pseudo']},\n\nNous avons bien reçu votre demande de " . ($type === 'retour' ? 'retour' : 'remboursement') . " pour la commande n° $idCommande (" . formaterPrix($montant) . ").\n\nVous suivrez chaque étape dans votre espace. Ce site est une démonstration : aucun colis ni paiement réel.",
-            SITE_URL . '/retours.php?id=' . $idRetour, 'Suivre ma demande');
+            SITE_URL . '/retours?id=' . $idRetour, 'Suivre ma demande');
     }
     return ['success', "Demande $reference envoyée. Vous suivrez son avancement ici.", $idRetour];
 }
@@ -323,14 +323,14 @@ function changerStatutRetour(PDO $pdo, int $idRetour, int $idActeur, string $nou
         'rembourse' => 'est remboursée (' . formaterPrix((float) $retour['montant']) . ', paiement fictif).' . ($pointsRetires > 0 ? " $pointsRetires points de la commande ont été retirés." : ''),
     ];
     $texte = 'Votre demande ' . $retour['reference'] . ' ' . $messages[$nouveauStatut];
-    notifierMembre($pdo, (int) $retour['id_user'], 'retour', mb_substr($texte, 0, 255), 'retours.php?id=' . $idRetour);
+    notifierMembre($pdo, (int) $retour['id_user'], 'retour', mb_substr($texte, 0, 255), 'retours?id=' . $idRetour);
     $stmt = $pdo->prepare("SELECT email, pseudo FROM user WHERE id = ?");
     $stmt->execute([(int) $retour['id_user']]);
     $envoye = false;
     if ($membre = $stmt->fetch()) {
         $envoye = notifierParMail($membre['email'], 'Demande ' . $retour['reference'] . ' : ' . mb_strtolower(libelleStatutRetour($nouveauStatut)),
             "Bonjour {$membre['pseudo']},\n\n$texte" . ($commentaire !== '' && $nouveauStatut !== 'refuse' ? "\n\nMessage de l’équipe : $commentaire" : ''),
-            SITE_URL . '/retours.php?id=' . $idRetour, 'Suivre ma demande');
+            SITE_URL . '/retours?id=' . $idRetour, 'Suivre ma demande');
     }
     return ['success', 'Demande ' . $retour['reference'] . ' : ' . mb_strtolower(libelleStatutRetour($nouveauStatut)) . ($remisEnStock ? ', livres remis en stock' : '') . ($pointsRetires > 0 ? ", $pointsRetires points retirés" : '') . '.' . ($envoye ? ' Le client a été prévenu.' : ' Le mail n’a pas pu être envoyé.')];
 }

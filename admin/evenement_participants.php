@@ -107,7 +107,7 @@ include __DIR__ . '/_haut.php';
         <a href="evenement.php?id=<?= $id ?>" class="btn btn-sm btn-outline-secondary"><i class="bi bi-pencil"></i> Modifier / annuler</a>
     <?php endif; ?>
     <a href="evenement_pdf.php?id=<?= $id ?>" class="btn btn-sm btn-outline-secondary"><i class="bi bi-file-earmark-pdf"></i> Liste PDF</a>
-    <a href="../evenement.php?id=<?= $id ?>" target="_blank" class="btn btn-sm btn-outline-secondary"><i class="bi bi-eye"></i> Voir sur le site</a>
+    <a href="../evenement?id=<?= $id ?>" target="_blank" class="btn btn-sm btn-outline-secondary"><i class="bi bi-eye"></i> Voir sur le site</a>
 </div>
 
 <p class="mb-3">

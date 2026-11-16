@@ -129,7 +129,7 @@ include __DIR__ . '/_haut.php';
                                 <?php if ($e['statut'] === 'publie'): ?>
                                     <a href="evenement.php?id=<?= $e['id_evenement'] ?>" class="btn btn-sm btn-outline-secondary" title="Modifier" aria-label="Modifier"><i class="bi bi-pencil"></i></a>
                                 <?php endif; ?>
-                                <a href="../evenement.php?id=<?= $e['id_evenement'] ?>" target="_blank" class="btn btn-sm btn-outline-secondary" title="Voir sur le site" aria-label="Voir sur le site"><i class="bi bi-eye"></i></a>
+                                <a href="../evenement?id=<?= $e['id_evenement'] ?>" target="_blank" class="btn btn-sm btn-outline-secondary" title="Voir sur le site" aria-label="Voir sur le site"><i class="bi bi-eye"></i></a>
                             <?php endif; ?>
                         </td>
                     </tr>

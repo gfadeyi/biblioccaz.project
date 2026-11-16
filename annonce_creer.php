@@ -6,7 +6,7 @@ require_once 'avis_lib.php';
 if (session_status() === PHP_SESSION_NONE) { session_start(); }
 
 if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php");
+    header("Location: connexion");
     exit();
 }
 $idUser = (int) $_SESSION['user_id'];
@@ -17,12 +17,12 @@ $annonce = null;
 if ($idAnnonce) {
     $annonce = annonceParId($pdo, $idAnnonce);
     if (!$annonce || (int) $annonce['id_proprietaire'] !== $idUser) {
-        header("Location: mes_annonces.php");
+        header("Location: mes_annonces");
         exit();
     }
     if (!in_array($annonce['statut_annonce'], ANNONCE_STATUTS_MODIFIABLES, true)) {
         $_SESSION['flash_annonce'] = ['warning', "Cette annonce ne peut plus être modifiée."];
-        header("Location: mes_annonces.php");
+        header("Location: mes_annonces");
         exit();
     }
 }
@@ -151,7 +151,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['flash_annonce'] = ['success', $annonce
             ? "Annonce modifiée : elle repasse en validation auprès de l'équipe."
             : "Annonce envoyée ! L'équipe la vérifie avant de la mettre en ligne, vous recevrez un mail dès qu'elle sera publiée."];
-        header("Location: mes_annonces.php");
+        header("Location: mes_annonces");
         exit();
     }
 }
@@ -176,7 +176,7 @@ include 'header.php';
 
         <?php if ($raisonInterdiction !== ''): ?>
             <div class="alert alert-warning" role="alert"><i class="bi bi-info-circle" aria-hidden="true"></i> <?= htmlspecialchars($raisonInterdiction) ?></div>
-            <p class="carte-formulaire__pied"><a href="vendre.php">Retour à Donner ou revendre</a></p>
+            <p class="carte-formulaire__pied"><a href="vendre">Retour à Donner ou revendre</a></p>
         <?php else: ?>
 
         <?php if ($erreurs): ?>
@@ -208,7 +208,7 @@ include 'header.php';
                                     <option value="<?= htmlspecialchars($livre['titre']) ?>"><?= htmlspecialchars((string) $livre['auteur']) ?></option>
                                 <?php endforeach; ?>
                             </datalist>
-                            <button type="button" class="bouton-scanner-isbn" data-scanner-isbn data-scanner-mode="catalogue" data-scanner-cible="annonce-titre" data-scanner-recherche="don_recherche_livre.php" data-scanner-info="annonce-lien-info" data-scanner-id="annonce-id-livre" hidden><i class="bi bi-upc-scan" aria-hidden="true"></i><span>Scanner un ISBN</span></button>
+                            <button type="button" class="bouton-scanner-isbn" data-scanner-isbn data-scanner-mode="catalogue" data-scanner-cible="annonce-titre" data-scanner-recherche="don_recherche_livre" data-scanner-info="annonce-lien-info" data-scanner-id="annonce-id-livre" hidden><i class="bi bi-upc-scan" aria-hidden="true"></i><span>Scanner un ISBN</span></button>
                             <input type="hidden" name="id_livre" id="annonce-id-livre" value="<?= htmlspecialchars($v['id_livre']) ?>">
                             <div class="form-text" id="annonce-lien-info" aria-live="polite">
                                 <?= $v['id_livre'] !== '' ? '✓ Livre du catalogue : votre annonce sera rattachée à sa fiche.' : "Livre absent du catalogue ? Saisissez-le : l'équipe créera sa fiche." ?>
@@ -297,7 +297,7 @@ include 'header.php';
                 <?php if (!$annonce): ?><span class="small text-muted"><?= $nbActives ?> / <?= ANNONCES_ACTIVES_MAX ?> annonces en cours</span><?php endif; ?>
             </div>
         </form>
-        <p class="carte-formulaire__pied"><a href="mes_annonces.php">Mes annonces</a> · <a href="vendre.php">Donner ou revendre</a></p>
+        <p class="carte-formulaire__pied"><a href="mes_annonces">Mes annonces</a> · <a href="vendre">Donner ou revendre</a></p>
         <?php endif; ?>
     </div>
 </div>

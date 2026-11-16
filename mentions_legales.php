@@ -62,7 +62,7 @@ if ($textePersonnalise !== '') {
 
     <section class="carte-compte" aria-labelledby="titre-donnees">
         <h2 id="titre-donnees">Données personnelles</h2>
-        <p class="mb-0">Le traitement de vos données est décrit dans la <a href="confidentialite.php">politique de confidentialité</a>.</p>
+        <p class="mb-0">Le traitement de vos données est décrit dans la <a href="confidentialite">politique de confidentialité</a>.</p>
     </section>
 </div>
 

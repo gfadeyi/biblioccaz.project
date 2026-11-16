@@ -193,7 +193,7 @@ include __DIR__ . '/_haut.php';
                         <a href="annonce.php?id=<?= $id ?>" class="btn btn-sm btn-outline-secondary"><i class="bi bi-pencil" aria-hidden="true"></i> Modifier</a>
                     <?php endif; ?>
                     <?php if ($statut === 'publiee'): ?>
-                        <a href="../annonce.php?id=<?= $id ?>" target="_blank" rel="noopener" class="btn btn-sm btn-outline-secondary"><i class="bi bi-eye" aria-hidden="true"></i> Voir sur le site</a>
+                        <a href="../annonce?id=<?= $id ?>" target="_blank" rel="noopener" class="btn btn-sm btn-outline-secondary"><i class="bi bi-eye" aria-hidden="true"></i> Voir sur le site</a>
                     <?php endif; ?>
                     <?php if (!in_array($statut, ['reservee', 'vendue'], true)): ?>
                         <form method="POST" data-confirmer="Supprimer définitivement l'annonce « <?= e($a['titre']) ?> » et ses photos ? Le vendeur ne sera pas prévenu." data-titre-confirmer="Supprimer l'annonce" data-bouton-confirmer="Supprimer">

@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/urls_lib.php';
 
 const PAGES_PUBLIQUES_INDEXABLES = ['index.php', 'catalogue.php', 'bd_mangas.php', 'jeunesse.php', 'roman.php', 'scolaire.php', 'petits_prix.php', 'nouveauté.php', 'dernière_chance.php', 'meilleures_ventes.php', 'plus_dons.php', 'plus_emprunts.php', 'dons.php', 'evenements.php', 'auteurs.php', 'mentions_legales.php', 'confidentialite.php', 'cgu.php', 'detail_livre.php', 'serie.php', 'editions_livre.php', 'auteur.php', 'evenement.php', 'qui_sommes_nous.php'];
 
@@ -11,13 +12,7 @@ function cheminPageReferencement(): string
 
 function adresseCanonique(string $page): string
 {
-    if ($page === 'index.php') {
-        return rtrim(SITE_URL, '/') . '/';
-    }
-    if ($page === 'qui_sommes_nous.php') {
-        return rtrim(SITE_URL, '/') . '/qui-sommes-nous';
-    }
-    $url = rtrim(SITE_URL, '/') . '/' . rawurlencode($page);
+    $url = rtrim(SITE_URL, '/') . '/' . ltrim(urlPropre($page), './');
     if (in_array($page, ['detail_livre.php', 'serie.php', 'editions_livre.php', 'evenement.php'], true)) {
         $id = filter_var($_GET['id'] ?? null, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
         return $id ? $url . '?id=' . $id : '';

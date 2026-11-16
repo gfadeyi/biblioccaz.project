@@ -4,10 +4,10 @@ require_once 'evenements_lib.php';
 require_once 'avis_lib.php';
 
 $idEvt = (int) ($_POST['id_evenement'] ?? 0);
-$retour = "evenement.php?id=$idEvt";
+$retour = "evenement?id=$idEvt";
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !isset($_SESSION['user_id'])) {
-    header("Location: login.php");
+    header("Location: connexion");
     exit();
 }
 
@@ -20,7 +20,7 @@ if (!verifierCsrf()) {
 }
 
 if (($_POST['retour'] ?? '') === 'mes_evenements') {
-    $retour = 'mes_evenements.php';
+    $retour = 'mes_evenements';
 }
 header("Location: $retour");
 exit();

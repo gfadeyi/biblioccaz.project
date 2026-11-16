@@ -39,8 +39,8 @@ function modifierContenuDonEquipe(PDO $pdo, int $idDon, int $idActeur, array $sa
     insertLog('DON', 'Contenu du don #' . $idDon . ' modifié par l’équipe, nouvelle validation requise');
     $requete = $pdo->prepare('SELECT email FROM `user` WHERE id = ?');
     $requete->execute([(int) $don['id_donneur']]);
-    notifierMembre($pdo, (int) $don['id_donneur'], 'don_refuse', 'Votre don « ' . $valeurs['titre'] . ' » a été corrigé par l’équipe et attend une nouvelle validation.', 'mes_dons.php');
-    $envoye = notifierParMail((string) $requete->fetchColumn(), 'Votre don a été corrigé par l’équipe', 'Le contenu de votre don « ' . $valeurs['titre'] . ' » a été corrigé. Il attend une nouvelle validation. Motif : ' . $valeurs['motif'], SITE_URL . '/mes_dons.php', 'Voir mes dons');
+    notifierMembre($pdo, (int) $don['id_donneur'], 'don_refuse', 'Votre don « ' . $valeurs['titre'] . ' » a été corrigé par l’équipe et attend une nouvelle validation.', 'mes_dons');
+    $envoye = notifierParMail((string) $requete->fetchColumn(), 'Votre don a été corrigé par l’équipe', 'Le contenu de votre don « ' . $valeurs['titre'] . ' » a été corrigé. Il attend une nouvelle validation. Motif : ' . $valeurs['motif'], SITE_URL . '/mes_dons', 'Voir mes dons');
     return [$envoye ? 'success' : 'warning', 'Correction enregistrée et don remis en validation.' . ($envoye ? ' Le donneur a été prévenu.' : ' Le mail n’a pas pu être envoyé.')];
 }
 
@@ -146,7 +146,7 @@ function modererDon(PDO $pdo, int $idDon, int $idModerateur, string $action, str
             'refuser' => 'Votre don « ' . $don['titre'] . ' » est à corriger avant publication.',
             'annuler' => $estDonneur ? 'Votre don « ' . $don['titre'] . ' » a été annulé par l’équipe.' : 'Le don « ' . $don['titre'] . ' » que vous aviez réservé a été annulé.',
             default => $estDonneur ? 'La réservation de votre don « ' . $don['titre'] . ' » a été libérée.' : 'Votre réservation du don « ' . $don['titre'] . ' » a été libérée par l’équipe.',
-        }, $estDonneur ? 'mes_dons.php' : 'mes_dons.php#dons-recus');
+        }, $estDonneur ? 'mes_dons' : 'mes_dons#dons-recus');
     }
     return [$mailsEnvoyes ? 'success' : 'warning', $message . ($mailsEnvoyes ? ' Les personnes concernées ont été prévenues.' : ' Un email n’a pas pu être envoyé ; l’action est enregistrée.')];
 }

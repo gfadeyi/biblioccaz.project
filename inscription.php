@@ -61,7 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($stmt->execute([$pseudo, $email, $hash, $nom, $prenom])) {
                 $token = demanderValidationEmail($pdo, $email);
                 if ($token === null) { throw new RuntimeException('Validation temporairement indisponible.'); }
-                $url = SITE_URL . "/verification_mail.php?token=" . $token;
+                $url = SITE_URL . "/verification_mail?token=" . $token;
                 $mail = creerMailer();
                 try {
                     $mail->addAddress($email, $prenom . ' ' . $nom);
@@ -70,7 +70,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         "Bienvenue $prenom !\n\nMerci de rejoindre BIBLIOccaz. Pour activer votre compte, confirmez votre adresse email avec le bouton ci-dessous. Ce lien est valable 24 heures. Ouvrir le lien ne valide rien : confirmez ensuite sur la page.",
                         $url, "Confirmer mon adresse");
                     $mail->send();
-                    header('Location: login.php?inscription=1');
+                    header('Location: connexion?inscription=1');
                     exit();
                 } catch (Exception $e) {
                     insertLog('ERREUR', "Mail de validation non envoyé : " . $mail->ErrorInfo);
@@ -124,27 +124,27 @@ include 'header.php';
                 <div class="col-12">
                     <div class="carte-formulaire__encart">
                         <p>Vous êtes auteur ? Créez votre compte avec votre candidature : votre page d'auteur sera publiée après validation par l'équipe.</p>
-                        <a href="candidature_auteur.php" class="bouton bouton-contour bouton-petit"><?= iconeDessin('plume') ?> Créer un compte auteur</a>
+                        <a href="candidature_auteur" class="bouton bouton-contour bouton-petit"><?= iconeDessin('plume') ?> Créer un compte auteur</a>
                     </div>
                 </div>
 
                 <div class="col-12">
                     <div class="carte-formulaire__encart">
                         <p>Vous souhaitez aider à faire grandir la communauté ?</p>
-                        <a href="rejoindre_equipe.php" class="bouton bouton-contour bouton-petit"><?= iconeDessin('bulle') ?> Rejoindre l'équipe</a>
+                        <a href="rejoindre_equipe" class="bouton bouton-contour bouton-petit"><?= iconeDessin('bulle') ?> Rejoindre l'équipe</a>
                     </div>
                 </div>
 
                 <div class="col-12 mt-4">
                     <?php include 'partie_captcha.php'; ?>
                     <button type="submit" class="bouton bouton-principal">Créer mon compte</button>
-                    <p class="small text-muted mt-3 mb-0">Vos données servent à gérer votre compte et vos échanges sur BIBLIOccaz. Pour en savoir plus et exercer vos droits, consultez la <a href="confidentialite.php">politique de confidentialité</a>.</p>
+                    <p class="small text-muted mt-3 mb-0">Vos données servent à gérer votre compte et vos échanges sur BIBLIOccaz. Pour en savoir plus et exercer vos droits, consultez la <a href="confidentialite">politique de confidentialité</a>.</p>
                 </div>
             </div>
         </form>
-        <p><a href="renvoyer_validation.php">Recevoir un nouveau lien de validation</a></p>
+        <p><a href="renvoyer_validation">Recevoir un nouveau lien de validation</a></p>
         <?php include 'partie_bouton_google.php'; ?>
-        <p class="carte-formulaire__pied">Déjà un compte ? <a href="login.php">Se connecter</a></p>
+        <p class="carte-formulaire__pied">Déjà un compte ? <a href="connexion">Se connecter</a></p>
     </div>
 </div>
 

@@ -25,7 +25,7 @@ include __DIR__ . '/header.php';
         </div>
     </div>
     <?php if ($erreur): ?><p class="alert alert-danger" role="alert"><?= htmlspecialchars($erreur) ?></p><?php endif; ?>
-    <form method="get" action="trouver_lecture.php#selection" class="lecture-choix mb-5">
+    <form method="get" action="trouver_lecture#selection" class="lecture-choix mb-5">
         <input type="hidden" name="selection" value="1">
         <div class="row g-3 align-items-end">
             <?php foreach (['univers' => '1. Quel univers ?', 'ambiance' => '2. Quelle ambiance ?'] as $cle => $libelle): ?>
@@ -49,7 +49,7 @@ include __DIR__ . '/header.php';
             </div>
             <div class="col-12 d-flex flex-wrap align-items-center gap-3">
                 <button class="bouton bouton-action" type="submit">Découvrir ma sélection <i class="bi bi-arrow-right" aria-hidden="true"></i></button>
-                <a href="trouver_lecture.php" class="lien-voir-tout">Recommencer</a>
+                <a href="trouver_lecture" class="lien-voir-tout">Recommencer</a>
                 <p id="lecture-prix" class="small mb-0">Prix du livre, hors livraison et remises. Aucun compte nécessaire.</p>
             </div>
         </div>
@@ -68,7 +68,7 @@ include __DIR__ . '/header.php';
             <?php endif; ?>
         </section>
     <?php else: ?>
-        <p>Envie de flâner ? <a href="catalogue.php">Parcourez tout le catalogue</a>. Pour donner ou emprunter, retrouvez les offres dans le catalogue.</p>
+        <p>Envie de flâner ? <a href="catalogue">Parcourez tout le catalogue</a>. Pour donner ou emprunter, retrouvez les offres dans le catalogue.</p>
     <?php endif; ?>
 </section>
 <?php include __DIR__ . '/footer.php'; ?>

@@ -303,7 +303,7 @@ function personneEnAttente(PDO $pdo, int $idLivre, int $idUserExclu): bool
 
 function prevenirEmprunteur(array $emprunt, string $sujet, string $texte, string $libelleBouton = 'Voir mes emprunts'): bool
 {
-    return notifierParMail($emprunt['email'], $sujet, "Bonjour {$emprunt['pseudo']},\n\n$texte", SITE_URL . '/mes_emprunts.php', $libelleBouton);
+    return notifierParMail($emprunt['email'], $sujet, "Bonjour {$emprunt['pseudo']},\n\n$texte", SITE_URL . '/mes_emprunts', $libelleBouton);
 }
 
 function creerReservation(PDO $pdo, array $exemplaire, int $idUser, bool $depuisAttente): int
@@ -646,7 +646,7 @@ function leverBlocage(PDO $pdo, int $idBlocage, int $idEquipe, string $motif): a
     insertLog('EMPRUNT', "Blocage #$idBlocage de @{$blocage['pseudo']} levé : $motif");
     notifierParMail($blocage['email'], "Un blocage de vos emprunts a été levé",
         "Bonjour {$blocage['pseudo']},\n\nL'équipe BIBLIOccaz a levé le blocage suivant : {$blocage['motif']}.\n\nMotif de la levée : $motif\n\nConsultez Mes emprunts pour vérifier si d'autres restrictions restent applicables à votre compte.",
-        SITE_URL . '/mes_emprunts.php', 'Voir mes emprunts');
+        SITE_URL . '/mes_emprunts', 'Voir mes emprunts');
     return ['success', "Blocage levé pour @{$blocage['pseudo']}. Les autres restrictions éventuelles restent applicables."];
 }
 

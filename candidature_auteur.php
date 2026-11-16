@@ -23,7 +23,7 @@ if ($connecte) {
         $etat = etatCandidatureAuteur($pdo, $membre);
     }
     if ($etat['etat'] === 'auteur') {
-        header('Location: modifier_fiche_auteur.php');
+        header('Location: modifier_fiche_auteur');
         exit();
     }
 }
@@ -87,7 +87,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $disponible && $etat['etat'] === 'o
                 insertLog('CANDIDATURE', "Nouvelle candidature auteur de @{$membre['pseudo']} (« {$valeursAuteur['nom_plume']} »)");
                 notifierParMail($membre['email'], 'Votre candidature auteur est bien reçue',
                     "Bonjour {$membre['prenom']},\n\nMerci ! Votre candidature d'auteur sous le nom « {$valeursAuteur['nom_plume']} » est bien arrivée. L'équipe l'étudie et vous répondra par mail.\n\nEn attendant, votre compte lecteur reste actif.",
-                    SITE_URL . '/profil.php', 'Suivre ma demande');
+                    SITE_URL . '/mon-compte', 'Suivre ma demande');
                 $succes = "Votre candidature est envoyée. L'équipe l'étudie et vous répondra par mail. En attendant, votre compte lecteur reste actif.";
                 $etat = etatCandidatureAuteur($pdo, $membre);
             } else {
@@ -112,7 +112,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $disponible && $etat['etat'] === 'o
                     $mail->addAddress($compte['email'], $compte['prenom'] . ' ' . $compte['nom']);
                     habillerMail($mail, 'Confirmez votre adresse email',
                         "Bonjour {$compte['prenom']} !\n\nMerci pour votre candidature d'auteur sous le nom « {$valeursAuteur['nom_plume']} ». Pour activer votre compte, confirmez votre adresse email avec le bouton ci-dessous.\n\nVotre compte fonctionne d'abord comme un compte lecteur. L'équipe étudie votre candidature et vous répondra par mail.",
-                        SITE_URL . '/verification_mail.php?token=' . $jeton, 'Confirmer mon adresse');
+                        SITE_URL . '/verification_mail?token=' . $jeton, 'Confirmer mon adresse');
                     $mail->send();
                     $succes = "Votre compte et votre candidature sont enregistrés. Un mail vient de partir à {$compte['email']} : cliquez sur son lien pour confirmer votre adresse. L'équipe étudiera ensuite votre candidature.";
                 } catch (Exception $e) {
@@ -145,7 +145,7 @@ include 'header.php';
 <div class="container mt-4 mb-5 page-proposition page-candidature-auteur">
     <?php if ($connecte): ?>
         <nav aria-label="Fil d'Ariane" class="fil-ariane">
-            <a href="profil.php">Mon compte</a>
+            <a href="mon-compte">Mon compte</a>
             <span aria-hidden="true">›</span>
             <span aria-current="page">Devenir auteur</span>
         </nav>
@@ -157,7 +157,7 @@ include 'header.php';
         <section class="carte-compte etat-candidature" role="status">
             <h2 class="carte-compte__titre"><i class="bi bi-envelope-check" aria-hidden="true"></i> Candidature envoyée</h2>
             <p class="texte-profil"><?= htmlspecialchars($succes) ?></p>
-            <a href="<?= $connecte ? 'profil.php' : 'login.php' ?>" class="bouton bouton-principal bouton-petit"><?= $connecte ? 'Revenir à mon compte' : 'Aller à la connexion' ?></a>
+            <a href="<?= $connecte ? 'mon-compte' : 'connexion' ?>" class="bouton bouton-principal bouton-petit"><?= $connecte ? 'Revenir à mon compte' : 'Aller à la connexion' ?></a>
         </section>
     <?php elseif (!$disponible): ?>
         <div class="alert alert-info rounded-3" role="status"><i class="bi bi-info-circle me-1" aria-hidden="true"></i> Les candidatures d'auteur ouvrent bientôt. Revenez dans quelques jours.</div>
@@ -220,7 +220,7 @@ include 'header.php';
                                 <?= champMotDePasse('confirmation', 'confirmation', 'Confirmation *', 'new-password', false, 'form-label fw-bold small') ?>
                             </div>
                         </div>
-                        <p class="form-text mb-0">Déjà un compte lecteur ? <a href="login.php">Connectez-vous</a> puis candidatez depuis votre compte.</p>
+                        <p class="form-text mb-0">Déjà un compte lecteur ? <a href="connexion">Connectez-vous</a> puis candidatez depuis votre compte.</p>
                     </fieldset>
                 <?php endif; ?>
 
@@ -229,7 +229,7 @@ include 'header.php';
                 <?php if (!$connecte): ?><div class="mt-4"><?php include 'partie_captcha.php'; ?></div><?php endif; ?>
                 <div class="d-flex flex-wrap gap-2 mt-4">
                     <button type="submit" class="bouton bouton-principal"><i class="bi bi-send" aria-hidden="true"></i> Envoyer ma candidature</button>
-                    <a href="<?= $connecte ? 'profil.php' : 'inscription.php' ?>" class="bouton bouton-discret">Annuler</a>
+                    <a href="<?= $connecte ? 'mon-compte' : 'inscription' ?>" class="bouton bouton-discret">Annuler</a>
                 </div>
             </form>
 

@@ -4,7 +4,7 @@ require_once 'dons_lib.php';
 if (session_status() === PHP_SESSION_NONE) { session_start(); }
 
 if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php");
+    header("Location: connexion");
     exit();
 }
 $idUser = (int) $_SESSION['user_id'];
@@ -31,7 +31,7 @@ $nbRecuperes = count(array_filter($donnes, fn($d) => $d['statut'] === 'recupere'
 include 'header.php';
 
 function ligneDon(array $d, string $infoPersonne): void { ?>
-    <a href="don_detail.php?id=<?= $d['id_don'] ?>" class="list-group-item list-group-item-action d-flex align-items-center gap-3 py-3">
+    <a href="don_detail?id=<?= $d['id_don'] ?>" class="list-group-item list-group-item-action d-flex align-items-center gap-3 py-3">
         <img src="<?= htmlspecialchars(photoDon($d['photo'], $d['couverture_don'])) ?>" alt="" class="rounded border" style="width: 45px; height: 60px; object-fit: cover;">
         <div class="flex-grow-1">
             <div class="fw-bold"><?= htmlspecialchars($d['titre']) ?></div>
@@ -45,7 +45,7 @@ function ligneDon(array $d, string $infoPersonne): void { ?>
 <div class="container my-5" style="max-width: 900px;">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2 class="fw-bold mb-0">Mes dons</h2>
-        <a href="don_creer.php" class="btn btn-success rounded-pill"><i class="bi bi-plus-lg"></i> Nouveau don</a>
+        <a href="don_creer" class="btn btn-success rounded-pill"><i class="bi bi-plus-lg"></i> Nouveau don</a>
     </div>
 
     <div class="row g-3 mb-4 text-center">
@@ -60,7 +60,7 @@ function ligneDon(array $d, string $infoPersonne): void { ?>
             <?php ligneDon($d, 'Publié le ' . date('d/m/Y', strtotime($d['date_creation']))
                 . ($d['beneficiaire_pseudo'] ? ' · ' . ($d['statut'] === 'recupere' ? 'récupéré par ' : 'réservé par ') . htmlspecialchars($d['beneficiaire_pseudo']) : '')); ?>
         <?php endforeach; ?>
-        <?php if (!$donnes): ?><div class="list-group-item text-muted py-3">Vous n'avez encore rien donné. <a href="don_creer.php">Proposer un livre</a></div><?php endif; ?>
+        <?php if (!$donnes): ?><div class="list-group-item text-muted py-3">Vous n'avez encore rien donné. <a href="don_creer">Proposer un livre</a></div><?php endif; ?>
     </div>
 
     <h5 class="fw-bold" id="dons-recus">Livres que j'ai réservés ou reçus</h5>
@@ -68,7 +68,7 @@ function ligneDon(array $d, string $infoPersonne): void { ?>
         <?php foreach ($recus as $d): ?>
             <?php ligneDon($d, 'Don de ' . htmlspecialchars($d['donneur_pseudo']) . ' · ' . htmlspecialchars($d['lieu_retrait'])); ?>
         <?php endforeach; ?>
-        <?php if (!$recus): ?><div class="list-group-item text-muted py-3">Aucune réservation. <a href="dons.php">Voir les livres à donner</a></div><?php endif; ?>
+        <?php if (!$recus): ?><div class="list-group-item text-muted py-3">Aucune réservation. <a href="dons">Voir les livres à donner</a></div><?php endif; ?>
     </div>
 </div>
 

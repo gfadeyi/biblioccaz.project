@@ -3,13 +3,13 @@ require_once 'config.php';
 require_once 'evenements_lib.php';
 
 if (($_SESSION['role'] ?? '') !== 'auteur') {
-    header("Location: login.php");
+    header("Location: connexion");
     exit();
 }
 
 $evt = chargerEvenement($pdo, (int) ($_GET['id'] ?? 0));
 if (!$evt || (int) $evt['id_createur'] !== (int) $_SESSION['user_id'] || !in_array($evt['statut'], ['publie', 'annule'], true) || empty($evt['date_validation'])) {
-    header("Location: dashboard_auteur.php");
+    header("Location: dashboard_auteur");
     exit();
 }
 
@@ -40,9 +40,9 @@ include 'header.php';
 
 <div class="container mt-4 mb-5 page-inscrits">
     <nav aria-label="Fil d'Ariane" class="fil-ariane">
-        <a href="profil.php">Mon compte</a>
+        <a href="mon-compte">Mon compte</a>
         <span aria-hidden="true">›</span>
-        <a href="dashboard_auteur.php">Espace créateur</a>
+        <a href="dashboard_auteur">Espace créateur</a>
         <span aria-hidden="true">›</span>
         <span aria-current="page">Inscrits</span>
     </nav>
@@ -66,7 +66,7 @@ include 'header.php';
     <section class="carte-compte mt-3">
         <h2 class="carte-compte__titre"><?= iconeDessin('lecteur') ?> Inscrits</h2>
         <?php if (!$inscrits): ?>
-            <p class="text-muted mb-0">Personne n'est encore inscrit. Partagez la page de l'événement : <a href="evenement.php?id=<?= (int) $evt['id_evenement'] ?>"><?= htmlspecialchars(SITE_URL . '/evenement.php?id=' . $evt['id_evenement']) ?></a></p>
+            <p class="text-muted mb-0">Personne n'est encore inscrit. Partagez la page de l'événement : <a href="evenement?id=<?= (int) $evt['id_evenement'] ?>"><?= htmlspecialchars(SITE_URL . '/evenement?id=' . $evt['id_evenement']) ?></a></p>
         <?php else: ?>
             <ol class="liste-inscrits">
                 <?php foreach ($inscrits as $p): ?>

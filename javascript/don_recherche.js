@@ -104,7 +104,7 @@
         derniereRecherche = texte;
         if (controleur) controleur.abort();
         controleur = new AbortController();
-        fetch('don_recherche_livre.php?q=' + encodeURIComponent(texte), { signal: controleur.signal, headers: { 'Accept': 'application/json' } })
+        fetch('don_recherche_livre?q=' + encodeURIComponent(texte), { signal: controleur.signal, headers: { 'Accept': 'application/json' } })
             .then(reponse => reponse.ok ? reponse.json() : { livres: [] })
             .then(donnees => {
                 if (champ.value.trim() === texte && document.activeElement === champ) afficher(donnees.livres || [], texte);
