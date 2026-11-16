@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const ecranLarge = window.matchMedia('(min-width: 992px)');
 
     function ajusterHauteur() {
+        if (!ecranLarge.matches) return;
         const basDeclencheur = zone.getBoundingClientRect().bottom;
         menu.style.setProperty('--hauteur-dispo', Math.max(220, window.innerHeight - basDeclencheur - 16) + 'px');
     }

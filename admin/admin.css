@@ -30,7 +30,7 @@
     --ombre-survol: 0 10px 28px rgba(14, 31, 7, .13);
     --duree-rapide: 160ms;
     --duree-normale: 250ms;
-    --courbe: cubic-bezier(.2, .8, .2, 1);
+    --courbe: cubic-bezier(0.22, 1, 0.36, 1);
     --largeur-menu: 250px;
     --bs-body-font-family: var(--police-texte);
     --bs-body-color: var(--encre);
@@ -647,3 +647,5 @@ body.apercu-outil { display: flex; flex-direction: column; height: 100vh; height
     .acces-rapide { flex: 0 0 auto; }
 }
 
+a, button, input, select, textarea, label, summary, [role="button"], .btn { touch-action: manipulation; }
+.admin-menu-lien:active, .stat:active, .ligne-a-traiter:active { transform: scale(.97); }

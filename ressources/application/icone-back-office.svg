@@ -1,12 +1,13 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
   <rect width="512" height="512" fill="#142310"/>
-  <circle cx="256" cy="256" r="196" fill="#274e13" opacity=".45"/>
-  <g transform="translate(46 50) scale(5.6)">
-    <path d="M10 15c8-2 15 0 22 5 7-5 14-7 22-5v32c-8-2-15 0-22 5-7-5-14-7-22-5Z" fill="#f2b53a"/>
-    <path d="M32 20v32M16 25c4 0 7 1 10 3m-10 7c4 0 7 1 10 3m12-10c3-2 6-3 10-3m-10 13c3-2 6-3 10-3" fill="none" stroke="#142310" stroke-width="3" stroke-linecap="round"/>
+  <g transform="translate(32.014 24.633) scale(0.933)">
+    <g transform="translate(46 50) scale(5.6)">
+      <path d="M10 15c8-2 15 0 22 5 7-5 14-7 22-5v32c-8-2-15 0-22 5-7-5-14-7-22-5Z" fill="#f2b53a"/>
+      <path d="M32 20v32M16 25c4 0 7 1 10 3m-10 7c4 0 7 1 10 3m12-10c3-2 6-3 10-3m-10 13c3-2 6-3 10-3" fill="none" stroke="#142310" stroke-width="3" stroke-linecap="round"/>
+    </g>
+    <circle cx="338" cy="338" r="62" fill="#142310"/>
+    <circle cx="338" cy="338" r="40" fill="none" stroke="#f5f8f3" stroke-width="20" stroke-dasharray="15.7 15.7"/>
+    <circle cx="338" cy="338" r="31" fill="#f5f8f3"/>
+    <circle cx="338" cy="338" r="13" fill="#142310"/>
   </g>
-  <circle cx="338" cy="338" r="62" fill="#142310"/>
-  <circle cx="338" cy="338" r="40" fill="none" stroke="#f5f8f3" stroke-width="20" stroke-dasharray="15.7 15.7"/>
-  <circle cx="338" cy="338" r="31" fill="#f5f8f3"/>
-  <circle cx="338" cy="338" r="13" fill="#142310"/>
 </svg>
