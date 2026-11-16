@@ -1511,6 +1511,8 @@ fieldset legend.form-label { float: none; width: auto; }
     --bs-light-rgb: 44, 44, 44;
 }
 .text-muted { color: var(--encre-douce) !important; }
+.badge.bg-warning.text-dark { color: #fff !important; }
+:root[data-theme="sombre"] .badge.bg-warning.text-dark { color: #10200e !important; }
 .btn-success, .btn-primary, .btn-warning { --bs-btn-color: #fff; --bs-btn-bg: var(--vert); --bs-btn-border-color: var(--vert); --bs-btn-hover-color: #fff; --bs-btn-hover-bg: var(--vert-fonce);
                                            --bs-btn-hover-border-color: var(--vert-fonce); --bs-btn-active-color: #fff; --bs-btn-active-bg: var(--vert-nuit); --bs-btn-active-border-color: var(--vert-nuit);
                                            --bs-btn-disabled-color: #fff; --bs-btn-disabled-bg: var(--vert-300); --bs-btn-disabled-border-color: var(--vert-300); --bs-btn-focus-shadow-rgb: 63, 125, 37; }
@@ -1604,6 +1606,9 @@ fieldset legend.form-label { float: none; width: auto; }
     .pied .reseaux a { display: inline-flex; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; margin-right: .2rem; }
     summary { padding-block: .75rem; }
     main a:not([class]), main a.small:not(.btn), main a.fw-bold:not(.btn), main a.d-inline-flex:not(.btn) { padding-block: .75rem; margin-block: -.75rem; }
+    .qsn-chiffre__lien, .qsn-lire-suite, .onglets-transactions__lien { display: inline-flex; align-items: center; min-height: 44px; }
+    .form-check:not(.form-switch) > .form-check-label { display: inline-flex; align-items: center; min-height: 44px; }
+    .form-check:not(.form-switch) > .form-check-input { margin-top: 14px; }
 }
 
 .offres-section { scroll-margin-top: 9.5rem; }
@@ -2110,6 +2115,7 @@ fieldset legend.form-label { float: none; width: auto; }
 .bandeau-demo__contenu p { margin: 0; flex: 1; line-height: 1.35; }
 .bandeau-demo__fermer { flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border: 0; border-radius: 50%; background: transparent; color: inherit; }
 .bandeau-demo__fermer:hover, .bandeau-demo__fermer:focus-visible { background: var(--vert-200); }
+@media (max-width: 991.98px), (pointer: coarse) { .bandeau-demo__fermer { width: 44px; height: 44px; } }
 .mention-demo { display: flex; gap: .5rem; align-items: flex-start; background: var(--vert-50); color: var(--texte-vert); border: 1px solid var(--vert-200); border-radius: 12px; padding: .7rem .9rem; font-size: .9rem; }
 .mention-demo p { margin: 0; }
 .separateur-connexion { display: flex; align-items: center; gap: .75rem; margin: 1.25rem 0 1rem; color: var(--encre-douce); font-size: .85rem; }

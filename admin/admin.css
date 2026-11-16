@@ -198,6 +198,7 @@ a.stat:hover, a.stat:focus-visible { translate: 0 -3px; box-shadow: var(--ombre-
 .graphique-barres .barre { fill: var(--vert-400); transition: fill var(--duree-rapide) var(--courbe); }
 .graphique-barres .barre-zone:hover .barre, .graphique-barres .barre-zone:focus .barre { fill: var(--vert); }
 .graphique-barres .barre-zone { outline: none; cursor: default; }
+.graphique-barres .barre-zone:focus-visible .barre { stroke: var(--vert-nuit); stroke-width: 2; }
 .graphique-barres .zone-survol { fill: transparent; }
 .graphique-barres .grille { stroke: var(--trait); stroke-width: 1; }
 .graphique-barres .axe-texte { fill: var(--encre-pale); font-size: 11px; font-family: var(--police-texte); }
@@ -427,7 +428,10 @@ a.stat:hover, a.stat:focus-visible { translate: 0 -3px; box-shadow: var(--ombre-
     .btn-close { box-sizing: border-box; width: 44px; height: 44px; padding: 0; }
     .btn, .form-control { min-width: 44px; }
     summary { padding-block: .75rem; }
-    .lien-carte, a.text-muted { display: inline-flex; align-items: center; min-height: 44px; }
+    .lien-carte, a.text-muted, .th-tri { display: inline-flex; align-items: center; min-height: 44px; }
+    main a.small:not(.btn), main a.fw-bold:not(.btn) { padding-block: .75rem; margin-block: -.75rem; }
+    .form-check:not(.form-switch) > .form-check-label { display: inline-flex; align-items: center; min-height: 44px; }
+    .form-check:not(.form-switch) > .form-check-input { margin-top: 14px; }
 }
 
 .annonce-admin__photos { flex-shrink: 0; width: 96px; display: flex; flex-wrap: wrap; gap: 6px; align-content: flex-start; }
@@ -628,6 +632,8 @@ body.apercu-outil { display: flex; flex-direction: column; height: 100vh; height
 .priorite-libelle { grid-area: libelle; font-weight: 600; font-size: .92rem; color: var(--encre); align-self: end; }
 .priorite-detail { grid-area: detail; font-size: .8rem; color: var(--encre-pale); align-self: start; }
 .priorite.urgente { border-color: #e9b9bf; background: var(--rouge-fond); }
+.priorite.urgente .priorite-detail { color: var(--encre-douce); }
+.table-responsive:focus-visible { outline: 3px solid var(--vert-400); outline-offset: 2px; }
 .priorite.urgente .priorite-icone { background: #fff; color: var(--rouge); }
 .priorite.urgente .priorite-valeur { color: var(--rouge); }
 .priorite.indisponible .priorite-valeur { color: var(--encre-pale); }

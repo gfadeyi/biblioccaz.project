@@ -73,4 +73,11 @@ document.addEventListener('DOMContentLoaded', function () {
             zone.addEventListener('blur', function () { bulle.classList.remove('visible'); });
         });
     });
+
+    document.querySelectorAll('.table-responsive').forEach(function (zone) {
+        if (zone.scrollWidth <= zone.clientWidth + 1 && zone.scrollHeight <= zone.clientHeight + 1) return;
+        zone.tabIndex = 0;
+        zone.setAttribute('role', 'region');
+        if (!zone.hasAttribute('aria-label')) zone.setAttribute('aria-label', 'Tableau à faire défiler');
+    });
 });

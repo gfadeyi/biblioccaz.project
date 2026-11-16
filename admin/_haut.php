@@ -140,7 +140,7 @@ $iconesFlash = ['success' => 'check-circle-fill', 'danger' => 'x-octagon-fill', 
         </nav>
         <?php if (estEquipe()): ?>
             <div class="dropdown ms-auto">
-                <button class="bouton-profil dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                <button type="button" class="bouton-profil dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Mon profil : <?= e($_SESSION['pseudo'] ?? '') ?>">
                     <span class="pastille-profil" aria-hidden="true"><?= e(mb_strtoupper(mb_substr($_SESSION['pseudo'] ?? '?', 0, 1))) ?></span>
                     <span class="d-none d-sm-inline"><?= e($_SESSION['pseudo'] ?? '') ?></span>
                     <span class="role-profil d-none d-md-inline"><?= ROLES_LIBELLES[$_SESSION['role']] ?? '' ?></span>

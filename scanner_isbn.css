@@ -35,3 +35,7 @@
 .scanner-isbn__valider:hover { background: var(--vert-fonce, #1a330d); }
 .scanner-isbn__erreur { margin: .5rem 0 0; color: #b3261e; font-size: .9rem; }
 .scanner-isbn__erreur[hidden] { display: none; }
+@media (max-width: 991.98px), (pointer: coarse) {
+    .bouton-scanner-isbn { min-height: 44px; }
+    .bouton-scanner-entete::after { content: ""; position: absolute; inset: -3px; }
+}

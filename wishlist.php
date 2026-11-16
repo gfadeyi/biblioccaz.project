@@ -65,8 +65,8 @@ include 'header.php';
         <?php foreach ($favoris as $f): ?>
             <div class="card border-0 shadow-sm" style="border-radius: 15px;">
                 <div class="card-body d-flex flex-wrap align-items-center gap-3">
-                    <a href="livre?id=<?= $f['id_livre'] ?>">
-                        <img src="<?= htmlspecialchars(urlImage($f['couverture'])) ?>" alt="" loading="lazy" class="rounded border" style="width: 60px; height: 85px; object-fit: cover;">
+                    <a href="livre?id=<?= $f['id_livre'] ?>" tabindex="-1" aria-hidden="true">
+                        <img width="60" height="85" src="<?= htmlspecialchars(urlImage($f['couverture'])) ?>" alt="" loading="lazy" decoding="async" class="rounded border" style="width: 60px; height: 85px; object-fit: cover;">
                     </a>
                     <div class="flex-grow-1" style="min-width: 180px;">
                         <a href="livre?id=<?= $f['id_livre'] ?>" class="fw-bold text-dark text-decoration-none"><?= htmlspecialchars($f['titre']) ?></a>
