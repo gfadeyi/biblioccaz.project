@@ -1579,3 +1579,8 @@ CREATE TABLE IF NOT EXISTS alerte_serie_envoi (
   CONSTRAINT fk_alerte_serie_envoi_user  FOREIGN KEY (id_user)  REFERENCES `user`(id)       ON DELETE CASCADE,
   CONSTRAINT fk_alerte_serie_envoi_livre FOREIGN KEY (id_livre) REFERENCES livre(id_livre) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+INSERT INTO `user` (pseudo, email, mot_de_passe, nom, prenom, role, statut, email_verifie, est_verifie)
+SELECT 'lecteur.apercu', 'lecteur.apercu@biblioccaz.invalid', '!', 'Aperçu', 'Lecteur', 'client', 'actif', 1, 1
+FROM DUAL
+WHERE NOT EXISTS (SELECT 1 FROM `user` WHERE email = 'lecteur.apercu@biblioccaz.invalid' OR pseudo = 'lecteur.apercu');

@@ -27,14 +27,14 @@ $idsFavoris = $connected ? idsFavoris($pdo, (int) $_SESSION['user_id']) : [];
 $nb_favoris = count($idsFavoris);
 if ($connected) {
     require_once __DIR__ . '/emprunts_lib.php';
-    verifierEmpruntsSiBesoin($pdo);
+    if (!apercuActif()) { verifierEmpruntsSiBesoin($pdo); }
 }
 require_once __DIR__ . '/livraison_lib.php';
-avancerSuiviCommandesSiBesoin($pdo);
+if (!apercuActif()) { avancerSuiviCommandesSiBesoin($pdo); }
 $resumeCompte = ($connected && $userRole === 'client') ? resumeCompte($pdo, (int) $_SESSION['user_id']) : null;
 $nbMessagesNonLus = ($connected && in_array($userRole, ['client', 'auteur'], true)) ? nombreMessagesNonLus($pdo, (int) $_SESSION['user_id']) : 0;
 require_once __DIR__ . '/notifications_membre_lib.php';
-purgerNotificationsSiNecessaire($pdo);
+if (!apercuActif()) { purgerNotificationsSiNecessaire($pdo); }
 $avecCloche = $connected && in_array($userRole, ['client', 'auteur'], true);
 $nbNotificationsNonLues = $avecCloche ? nombreNotificationsNonLues($pdo, (int) $_SESSION['user_id']) : 0;
 require_once __DIR__ . '/service_client_lib.php';
@@ -103,9 +103,9 @@ if ($resumeCompte) {
     $colonnesMenuCompte = [
         [null, [
             ['profil.php', 'lecteur', 'Mon profil', 0],
-            ['admin/index.php', 'livre-ouvert', 'Back-office', $total_notif_admin],
-            ['admin/moderation_livres.php', 'tampon', 'Fiches à valider', $nb_notif_livres],
-            ['admin/moderation_avis.php', 'bulle', 'Avis signalés', $nb_notif_avis],
+            ['admin/', 'livre-ouvert', 'Back-office', $total_notif_admin],
+            ['admin/moderation_livres', 'tampon', 'Fiches à valider', $nb_notif_livres],
+            ['admin/moderation_avis', 'bulle', 'Avis signalés', $nb_notif_avis],
         ]],
     ];
 }
@@ -216,11 +216,11 @@ $nomOnglet = trim((string) ($titreDocument ?? $titrePage ?? $titresOnglets[$page
     <script src="<?= urlStatique('javascript/tiroir_notifications.js') ?>" defer></script>
 </head>
 <body>
-<?php $apercuEquipe = apercuBackOffice($pdo); if ($apercuEquipe): ?>
+<?php if (apercuActif() && strtolower((string) ($_SERVER['HTTP_SEC_FETCH_DEST'] ?? '')) !== 'iframe'): ?>
     <div class="bandeau-apercu" role="status">
         <i class="bi bi-eye" aria-hidden="true"></i>
-        <span><strong>Mode aperçu back-office</strong><span class="bandeau-apercu__detail"> · @<?= htmlspecialchars($apercuEquipe['pseudo']) ?> · le site tel que le voient les visiteurs et les membres</span></span>
-        <a href="admin/">Retour au back-office</a>
+        <span><strong>Aperçu en lecture seule</strong><span class="bandeau-apercu__detail"> · <?= htmlspecialchars(APERCU_VUES[$GLOBALS['apercuSite']['vue']]) ?> · rien n’est enregistré</span></span>
+        <a href="admin/apercu">Outil d’aperçu</a>
         <a href="apercu_quitter">Quitter l’aperçu</a>
     </div>
 <?php endif; ?>

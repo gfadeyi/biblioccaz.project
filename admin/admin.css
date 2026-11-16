@@ -593,3 +593,23 @@ body.admin { padding-left: env(safe-area-inset-left); padding-right: env(safe-ar
 @media (display-mode: standalone) {
     body.admin { padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom); }
 }
+body.apercu-outil { display: flex; flex-direction: column; height: 100vh; height: 100dvh; min-height: 0; background: #e9efe5; overflow: hidden; }
+.apercu-barre { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem .9rem; padding: .4rem .9rem; padding-top: calc(.4rem + env(safe-area-inset-top)); background: var(--menu-fond); color: #f5f8f3; font-size: .85rem; flex: none; }
+.apercu-barre__titre { font-weight: 700; display: inline-flex; align-items: center; gap: .4rem; }
+.apercu-barre__titre .bi { color: #f2b53a; }
+.apercu-barre__etat { font-weight: 600; font-size: .7rem; text-transform: uppercase; letter-spacing: .06em; color: #142310; background: #f2b53a; border-radius: var(--rayon-pilule); padding: .05rem .5rem; }
+.apercu-choix { display: inline-flex; border: 1px solid rgba(255, 255, 255, .25); border-radius: var(--rayon-pilule); overflow: hidden; }
+.apercu-choix a, .apercu-choix span { display: inline-flex; align-items: center; gap: .35rem; min-height: 32px; padding: .2rem .75rem; color: #dfe8d9; text-decoration: none; touch-action: manipulation; }
+.apercu-choix a:hover { background: rgba(255, 255, 255, .1); color: #fff; }
+.apercu-choix a.actif { background: #f5f8f3; color: #142310; font-weight: 700; }
+.apercu-choix a:focus-visible, .apercu-barre__sortie:focus-visible { outline: 2px solid #f2b53a; outline-offset: -2px; }
+.apercu-choix .indisponible { color: rgba(223, 232, 217, .6); cursor: not-allowed; }
+.apercu-barre__sortie { margin-left: auto; color: #f5f8f3; text-decoration: underline; text-underline-offset: 2px; min-height: 32px; display: inline-flex; align-items: center; gap: .35rem; }
+.apercu-barre__sortie:hover { color: #f2b53a; }
+.apercu-zone { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; align-items: center; }
+.apercu-cadre { flex: 1 1 auto; min-height: 0; width: 100%; border: 0; background: #fff; }
+.apercu-zone--mobile { padding: .6rem .5rem calc(.6rem + env(safe-area-inset-bottom)); }
+.apercu-zone--mobile .apercu-cadre { width: 390px; max-width: 100%; border: 1px solid var(--trait-fort); border-radius: 18px; box-shadow: var(--ombre-survol); }
+.apercu-note { margin: 0 0 .5rem; font-size: .78rem; color: var(--encre-douce); text-align: center; max-width: 40rem; }
+@media (max-width: 575.98px) { .apercu-barre__sortie { margin-left: 0; } }
+

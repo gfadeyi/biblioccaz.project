@@ -40,7 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     header('Location: commandes#commande-' . $idCommandeAnnulee);
     exit();
 }
-avancerSuiviCommandes($pdo, $idClient);
+if (!apercuActif()) { avancerSuiviCommandes($pdo, $idClient); }
 
 $stmt = $pdo->prepare("SELECT * FROM commande WHERE id_user = ? ORDER BY date_commande DESC, id_commande DESC");
 $stmt->execute([$_SESSION['user_id']]);

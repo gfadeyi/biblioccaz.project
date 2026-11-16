@@ -23,7 +23,7 @@ function pointsQuiSommesNous(PDO $pdo, string $action, int $defaut): int
 $chiffresCles = [
     ['pile', chiffreCleSite($pdo, 'SELECT COUNT(*) FROM livre WHERE is_valide = 1'), 'livre au catalogue', 'livres au catalogue', 'catalogue', 'Parcourir le catalogue'],
     ['seconde-vie', chiffreCleSite($pdo, "SELECT COUNT(*) FROM don WHERE statut = 'recupere'"), 'don réalisé', 'dons réalisés', 'dons', 'Voir les livres à donner'],
-    ['lecteur', chiffreCleSite($pdo, "SELECT COUNT(*) FROM user WHERE role IN ('client', 'auteur') AND statut <> 'refuse_definitif'"), 'membre inscrit', 'membres inscrits', 'inscription', 'Rejoindre la communauté'],
+    ['lecteur', chiffreCleSite($pdo, "SELECT COUNT(*) FROM user WHERE role IN ('client', 'auteur') AND statut <> 'refuse_definitif' AND email <> 'lecteur.apercu@biblioccaz.invalid'"), 'membre inscrit', 'membres inscrits', 'inscription', 'Rejoindre la communauté'],
 ];
 $pointsDon = pointsQuiSommesNous($pdo, 'don', 20);
 $pointsPresence = pointsQuiSommesNous($pdo, 'presence', 10);
