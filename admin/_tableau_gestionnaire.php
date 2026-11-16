@@ -54,25 +54,25 @@ if ($catalogue) {
     } catch (PDOException $e) {
     }
     $emprunts = [
-        ['a_preparer', 'À préparer', compter($pdo, "SELECT COUNT(*) FROM emprunt WHERE statut = 'reserve'"), 'emprunts.php?onglet=a_preparer'],
-        ['retraits', 'Retirés aujourd’hui', compter($pdo, "SELECT COUNT(*) FROM emprunt WHERE DATE(date_retrait) = CURDATE()"), 'emprunts.php?onglet=en_cours'],
-        ['retours_prevus', 'Retours attendus aujourd’hui', compter($pdo, "SELECT COUNT(*) FROM emprunt WHERE statut = 'en_cours' AND date_retour_prevue = CURDATE()"), 'emprunts.php?onglet=en_cours'],
-        ['retours', 'Rendus aujourd’hui', compter($pdo, "SELECT COUNT(*) FROM emprunt WHERE DATE(date_retour) = CURDATE()"), 'emprunts.php'],
-        ['retards', 'En retard', compter($pdo, "SELECT COUNT(*) FROM emprunt WHERE statut = 'en_cours' AND date_retour_prevue < CURDATE()"), 'emprunts.php?onglet=en_cours'],
-        ['attente', 'En liste d’attente', compter($pdo, "SELECT COUNT(*) FROM emprunt_attente"), 'emprunts.php'],
+        ['a_preparer', 'À préparer', compter($pdo, "SELECT COUNT(*) FROM emprunt WHERE statut = 'reserve'"), 'emprunts?onglet=a_preparer'],
+        ['retraits', 'Retirés aujourd’hui', compter($pdo, "SELECT COUNT(*) FROM emprunt WHERE DATE(date_retrait) = CURDATE()"), 'emprunts?onglet=en_cours'],
+        ['retours_prevus', 'Retours attendus aujourd’hui', compter($pdo, "SELECT COUNT(*) FROM emprunt WHERE statut = 'en_cours' AND date_retour_prevue = CURDATE()"), 'emprunts?onglet=en_cours'],
+        ['retours', 'Rendus aujourd’hui', compter($pdo, "SELECT COUNT(*) FROM emprunt WHERE DATE(date_retour) = CURDATE()"), 'emprunts'],
+        ['retards', 'En retard', compter($pdo, "SELECT COUNT(*) FROM emprunt WHERE statut = 'en_cours' AND date_retour_prevue < CURDATE()"), 'emprunts?onglet=en_cours'],
+        ['attente', 'En liste d’attente', compter($pdo, "SELECT COUNT(*) FROM emprunt_attente"), 'emprunts'],
     ];
     try {
         $derniereRelance = $pdo->query("SELECT date_debut, date_fin, statut, rappels, expirations, erreurs FROM relance_execution ORDER BY date_debut DESC LIMIT 1")->fetch() ?: null;
     } catch (PDOException $e) {
     }
     $relancesDuJour = (int) compter($pdo, "SELECT COUNT(*) FROM emprunt WHERE DATE(date_derniere_relance) = CURDATE()");
-    $cartes[] = ['currency-euro', 'Ventes du jour', formaterPrix($ventes['jour']), (int) $ventes['jour_nb'] . ' commande' . ($ventes['jour_nb'] > 1 ? 's' : ''), 'commandes.php', false];
-    $cartes[] = ['graph-up-arrow', 'Ventes du mois', formaterPrix($ventes['mois']), (int) $ventes['mois_nb'] . ' commande' . ($ventes['mois_nb'] > 1 ? 's' : ''), 'commandes.php', false];
-    $cartes[] = ['box-seam', 'Stock bas', $nbStockBas, 'moins de ' . SEUIL_STOCK_BAS_PUBLIC . ' exemplaires', 'inventaire.php', $nbStockBas > 0];
-    $cartes[] = ['bell', 'Ruptures attendues', count($rupturesAlertes), 'avec des clients en attente', 'inventaire.php?stock=rupture', count($rupturesAlertes) > 0];
-    $cartes[] = ['alarm', 'Emprunts en retard', (int) $emprunts[4][2], 'relances automatiques', 'emprunts.php?onglet=en_cours', $emprunts[4][2] > 0];
+    $cartes[] = ['currency-euro', 'Ventes du jour', formaterPrix($ventes['jour']), (int) $ventes['jour_nb'] . ' commande' . ($ventes['jour_nb'] > 1 ? 's' : ''), 'commandes', false];
+    $cartes[] = ['graph-up-arrow', 'Ventes du mois', formaterPrix($ventes['mois']), (int) $ventes['mois_nb'] . ' commande' . ($ventes['mois_nb'] > 1 ? 's' : ''), 'commandes', false];
+    $cartes[] = ['box-seam', 'Stock bas', $nbStockBas, 'moins de ' . SEUIL_STOCK_BAS_PUBLIC . ' exemplaires', 'inventaire', $nbStockBas > 0];
+    $cartes[] = ['bell', 'Ruptures attendues', count($rupturesAlertes), 'avec des clients en attente', 'inventaire?stock=rupture', count($rupturesAlertes) > 0];
+    $cartes[] = ['alarm', 'Emprunts en retard', (int) $emprunts[4][2], 'relances automatiques', 'emprunts?onglet=en_cours', $emprunts[4][2] > 0];
 }
-$cartes[] = ['chat-left-text', 'Messages de l’équipe', $nonLusEquipe, $nonLusEquipe > 0 ? 'non lu' . ($nonLusEquipe > 1 ? 's' : '') : 'Tout est lu', 'messagerie_equipe.php', $nonLusEquipe > 0];
+$cartes[] = ['chat-left-text', 'Messages de l’équipe', $nonLusEquipe, $nonLusEquipe > 0 ? 'non lu' . ($nonLusEquipe > 1 ? 's' : '') : 'Tout est lu', 'messagerie_equipe', $nonLusEquipe > 0];
 
 if ($evenements) {
     try {
@@ -88,25 +88,25 @@ if ($evenements) {
 
 $filesModeration = [];
 if ($catalogue) {
-    $filesModeration[] = ['shield-check', 'Fiches livres à valider', $compteurs['livres'], 'moderation_livres.php'];
-    $filesModeration[] = ['arrow-return-left', 'Retours à traiter', $compteurs['retours'] ?? 0, 'retours.php'];
+    $filesModeration[] = ['shield-check', 'Fiches livres à valider', $compteurs['livres'], 'moderation_livres'];
+    $filesModeration[] = ['arrow-return-left', 'Retours à traiter', $compteurs['retours'] ?? 0, 'retours'];
 }
 if ($gestionDons) {
-    $filesModeration[] = ['gift', 'Dons à valider', $compteurs['dons'] ?? 0, 'dons.php?statut=en_validation'];
-    $filesModeration[] = ['hourglass-split', 'Retraits de dons en retard', (int) compter($pdo, "SELECT COUNT(*) FROM don WHERE statut = 'reserve' AND date_limite < CURDATE()"), 'dons.php?statut=reserve'];
+    $filesModeration[] = ['gift', 'Dons à valider', $compteurs['dons'] ?? 0, 'dons?statut=en_validation'];
+    $filesModeration[] = ['hourglass-split', 'Retraits de dons en retard', (int) compter($pdo, "SELECT COUNT(*) FROM don WHERE statut = 'reserve' AND date_limite < CURDATE()"), 'dons?statut=reserve'];
 }
-$filesModeration[] = ['headset', 'Service client de mon pôle', $compteurs['service_client'] ?? 0, 'service_client.php'];
+$filesModeration[] = ['headset', 'Service client de mon pôle', $compteurs['service_client'] ?? 0, 'service_client'];
 if ($moderation) {
-    $filesModeration[] = ['shop', 'Annonces à valider', $compteurs['annonces'] ?? 0, 'annonces.php'];
-    $filesModeration[] = ['patch-check', 'Avis à valider', $compteurs['avis_a_valider'] ?? 0, 'avis_a_valider.php'];
-    $filesModeration[] = ['flag', 'Avis signalés', $compteurs['avis'], 'moderation_avis.php'];
-    $filesModeration[] = ['chat-dots', 'Messages signalés', $compteurs['messages'] ?? 0, 'messages.php'];
+    $filesModeration[] = ['shop', 'Annonces à valider', $compteurs['annonces'] ?? 0, 'annonces'];
+    $filesModeration[] = ['patch-check', 'Avis à valider', $compteurs['avis_a_valider'] ?? 0, 'avis_a_valider'];
+    $filesModeration[] = ['flag', 'Avis signalés', $compteurs['avis'], 'moderation_avis'];
+    $filesModeration[] = ['chat-dots', 'Messages signalés', $compteurs['messages'] ?? 0, 'messages'];
 }
 if ($ventesLecteurs) {
-    $filesModeration[] = ['people', 'Ventes entre lecteurs à surveiller', $compteurs['ventes'] ?? 0, 'ventes.php'];
+    $filesModeration[] = ['people', 'Ventes entre lecteurs à surveiller', $compteurs['ventes'] ?? 0, 'ventes'];
 }
 if ($evenements) {
-    $filesModeration[] = ['calendar-plus', 'Propositions d’événements', $compteurs['evenements_proposes'] ?? 0, 'evenements.php?onglet=proposes'];
+    $filesModeration[] = ['calendar-plus', 'Propositions d’événements', $compteurs['evenements_proposes'] ?? 0, 'evenements?onglet=proposes'];
 }
 
 $titrePage = 'Tableau de bord';
@@ -114,14 +114,16 @@ $sousTitrePage = 'Bonjour ' . (($_SESSION['prenom'] ?? '') ?: ($_SESSION['pseudo
 $pageActive = 'index';
 $actionsPage = [];
 if ($catalogue) {
-    $actionsPage[] = ['livre.php', 'plus-lg', 'Ajouter un livre', 'btn-vert'];
-    $actionsPage[] = ['emprunts.php#code', 'qr-code-scan', 'Comptoir retrait / retour', 'btn-outline-secondary'];
+    $actionsPage[] = ['livre', 'plus-lg', 'Ajouter un livre', 'btn-vert'];
+    $actionsPage[] = ['emprunts#code', 'qr-code-scan', 'Comptoir retrait / retour', 'btn-outline-secondary'];
 }
 if ($evenements) {
-    $actionsPage[] = ['evenement.php', 'calendar-plus', 'Créer un événement', 'btn-outline-secondary'];
+    $actionsPage[] = ['evenement', 'calendar-plus', 'Créer un événement', 'btn-outline-secondary'];
 }
 include __DIR__ . '/_haut.php';
 ?>
+
+<?php afficherPrioritesTableau($pdo); ?>
 
 <div class="grille-indicateurs mb-4">
     <?php foreach ($cartes as [$icone, $libelle, $valeur, $detail, $lien, $alerte]): ?>
@@ -140,12 +142,12 @@ include __DIR__ . '/_haut.php';
     <?php if ($catalogue): ?>
         <div class="col-xl-6">
             <section class="carte h-100" aria-labelledby="titreCommandes">
-                <div class="carte-entete"><h2 id="titreCommandes">Commandes à préparer</h2><a href="commandes.php" class="lien-carte">Toutes les commandes</a></div>
+                <div class="carte-entete"><h2 id="titreCommandes">Commandes à préparer</h2><a href="commandes" class="lien-carte">Toutes les commandes</a></div>
                 <p class="carte-corps small text-muted mb-0 pb-0">Commandes validées des dernières 48 heures. Le site de démonstration n’a pas d’étape d’expédition : aucun livre n’est envoyé.</p>
                 <ul class="liste-courte mt-2">
                     <?php foreach ($commandesRecentes as $commande): ?>
                         <li>
-                            <a href="commande.php?id=<?= (int) $commande['id_commande'] ?>">Commande n° <?= (int) $commande['id_commande'] ?></a>
+                            <a href="commande?id=<?= (int) $commande['id_commande'] ?>">Commande n° <?= (int) $commande['id_commande'] ?></a>
                             <small>@<?= e($commande['pseudo'] ?? 'compte supprimé') ?> · <?= (int) $commande['nb_livres'] ?> livre<?= $commande['nb_livres'] > 1 ? 's' : '' ?> · <?= formaterPrix((float) $commande['total']) ?> · <?= depuis($commande['date_commande']) ?></small>
                         </li>
                     <?php endforeach; ?>
@@ -155,18 +157,18 @@ include __DIR__ . '/_haut.php';
         </div>
         <div class="col-xl-6">
             <section class="carte h-100" aria-labelledby="titreStock">
-                <div class="carte-entete"><h2 id="titreStock">Stock</h2><a href="inventaire.php" class="lien-carte">Inventaire</a></div>
+                <div class="carte-entete"><h2 id="titreStock">Stock</h2><a href="inventaire" class="lien-carte">Inventaire</a></div>
                 <h3 class="h6 px-3 pt-3 mb-1">Ruptures avec des clients en attente</h3>
                 <ul class="liste-courte">
                     <?php foreach ($rupturesAlertes as $livre): ?>
-                        <li><a href="exemplaires.php?id=<?= (int) $livre['id_livre'] ?>"><?= e($livre['titre']) ?></a><small><?= (int) $livre['nb_alertes'] ?> alerte<?= $livre['nb_alertes'] > 1 ? 's' : '' ?></small></li>
+                        <li><a href="exemplaires?id=<?= (int) $livre['id_livre'] ?>"><?= e($livre['titre']) ?></a><small><?= (int) $livre['nb_alertes'] ?> alerte<?= $livre['nb_alertes'] > 1 ? 's' : '' ?></small></li>
                     <?php endforeach; ?>
                     <?php if (!$rupturesAlertes): ?><li class="vide">Aucun client n’attend un livre en rupture.</li><?php endif; ?>
                 </ul>
                 <h3 class="h6 px-3 pt-3 mb-1">Stock bas</h3>
                 <ul class="liste-courte">
                     <?php foreach ($stockBas as $livre): ?>
-                        <li><a href="exemplaires.php?id=<?= (int) $livre['id_livre'] ?>"><?= e($livre['titre']) ?></a><small><?= (int) $livre['stock'] ?> exemplaire<?= $livre['stock'] > 1 ? 's' : '' ?></small></li>
+                        <li><a href="exemplaires?id=<?= (int) $livre['id_livre'] ?>"><?= e($livre['titre']) ?></a><small><?= (int) $livre['stock'] ?> exemplaire<?= $livre['stock'] > 1 ? 's' : '' ?></small></li>
                     <?php endforeach; ?>
                     <?php if (!$stockBas): ?><li class="vide">Aucun titre en stock bas.</li><?php endif; ?>
                 </ul>
@@ -174,7 +176,7 @@ include __DIR__ . '/_haut.php';
         </div>
         <div class="col-xl-6">
             <section class="carte h-100" aria-labelledby="titreEmprunts">
-                <div class="carte-entete"><h2 id="titreEmprunts">Emprunts du jour</h2><a href="emprunts.php#code" class="lien-carte">Comptoir</a></div>
+                <div class="carte-entete"><h2 id="titreEmprunts">Emprunts du jour</h2><a href="emprunts#code" class="lien-carte">Comptoir</a></div>
                 <div class="chiffres-ligne">
                     <?php foreach ($emprunts as [, $libelle, $nombre, $lien]): ?>
                         <a href="<?= e($lien) ?>"><strong><?= (int) $nombre ?></strong><span><?= e($libelle) ?></span></a>
@@ -188,7 +190,7 @@ include __DIR__ . '/_haut.php';
                         aucun passage enregistré,
                     <?php endif; ?>
                     <?= $relancesDuJour ?> lecteur<?= $relancesDuJour > 1 ? 's' : '' ?> relancé<?= $relancesDuJour > 1 ? 's' : '' ?> aujourd’hui.
-                    <a href="relances_emprunts.php">Voir le suivi</a>
+                    <a href="relances_emprunts">Voir le suivi</a>
                 </div>
             </section>
         </div>
@@ -196,13 +198,13 @@ include __DIR__ . '/_haut.php';
     <?php if ($evenements): ?>
         <div class="col-xl-6">
             <section class="carte h-100" aria-labelledby="titreEvenements">
-                <div class="carte-entete"><h2 id="titreEvenements">Événements à venir</h2><a href="evenements.php" class="lien-carte">Tous les événements</a></div>
+                <div class="carte-entete"><h2 id="titreEvenements">Événements à venir</h2><a href="evenements" class="lien-carte">Tous les événements</a></div>
                 <ul class="liste-courte">
                     <?php foreach ($prochainsEvenements as $evt): ?>
                         <?php $remplissage = $evt['places_max'] > 0 ? min(100, round($evt['nb_inscrits'] / $evt['places_max'] * 100)) : 100; ?>
                         <li>
                             <span>
-                                <a href="evenement_participants.php?id=<?= (int) $evt['id_evenement'] ?>"><?= e($evt['titre']) ?></a>
+                                <a href="evenement_participants?id=<?= (int) $evt['id_evenement'] ?>"><?= e($evt['titre']) ?></a>
                                 <small class="d-block"><?= date('d/m/Y H\hi', strtotime($evt['date_debut'])) ?> · <?= e($evt['lieu']) ?></small>
                                 <span class="jauge-places-admin" aria-hidden="true"><span style="width: <?= $remplissage ?>%"></span></span>
                             </span>

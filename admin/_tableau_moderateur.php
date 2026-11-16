@@ -38,21 +38,21 @@ if ($moderation) {
     $exclureArchives = archivageCatalogueDisponible($pdo) ? ' AND NOT EXISTS (SELECT 1 FROM livre_archive ar WHERE ar.id_livre = l.id_livre AND ar.actif = 1)' : '';
     $files = [];
     if (aLeDroit('catalogue')) {
-        $files[] = ['shield-check', 'Fiches livres à valider', titresEnAttente($pdo, "SELECT l.titre FROM livre l WHERE l.is_valide = 0 $exclureArchives AND NOT EXISTS (SELECT 1 FROM exemplaire e WHERE e.id_livre = l.id_livre AND e.id_proprietaire IS NOT NULL) ORDER BY l.id_livre LIMIT 3") ?: 'Proposées par les auteurs', $compteurs['livres'], 'moderation_livres.php'];
+        $files[] = ['shield-check', 'Fiches livres à valider', titresEnAttente($pdo, "SELECT l.titre FROM livre l WHERE l.is_valide = 0 $exclureArchives AND NOT EXISTS (SELECT 1 FROM exemplaire e WHERE e.id_livre = l.id_livre AND e.id_proprietaire IS NOT NULL) ORDER BY l.id_livre LIMIT 3") ?: 'Proposées par les auteurs', $compteurs['livres'], 'moderation_livres'];
     }
-    $files[] = ['shop', 'Annonces à valider', titresEnAttente($pdo, "SELECT l.titre FROM exemplaire e INNER JOIN livre l ON l.id_livre = e.id_livre WHERE e.statut_annonce = 'en_validation' ORDER BY e.id_exemplaire LIMIT 3") ?: 'Ventes entre particuliers', $compteurs['annonces'] ?? 0, 'annonces.php'];
+    $files[] = ['shop', 'Annonces à valider', titresEnAttente($pdo, "SELECT l.titre FROM exemplaire e INNER JOIN livre l ON l.id_livre = e.id_livre WHERE e.statut_annonce = 'en_validation' ORDER BY e.id_exemplaire LIMIT 3") ?: 'Ventes entre particuliers', $compteurs['annonces'] ?? 0, 'annonces'];
     if ($gestionDons) {
-        $files[] = ['gift', 'Dons à valider', titresEnAttente($pdo, "SELECT titre FROM don WHERE statut = 'en_validation' ORDER BY date_creation LIMIT 3") ?: 'Dons proposés par les membres', $compteurs['dons'] ?? 0, 'dons.php?statut=en_validation'];
+        $files[] = ['gift', 'Dons à valider', titresEnAttente($pdo, "SELECT titre FROM don WHERE statut = 'en_validation' ORDER BY date_creation LIMIT 3") ?: 'Dons proposés par les membres', $compteurs['dons'] ?? 0, 'dons?statut=en_validation'];
     }
-    $files[] = ['patch-check', 'Avis à valider', 'Avis publiés en attente de relecture', $compteurs['avis_a_valider'] ?? 0, 'avis_a_valider.php'];
-    $files[] = ['flag', 'Avis signalés', titresEnAttente($pdo, "SELECT DISTINCT l.titre FROM avis_signalement s INNER JOIN avis a ON a.id_avis = s.id_avis INNER JOIN livre l ON l.id_livre = a.id_livre WHERE s.traite = 0 LIMIT 3") ?: 'Signalements des lecteurs', $compteurs['avis'], 'moderation_avis.php'];
-    $files[] = ['chat-dots', 'Messages signalés', 'Conversations entre membres', $compteurs['messages'] ?? 0, 'messages.php'];
+    $files[] = ['patch-check', 'Avis à valider', 'Avis publiés en attente de relecture', $compteurs['avis_a_valider'] ?? 0, 'avis_a_valider'];
+    $files[] = ['flag', 'Avis signalés', titresEnAttente($pdo, "SELECT DISTINCT l.titre FROM avis_signalement s INNER JOIN avis a ON a.id_avis = s.id_avis INNER JOIN livre l ON l.id_livre = a.id_livre WHERE s.traite = 0 LIMIT 3") ?: 'Signalements des lecteurs', $compteurs['avis'], 'moderation_avis'];
+    $files[] = ['chat-dots', 'Messages signalés', 'Conversations entre membres', $compteurs['messages'] ?? 0, 'messages'];
     $files[] = ['person-exclamation', 'Membres signalés', 'Auteurs d’avis ou de messages signalés', count($membresSignales), '#membres-signales'];
 }
 if (aLeDroit('ventes')) {
-    $files[] = ['people', 'Ventes à surveiller', 'Litiges et ventes en retard entre lecteurs', $compteurs['ventes'] ?? 0, 'ventes.php'];
+    $files[] = ['people', 'Ventes à surveiller', 'Litiges et ventes en retard entre lecteurs', $compteurs['ventes'] ?? 0, 'ventes'];
 }
-$files[] = ['headset', 'Service client de mon pôle', 'Comptes, avis, messages et demandes confiées', $compteurs['service_client'] ?? 0, 'service_client.php'];
+$files[] = ['headset', 'Service client de mon pôle', 'Comptes, avis, messages et demandes confiées', $compteurs['service_client'] ?? 0, 'service_client'];
 $propositionsEvenements = [];
 try {
     $propositionsEvenements = $pdo->query("
@@ -63,7 +63,7 @@ try {
 }
 $files[] = ['calendar-plus', 'Propositions d’événements', $propositionsEvenements
     ? implode(', ', array_map(fn($p) => '« ' . mb_strimwidth($p['titre'], 0, 28, '…') . ' »', array_slice($propositionsEvenements, 0, 3)))
-    : 'Proposées par les auteurs', $compteurs['evenements_proposes'] ?? 0, aLeDroit('evenements') ? 'evenements.php?onglet=proposes' : '#propositions-evenements'];
+    : 'Proposées par les auteurs', $compteurs['evenements_proposes'] ?? 0, aLeDroit('evenements') ? 'evenements?onglet=proposes' : '#propositions-evenements'];
 $totalATraiter = array_sum(array_map(fn($f) => $f[4] === '#membres-signales' ? 0 : $f[3], $files));
 
 $mesActions = [];
@@ -102,12 +102,12 @@ function decrireActionModeration(array $action): array
     $statut = str_replace('_', ' ', (string) $action['statut']);
     $id = (int) $action['id_objet'];
     return match ($action['type']) {
-        'avis' => ['patch-check', 'Avis : ' . $statut . $titre, 'moderation_avis.php', 'moderation'],
-        'livre' => ['book', 'Fiche : ' . $statut . $titre, 'moderation_livres.php', 'catalogue'],
-        'annonce' => ['shop', 'Annonce ' . $statut . $titre, 'annonce.php?id=' . $id, 'moderation'],
-        'don' => ['gift', 'Don : ' . $statut . $titre, 'don.php?id=' . $id, 'dons_lecture'],
-        'message' => ['chat-dots', 'Signalement de message traité', 'conversation.php?id=' . $id, 'moderation'],
-        'evenement' => ['calendar-check', 'Événement ' . $statut . $titre, 'evenement.php?id=' . $id, 'evenements'],
+        'avis' => ['patch-check', 'Avis : ' . $statut . $titre, 'moderation_avis', 'moderation'],
+        'livre' => ['book', 'Fiche : ' . $statut . $titre, 'moderation_livres', 'catalogue'],
+        'annonce' => ['shop', 'Annonce ' . $statut . $titre, 'annonce?id=' . $id, 'moderation'],
+        'don' => ['gift', 'Don : ' . $statut . $titre, 'don?id=' . $id, 'dons_lecture'],
+        'message' => ['chat-dots', 'Signalement de message traité', 'conversation?id=' . $id, 'moderation'],
+        'evenement' => ['calendar-check', 'Événement ' . $statut . $titre, 'evenement?id=' . $id, 'evenements'],
         default => ['dot', 'Action de modération', '', 'moderation'],
     };
 }
@@ -115,19 +115,21 @@ function decrireActionModeration(array $action): array
 $cartes = [
     ['shield-check', 'À traiter', $totalATraiter, 'Toutes files confondues', '#a-traiter', $totalATraiter > 0],
     ['person-exclamation', 'Membres signalés', count($membresSignales), 'Contenus signalés non traités', '#membres-signales', count($membresSignales) > 0],
-    ['chat-left-text', 'Messages de l’équipe', $nonLusEquipe, $nonLusEquipe > 0 ? 'non lu' . ($nonLusEquipe > 1 ? 's' : '') : 'Tout est lu', 'messagerie_equipe.php', $nonLusEquipe > 0],
+    ['chat-left-text', 'Messages de l’équipe', $nonLusEquipe, $nonLusEquipe > 0 ? 'non lu' . ($nonLusEquipe > 1 ? 's' : '') : 'Tout est lu', 'messagerie_equipe', $nonLusEquipe > 0],
     ['check2-all', 'Mes actions', $actionsSemaine, '7 derniers jours', '#mes-actions', false],
 ];
 
 $titrePage = 'Tableau de bord';
 $sousTitrePage = 'Bonjour ' . (($_SESSION['prenom'] ?? '') ?: ($_SESSION['pseudo'] ?? '')) . ', voici les contenus et la communauté à modérer au ' . date('d/m/Y') . '.';
 $pageActive = 'index';
-$actionsPage = [['messagerie_equipe.php?nouveau=1', 'chat-left-text', 'Écrire à l’équipe', 'btn-outline-secondary']];
+$actionsPage = [['messagerie_equipe?nouveau=1', 'chat-left-text', 'Écrire à l’équipe', 'btn-outline-secondary']];
 if (aLeDroit('dons_lecture') && !$gestionDons) {
-    $actionsPage[] = ['dons.php', 'gift', 'Consulter les dons', 'btn-outline-secondary'];
+    $actionsPage[] = ['dons', 'gift', 'Consulter les dons', 'btn-outline-secondary'];
 }
 include __DIR__ . '/_haut.php';
 ?>
+
+<?php afficherPrioritesTableau($pdo); ?>
 
 <div class="grille-indicateurs mb-4">
     <?php foreach ($cartes as [$icone, $libelle, $valeur, $detail, $lien, $alerte]): ?>
@@ -167,7 +169,7 @@ include __DIR__ . '/_haut.php';
     </div>
     <div class="col-xl-6 d-flex flex-column gap-4">
         <section class="carte" id="mes-actions" aria-labelledby="titreMesActions">
-            <div class="carte-entete"><h2 id="titreMesActions">Mes dernières actions</h2><a class="small" href="historique_decisions.php?acteur=<?= (int) $moi ?>">Historique détaillé</a></div>
+            <div class="carte-entete"><h2 id="titreMesActions">Mes dernières actions</h2><a class="small" href="historique_decisions?acteur=<?= (int) $moi ?>">Historique détaillé</a></div>
             <?php if (!$mesActions): ?>
                 <div class="etat-vide"><div class="icone-vide"><i class="bi bi-clock-history"></i></div><strong>Aucune action pour l’instant</strong>Vos validations, refus et traitements de signalements apparaîtront ici.</div>
             <?php else: ?>
@@ -192,8 +194,8 @@ include __DIR__ . '/_haut.php';
                     <?php foreach ($membresSignales as $membre): ?>
                         <li>
                             <span>@<?= e($membre['pseudo']) ?><?= in_array($membre['statut'], STATUTS_COMPTE_SUSPENDU, true) ? ' <span class="badge text-bg-secondary">suspendu</span>' : '' ?></span>
-                            <?php if ($membre['nb_avis'] > 0): ?><a href="moderation_avis.php" class="small"><?= (int) $membre['nb_avis'] ?> avis</a><?php endif; ?>
-                            <?php if ($membre['nb_messages'] > 0): ?><a href="messages.php" class="small"><?= (int) $membre['nb_messages'] ?> message<?= $membre['nb_messages'] > 1 ? 's' : '' ?></a><?php endif; ?>
+                            <?php if ($membre['nb_avis'] > 0): ?><a href="moderation_avis" class="small"><?= (int) $membre['nb_avis'] ?> avis</a><?php endif; ?>
+                            <?php if ($membre['nb_messages'] > 0): ?><a href="messages" class="small"><?= (int) $membre['nb_messages'] ?> message<?= $membre['nb_messages'] > 1 ? 's' : '' ?></a><?php endif; ?>
                         </li>
                     <?php endforeach; ?>
                     <?php if (!$membresSignales): ?><li class="vide">Aucun membre signalé.</li><?php endif; ?>
@@ -205,14 +207,14 @@ include __DIR__ . '/_haut.php';
             <ul class="liste-courte">
                 <?php foreach ($propositionsEvenements as $proposition): ?>
                     <li>
-                        <span><?php if (aLeDroit('evenements')): ?><a href="evenement.php?id=<?= (int) $proposition['id_evenement'] ?>"><?= e($proposition['titre']) ?></a><?php else: ?><?= e($proposition['titre']) ?><?php endif; ?></span>
+                        <span><?php if (aLeDroit('evenements')): ?><a href="evenement?id=<?= (int) $proposition['id_evenement'] ?>"><?= e($proposition['titre']) ?></a><?php else: ?><?= e($proposition['titre']) ?><?php endif; ?></span>
                         <small><?= $proposition['pseudo'] ? '@' . e($proposition['pseudo']) . ' · ' : '' ?><?= date('d/m/Y', strtotime($proposition['date_debut'])) ?></small>
                     </li>
                 <?php endforeach; ?>
                 <?php if (!$propositionsEvenements): ?><li class="vide">Aucune proposition en attente.</li><?php endif; ?>
             </ul>
             <?php if ($propositionsEvenements && !aLeDroit('evenements')): ?>
-                <p class="carte-corps small text-muted mb-0 border-top">La validation des événements relève du droit « Événements ». Pour donner votre avis, utilisez la <a href="messagerie_equipe.php?nouveau=1">messagerie de l’équipe</a>.</p>
+                <p class="carte-corps small text-muted mb-0 border-top">La validation des événements relève du droit « Événements ». Pour donner votre avis, utilisez la <a href="messagerie_equipe?nouveau=1">messagerie de l’équipe</a>.</p>
             <?php endif; ?>
         </section>
     </div>

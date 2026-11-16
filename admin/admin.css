@@ -613,3 +613,37 @@ body.apercu-outil { display: flex; flex-direction: column; height: 100vh; height
 .apercu-note { margin: 0 0 .5rem; font-size: .78rem; color: var(--encre-douce); text-align: center; max-width: 40rem; }
 @media (max-width: 575.98px) { .apercu-barre__sortie { margin-left: 0; } }
 
+.priorites { background: var(--surface); border: 1px solid var(--trait); border-radius: var(--rayon-grand); box-shadow: var(--ombre); padding: 1rem 1.15rem 1.1rem; }
+.priorites-entete { display: flex; align-items: center; flex-wrap: wrap; gap: .5rem .75rem; margin-bottom: .9rem; }
+.priorites-entete h2 { font-size: 1.1rem; margin: 0; }
+.priorites-etat { margin-left: auto; font-size: .8rem; color: var(--encre-pale); min-height: 1.2em; font-variant-numeric: tabular-nums; }
+.priorites-grille { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 11.5rem), 1fr)); gap: .75rem; }
+.priorite { display: grid; grid-template-columns: auto 1fr; grid-template-areas: "icone valeur" "libelle libelle" "detail detail"; align-items: center; gap: .3rem .65rem; height: 100%; min-height: 7.4rem; padding: .85rem .95rem;
+            background: var(--papier); border: 1px solid var(--trait); border-radius: var(--rayon); color: inherit; text-decoration: none;
+            transition: transform var(--duree-rapide) var(--courbe), border-color var(--duree-rapide) var(--courbe), background-color var(--duree-rapide) var(--courbe); }
+.priorite:hover, .priorite:focus-visible { border-color: var(--vert-300); background: var(--vert-50); color: inherit; }
+.priorite:active { transform: scale(.97); }
+.priorite-icone { grid-area: icone; width: 36px; height: 36px; border-radius: 10px; display: grid; place-items: center; font-size: 1.1rem; background: var(--vert-50); color: var(--vert-500); }
+.priorite-valeur { grid-area: valeur; justify-self: end; font-family: var(--police-titre); font-size: 1.7rem; font-weight: 700; line-height: 1; color: var(--vert-nuit); font-variant-numeric: tabular-nums; }
+.priorite-libelle { grid-area: libelle; font-weight: 600; font-size: .92rem; color: var(--encre); align-self: end; }
+.priorite-detail { grid-area: detail; font-size: .8rem; color: var(--encre-pale); align-self: start; }
+.priorite.urgente { border-color: #e9b9bf; background: var(--rouge-fond); }
+.priorite.urgente .priorite-icone { background: #fff; color: var(--rouge); }
+.priorite.urgente .priorite-valeur { color: var(--rouge); }
+.priorite.indisponible .priorite-valeur { color: var(--encre-pale); }
+.priorite.indisponible .priorite-detail { font-style: italic; }
+.priorites--figees .priorites-grille { opacity: .6; }
+.acces-rapides { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .95rem; padding-top: .9rem; border-top: 1px solid var(--trait); }
+.acces-rapide { display: inline-flex; align-items: center; gap: .4rem; min-height: 44px; padding: .4rem .85rem; border: 1px solid var(--trait-fort); border-radius: var(--rayon-pilule); background: var(--surface); color: var(--encre-douce); font-size: .88rem; font-weight: 600; text-decoration: none;
+                transition: transform var(--duree-rapide) var(--courbe), border-color var(--duree-rapide) var(--courbe), background-color var(--duree-rapide) var(--courbe); }
+.acces-rapide:hover, .acces-rapide:focus-visible { border-color: var(--vert-400); background: var(--vert-50); color: var(--vert); }
+.acces-rapide:active { transform: scale(.97); }
+@media (max-width: 575.98px) {
+    .priorites { padding: .85rem .8rem .95rem; }
+    .priorites-etat { margin-left: 0; flex-basis: 100%; }
+    .priorites-grille { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .55rem; }
+    .priorite { min-height: 7.8rem; padding: .7rem .75rem; }
+    .acces-rapides { flex-wrap: nowrap; overflow-x: auto; margin-inline: -.8rem; padding-inline: .8rem; scrollbar-width: none; }
+    .acces-rapide { flex: 0 0 auto; }
+}
+

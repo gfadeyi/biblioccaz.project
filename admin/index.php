@@ -4,6 +4,8 @@ require_once __DIR__ . '/../categories_lib.php';
 require_once __DIR__ . '/../livres_lib.php';
 exigerDroit('equipe');
 require_once __DIR__ . '/_tableau_lib.php';
+require_once __DIR__ . '/_tableau_priorites.php';
+$scriptsPage = '<script src="tableau_bord.js?v=' . filemtime(__DIR__ . '/tableau_bord.js') . '"></script>';
 
 if (($_SESSION['role'] ?? '') === 'gestionnaire') {
     require __DIR__ . '/_tableau_gestionnaire.php';
@@ -24,8 +26,8 @@ $indicateurs = [
     'ca_mois_avant'   => compter($pdo, "SELECT COALESCE(SUM(total), 0) $commandesValides AND date_commande >= DATE_FORMAT(CURDATE() - INTERVAL 1 MONTH, '%Y-%m-01') AND date_commande < NOW() - INTERVAL 1 MONTH"),
     'cmd_mois'        => compter($pdo, "SELECT COUNT(*) $commandesValides AND date_commande >= DATE_FORMAT(CURDATE(), '%Y-%m-01')"),
     'cmd_mois_avant'  => compter($pdo, "SELECT COUNT(*) $commandesValides AND date_commande >= DATE_FORMAT(CURDATE() - INTERVAL 1 MONTH, '%Y-%m-01') AND date_commande < NOW() - INTERVAL 1 MONTH"),
-    'membres_30j'     => compter($pdo, "SELECT COUNT(*) FROM user WHERE date_inscription >= NOW() - INTERVAL 30 DAY"),
-    'membres_30j_avant' => compter($pdo, "SELECT COUNT(*) FROM user WHERE date_inscription >= NOW() - INTERVAL 60 DAY AND date_inscription < NOW() - INTERVAL 30 DAY"),
+    'membres_30j'     => compter($pdo, "SELECT COUNT(*) FROM user WHERE email <> '" . APERCU_EMAIL_CLIENT . "' AND date_inscription >= NOW() - INTERVAL 30 DAY"),
+    'membres_30j_avant' => compter($pdo, "SELECT COUNT(*) FROM user WHERE email <> '" . APERCU_EMAIL_CLIENT . "' AND date_inscription >= NOW() - INTERVAL 60 DAY AND date_inscription < NOW() - INTERVAL 30 DAY"),
     'stock'           => compter($pdo, "SELECT COALESCE(SUM(e.quantite), 0) FROM exemplaire e WHERE " . conditionOffreMagasin()),
     'titres'          => compter($pdo, "SELECT COUNT(*) FROM livre WHERE is_valide = 1"),
     'rupture'         => compter($pdo, "SELECT COUNT(*) FROM livre l WHERE l.is_valide = 1 AND NOT EXISTS (SELECT 1 FROM exemplaire e WHERE e.id_livre = l.id_livre AND " . conditionOffreMagasin() . ")"),
@@ -92,7 +94,7 @@ try {
         (SELECT 'commande' AS type, c.date_commande AS date_evt, u.pseudo AS qui, CONCAT('Commande n° ', c.id_commande) AS quoi, c.total AS montant
          FROM commande c INNER JOIN user u ON u.id = c.id_user ORDER BY c.date_commande DESC LIMIT 6)
         UNION ALL
-        (SELECT 'membre', date_inscription, pseudo, 'Nouveau membre', NULL FROM user WHERE date_inscription IS NOT NULL ORDER BY date_inscription DESC LIMIT 6)
+        (SELECT 'membre', date_inscription, pseudo, 'Nouveau membre', NULL FROM user WHERE date_inscription IS NOT NULL AND email <> '" . APERCU_EMAIL_CLIENT . "' ORDER BY date_inscription DESC LIMIT 6)
         UNION ALL
         (SELECT 'avis', a.date_creation, u.pseudo, CONCAT('Avis ', a.note, '/5 sur « ', l.titre, ' »'), NULL
          FROM avis a INNER JOIN user u ON u.id = a.id_user INNER JOIN livre l ON l.id_livre = a.id_livre ORDER BY a.date_creation DESC LIMIT 6)
@@ -112,49 +114,49 @@ if ($finances) {
     $cartes[] = ['currency-euro', "Chiffre d'affaires du jour", formaterPrix($indicateurs['ca_jour']), tendance($indicateurs['ca_jour'], $indicateurs['ca_hier']), "par rapport à hier", null, false];
     $cartes[] = ['graph-up-arrow', "Chiffre d'affaires du mois", formaterPrix($indicateurs['ca_mois']), tendance($indicateurs['ca_mois'], $indicateurs['ca_mois_avant']), "vs même période le mois dernier", null, false];
     $cartes[] = ['bag-check', 'Commandes du mois', (int) $indicateurs['cmd_mois'], tendance($indicateurs['cmd_mois'], $indicateurs['cmd_mois_avant']), "vs même période le mois dernier", null, false];
-    $cartes[] = ['person-plus', 'Nouveaux membres', (int) $indicateurs['membres_30j'], tendance($indicateurs['membres_30j'], $indicateurs['membres_30j_avant']), "30 derniers jours", 'utilisateurs.php', false];
+    $cartes[] = ['person-plus', 'Nouveaux membres', (int) $indicateurs['membres_30j'], tendance($indicateurs['membres_30j'], $indicateurs['membres_30j_avant']), "30 derniers jours", 'utilisateurs', false];
 }
 if (aLeDroit('catalogue')) {
-    $cartes[] = ['box-seam', 'Livres en stock', (int) $indicateurs['stock'], null, (int) $indicateurs['titres'] . ' titres au catalogue', 'inventaire.php', false];
-    $cartes[] = ['exclamation-triangle', 'Titres en rupture', (int) $indicateurs['rupture'], null, (int) $indicateurs['alertes_clients'] . ' client' . ($indicateurs['alertes_clients'] > 1 ? 's' : '') . ' en attente', 'inventaire.php?stock=rupture', $indicateurs['rupture'] > 0];
+    $cartes[] = ['box-seam', 'Livres en stock', (int) $indicateurs['stock'], null, (int) $indicateurs['titres'] . ' titres au catalogue', 'inventaire', false];
+    $cartes[] = ['exclamation-triangle', 'Titres en rupture', (int) $indicateurs['rupture'], null, (int) $indicateurs['alertes_clients'] . ' client' . ($indicateurs['alertes_clients'] > 1 ? 's' : '') . ' en attente', 'inventaire?stock=rupture', $indicateurs['rupture'] > 0];
 }
 if (aLeDroit('moderation')) {
-    $cartes[] = ['shield-check', 'À modérer', $aModerer, null, $compteurs['livres'] . ' fiche' . ($compteurs['livres'] > 1 ? 's' : '') . ' · ' . $compteurs['avis'] . ' avis signalé' . ($compteurs['avis'] > 1 ? 's' : ''), $compteurs['livres'] > 0 ? 'moderation_livres.php' : 'moderation_avis.php', $aModerer > 0];
+    $cartes[] = ['shield-check', 'À modérer', $aModerer, null, $compteurs['livres'] . ' fiche' . ($compteurs['livres'] > 1 ? 's' : '') . ' · ' . $compteurs['avis'] . ' avis signalé' . ($compteurs['avis'] > 1 ? 's' : ''), $compteurs['livres'] > 0 ? 'moderation_livres' : 'moderation_avis', $aModerer > 0];
 }
-$cartes[] = ['gift', 'Dons en cours', (int) $indicateurs['dons'], null, (int) $indicateurs['dons_reserves'] . ' réservé' . ($indicateurs['dons_reserves'] > 1 ? 's' : '') . ', à récupérer', 'dons.php', false];
+$cartes[] = ['gift', 'Dons en cours', (int) $indicateurs['dons'], null, (int) $indicateurs['dons_reserves'] . ' réservé' . ($indicateurs['dons_reserves'] > 1 ? 's' : '') . ', à récupérer', 'dons', false];
 if (aLeDroit('evenements')) {
     $cartes[] = ['calendar-event', 'Événements à venir', (int) $indicateurs['evenements'], null,
-        $prochainEvenement ? 'Prochain : ' . date('d/m', strtotime($prochainEvenement['date_debut'])) . ' · ' . mb_strimwidth($prochainEvenement['titre'], 0, 26, '…') : 'Aucun programmé', 'evenements.php', false];
+        $prochainEvenement ? 'Prochain : ' . date('d/m', strtotime($prochainEvenement['date_debut'])) . ' · ' . mb_strimwidth($prochainEvenement['titre'], 0, 26, '…') : 'Aucun programmé', 'evenements', false];
 }
 
 $aTraiter = [];
 if (aLeDroit('moderation')) {
-    $aTraiter[] = ['shield-check', 'Fiches de livres à valider', 'Proposées par les auteurs', $compteurs['livres'], 'moderation_livres.php'];
-    $aTraiter[] = ['shop', 'Annonces à valider', 'Ventes entre particuliers', $compteurs['annonces'], 'annonces.php'];
-    $aTraiter[] = ['flag', 'Avis signalés', 'Signalements des lecteurs', $compteurs['avis'], 'moderation_avis.php'];
-    $aTraiter[] = ['chat-dots', 'Messages signalés', 'Conversations entre membres', $compteurs['messages'] ?? 0, 'messages.php'];
-    $aTraiter[] = ['people', 'Ventes à surveiller', 'Litiges et ventes en retard entre lecteurs', $compteurs['ventes'] ?? 0, 'ventes.php'];
+    $aTraiter[] = ['shield-check', 'Fiches de livres à valider', 'Proposées par les auteurs', $compteurs['livres'], 'moderation_livres'];
+    $aTraiter[] = ['shop', 'Annonces à valider', 'Ventes entre particuliers', $compteurs['annonces'], 'annonces'];
+    $aTraiter[] = ['flag', 'Avis signalés', 'Signalements des lecteurs', $compteurs['avis'], 'moderation_avis'];
+    $aTraiter[] = ['chat-dots', 'Messages signalés', 'Conversations entre membres', $compteurs['messages'] ?? 0, 'messages'];
+    $aTraiter[] = ['people', 'Ventes à surveiller', 'Litiges et ventes en retard entre lecteurs', $compteurs['ventes'] ?? 0, 'ventes'];
 }
 if (aLeDroit('catalogue')) {
     $detailAlertes = $livresEnAttenteAlerte
         ? implode(', ', array_map(fn($l) => '« ' . mb_strimwidth($l['titre'], 0, 22, '…') . ' » (' . $l['nb_alertes'] . ')', $livresEnAttenteAlerte))
         : 'Aucun client en attente';
-    $aTraiter[] = ['bookmark-check', "Réservations d'emprunt à préparer", 'À sortir du rayon pour le retrait en magasin', $compteurs['emprunts_a_preparer'] ?? 0, 'emprunts.php?onglet=a_preparer'];
-    $aTraiter[] = ['alarm', 'Emprunts en retard', 'Livres à récupérer, relances envoyées automatiquement', $compteurs['emprunts_en_retard'] ?? 0, 'emprunts.php?onglet=en_cours'];
-    $aTraiter[] = ['chat-dots', 'Questions sur les emprunts', "Messages de lecteurs en attente de réponse de l'équipe", $compteurs['emprunts_questions'] ?? 0, 'emprunts.php'];
-    $aTraiter[] = ['bell', 'Ruptures avec alertes clients', $detailAlertes, count($livresEnAttenteAlerte), 'inventaire.php?stock=rupture'];
+    $aTraiter[] = ['bookmark-check', "Réservations d'emprunt à préparer", 'À sortir du rayon pour le retrait en magasin', $compteurs['emprunts_a_preparer'] ?? 0, 'emprunts?onglet=a_preparer'];
+    $aTraiter[] = ['alarm', 'Emprunts en retard', 'Livres à récupérer, relances envoyées automatiquement', $compteurs['emprunts_en_retard'] ?? 0, 'emprunts?onglet=en_cours'];
+    $aTraiter[] = ['chat-dots', 'Questions sur les emprunts', "Messages de lecteurs en attente de réponse de l'équipe", $compteurs['emprunts_questions'] ?? 0, 'emprunts'];
+    $aTraiter[] = ['bell', 'Ruptures avec alertes clients', $detailAlertes, count($livresEnAttenteAlerte), 'inventaire?stock=rupture'];
 }
 if (aLeDroit('evenements')) {
-    $aTraiter[] = ['calendar-plus', 'Événements proposés par les auteurs', 'En attente de validation', (int) $indicateurs['evt_proposes'], 'evenements.php?onglet=proposes'];
+    $aTraiter[] = ['calendar-plus', 'Événements proposés par les auteurs', 'En attente de validation', (int) $indicateurs['evt_proposes'], 'evenements?onglet=proposes'];
 }
 if (aLeDroit('admin')) {
-    $aTraiter[] = ['person-badge', 'Candidatures à l’équipe', 'Modérateurs et gestionnaires', $compteurs['candidatures'], 'candidatures.php'];
+    $aTraiter[] = ['person-badge', 'Candidatures à l’équipe', 'Modérateurs et gestionnaires', $compteurs['candidatures'], 'candidatures'];
 }
 if (aLeDroit('candidatures_auteur')) {
-    $aTraiter[] = ['feather', 'Candidatures auteur', 'Fiches auteur à étudier', $compteurs['candidatures_auteur'] ?? 0, 'candidatures_auteur.php'];
+    $aTraiter[] = ['feather', 'Candidatures auteur', 'Fiches auteur à étudier', $compteurs['candidatures_auteur'] ?? 0, 'candidatures_auteur'];
 }
 require_once __DIR__ . '/../messagerie_equipe_lib.php';
-$aTraiter[] = ['chat-left-text', 'Messages de l’équipe non lus', 'Messagerie interne de l’équipe', nombreNonLusEquipe($pdo, (int) $_SESSION['user_id']), 'messagerie_equipe.php'];
+$aTraiter[] = ['chat-left-text', 'Messages de l’équipe non lus', 'Messagerie interne de l’équipe', nombreNonLusEquipe($pdo, (int) $_SESSION['user_id']), 'messagerie_equipe'];
 $totalATraiter = array_sum(array_column($aTraiter, 3));
 
 $titrePage = 'Tableau de bord';
@@ -162,10 +164,10 @@ $sousTitrePage = 'Bonjour ' . (($_SESSION['prenom'] ?? '') ?: ($_SESSION['pseudo
 $pageActive = 'index';
 $actionsPage = [];
 if (aLeDroit('catalogue')) {
-    $actionsPage[] = ['livre.php', 'plus-lg', 'Ajouter un livre', 'btn-vert'];
+    $actionsPage[] = ['livre', 'plus-lg', 'Ajouter un livre', 'btn-vert'];
 }
 if (aLeDroit('evenements')) {
-    $actionsPage[] = ['evenement.php', 'calendar-plus', 'Créer un événement', 'btn-outline-secondary'];
+    $actionsPage[] = ['evenement', 'calendar-plus', 'Créer un événement', 'btn-outline-secondary'];
 }
 include __DIR__ . '/_haut.php';
 
@@ -175,6 +177,8 @@ $largeurGraphique = 600;
 $hauteurGraphique = 180;
 $pasBarre = $largeurGraphique / 30;
 ?>
+
+<?php afficherPrioritesTableau($pdo); ?>
 
 <div class="grille-indicateurs mb-4">
     <?php foreach ($cartes as [$icone, $libelle, $valeur, $tendanceCarte, $detail, $lien, $alerte]): ?>
@@ -291,7 +295,7 @@ $pasBarre = $largeurGraphique / 30;
         <section class="carte h-100" aria-labelledby="titreActivite">
             <div class="carte-entete">
                 <h2 id="titreActivite">Activité récente</h2>
-                <?php if (aLeDroit('admin')): ?><a href="logs.php" class="lien-carte">Journal complet</a><?php endif; ?>
+                <?php if (aLeDroit('admin')): ?><a href="logs" class="lien-carte">Journal complet</a><?php endif; ?>
             </div>
             <?php if (!$activite): ?>
                 <div class="etat-vide"><div class="icone-vide"><i class="bi bi-activity"></i></div><strong>Rien de neuf pour l'instant</strong>Les commandes, inscriptions et avis apparaîtront ici.</div>
