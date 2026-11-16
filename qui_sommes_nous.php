@@ -30,6 +30,7 @@ $pointsPresence = pointsQuiSommesNous($pdo, 'presence', 10);
 $nombreFrancais = fn(int $nombre): string => number_format($nombre, 0, ',', "\u{202F}");
 
 $titreDocument = 'Qui sommes-nous ?';
+$scriptsPage = ['qui_sommes_nous.js'];
 include 'header.php';
 ?>
 
@@ -67,11 +68,15 @@ include 'header.php';
         <p class="qsn-note">Chiffres calculés en direct à partir du site.</p>
     </section>
 
-    <section class="container-xxl qsn-section qsn-histoire" aria-labelledby="qsn-titre-histoire">
+    <section class="container-xxl qsn-section qsn-histoire" aria-labelledby="qsn-titre-histoire" data-histoire-repliable>
         <div class="qsn-histoire__texte">
             <h2 id="qsn-titre-histoire">Notre histoire</h2>
-            <p>BIBLIOccaz est né d’un projet étudiant à l’ESGI, autour d’une idée simple : un livre lu une fois mérite d’être lu encore. Ce qui devait être une petite librairie d’occasion en ligne est devenu un lieu de partage, où l’on achète, donne, prête et recommande des livres entre lecteurs.</p>
-            <p>Le site continue de grandir avec sa communauté : chaque nouvelle fonctionnalité part d’un besoin réel, qu’il s’agisse de retrouver une série, de donner ses livres sans se compliquer la vie ou de rencontrer d’autres passionnés.</p>
+            <p>BIBLIOccaz est né d’un projet étudiant à l’ESGI, autour d’une idée simple : un livre lu une fois mérite d’être lu encore.</p>
+            <div class="qsn-histoire__suite" id="qsn-histoire-suite">
+                <p>Ce qui devait être une petite librairie d’occasion en ligne est devenu un lieu de partage, où l’on achète, donne, prête et recommande des livres entre lecteurs.</p>
+                <p>Le site continue de grandir avec sa communauté : chaque nouvelle fonctionnalité part d’un besoin réel, qu’il s’agisse de retrouver une série, de donner ses livres sans se compliquer la vie ou de rencontrer d’autres passionnés.</p>
+            </div>
+            <button type="button" class="qsn-lire-suite" aria-expanded="false" aria-controls="qsn-histoire-suite" hidden><span>Lire la suite</span> <i class="bi bi-chevron-down" aria-hidden="true"></i></button>
         </div>
         <blockquote class="qsn-citation">
             <p>« Un livre n’a pas de date de péremption. Il attend simplement son prochain lecteur. »</p>

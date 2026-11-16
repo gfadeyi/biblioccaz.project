@@ -2494,3 +2494,10 @@ body { padding-left: env(safe-area-inset-left); padding-right: env(safe-area-ins
     .tiroir-ouvert .menu-notifications__pied { position: sticky; bottom: -.6rem; background: var(--surface); padding-bottom: .7rem; }
     body.tiroir-notifications-actif { overflow: hidden; }
 }
+.qsn-histoire__suite > p:last-child { margin-bottom: 0; }
+.qsn-lire-suite { display: inline-flex; align-items: center; gap: .35rem; margin-top: .6rem; padding: .45rem 1rem; border: 1.5px solid var(--vert-200); border-radius: var(--rayon-pilule); background: var(--surface); color: var(--texte-vert); font-weight: 600; font-size: .92rem; }
+.qsn-lire-suite:hover, .qsn-lire-suite:focus-visible { background: var(--vert-50); border-color: var(--texte-vert); }
+.qsn-lire-suite[hidden] { display: none; }
+.qsn-lire-suite i { transition: transform var(--duree-rapide, 160ms); }
+.qsn-histoire--depliee .qsn-lire-suite i { transform: rotate(180deg); }
+.qsn-histoire--repliee .qsn-histoire__suite { display: none; }
