@@ -145,4 +145,12 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('click', evenement => {
         if (!barre.contains(evenement.target) && !suggestions.contains(evenement.target)) abandonner();
     });
+    document.addEventListener('keydown', evenement => {
+        const cible = evenement.target;
+        const saisie = cible instanceof HTMLElement && (cible.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(cible.tagName));
+        if (evenement.key !== '/' || evenement.ctrlKey || evenement.metaKey || evenement.altKey || saisie || document.querySelector('.modal.show, dialog[open]')) return;
+        evenement.preventDefault();
+        barre.focus();
+        barre.select();
+    });
 });

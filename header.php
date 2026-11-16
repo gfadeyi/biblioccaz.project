@@ -260,7 +260,7 @@ $imagePartage = isset($imagePartage) && is_string($imagePartage) && $imagePartag
         <form action="catalogue" method="GET" class="recherche-entete flex-grow-1 position-relative" role="search">
             <label for="barre-recherche" class="visually-hidden">Rechercher un livre</label>
             <input type="search" id="barre-recherche" name="q" autocomplete="off" class="champ-recherche"
-                   maxlength="200" placeholder="Titre, auteur, ISBN…" value="<?= htmlspecialchars(is_string($_GET['q'] ?? null) ? mb_substr($_GET['q'], 0, 200) : '') ?>" role="combobox" aria-autocomplete="list" aria-haspopup="listbox" aria-controls="suggestions-recherche" aria-expanded="false" aria-describedby="aide-recherche">
+                   maxlength="200" placeholder="Titre, auteur, ISBN…" aria-keyshortcuts="/" value="<?= htmlspecialchars(is_string($_GET['q'] ?? null) ? mb_substr($_GET['q'], 0, 200) : '') ?>" role="combobox" aria-autocomplete="list" aria-haspopup="listbox" aria-controls="suggestions-recherche" aria-expanded="false" aria-describedby="aide-recherche">
             <button type="button" class="bouton-scanner-entete" data-scanner-isbn data-scanner-mode="recherche" data-scanner-cible="barre-recherche" aria-label="Scanner un ISBN" title="Scanner un ISBN" hidden><i class="bi bi-upc-scan" aria-hidden="true"></i></button>
             <button type="submit" class="bouton-loupe" aria-label="Rechercher"><?= iconeDessin('loupe') ?></button>
             <div id="suggestions-recherche" class="suggestions-recherche list-group position-absolute w-100 mt-1 shadow d-none" role="listbox" aria-label="Livres suggérés"></div>

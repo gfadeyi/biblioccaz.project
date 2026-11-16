@@ -22,6 +22,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit();
     }
 
+    if ($action === 'exporter_donnees') {
+        require_once __DIR__ . '/export_donnees_lib.php';
+        if (!exportDonneesAutorise()) {
+            $_SESSION['flash_profil'] = ['warning', "Votre export vient d’être préparé : patientez une minute avant d’en demander un nouveau."];
+            header("Location: mon-compte#mes-donnees");
+            exit();
+        }
+        try {
+            envoyerExportDonnees($pdo, (int) $_SESSION['user_id']);
+            insertLog('RGPD', "Export des données personnelles");
+            exit();
+        } catch (Throwable $e) {
+            $_SESSION['flash_profil'] = ['danger', "L’export n’a pas pu être préparé. Merci de réessayer dans quelques minutes."];
+            header("Location: mon-compte#mes-donnees");
+            exit();
+        }
+    }
+
     if ($action === 'photo') {
         try {
             enregistrerPhotoProfil($pdo, $idUser, $_FILES['photo'] ?? []);
@@ -456,6 +474,16 @@ include 'header.php';
                 <?php else: ?>
                     <button name="abonner" value="1" class="bouton bouton-principal bouton-petit"><i class="bi bi-envelope-paper" aria-hidden="true"></i> M'abonner</button>
                 <?php endif; ?>
+            </form>
+        </section>
+
+        <section class="carte-compte" id="mes-donnees" aria-labelledby="titre-mes-donnees">
+            <h2 class="carte-compte__titre" id="titre-mes-donnees"><?= iconeDessin('carton') ?> Mes données personnelles</h2>
+            <p class="texte-profil">Téléchargez une copie de vos données : compte, adresses, commandes, avis, dons, emprunts, événements, points et messages que vous avez envoyés. Le fichier ne contient ni mot de passe ni donnée d’un autre membre. <a href="confidentialite#titre-droits">En savoir plus sur vos droits</a>.</p>
+            <form method="POST">
+                <input type="hidden" name="csrf" value="<?= $csrf ?>">
+                <input type="hidden" name="action" value="exporter_donnees">
+                <button class="bouton bouton-contour bouton-petit"><i class="bi bi-download" aria-hidden="true"></i> Télécharger mes données (JSON)</button>
             </form>
         </section>
     </div>

@@ -91,7 +91,7 @@ if ($textePersonnalise !== '') {
     <section class="carte-compte mb-4" aria-labelledby="titre-droits">
         <h2 id="titre-droits">Vos droits</h2>
         <p>Vous pouvez accéder à vos données, les rectifier, les effacer, en limiter l'usage, vous opposer à leur traitement, les récupérer dans un format lisible et donner des directives pour après votre décès. Vous pouvez aussi retirer votre consentement à la newsletter à tout moment depuis votre profil ou le lien de désabonnement de chaque lettre, sans compte. Les nouveaux abonnements demandés par adresse email nécessitent une confirmation ; le profil d’un membre déjà authentifié avec une adresse vérifiée permet un choix direct.</p>
-        <p>Votre profil permet déjà de modifier la plupart de vos informations. Pour toute autre demande, dont la suppression du compte, écrivez à <?= emailContactLegal() ?> depuis l'adresse de votre compte. Nous répondons sous un mois.</p>
+        <p>Votre profil permet déjà de modifier la plupart de vos informations et de télécharger une copie de vos données (rubrique « Mes données personnelles » de la page <a href="mon-compte#mes-donnees">Mon compte</a>). Pour toute autre demande, dont la suppression du compte, écrivez à <?= emailContactLegal() ?> depuis l'adresse de votre compte. Nous répondons sous un mois.</p>
         <p class="mb-0">Si vous estimez que vos droits ne sont pas respectés, vous pouvez saisir la <a href="https://www.cnil.fr/fr/plaintes" rel="noopener">CNIL</a>.</p>
     </section>
 

@@ -139,7 +139,10 @@ $iconesFlash = ['success' => 'check-circle-fill', 'danger' => 'x-octagon-fill', 
             </ol>
         </nav>
         <?php if (estEquipe()): ?>
-            <div class="dropdown ms-auto">
+            <button type="button" class="recherche-rapide-bouton ms-auto" data-recherche-rapide aria-haspopup="dialog" aria-keyshortcuts="/ Control+K" title="Aller à une page (touche / ou Ctrl+K)">
+                <i class="bi bi-search" aria-hidden="true"></i><span class="recherche-rapide-bouton__texte">Aller à…</span><kbd class="recherche-rapide-bouton__touche" aria-hidden="true">/</kbd>
+            </button>
+            <div class="dropdown">
                 <button type="button" class="bouton-profil dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Mon profil : <?= e($_SESSION['pseudo'] ?? '') ?>">
                     <span class="pastille-profil" aria-hidden="true"><?= e(mb_strtoupper(mb_substr($_SESSION['pseudo'] ?? '?', 0, 1))) ?></span>
                     <span class="d-none d-sm-inline"><?= e($_SESSION['pseudo'] ?? '') ?></span>
