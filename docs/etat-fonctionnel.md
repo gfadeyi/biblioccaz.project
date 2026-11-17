@@ -1,5 +1,15 @@
 # État fonctionnel et prochaine priorité
 
+## Lot 18 — nettoyage, accessibilité, référencement et confort — 17 novembre 2026
+
+Évolutions réalisées à partir du lot 17 (`204ee7c`). Retrait des fichiers morts (ancienne bibliothèque de connexion persistante, sauvegarde d’entête, script de suggestions du panier inutilisé et métadonnées d’éditeur) ; liens internes et cache-busting harmonisés. Compression des ressources texte, cache des ressources versionnées, préchargement des polices et dimensions des couvertures ; calcul des réservations regroupé pour les offres magasin, avec résultats SQL comparés identiques sur la copie isolée.
+
+Corrections ciblées des contrastes, noms accessibles, focus, cibles tactiles et tableaux défilants accessibles au clavier. Métadonnées de partage et JSON-LD Book/Product, Event, Organization et fils d’Ariane ; ISBN émis seulement après validation de la clé, sitemap en URLs propres.
+
+Trois améliorations : export JSON des données du membre connecté (POST et CSRF, limitation de cadence, secrets exclus, rubriques indisponibles ou plafonnées explicites), recherche rapide dans les pages autorisées du back-office, raccourci `/` vers la recherche publique. Aucun changement de schéma ni migration.
+
+Recette PHP 8.4 / MariaDB 11.8 : 1 129 contrôles fonctionnels des lots 1 à 18 et 104 contrôles Playwright ciblés réussis à 375, 768 et 1440 px, incluant les trois rôles de l’équipe. Balayage complémentaire des pages publiques, de l’espace lecteur et des pages du menu administrateur ; contrôles Apache de compression/cache, confirmation avec et sans JavaScript, syntaxe de 58 fichiers PHP, lecture des offres et encodage sur MariaDB local. Le rapport privé conserve les contrôles complémentaires et l’état de publication. Ces vérifications ne valent ni certification RGAA, ni garantie de CLS nul ou de 60 images/s sur tout appareil ; le contrôle sur iPhone/iPad physique reste manuel.
+
 Audit de reprise du 28 octobre 2026, sur `refonte`, à partir du commit `5c8bd1a`.
 
 ## Sources et portée
