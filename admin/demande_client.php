@@ -97,6 +97,8 @@ include __DIR__ . '/_haut.php';
 
                 <?php if (!$peutTraiter): ?>
                     <div class="alert alert-info mt-3 mb-0" data-sav-lecture-seule><i class="bi bi-eye me-1" aria-hidden="true"></i> Lecture seule : la catégorie « <?= e(SERVICE_CATEGORIES[$demande['categorie']] ?? 'Autre') ?> » est traitée par un autre pôle de l’équipe. Confiez la demande au collègue concerné ou demandez l’avis de l’équipe.</div>
+                <?php elseif ($close): ?>
+                    <p class="alert alert-info mt-3 mb-0" role="status">Demande close : le fil est en lecture seule. Si une correction est nécessaire, utilisez d’abord « Rouvrir la demande » dans Traitement.</p>
                 <?php else: ?>
                 <form method="POST" class="mt-3 pt-3 border-top">
                     <?= champCsrf() ?>

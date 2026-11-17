@@ -71,6 +71,15 @@ include 'header.php';
     <?php if ($indisponible): ?>
         <div class="alert alert-warning rounded-3" role="alert">L'emprunt de livres est momentanément indisponible.</div>
     <?php else: ?>
+        <details class="carte-compte my-3"<?= !$reservations && !$enCours ? ' open' : '' ?>>
+            <summary class="h5 mb-0" id="parcours-emprunt">Comment se passe un emprunt ?</summary>
+            <ol class="row g-3 my-3">
+                <li class="col-md-4"><strong>Réservez en ligne.</strong> Aucun achat ni paiement : le livre est mis de côté jusqu’à la date limite indiquée.</li>
+                <li class="col-md-4"><strong>Retirez-le au comptoir.</strong> Présentez votre code ou votre bon. L’équipe valide la remise : la durée d’emprunt commence à ce moment-là.</li>
+                <li class="col-md-4"><strong>Rapportez le livre au magasin.</strong> Présentez le même code. L’équipe enregistre le retour et votre historique est mis à jour.</li>
+            </ol>
+            <p class="small mb-0">Besoin d’aide pour un retrait ou un retour ? <a href="service_client?categorie=emprunt#nouvelle">Contacter le service client pour un emprunt</a>.</p>
+        </details>
         <div class="resume-emprunts">
             <div class="resume-emprunts__jauge" aria-label="<?= $nbActifs ?> emprunt<?= $nbActifs > 1 ? 's' : '' ?> ou réservation<?= $nbActifs > 1 ? 's' : '' ?> sur <?= regleEmprunt($pdo, 'emprunts_max') ?>">
                 <?php for ($i = 1; $i <= regleEmprunt($pdo, 'emprunts_max'); $i++): ?>
@@ -112,7 +121,8 @@ include 'header.php';
                             <h3 class="carte-emprunt__titre"><a href="livre?id=<?= (int) $emprunt['id_livre'] ?>"><?= htmlspecialchars($emprunt['titre']) ?></a></h3>
                             <p class="carte-emprunt__auteur"><?= htmlspecialchars($emprunt['auteur'] ?? '') ?></p>
                             <p class="carte-emprunt__pastilles"><?= pastilleStatutEmprunt($emprunt) ?></p>
-                            <p class="carte-emprunt__date">À retirer avant le <strong><?= date('d/m/Y', strtotime($emprunt['date_expiration_reservation'])) ?></strong> · <?= (int) $emprunt['duree_jours'] ?> jours d'emprunt à partir du retrait</p>
+                            <p class="carte-emprunt__date">À retirer au plus tard le <strong><?= date('d/m/Y à H:i', strtotime($emprunt['date_expiration_reservation'])) ?></strong> · <?= (int) $emprunt['duree_jours'] ?> jours d'emprunt à partir du retrait</p>
+                            <p class="carte-emprunt__aide">Présentez le code ci-dessous au comptoir. Sans retrait dans ce délai, la réservation expire et le livre est libéré.</p>
                             <div class="carte-emprunt__actions">
                                 <a href="emprunt_ticket?id=<?= (int) $emprunt['id_emprunt'] ?>" class="bouton bouton-contour bouton-petit"><i class="bi bi-file-earmark-pdf" aria-hidden="true"></i> Bon de réservation</a>
                                 <?php if (isset($conversations[$emprunt['id_emprunt']])): ?>
@@ -155,6 +165,7 @@ include 'header.php';
                             <?php if ($retard): ?>
                                 <p class="carte-emprunt__alerte"><i class="bi bi-alarm" aria-hidden="true"></i> Rapportez-le au magasin au plus vite<?= (int) $emprunt['blocage_retard'] ? " : vos emprunts seront ensuite bloqués autant de jours que de jours de retard (" . BLOCAGE_MAX_JOURS . " au maximum)." : '.' ?></p>
                             <?php endif; ?>
+                            <p class="carte-emprunt__aide">Pour le retour au comptoir, présentez le code <strong><?= htmlspecialchars($emprunt['code_retrait']) ?></strong> ou votre ticket. Le retour est confirmé par l’équipe après réception du livre.</p>
                             <div class="carte-emprunt__actions">
                                 <?php if ($refusRenouvellement === ''): ?>
                                     <form action="emprunt_action" method="POST">
@@ -193,7 +204,7 @@ include 'header.php';
                             <span class="ligne-attente__texte">
                                 <a href="livre?id=<?= (int) $attente['id_livre'] ?>" class="ligne-attente__titre"><?= htmlspecialchars($attente['titre']) ?></a>
                                 <span class="ligne-attente__detail">
-                                    Position <?= (int) $attente['position'] ?> · inscrit le <?= date('d/m/Y', strtotime($attente['date_demande'])) ?>
+                                    Position <?= (int) $attente['position'] ?> · inscrit le <?= date('d/m/Y', strtotime($attente['date_demande'])) ?> · pas encore réservé : attendez la confirmation par mail avant de vous déplacer
                                     <?= $attente['prochain_retour'] ? ' · prochain retour prévu le ' . date('d/m/Y', strtotime($attente['prochain_retour'])) : '' ?>
                                 </span>
                             </span>
@@ -212,7 +223,7 @@ include 'header.php';
         <?php if ($historique): ?>
             <section class="section-emprunts" aria-labelledby="titre-historique">
                 <h2 class="section-emprunts__titre" id="titre-historique"><?= iconeDessin('pile') ?> Historique</h2>
-                <div class="carte-compte p-0 table-responsive">
+                <div class="carte-compte p-0 table-responsive historique-emprunts" tabindex="0" role="region" aria-label="Historique des emprunts, tableau à faire défiler horizontalement">
                     <table class="table table-sm align-middle mb-0 table-historique-emprunts">
                         <caption class="visually-hidden">Historique de vos emprunts</caption>
                         <thead>

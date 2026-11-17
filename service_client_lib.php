@@ -11,6 +11,7 @@ const SERVICE_CATEGORIES = [
     'avis' => 'Avis et commentaires',
     'messages' => 'Messages entre membres',
     'don' => 'Dons et échanges',
+    'emprunt' => 'Emprunts de livres',
     'evenement' => 'Événements',
     'technique' => 'Problème sur le site',
     'autre' => 'Autre question',
@@ -27,13 +28,13 @@ const SERVICE_MESSAGE_MAX = 2000;
 const SERVICE_DEMANDES_OUVERTES_MAX = 5;
 const SERVICE_DEMANDES_PAR_JOUR = 5;
 const SERVICE_MESSAGES_PAR_HEURE = 20;
-const SERVICE_REOUVERTURE_JOURS = 14;
 const SERVICE_CATEGORIES_COMMANDE = ['commande', 'livraison', 'retour'];
 const SERVICE_CATEGORIES_DROITS = [
     'commande' => 'catalogue',
     'livraison' => 'catalogue',
     'retour' => 'catalogue',
     'don' => 'dons',
+    'emprunt' => 'catalogue',
     'evenement' => 'evenements',
     'compte' => 'moderation',
     'avis' => 'moderation',
@@ -45,7 +46,7 @@ const SERVICE_REPONSES_TYPES = [
     'prise_en_compte' => ['Confirmation de prise en compte', "Bonjour,\n\nMerci pour votre message : votre demande est bien prise en compte. Nous revenons vers vous très rapidement.\n\nBelle journée,\nL’équipe BIBLIOccaz"],
     'informations' => ['Demande d’informations complémentaires', "Bonjour,\n\nPour traiter votre demande, pourriez-vous nous préciser : \n- \n\nMerci d’avance,\nL’équipe BIBLIOccaz"],
     'commande' => ['Vérification de la commande', "Bonjour,\n\nNous avons vérifié votre commande : \n\nN’hésitez pas à nous répondre ici si besoin.\nL’équipe BIBLIOccaz"],
-    'cloture' => ['Clôture de la demande', "Bonjour,\n\nVotre demande est résolue, nous la clôturons. Si besoin, vous pouvez la rouvrir en répondant dans les 14 jours.\n\nMerci pour votre confiance,\nL’équipe BIBLIOccaz"],
+    'cloture' => ['Clôture de la demande', "Bonjour,\n\nVotre demande est résolue, nous la clôturons. Son historique reste consultable. Pour une nouvelle question, ouvrez une nouvelle demande depuis le service client.\n\nMerci pour votre confiance,\nL’équipe BIBLIOccaz"],
 ];
 
 function droitCategorieService(string $categorie): string
@@ -91,15 +92,6 @@ function serviceClientDisponible(PDO $pdo): bool
     } catch (PDOException $e) {
         return false;
     }
-}
-
-function demandeTropAnciennePourReouverture(array $demande): bool
-{
-    if ($demande['statut'] !== 'resolue') {
-        return false;
-    }
-    $fermeLe = strtotime((string) ($demande['date_cloture'] ?: $demande['date_maj']));
-    return $fermeLe === false || $fermeLe + SERVICE_REOUVERTURE_JOURS * 86400 < time();
 }
 
 function libelleStatutDemande(string $statut): string
@@ -241,8 +233,8 @@ function repondreDemandeClient(PDO $pdo, int $idDemande, int $idUser, string $me
         if (!$demande) {
             throw new DomainException('Cette demande ne vous concerne pas.');
         }
-        if (demandeTropAnciennePourReouverture($demande)) {
-            throw new DomainException('Cette demande est close depuis plus de ' . SERVICE_REOUVERTURE_JOURS . ' jours : ouvrez une nouvelle demande.');
+        if ($demande['statut'] === 'resolue') {
+            throw new DomainException('Cette demande est close : vous pouvez consulter son historique ou ouvrir une nouvelle demande.');
         }
         verifierCadenceService($pdo, $idUser);
         $pdo->prepare("INSERT INTO demande_client_message (id_demande, id_auteur, cote, contenu) VALUES (?, ?, 'client', ?)")->execute([$idDemande, $idUser, $message]);
@@ -256,7 +248,7 @@ function repondreDemandeClient(PDO $pdo, int $idDemande, int $idUser, string $me
         insertLog('ERREUR', 'Service client : ' . $e->getMessage());
         return ['danger', 'Le message n’a pas pu être envoyé.'];
     }
-    return ['success', $demande['statut'] === 'resolue' ? 'Message envoyé : la demande est rouverte.' : 'Message envoyé à l’équipe.'];
+    return ['success', 'Message envoyé à l’équipe.'];
 }
 
 function cloreDemandeParClient(PDO $pdo, int $idDemande, int $idUser): array
@@ -267,7 +259,7 @@ function cloreDemandeParClient(PDO $pdo, int $idDemande, int $idUser): array
         return ['warning', 'Cette demande est déjà close.'];
     }
     $pdo->prepare("INSERT INTO demande_client_message (id_demande, id_auteur, cote, contenu) VALUES (?, ?, 'systeme', 'Le client a indiqué que sa demande est réglée.')")->execute([$idDemande, $idUser]);
-    return ['success', 'Merci ! Votre demande est close. Vous pouvez la rouvrir en écrivant dans les ' . SERVICE_REOUVERTURE_JOURS . ' jours.'];
+    return ['success', 'Merci ! Votre demande est close. Son historique reste consultable.'];
 }
 
 function repondreDemandeEquipe(PDO $pdo, int $idDemande, int $idActeur, string $message, bool $resoudre, string $dateMajAttendue): array
@@ -287,6 +279,9 @@ function repondreDemandeEquipe(PDO $pdo, int $idDemande, int $idActeur, string $
         if ($dateMajAttendue !== '' && $demande['date_maj'] !== $dateMajAttendue) {
             throw new DomainException('Le client ou un collègue vient d’écrire : relisez le fil avant de répondre.');
         }
+        if ($demande['statut'] === 'resolue') {
+            throw new DomainException('Cette demande est close. Une réouverture explicite par l’équipe est nécessaire avant toute réponse.');
+        }
         $pdo->prepare("INSERT INTO demande_client_message (id_demande, id_auteur, cote, contenu) VALUES (?, ?, 'equipe', ?)")->execute([$idDemande, $idActeur, $message]);
         $pdo->prepare("UPDATE demande_client SET statut = ?, id_assigne = COALESCE(id_assigne, ?), non_lu_client = 1, non_lu_equipe = 0, date_maj = NOW(), date_cloture = ? WHERE id_demande = ?")
             ->execute([$resoudre ? 'resolue' : 'attente_client', $idActeur, $resoudre ? date('Y-m-d H:i:s') : null, $idDemande]);
@@ -301,7 +296,7 @@ function repondreDemandeEquipe(PDO $pdo, int $idDemande, int $idActeur, string $
     }
     notifierMembre($pdo, (int) $demande['id_user'], 'service_client', 'Réponse de l’équipe à votre demande ' . $demande['reference'] . ($resoudre ? ' (marquée comme résolue).' : '.'), 'service_client?id=' . $idDemande);
     $envoye = notifierParMail($demande['email'], 'Réponse à votre demande ' . $demande['reference'],
-        "Bonjour {$demande['pseudo']},\n\nL’équipe BIBLIOccaz a répondu à votre demande « {$demande['sujet']} » :\n\n" . mb_substr($message, 0, 600) . (mb_strlen($message) > 600 ? '…' : '') . "\n\nRépondez directement depuis votre espace.",
+        "Bonjour {$demande['pseudo']},\n\nL’équipe BIBLIOccaz a répondu à votre demande « {$demande['sujet']} » :\n\n" . mb_substr($message, 0, 600) . (mb_strlen($message) > 600 ? '…' : '') . ($resoudre ? "\n\nCette demande est close. Vous pouvez consulter son historique depuis votre espace." : "\n\nRépondez directement depuis votre espace."),
         SITE_URL . '/service_client?id=' . $idDemande, 'Voir la conversation');
     insertLog('SERVICE', "Réponse de l'équipe à {$demande['reference']}" . ($resoudre ? ' (résolue)' : ''));
     return ['success', 'Réponse envoyée' . ($resoudre ? ', demande résolue' : '') . '.' . ($envoye ? ' Le client est prévenu par mail.' : ' Le mail n’a pas pu partir.')];

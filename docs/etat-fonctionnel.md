@@ -1,5 +1,13 @@
 # État fonctionnel et prochaine priorité
 
+## Révision du parcours d’emprunt et du SAV — 17 novembre 2026
+
+« Mes emprunts » explicite les étapes réserver, retirer au comptoir, rendre au magasin. La réservation ne passe pas par le panier ; la durée commence à la remise validée par l’équipe. Date et heure limites de retrait affichées ; code de retour visible pendant l’emprunt ; une liste d’attente n’est pas encore une réservation. Une catégorie SAV « Emprunts de livres » est affectée au droit catalogue (gestion), sans numéro de commande imposé.
+
+Une demande SAV close reste lisible mais sans formulaire de réponse côté client. Les réponses sont refusées côté serveur dès la clôture, même via un ancien onglet, sans modifier les dates ni ajouter de message. L’équipe ne rouvre plus implicitement un dossier en répondant : elle doit utiliser l’action explicite de réouverture. Les textes de clôture et les mails suivent cette règle, qui remplace l’ancienne période de réouverture client de 14 jours. Aucun changement de schéma.
+
+Vérifications isolées PHP 8.4 / MariaDB 11.8 : 18 contrôles ciblés du cycle emprunt et de la clôture SAV, 157 contrôles de non-régression SAV/droits/parcours, 75 contrôles Playwright à 375/768/1440 px (lecteur, visiteur et trois rôles de l’équipe, incluant les vérifications automatiques d’accessibilité). Syntaxe PHP et encodage MariaDB local vérifiés. La validation physique d’un QR au comptoir reste non attestée.
+
 ## Lot 18 — nettoyage, accessibilité, référencement et confort — 17 novembre 2026
 
 Évolutions réalisées à partir du lot 17 (`204ee7c`). Retrait des fichiers morts (ancienne bibliothèque de connexion persistante, sauvegarde d’entête, script de suggestions du panier inutilisé et métadonnées d’éditeur) ; liens internes et cache-busting harmonisés. Compression des ressources texte, cache des ressources versionnées, préchargement des polices et dimensions des couvertures ; calcul des réservations regroupé pour les offres magasin, avec résultats SQL comparés identiques sur la copie isolée.

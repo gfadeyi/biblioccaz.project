@@ -111,18 +111,15 @@ include 'header.php';
             <?php endforeach; ?>
         </ol>
 
-        <?php $close = $demande['statut'] === 'resolue'; $tropAncienne = demandeTropAnciennePourReouverture($demande); ?>
-        <?php if ($tropAncienne): ?>
-            <p class="demande-fermee"><i class="bi bi-lock" aria-hidden="true"></i> Demande fermée depuis plus de <?= SERVICE_REOUVERTURE_JOURS ?> jours : elle ne peut plus être rouverte. <a href="service_client#nouvelle">Ouvrir une nouvelle demande</a></p>
+        <?php $close = $demande['statut'] === 'resolue'; ?>
+        <?php if ($close): ?>
+            <p class="demande-fermee" role="status"><i class="bi bi-lock" aria-hidden="true"></i> Cette demande est close. Son historique reste consultable, mais vous ne pouvez plus y envoyer de message. <a href="service_client#nouvelle">Ouvrir une nouvelle demande</a></p>
         <?php else: ?>
-            <?php if ($close): ?>
-                <p class="demande-fermee"><i class="bi bi-lock" aria-hidden="true"></i> Demande résolue et fermée le <?= date('d/m/Y', strtotime((string) ($demande['date_cloture'] ?: $demande['date_maj']))) ?>. Vous pouvez encore la rouvrir en écrivant jusqu’au <?= date('d/m/Y', strtotime((string) ($demande['date_cloture'] ?: $demande['date_maj'])) + SERVICE_REOUVERTURE_JOURS * 86400) ?>.</p>
-            <?php endif; ?>
             <form method="POST" class="carte-compte mt-3">
                 <input type="hidden" name="csrf" value="<?= htmlspecialchars($csrf, ENT_QUOTES, 'UTF-8') ?>">
                 <input type="hidden" name="action" value="repondre">
                 <input type="hidden" name="id_demande" value="<?= (int) $demande['id_demande'] ?>">
-                <label for="service-reponse" class="form-label fw-bold"><?= $close ? 'Écrire pour rouvrir la demande' : 'Votre message' ?></label>
+                <label for="service-reponse" class="form-label fw-bold">Votre message</label>
                 <textarea id="service-reponse" name="message" class="form-control mb-2" rows="4" maxlength="<?= SERVICE_MESSAGE_MAX ?>" required><?= htmlspecialchars($brouillon) ?></textarea>
                 <div class="d-flex flex-wrap gap-2 justify-content-between align-items-center">
                     <button type="submit" class="btn btn-success rounded-pill fw-bold px-4">Envoyer</button>
@@ -130,7 +127,7 @@ include 'header.php';
                 </div>
             </form>
             <?php if (!$close): ?>
-                <form method="POST" class="mt-2 text-end" data-confirmer="Votre question est réglée ? La demande sera close (vous pourrez la rouvrir pendant <?= SERVICE_REOUVERTURE_JOURS ?> jours)." data-bouton-confirmer="Clore la demande">
+                <form method="POST" class="mt-2 text-end" data-confirmer="Votre question est réglée ? La demande sera close et vous ne pourrez plus y envoyer de message." data-bouton-confirmer="Clore la demande">
                     <input type="hidden" name="csrf" value="<?= htmlspecialchars($csrf, ENT_QUOTES, 'UTF-8') ?>">
                     <input type="hidden" name="action" value="clore">
                     <input type="hidden" name="id_demande" value="<?= (int) $demande['id_demande'] ?>">

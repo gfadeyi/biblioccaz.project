@@ -1954,6 +1954,9 @@ fieldset legend.form-label { float: none; width: auto; }
 .table-historique-emprunts th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: var(--encre-douce); font-weight: 600; padding: .75rem 1rem; }
 .table-historique-emprunts td { padding: .7rem 1rem; border-color: var(--trait); }
 .table-historique-emprunts a { color: var(--texte-vert); }
+.table-historique-emprunts td:first-child { min-width: 12rem; }
+.table-historique-emprunts td:not(:first-child) { white-space: nowrap; }
+.historique-emprunts:focus-visible { outline: 2px solid var(--texte-vif); outline-offset: 3px; }
 
 @media (max-width: 767.98px) {
     .carte-emprunt { grid-template-columns: 60px minmax(0, 1fr); gap: .85rem; }
