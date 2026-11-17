@@ -347,7 +347,7 @@ include 'header.php';
                     <?php foreach ($suggestionsProfil as $suggestion): ?>
                         <li>
                             <a href="livre?id=<?= (int) $suggestion['id_livre'] ?>">
-                                <img src="<?= htmlspecialchars(urlImage($suggestion['couverture'] ?: 'default.png')) ?>" alt="" loading="lazy" decoding="async">
+                                <img<?= dimensionsImage($suggestion['couverture'] ?: 'default.png') ?> src="<?= htmlspecialchars(urlImage($suggestion['couverture'] ?: 'default.png')) ?>" alt="" loading="lazy" decoding="async">
                                 <span>
                                     <strong><?= htmlspecialchars($suggestion['titre']) ?></strong>
                                     <small><?= htmlspecialchars($suggestion['raison']) ?></small>
@@ -394,7 +394,7 @@ include 'header.php';
                     <div class="couvertures-profil">
                         <?php foreach (array_slice($favoris, 0, 5) as $favori): ?>
                             <a href="livre?id=<?= (int) $favori['id_livre'] ?>" title="<?= htmlspecialchars($favori['titre']) ?>">
-                                <img src="<?= htmlspecialchars(urlImage($favori['couverture'])) ?>" alt="<?= htmlspecialchars($favori['titre']) ?>" loading="lazy" decoding="async">
+                                <img<?= dimensionsImage($favori['couverture'] ?: 'default.png') ?> src="<?= htmlspecialchars(urlImage($favori['couverture'])) ?>" alt="<?= htmlspecialchars($favori['titre']) ?>" loading="lazy" decoding="async">
                             </a>
                         <?php endforeach; ?>
                     </div>

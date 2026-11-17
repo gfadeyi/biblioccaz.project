@@ -171,7 +171,13 @@
 .fiche-livre__achat form > .small { font-size: .73rem; margin-top: 10px; }
 .fiche-livre__boutons { margin: 12px 0; }
 .fiche-livre__boutons .bouton-action { min-height: 48px; font-size: .9rem; border-radius: 10px; }
-.fiche-livre__boutons .btn { font-size: .8rem; border-radius: 20px; min-height: 40px; display: inline-flex; align-items: center; gap: 6px; }
+.fiche-livre__boutons .btn { font-size: .8rem; border-radius: 20px; min-height: 44px; display: inline-flex; align-items: center; gap: 6px; }
+
+@media (max-width: 991.98px), (pointer: coarse) {
+    .fiche-livre__chemin a { display: inline-flex; align-items: center; min-width: 44px; min-height: 44px; }
+    .fiche-livre__tags a, .fiche-livre__tags summary, .fiche-livre__badges a { min-width: 44px; min-height: 44px; justify-content: center; }
+    .fiche-livre a.small { display: inline-flex; align-items: center; min-height: 44px; }
+}
 .fiche-livre__demo { margin: 16px 0 0; padding-top: 14px; border-top: 1px solid var(--trait); font-size: .73rem; color: var(--encre-douce); line-height: 1.6; }
 .fiche-livre__onglets { padding: 18px 20px; border-color: var(--trait); background: var(--surface); }
 .fiche-livre__onglets .nav { border-bottom: 1px solid var(--trait); }

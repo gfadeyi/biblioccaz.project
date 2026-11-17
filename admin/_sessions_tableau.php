@@ -2,7 +2,7 @@
 $lienSessions = fn(int $numero) => 'en_ligne?' . http_build_query(['q'=>$recherche,'role'=>$role,'multiples'=>$multiples ? '1' : '', 'page'=>$numero]);
 $instant = $tableau['instant'];
 $filtresActifs = $recherche !== '' || $role !== '' || $multiples;
-$caseSansJs = fn(string $texte) => '<label class="form-check confirmation-sans-js" data-confirmation-sans-js><input type="checkbox" name="confirmer" value="1" required class="form-check-input"> <span class="form-check-label">' . e($texte) . '</span></label>';
+$caseSansJs = fn(string $texte) => '<noscript><label class="form-check confirmation-sans-js"><input type="checkbox" name="confirmer" value="1" required class="form-check-input"> <span class="form-check-label">' . e($texte) . '</span></label></noscript><input type="hidden" name="confirmer" value="1" data-confirmation-js disabled>';
 ?>
 <div class="en-ligne-stats mb-2" aria-label="Synthèse de toutes les connexions en cours">
     <?php foreach (['sessions'=>['plug','Connexions en cours'],'utilisateurs'=>['people','Membres connectés'],'multiples'=>['layers','Membres connectés plusieurs fois']] as $cle=>[$icone,$libelle]): ?>

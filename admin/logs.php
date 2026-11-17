@@ -32,7 +32,7 @@ include __DIR__ . '/_haut.php';
             <option value="">Tous les types</option>
         </select>
     </div>
-    <div class="table-responsive">
+    <div class="table-responsive" tabindex="0" role="region" aria-label="Journal d’activité à faire défiler">
         <table class="table table-hover align-middle small">
             <thead class="table-light text-uppercase">
                 <tr><th>Date</th><th>Utilisateur</th><th>Type</th><th>Description</th><th class="text-end">IP</th></tr>

@@ -5,7 +5,7 @@ const EXPORT_DONNEES_LIGNES_MAX = 5000;
 
 function requetesExportDonnees(): array
 {
-    $limite = ' LIMIT ' . EXPORT_DONNEES_LIGNES_MAX;
+    $limite = ' LIMIT ' . (EXPORT_DONNEES_LIGNES_MAX + 1);
     return [
         'adresses' => ["SELECT libelle, prenom, nom, adresse, complement, code_postal, ville, telephone, par_defaut, date_creation FROM adresse_livraison WHERE id_user = ? ORDER BY date_creation" . $limite, 1],
         'commandes' => ["SELECT id_commande AS numero, date_commande, prenom, nom, adresse, sous_total, remise, frais_livraison, total, points_gagnes, points_utilises, reduction_points, statut, etape_suivi, date_annulation FROM commande WHERE id_user = ? ORDER BY date_commande" . $limite, 1],
@@ -35,7 +35,7 @@ function requetesExportDonnees(): array
         'fiche_auteur' => ["SELECT nom_plume, biographie, lien_site, lien_reseau, lien_editeur, date_creation, date_modification FROM fiche_auteur WHERE id_user = ?" . $limite, 1],
         'candidatures_auteur' => ["SELECT nom_plume, biographie, motivation, ouvrages, lien_site, lien_reseau, lien_editeur, statut, date_candidature, date_decision FROM candidature_auteur WHERE id_user = ? ORDER BY date_candidature" . $limite, 1],
         'candidatures_equipe' => ["SELECT role_vise, motivations, statut, date_candidature, date_decision FROM candidature_equipe WHERE id_user = ? ORDER BY date_candidature" . $limite, 1],
-        'connexions' => ["SELECT espace, appareil, date_connexion, derniere_activite, date_revocation FROM session_utilisateur WHERE id_user = ? ORDER BY date_connexion DESC LIMIT 100", 1],
+        'connexions' => ["SELECT espace, appareil, date_connexion, derniere_activite, date_revocation FROM session_utilisateur WHERE id_user = ? ORDER BY date_connexion DESC LIMIT 101", 1],
     ];
 }
 
@@ -54,11 +54,17 @@ function exportDonneesPersonnelles(PDO $pdo, int $idUser): array
         'compte' => $compte,
     ];
     $indisponibles = [];
+    $plafonnees = [];
     foreach (requetesExportDonnees() as $section => [$sql, $nombreParametres]) {
         try {
             $requete = $pdo->prepare($sql);
             $requete->execute(array_fill(0, $nombreParametres, $idUser));
             $export[$section] = $requete->fetchAll(PDO::FETCH_ASSOC);
+            $maximum = $section === 'connexions' ? 100 : EXPORT_DONNEES_LIGNES_MAX;
+            if (count($export[$section]) > $maximum) {
+                $export[$section] = array_slice($export[$section], 0, $maximum);
+                $plafonnees[] = $section;
+            }
         } catch (PDOException $erreur) {
             $export[$section] = [];
             $indisponibles[] = $section;
@@ -73,6 +79,8 @@ function exportDonneesPersonnelles(PDO $pdo, int $idUser): array
         $indisponibles[] = 'consentement_newsletter';
     }
     $export['rubriques_indisponibles'] = $indisponibles;
+    $export['rubriques_plafonnees'] = $plafonnees;
+    $export['limites'] = ['lignes_par_rubrique' => EXPORT_DONNEES_LIGNES_MAX, 'connexions_recentes' => 100, 'complement' => 'Si une rubrique est plafonnée ou indisponible, demandez un complément via le service client.'];
     return $export;
 }
 

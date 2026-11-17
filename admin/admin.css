@@ -87,6 +87,11 @@ body.admin {
 .fil-ariane-admin a:hover { color: var(--vert-500); text-decoration: underline; }
 .fil-ariane-admin li + li::before { content: "›"; margin-right: .35rem; color: var(--encre-pale); }
 .fil-ariane-admin [aria-current] { color: var(--encre); font-weight: 600; }
+.admin-barre > nav { min-width: 0; }
+.admin-barre > .dropdown, .recherche-rapide-bouton { flex-shrink: 0; white-space: nowrap; }
+.admin-barre .fil-ariane-admin { flex-wrap: nowrap; }
+.admin-barre .fil-ariane-admin li { min-width: 0; white-space: nowrap; }
+.admin-barre .fil-ariane-admin li:last-child { overflow: hidden; text-overflow: ellipsis; }
 .bouton-profil { display: flex; align-items: center; gap: .5rem; border: 1px solid var(--trait); background: var(--surface); border-radius: var(--rayon-pilule); padding: .3rem .8rem .3rem .35rem; font-weight: 600; color: var(--encre); }
 .bouton-profil:hover, .bouton-profil[aria-expanded="true"] { border-color: var(--vert-400); }
 .pastille-profil { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; background: var(--vert); color: #fff; font-family: var(--police-titre); font-size: .9rem; }

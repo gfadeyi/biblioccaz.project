@@ -130,7 +130,7 @@ function urlImage(?string $fichier, string $racine = ''): string
 function dimensionsImage(?string $fichier): string
 {
     static $connues = [];
-    if (!$fichier || str_contains($fichier, '..') || preg_match('~A[a-z]+://~i', $fichier)) {
+    if (!$fichier || str_contains($fichier, '..') || preg_match('~\A[a-z]+://~i', $fichier)) {
         return '';
     }
     if (!isset($connues[$fichier])) {

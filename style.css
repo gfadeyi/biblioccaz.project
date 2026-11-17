@@ -1601,7 +1601,7 @@ fieldset legend.form-label { float: none; width: auto; }
     .points-avis button { width: 44px; height: 44px; }
     .bouton-coeur, .bouton-retirer, .selecteur-quantite button { width: 44px; height: 44px; }
     .puce-tag, .puce-univers, .puce-filtre-actif, .lien-voir-tout, .bouton-filtrer, .onglets-historique a, a.badge,
-    .fil-ariane a, .pied ul a, .pied-bas a, .carte-formulaire__lien-discret { display: inline-flex; align-items: center; min-height: 44px; }
+    .fil-ariane a, .pied ul a, .pied-bas a, .carte-formulaire__lien-discret { display: inline-flex; align-items: center; min-width: 44px; min-height: 44px; }
     .pied ul { gap: 0; }
     .pied .reseaux a { display: inline-flex; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; margin-right: .2rem; }
     summary { padding-block: .75rem; }

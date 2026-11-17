@@ -126,7 +126,7 @@ include 'header.php';
                 <div class="col-lg-6 d-none d-lg-block">
                     <div class="pile-livres" aria-hidden="true">
                         <?php foreach ($couverturesBandeau as $livreBandeau): ?>
-                            <img src="<?= htmlspecialchars(urlImage($livreBandeau['couverture'])) ?>" alt="">
+                            <img src="<?= htmlspecialchars(urlImage($livreBandeau['couverture'])) ?>"<?= dimensionsImage($livreBandeau['couverture']) ?> alt="" decoding="async">
                         <?php endforeach; ?>
                         <div class="pastille-partage">À lire<br>et à partager</div>
                     </div>
@@ -281,7 +281,7 @@ include 'header.php';
                 <h3><?= iconeDessin('carton') ?> Derniers dons</h3>
                 <?php foreach ($derniersDons as $don): ?>
                     <a href="don_detail?id=<?= (int) $don['id_don'] ?>" class="ligne-communaute">
-                        <span class="couverture-mini"><img src="<?= htmlspecialchars(photoDon($don['photo'], $don['couverture_don'])) ?>" alt="" loading="lazy" decoding="async"></span>
+                        <span class="couverture-mini"><img width="42" height="60" src="<?= htmlspecialchars(photoDon($don['photo'], $don['couverture_don'])) ?>" alt="" loading="lazy" decoding="async"></span>
                         <span class="ligne-communaute__texte">
                             <strong><?= htmlspecialchars($don['titre']) ?></strong>
                             <?php if (!empty($don['auteur'])): ?><small><?= htmlspecialchars($don['auteur']) ?></small><?php endif; ?>
@@ -339,7 +339,7 @@ include 'header.php';
                     <div class="carrousel-avis" data-carrousel-avis>
                         <?php foreach ($derniersAvis as $avis): ?>
                             <a href="livre?id=<?= (int) $avis['id_livre'] ?>#avis" class="avis-lecteur">
-                                <span class="couverture-mini"><img src="<?= htmlspecialchars(urlImage($avis['couverture'])) ?>" alt="" loading="lazy" decoding="async"></span>
+                                <span class="couverture-mini"><img<?= dimensionsImage($avis['couverture'] ?: 'default.png') ?> src="<?= htmlspecialchars(urlImage($avis['couverture'])) ?>" alt="" loading="lazy" decoding="async"></span>
                                 <span class="avis-lecteur__texte">
                                     <span class="avis-lecteur__auteur">
                                         <?= avatarMembre($avis['pseudo'], $avis['photo'], 'petit') ?>

@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     document.querySelectorAll('form[data-confirmer]').forEach(function (formulaire) {
         if (modale) {
+            formulaire.querySelectorAll('[data-confirmation-js]').forEach(function (champ) { champ.disabled = false; });
             formulaire.querySelectorAll('[data-confirmation-sans-js]').forEach(function (repli) {
                 repli.hidden = true;
                 repli.querySelectorAll('input').forEach(function (champ) { champ.required = false; });
