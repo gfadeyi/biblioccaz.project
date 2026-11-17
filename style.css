@@ -1958,6 +1958,42 @@ fieldset legend.form-label { float: none; width: auto; }
 .table-historique-emprunts td:not(:first-child) { white-space: nowrap; }
 .historique-emprunts:focus-visible { outline: 2px solid var(--texte-vif); outline-offset: 3px; }
 
+.boutiques-page { max-width: 1200px; }
+.boutiques-intro { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 2rem; align-items: center; padding: 2.5rem 0; }
+.boutiques-surtitre { color: var(--texte-vert); text-transform: uppercase; letter-spacing: .12em; font-size: .8rem; font-weight: 700; }
+.boutiques-intro h1 { font-family: var(--police-titre); font-size: clamp(2rem, 4.5vw, 3.6rem); line-height: 1.12; color: var(--vert-nuit); margin-bottom: 1rem; }
+.boutiques-intro p:not(.boutiques-surtitre) { max-width: 42rem; color: var(--encre-douce); font-size: 1.1rem; line-height: 1.7; }
+.boutiques-enseigne { display: flex; flex-direction: column; align-items: center; gap: .7rem; padding: 2.5rem 1rem; border: 1px solid var(--vert-200); border-radius: 48% 48% 18px 18px; background: var(--vert-50); text-align: center; color: var(--texte-vert); }
+.boutiques-enseigne > i { font-size: 5rem; line-height: 1; }
+.boutiques-enseigne strong { font-family: var(--police-titre); font-size: 2rem; }
+.boutiques-enseigne > div { padding-top: .8rem; border-top: 1px solid var(--vert-200); font-size: .85rem; }
+.boutiques-demonstration { display: flex; gap: .7rem; padding: 1rem; border: 1px solid var(--vert-200); border-radius: 12px; color: var(--encre-douce); font-size: .9rem; }
+.boutiques-demonstration > i { flex-shrink: 0; }
+.boutiques-recherche { padding-top: 2rem; scroll-margin-top: 12rem; }
+.boutiques-recherche h2, .boutiques-suite h2 { font-family: var(--police-titre); color: var(--vert-nuit); font-size: 1.7rem; }
+.boutiques-formulaire { display: flex; flex-wrap: wrap; gap: .7rem; align-items: end; margin-top: 1rem; }
+.boutiques-formulaire > div { flex: 1 1 280px; }
+.boutiques-formulaire label { display: block; margin-bottom: .4rem; font-weight: 600; }
+.boutiques-formulaire input { min-height: 48px; }
+.boutiques-resultats { margin: 1.8rem 0 1rem; color: var(--encre-douce); }
+.boutiques-grille { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.2rem; }
+.boutique-carte { display: flex; flex-direction: column; padding: 1.4rem; border: 1px solid var(--vert-200); border-radius: 18px; background: var(--surface); scroll-margin-top: 12rem; }
+.boutique-carte__repere { display: flex; gap: .5rem; align-items: center; color: var(--encre-douce); font-size: .8rem; }
+.boutique-carte__code { margin-left: auto; padding: .2rem .5rem; border-radius: 50%; border: 1px solid var(--vert-200); font-weight: 700; color: var(--texte-vert); }
+.boutique-carte h2 { margin: 1rem 0 .5rem; color: var(--vert-nuit); font-family: var(--police-titre); font-size: 2rem; }
+.boutique-carte__accroche { color: var(--encre-douce); min-height: 3rem; }
+.boutique-carte__agenda { display: flex; gap: .5rem; align-items: start; margin: .5rem 0 1.5rem; color: var(--encre-douce); font-size: .9rem; }
+.boutique-carte__agenda i { color: var(--texte-vert); }
+.boutique-carte > .bouton { margin-top: auto; width: 100%; white-space: normal; text-align: center; justify-content: center; }
+@media (max-width: 991.98px) { .boutiques-grille { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 575.98px) {
+    .boutiques-intro { grid-template-columns: 1fr; padding-top: 1rem; gap: 1.5rem; }
+    .boutiques-enseigne { display: none; }
+    .boutiques-grille { grid-template-columns: 1fr; }
+    .boutiques-formulaire > .bouton { flex: 1 1 auto; }
+    .boutique-carte__accroche { min-height: 0; }
+}
+
 @media (max-width: 767.98px) {
     .carte-emprunt { grid-template-columns: 60px minmax(0, 1fr); gap: .85rem; }
     .carte-emprunt__couverture { width: 60px; height: 86px; }

@@ -2,6 +2,7 @@
 require_once 'config.php';
 require_once 'evenements_lib.php';
 require_once 'avis_lib.php';
+require_once __DIR__ . '/boutiques_lib.php';
 
 $evt = chargerEvenement($pdo, (int) ($_GET['id'] ?? 0));
 if (!$evt) {
@@ -18,6 +19,7 @@ if (!$estPublic && !$estEquipe && !$estCreateur) {
     exit();
 }
 $proposeur = proposeurEvenement($pdo, $evt);
+$boutiqueEvenement = boutiquePourLieu($evt['lieu']);
 $livresAssocies = livresEvenement($pdo, (int) $evt['id_evenement']);
 $inscription = $idUser ? inscriptionDe($pdo, (int) $evt['id_evenement'], $idUser) : null;
 $statutInscription = $inscription['statut'] ?? null;
@@ -90,7 +92,7 @@ include 'header.php';
             <ul class="evt-infos">
                 <li><span class="evt-infos__icone"><i class="bi bi-<?= evenementGratuit($evt) ? 'gift' : 'ticket-perforated' ?>" aria-hidden="true"></i></span><span><strong>Tarif</strong><span data-tarif-evenement><?= htmlspecialchars(texteTarifEvenement($evt)) ?></span></span></li>
                 <li><span class="evt-infos__icone"><i class="bi bi-calendar3" aria-hidden="true"></i></span><span><strong>Quand</strong><?= ucfirst(horaireEvenement($evt)) ?></span></li>
-                <li><span class="evt-infos__icone"><i class="bi bi-geo-alt" aria-hidden="true"></i></span><span><strong>Où</strong><?= htmlspecialchars($evt['lieu']) ?></span></li>
+                <li><span class="evt-infos__icone"><i class="bi bi-geo-alt" aria-hidden="true"></i></span><span><strong>Où</strong><?= htmlspecialchars($evt['lieu']) ?><?php if ($boutiqueEvenement !== null): ?><a class="d-block small mt-2" href="boutiques?ville=<?= $boutiqueEvenement ?>#boutique-<?= $boutiqueEvenement ?>">Découvrir le réseau autour de <?= htmlspecialchars(BOUTIQUES[$boutiqueEvenement]['ville']) ?></a><?php endif; ?></span></li>
                 <?php if ($evt['auteurs']): ?>
                     <li><span class="evt-infos__icone"><i class="bi bi-person-badge" aria-hidden="true"></i></span><span><strong>Avec</strong><?= htmlspecialchars($evt['auteurs']) ?></span></li>
                 <?php endif; ?>

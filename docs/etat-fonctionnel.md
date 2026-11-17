@@ -1,5 +1,13 @@
 # État fonctionnel et prochaine priorité
 
+## Nos boutiques et rencontres par ville — 17 novembre 2026
+
+Page publique `/boutiques` : six pôles de démonstration cohérents avec les villes des événements existants, recherche ville/région/code postal, états vides et compteur d’événements à venir. Les repères sont centralisés dans `boutiques_lib.php`. Paris couvre les lieux franciliens déjà employés ; Lyon inclut Villeurbanne. Le filtre `ville` de l’agenda et le lien retour depuis une fiche événement utilisent les mêmes correspondances, sans modifier le lieu réel saisi pour la rencontre. Les onglets à venir/passés conservent le pôle choisi.
+
+Suggestions de lieux disponibles dans les formulaires auteur et équipe, saisie libre conservée. Accès depuis la navigation, le pied de page et le guide des emprunts ; page ajoutée au sitemap et aux pages indexables. Aucun balisage LocalBusiness fictif, aucune adresse ou heure d’ouverture réelle inventée, aucun déplacement d’événement, aucune affectation de stock ou réservation par ville. Pas de migration pour cette première version.
+
+Recette isolée PHP 8.4 / MariaDB 11.8 : 69 contrôles ciblés (recherche, rattachement géographique, cohérence PHP/SQL, droits publics, échappement, agenda indisponible, sitemap), 123 contrôles de non-régression et 114 contrôles Playwright à 375/768/1440 px, visiteur, lecteur, auteur et trois rôles de l’équipe. Syntaxe des 12 PHP et encodage MariaDB local vérifiés. Pistes de suite dans `docs/idees-produit.md`.
+
 ## Révision du parcours d’emprunt et du SAV — 17 novembre 2026
 
 « Mes emprunts » explicite les étapes réserver, retirer au comptoir, rendre au magasin. La réservation ne passe pas par le panier ; la durée commence à la remise validée par l’équipe. Date et heure limites de retrait affichées ; code de retour visible pendant l’emprunt ; une liste d’attente n’est pas encore une réservation. Une catégorie SAV « Emprunts de livres » est affectée au droit catalogue (gestion), sans numéro de commande imposé.

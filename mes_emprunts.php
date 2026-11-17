@@ -78,7 +78,7 @@ include 'header.php';
                 <li class="col-md-4"><strong>Retirez-le au comptoir.</strong> Présentez votre code ou votre bon. L’équipe valide la remise : la durée d’emprunt commence à ce moment-là.</li>
                 <li class="col-md-4"><strong>Rapportez le livre au magasin.</strong> Présentez le même code. L’équipe enregistre le retour et votre historique est mis à jour.</li>
             </ol>
-            <p class="small mb-0">Besoin d’aide pour un retrait ou un retour ? <a href="service_client?categorie=emprunt#nouvelle">Contacter le service client pour un emprunt</a>.</p>
+            <p class="small mb-0"><a href="boutiques">Découvrir nos boutiques de démonstration</a> · Besoin d’aide pour un retrait ou un retour ? <a href="service_client?categorie=emprunt#nouvelle">Contacter le service client pour un emprunt</a>.</p>
         </details>
         <div class="resume-emprunts">
             <div class="resume-emprunts__jauge" aria-label="<?= $nbActifs ?> emprunt<?= $nbActifs > 1 ? 's' : '' ?> ou réservation<?= $nbActifs > 1 ? 's' : '' ?> sur <?= regleEmprunt($pdo, 'emprunts_max') ?>">

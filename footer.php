@@ -49,6 +49,7 @@ $messageNewsletter = $messagesNewsletter[$cleNewsletter] ?? null;
                 <h3>Communauté</h3>
                 <ul>
                     <li><a href="qui-sommes-nous">Qui sommes-nous ?</a></li>
+                    <li><a href="boutiques">Nos boutiques</a></li>
                     <li><a href="dons">Voir les livres à donner</a></li>
                     <li><a href="evenements">Événements</a></li>
                     <li><a href="auteurs">Nos auteurs</a></li>

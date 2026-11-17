@@ -18,7 +18,7 @@ $listeSitemap = function (string $sql, string $modele) use ($pdoSitemap): array 
     }
 };
 $pages = array_merge(
-    ['', 'qui-sommes-nous', 'catalogue', 'nouveautes', 'meilleures_ventes', 'petits_prix', 'derniere-chance', 'plus_dons', 'plus_emprunts', 'bd_mangas', 'jeunesse', 'roman', 'scolaire', 'dons', 'evenements', 'auteurs', 'mentions_legales', 'confidentialite'],
+    ['', 'qui-sommes-nous', 'boutiques', 'catalogue', 'nouveautes', 'meilleures_ventes', 'petits_prix', 'derniere-chance', 'plus_dons', 'plus_emprunts', 'bd_mangas', 'jeunesse', 'roman', 'scolaire', 'dons', 'evenements', 'auteurs', 'mentions_legales', 'confidentialite'],
     $listeSitemap("SELECT id_evenement FROM evenement WHERE statut = 'publie' AND date_fin >= NOW() ORDER BY date_debut LIMIT 1000", 'evenement?id=%s'),
     $listeSitemap('SELECT DISTINCT ls.id_serie FROM livre_serie ls INNER JOIN livre l ON l.id_livre = ls.id_livre WHERE l.is_valide = 1 ORDER BY ls.id_serie LIMIT 3000', 'serie?id=%s'),
     $listeSitemap("SELECT f.slug FROM fiche_auteur f INNER JOIN user u ON u.id = f.id_user WHERE f.est_masquee = 0 AND u.role = 'auteur' AND u.statut NOT IN ('refuse_temporaire', 'refuse_definitif') AND f.slug REGEXP '^[a-z0-9-]{1,150}$' ORDER BY f.slug LIMIT 1000", 'auteur?a=%s'),

@@ -180,7 +180,8 @@ include __DIR__ . '/_haut.php';
                 </div>
                 <div class="col-md-6">
                     <label class="form-label small fw-bold" for="lieu">Lieu *</label>
-                    <input type="text" id="lieu" name="lieu" class="form-control" maxlength="255" value="<?= $v('lieu') ?>" required placeholder="Ex : Médiathèque, Lyon 3e">
+                    <input type="text" id="lieu" name="lieu" list="lieux-reseau-boutiques" class="form-control" maxlength="255" value="<?= $v('lieu') ?>" required placeholder="Ex : Médiathèque, Lyon 3e">
+                    <?php include __DIR__ . '/../partie_lieux_boutiques.php'; ?>
                 </div>
                 <div class="col-md-4">
                     <label class="form-label small fw-bold" for="date_debut">Début *</label>

@@ -1,6 +1,7 @@
 <?php
 require_once 'config.php';
 require_once 'evenements_lib.php';
+require_once __DIR__ . '/boutiques_lib.php';
 
 $periode = ($_GET['periode'] ?? '') === 'passes' ? 'passes' : 'a_venir';
 $type = isset(EVT_TYPES[$_GET['type'] ?? '']) ? $_GET['type'] : '';
@@ -8,9 +9,14 @@ $lieu = trim($_GET['lieu'] ?? '');
 $auteur = trim($_GET['auteur'] ?? '');
 $mois = preg_match('/^\d{4}-\d{2}$/', $_GET['mois'] ?? '') ? $_GET['mois'] : '';
 $tarif = isset(EVT_FILTRES_TARIF[$_GET['tarif'] ?? '']) ? $_GET['tarif'] : '';
+$villeEvenement = is_string($_GET['ville'] ?? null) && isset(BOUTIQUES[$_GET['ville']]) ? $_GET['ville'] : '';
 
 $where = ["e.statut = 'publie'", $periode === 'passes' ? "e.date_fin < NOW()" : "e.date_fin >= NOW()"];
 $params = [];
+if ($villeEvenement !== '') {
+    $where[] = 'e.lieu REGEXP ?';
+    $params[] = motifLieuBoutique($villeEvenement);
+}
 if ($type !== '') {
     $where[] = "e.type = ?";
     $params[] = $type;
@@ -74,7 +80,7 @@ foreach ($evenements as $e) {
     $t = strtotime($e['date_debut']);
     $parMois[ucfirst(EVT_MOIS[(int) date('n', $t) - 1]) . ' ' . date('Y', $t)][] = $e;
 }
-$filtresActifs = $type !== '' || $lieu !== '' || $auteur !== '' || $mois !== '' || $tarif !== '';
+$filtresActifs = $type !== '' || $lieu !== '' || $auteur !== '' || $mois !== '' || $tarif !== '' || $villeEvenement !== '';
 
 include 'header.php';
 ?>
@@ -91,11 +97,13 @@ include 'header.php';
     </div>
 
     <ul class="nav nav-pills mb-3">
-        <li class="nav-item"><a class="nav-link <?= $periode === 'a_venir' ? 'active' : '' ?>" href="evenements">À venir</a></li>
-        <li class="nav-item"><a class="nav-link <?= $periode === 'passes' ? 'active' : '' ?>" href="evenements?periode=passes">Passés</a></li>
+        <li class="nav-item"><a class="nav-link <?= $periode === 'a_venir' ? 'active' : '' ?>" href="evenements<?= $villeEvenement !== '' ? '?ville=' . $villeEvenement : '' ?>">À venir</a></li>
+        <li class="nav-item"><a class="nav-link <?= $periode === 'passes' ? 'active' : '' ?>" href="evenements?periode=passes<?= $villeEvenement !== '' ? '&amp;ville=' . $villeEvenement : '' ?>">Passés</a></li>
     </ul>
+    <p class="small"><a href="boutiques<?= $villeEvenement !== '' ? '?ville=' . $villeEvenement : '' ?>">Découvrir <?= $villeEvenement !== '' ? 'notre escale autour de ' . htmlspecialchars(BOUTIQUES[$villeEvenement]['ville']) : 'nos boutiques de démonstration' ?></a> · Les rencontres peuvent avoir lieu dans des lieux partenaires : vérifiez toujours le lieu sur la fiche.</p>
 
     <form method="GET" class="row g-2 mb-4">
+        <div class="col-6 col-md-2"><label class="visually-hidden" for="ville-evenement">Ville et alentours</label><select name="ville" id="ville-evenement" class="form-select"><option value="">Toutes les villes</option><?php foreach (BOUTIQUES as $slug => $boutique): ?><option value="<?= $slug ?>"<?= $villeEvenement === $slug ? ' selected' : '' ?>><?= htmlspecialchars($boutique['ville']) ?> et alentours</option><?php endforeach; ?></select></div>
         <?php if ($periode === 'passes'): ?><input type="hidden" name="periode" value="passes"><?php endif; ?>
         <div class="col-md-2">
             <input type="text" name="auteur" class="form-control" placeholder="Auteur ou titre" value="<?= htmlspecialchars($auteur) ?>" aria-label="Auteur ou titre">
@@ -206,7 +214,7 @@ include 'header.php';
             <?php endforeach; ?>
         </ul>
         <?php if ($nbEvenementsPasses > count($evenementsPasses)): ?>
-            <a href="evenements?periode=passes" class="lien-voir-tout mt-2">Voir les <?= $nbEvenementsPasses ?> événements passés <i class="bi bi-arrow-right" aria-hidden="true"></i></a>
+            <a href="evenements?periode=passes<?= $villeEvenement !== '' ? '&amp;ville=' . $villeEvenement : '' ?>" class="lien-voir-tout mt-2">Voir les <?= $nbEvenementsPasses ?> événements passés <i class="bi bi-arrow-right" aria-hidden="true"></i></a>
         <?php endif; ?>
     </details>
 <?php endif; ?>

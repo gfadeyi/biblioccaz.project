@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/urls_lib.php';
 
-const PAGES_PUBLIQUES_INDEXABLES = ['index.php', 'catalogue.php', 'bd_mangas.php', 'jeunesse.php', 'roman.php', 'scolaire.php', 'petits_prix.php', 'nouveauté.php', 'dernière_chance.php', 'meilleures_ventes.php', 'plus_dons.php', 'plus_emprunts.php', 'dons.php', 'evenements.php', 'auteurs.php', 'mentions_legales.php', 'confidentialite.php', 'cgu.php', 'detail_livre.php', 'serie.php', 'editions_livre.php', 'auteur.php', 'evenement.php', 'qui_sommes_nous.php'];
+const PAGES_PUBLIQUES_INDEXABLES = ['index.php', 'catalogue.php', 'bd_mangas.php', 'jeunesse.php', 'roman.php', 'scolaire.php', 'petits_prix.php', 'nouveauté.php', 'dernière_chance.php', 'meilleures_ventes.php', 'plus_dons.php', 'plus_emprunts.php', 'dons.php', 'evenements.php', 'auteurs.php', 'mentions_legales.php', 'confidentialite.php', 'cgu.php', 'detail_livre.php', 'serie.php', 'editions_livre.php', 'auteur.php', 'evenement.php', 'qui_sommes_nous.php', 'boutiques.php'];
 
 function cheminPageReferencement(): string
 {

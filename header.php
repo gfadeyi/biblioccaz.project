@@ -454,6 +454,7 @@ $imagePartage = isset($imagePartage) && is_string($imagePartage) && $imagePartag
         <a href="derniere-chance" class="<?= $classeRaccourci(['dernière_chance.php']) ?>"><i class="bi bi-hourglass-split"></i> Dernière chance</a>
         <a href="dons" class="<?= $classeRaccourci(['dons.php', 'don_detail.php']) ?>"><i class="bi bi-gift"></i> Voir les livres à donner</a>
         <a href="evenements" class="<?= $classeRaccourci(['evenements.php', 'evenement.php', 'mes_evenements.php']) ?>"><i class="bi bi-calendar-event"></i> Événements</a>
+        <a href="boutiques" class="<?= $classeRaccourci(['boutiques.php']) ?>"><i class="bi bi-shop-window" aria-hidden="true"></i> Nos boutiques</a>
         <a href="catalogue" class="<?= $pageActuelle === 'catalogue.php' && !$menuCatActive ? 'puce actif' : 'puce' ?>"><i class="bi bi-grid"></i> Tout le catalogue</a>
         </nav>
     </div>
@@ -524,6 +525,7 @@ $imagePartage = isset($imagePartage) && is_string($imagePartage) && $imagePartag
                 <li><a href="vendre" class="lien-lateral-secondaire"><i class="bi bi-arrow-repeat"></i> Donner ou revendre mes livres</a></li>
             <?php endif; ?>
             <li><a href="evenements" class="lien-lateral-secondaire"><i class="bi bi-calendar-event"></i> Événements</a></li>
+            <li><a href="boutiques" class="lien-lateral-secondaire"><i class="bi bi-shop-window" aria-hidden="true"></i> Nos boutiques</a></li>
             <?php if ($connected): ?>
                 <li><a href="mon-compte" class="lien-lateral-secondaire"><i class="bi bi-person"></i> Mon compte</a></li>
             <?php else: ?>

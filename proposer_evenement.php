@@ -178,7 +178,8 @@ include 'header.php';
                 </div>
                 <div class="col-md-8">
                     <label class="form-label small fw-bold" for="lieu">Lieu *</label>
-                    <input type="text" id="lieu" name="lieu" class="form-control" maxlength="255" value="<?= $v('lieu') ?>" required placeholder="Ex : Librairie du Centre, Lyon 2e">
+                    <input type="text" id="lieu" name="lieu" list="lieux-reseau-boutiques" class="form-control" maxlength="255" value="<?= $v('lieu') ?>" required placeholder="Ex : Librairie du Centre, Lyon 2e">
+                    <?php include __DIR__ . '/partie_lieux_boutiques.php'; ?>
                 </div>
                 <div class="col-md-4">
                     <label class="form-label small fw-bold" for="places_max">Nombre de places *</label>
