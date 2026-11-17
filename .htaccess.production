@@ -8,6 +8,7 @@ RewriteCond %{HTTPS} !=on
 RewriteCond %{HTTP:X-Forwarded-Proto} !=https
 RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
 RewriteRule ^robots\.txt$ robots.php [END]
+RewriteRule ^sitemap\.xml$ sitemap.php [END]
 RewriteRule ^\.well-known/acme-challenge/[A-Za-z0-9_-]+$ - [END]
 RewriteRule (^|/)(\.[^/]+|secure_data|sauvegardes|sql|docs|vendor|nbproject|cron|outils)(/|$) - [F,END,NC]
 RewriteCond %{REQUEST_METHOD} ^(GET|HEAD)$

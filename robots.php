@@ -8,4 +8,4 @@ echo "User-agent: *\n";
 if (!modeProduction()) { echo "Disallow: /\n"; exit; }
 $base = rtrim((string) parse_url(SITE_URL, PHP_URL_PATH), '/') . '/';
 foreach (['admin/', 'secure_data/', 'sauvegardes/', 'sql/', 'vendor/', 'outils/', 'docs/'] as $dossier) { echo 'Disallow: ' . $base . $dossier . "\n"; }
-echo 'Sitemap: ' . rtrim(SITE_URL, '/') . "/sitemap\n";
+echo 'Sitemap: ' . rtrim(SITE_URL, '/') . "/sitemap.xml\n";
