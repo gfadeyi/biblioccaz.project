@@ -270,12 +270,19 @@ function envoyerMessageEquipe(PDO $pdo, int $idConversation, int $idEquipe, stri
             $pdo->rollBack();
             return ['danger', "Vous ne pouvez pas répondre au nom de l'équipe."];
         }
-        $verrou = $pdo->prepare("SELECT type_objet, statut FROM conversation WHERE id_conversation = ? FOR UPDATE");
+        $verrou = $pdo->prepare("SELECT type_objet, statut, id_objet FROM conversation WHERE id_conversation = ? FOR UPDATE");
         $verrou->execute([$idConversation]);
         $etat = $verrou->fetch();
         if (!$etat || $etat['type_objet'] !== 'emprunt' || $etat['statut'] !== 'ouverte') {
             $pdo->rollBack();
             return ['warning', "Cette conversation d'emprunt n'est pas ouverte."];
+        }
+        require_once __DIR__ . '/emprunts_boutiques_lib.php';
+        require_once __DIR__ . '/droits_equipe_lib.php';
+        if (empruntsBoutiquesDisponibles($pdo) && !rolePossedeDroit($pdo, $equipe['role'], 'moderation', DROITS_EQUIPE_DEFAUT)) {
+            $r = $pdo->prepare('SELECT id_boutique FROM emprunt WHERE id_emprunt = ?'); $r->execute([$etat['id_objet']]);
+            $objet = $r->fetch(PDO::FETCH_ASSOC);
+            if (!$objet || ($erreur = erreurComptoirEmprunt($pdo, $objet, $idEquipe)) !== '') { $pdo->rollBack(); return ['warning', $objet ? $erreur : 'Emprunt introuvable.']; }
         }
         $frequence = $pdo->prepare("SELECT id_message FROM conversation_message WHERE id_auteur = ? AND date_envoi > NOW() - INTERVAL 1 HOUR FOR UPDATE");
         $frequence->execute([$idEquipe]);

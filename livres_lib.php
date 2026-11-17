@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/panier_minute_lib.php';
+require_once __DIR__ . '/emprunts_boutiques_lib.php';
 
 const ETATS_LIVRE = ['neuf' => 'Neuf', 'tres bon' => 'Très bon état', 'bon' => 'Bon état', 'use' => 'Correct'];
 
@@ -93,6 +94,8 @@ function conditionAnnoncePubliee(string $alias = 'e'): string
 
 function sqlOffres(array $origines = []): string
 {
+    $pdoOffres = $GLOBALS['pdo'] ?? null;
+    $avecBoutiques = $pdoOffres instanceof PDO && empruntsBoutiquesDisponibles($pdoOffres);
     $requetesParOrigine = [
         'magasin' => "SELECT ex.id_exemplaire AS id_offre, ex.id_livre, ex.etat, ex.prix, GREATEST(0, ex.quantite - COALESCE(rs.reserve, 0)) AS quantite, 'magasin' AS origine
                       FROM exemplaire ex
@@ -104,7 +107,7 @@ function sqlOffres(array $origines = []): string
         'don'     => "SELECT d.id_don AS id_offre, d.id_livre, d.etat, 0 AS prix, 1 AS quantite, 'don' AS origine
                       FROM don d WHERE d.statut = 'disponible' AND d.id_livre IS NOT NULL AND d.date_limite >= CURDATE()",
         'emprunt' => "SELECT ep.id_exemplaire AS id_offre, ep.id_livre, ep.etat, 0 AS prix, 1 AS quantite, 'emprunt' AS origine
-                      FROM exemplaire ep WHERE ep.id_proprietaire IS NULL AND ep.type_offre = 'emprunt' AND ep.is_disponible = 1",
+                      FROM exemplaire ep WHERE ep.id_proprietaire IS NULL AND ep.type_offre = 'emprunt' AND ep.is_disponible = 1" . ($avecBoutiques ? ' AND EXISTS (SELECT 1 FROM boutique bp WHERE bp.id_boutique = ep.id_boutique AND bp.actif = 1)' : ''),
     ];
     $choisies = array_intersect_key($requetesParOrigine, array_flip($origines ?: array_keys($requetesParOrigine)));
     return '(' . implode(' UNION ALL ', $choisies ?: $requetesParOrigine) . ')';

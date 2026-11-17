@@ -74,9 +74,9 @@ include 'header.php';
         <details class="carte-compte my-3"<?= !$reservations && !$enCours ? ' open' : '' ?>>
             <summary class="h5 mb-0" id="parcours-emprunt">Comment se passe un emprunt ?</summary>
             <ol class="row g-3 my-3">
-                <li class="col-md-4"><strong>Réservez en ligne.</strong> Aucun achat ni paiement : le livre est mis de côté jusqu’à la date limite indiquée.</li>
+                <li class="col-md-4"><strong>Choisissez votre boutique et réservez.</strong> Aucun achat ni paiement : le livre est mis de côté dans cette boutique jusqu’à la date limite indiquée.</li>
                 <li class="col-md-4"><strong>Retirez-le au comptoir.</strong> Présentez votre code ou votre bon. L’équipe valide la remise : la durée d’emprunt commence à ce moment-là.</li>
-                <li class="col-md-4"><strong>Rapportez le livre au magasin.</strong> Présentez le même code. L’équipe enregistre le retour et votre historique est mis à jour.</li>
+                <li class="col-md-4"><strong>Rapportez le livre dans la même boutique.</strong> Présentez le même code. L’équipe enregistre le retour et votre historique est mis à jour.</li>
             </ol>
             <p class="small mb-0"><a href="boutiques">Découvrir nos boutiques de démonstration</a> · Besoin d’aide pour un retrait ou un retour ? <a href="service_client?categorie=emprunt#nouvelle">Contacter le service client pour un emprunt</a>.</p>
         </details>
@@ -120,6 +120,7 @@ include 'header.php';
                         <div class="carte-emprunt__contenu">
                             <h3 class="carte-emprunt__titre"><a href="livre?id=<?= (int) $emprunt['id_livre'] ?>"><?= htmlspecialchars($emprunt['titre']) ?></a></h3>
                             <p class="carte-emprunt__auteur"><?= htmlspecialchars($emprunt['auteur'] ?? '') ?></p>
+                            <p class="carte-emprunt__aide"><?= nl2br(htmlspecialchars(informationsBoutiqueEmprunt($emprunt), ENT_QUOTES, 'UTF-8')) ?></p>
                             <p class="carte-emprunt__pastilles"><?= pastilleStatutEmprunt($emprunt) ?></p>
                             <p class="carte-emprunt__date">À retirer au plus tard le <strong><?= date('d/m/Y à H:i', strtotime($emprunt['date_expiration_reservation'])) ?></strong> · <?= (int) $emprunt['duree_jours'] ?> jours d'emprunt à partir du retrait</p>
                             <p class="carte-emprunt__aide">Présentez le code ci-dessous au comptoir. Sans retrait dans ce délai, la réservation expire et le livre est libéré.</p>
@@ -165,6 +166,7 @@ include 'header.php';
                             <?php if ($retard): ?>
                                 <p class="carte-emprunt__alerte"><i class="bi bi-alarm" aria-hidden="true"></i> Rapportez-le au magasin au plus vite<?= (int) $emprunt['blocage_retard'] ? " : vos emprunts seront ensuite bloqués autant de jours que de jours de retard (" . BLOCAGE_MAX_JOURS . " au maximum)." : '.' ?></p>
                             <?php endif; ?>
+                            <p class="carte-emprunt__aide"><?= nl2br(htmlspecialchars(informationsBoutiqueEmprunt($emprunt), ENT_QUOTES, 'UTF-8')) ?></p>
                             <p class="carte-emprunt__aide">Pour le retour au comptoir, présentez le code <strong><?= htmlspecialchars($emprunt['code_retrait']) ?></strong> ou votre ticket. Le retour est confirmé par l’équipe après réception du livre.</p>
                             <div class="carte-emprunt__actions">
                                 <?php if ($refusRenouvellement === ''): ?>
@@ -204,13 +206,16 @@ include 'header.php';
                             <span class="ligne-attente__texte">
                                 <a href="livre?id=<?= (int) $attente['id_livre'] ?>" class="ligne-attente__titre"><?= htmlspecialchars($attente['titre']) ?></a>
                                 <span class="ligne-attente__detail">
+                                    <?= htmlspecialchars($attente['boutique_nom'] ?? 'Ancienne attente : choisissez votre boutique depuis la fiche du livre') ?> ·
                                     Position <?= (int) $attente['position'] ?> · inscrit le <?= date('d/m/Y', strtotime($attente['date_demande'])) ?> · pas encore réservé : attendez la confirmation par mail avant de vous déplacer
                                     <?= $attente['prochain_retour'] ? ' · prochain retour prévu le ' . date('d/m/Y', strtotime($attente['prochain_retour'])) : '' ?>
                                 </span>
+                                <?php if (empty($attente['id_boutique'])): ?><a class="small" href="livre?id=<?= (int) $attente['id_livre'] ?>#emprunt">Choisir le comptoir de cette attente</a><?php endif; ?>
                             </span>
                             <form action="emprunt_action" method="POST">
                                 <input type="hidden" name="csrf" value="<?= $csrf ?>">
                                 <input type="hidden" name="action" value="quitter_attente">
+                                <input type="hidden" name="id_boutique" value="<?= (int) ($attente['id_boutique'] ?? 0) ?>">
                                 <input type="hidden" name="id_livre" value="<?= (int) $attente['id_livre'] ?>">
                                 <button class="bouton bouton-lien bouton-petit" aria-label="Quitter la liste d'attente de <?= htmlspecialchars($attente['titre']) ?>">Quitter</button>
                             </form>

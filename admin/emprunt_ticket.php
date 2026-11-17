@@ -12,6 +12,7 @@ try {
 if (!$emprunt || !in_array($emprunt['statut'], ['reserve', 'en_cours', 'rendu'], true)) {
     rediriger('emprunts', 'warning', "Ticket introuvable.");
 }
+if (erreurComptoirEmprunt($pdo, $emprunt, (int) $_SESSION['user_id']) !== '') { http_response_code(403); exit('Accès interdit à ce comptoir.'); }
 if (!file_exists(__DIR__ . '/../vendor/autoload.php')) {
     rediriger("emprunts?id=$idEmprunt", 'danger', "Dompdf est introuvable : lancez « composer install » à la racine du projet.");
 }

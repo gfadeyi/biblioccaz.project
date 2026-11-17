@@ -1,5 +1,15 @@
 # État fonctionnel et prochaine priorité
 
+## Emprunts par boutique — 17 novembre 2026
+
+Les exemplaires et chaque nouveau prêt portent leur boutique. Le lecteur choisit son comptoir sur la fiche ; disponibilité, liste d’attente et promotion sont locales. Retrait et retour se font dans la même boutique, avec démarrage de la durée au retrait. Quotas et blocages restent communs au compte. Tickets, mails et export personnel rappellent le comptoir.
+
+Le gestionnaire traite les prêts de sa boutique ; sans affectation, il ne peut pas intervenir. L’administrateur garde la vue globale et configure les affectations dans « Boutiques ». Aucun transfert entre villes. Adresses et horaires facultatifs, réseau explicitement fictif.
+
+Ordre des migrations : `maj_emprunts_boutiques.sql`, puis `maj_repartition_emprunts_boutiques.sql`. La seconde répartit une seule fois le stock de démonstration disponible sans boutique entre les six pôles, conformément au choix du propriétaire. Les prêts actifs, réservations et exemplaires indisponibles restent préservés. Anciens prêts sans comptoir : qualification explicite par l’administrateur ; anciennes attentes : choix du comptoir par le lecteur, sans inventer leur origine. Aucune affectation automatique des membres de l’équipe. Le rapport privé conserve les résultats de recette et d’import.
+
+Recette isolée PHP 8.4 / MariaDB 11.8 : 31 contrôles métier, 12 contrôles HTTP/CSRF/droits/ticket PDF, 3 contrôles de concurrence, 111 contrôles Playwright à 375/768/1440 px en visiteur, lecteur et trois rôles de l’équipe ; 192 contrôles de non-régression. Installation complète à 75 tables, migrations réexécutées. Sauvegarde locale restaurée sur une base isolée privée avant import MariaDB 10.4 : 541 copies affectées (90 par boutique, 91 à Bordeaux), aucun membre d’équipe affecté, encodage correct. Le scan physique QR reste à tester.
+
 ## Nos boutiques et rencontres par ville — 17 novembre 2026
 
 Page publique `/boutiques` : six pôles de démonstration cohérents avec les villes des événements existants, recherche ville/région/code postal, états vides et compteur d’événements à venir. Les repères sont centralisés dans `boutiques_lib.php`. Paris couvre les lieux franciliens déjà employés ; Lyon inclut Villeurbanne. Le filtre `ville` de l’agenda et le lien retour depuis une fiche événement utilisent les mêmes correspondances, sans modifier le lieu réel saisi pour la rencontre. Les onglets à venir/passés conservent le pôle choisi.

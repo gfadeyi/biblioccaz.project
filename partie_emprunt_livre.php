@@ -1,12 +1,42 @@
 <?php
 $roleConnecte = $_SESSION['role'] ?? '';
+$reseauEmprunt = empruntsBoutiquesDisponibles($pdo);
+$boutiquesEmprunt = boutiquesEmprunt($pdo);
+$idBoutiqueChoisie = filter_var($_GET['boutique'] ?? null, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]) ?: 0;
+$boutiqueChoisie = $idBoutiqueChoisie ? boutiqueEmprunt($pdo, $idBoutiqueChoisie) : null;
+if (!$boutiqueChoisie || !(int) $boutiqueChoisie['actif']) { $idBoutiqueChoisie = 0; }
+$etatToutesBoutiques = $etatEmprunt;
+if ($idBoutiqueChoisie) { $etatEmprunt = etatEmpruntLivre($pdo, (int) $id, $idBoutiqueChoisie); }
 $monEmprunt = $idUserConnecte ? empruntActifLivre($pdo, (int) $id, $idUserConnecte) : null;
 $raisonEmprunt = $idUserConnecte && !$monEmprunt ? raisonInterdictionEmprunt($pdo, $idUserConnecte, $etatEmprunt['libres'] > 0) : '';
-$positionAttenteLivre = $idUserConnecte && !$monEmprunt ? positionAttenteEmprunt($pdo, (int) $id, $idUserConnecte) : 0;
-$exemplaireReference = $etatEmprunt['exemplaires'][0];
+$positionAttenteLivre = $idUserConnecte && !$monEmprunt && $idBoutiqueChoisie ? positionAttenteEmprunt($pdo, (int) $id, $idUserConnecte, $idBoutiqueChoisie) : 0;
+$exemplaireReference = $etatEmprunt['exemplaires'][0] ?? ['duree_emprunt_jours' => 0, 'renouvellements_max' => 0];
+if ($monEmprunt) { $exemplaireReference = ['duree_emprunt_jours' => $monEmprunt['duree_jours'], 'renouvellements_max' => $monEmprunt['renouvellements_max']]; }
 ?>
 <div class="bloc-emprunt" id="emprunt">
     <h2 class="bloc-emprunt__titre"><?= iconeDessin('livre-ouvert') ?> Emprunter ce livre</h2>
+    <?php if (!$monEmprunt && $reseauEmprunt): ?>
+        <form action="livre#emprunt" method="GET" class="mb-3">
+            <input type="hidden" name="id" value="<?= (int) $id ?>">
+            <label for="boutique-emprunt" class="form-label fw-bold">Où souhaitez-vous retirer et rendre ce livre ?</label>
+            <select class="form-select mb-2" id="boutique-emprunt" name="boutique" required>
+                <option value="" disabled<?= !$idBoutiqueChoisie ? ' selected' : '' ?>>Choisir une boutique</option>
+                <?php foreach ($boutiquesEmprunt as $b): ?>
+                    <?php $copies = array_filter($etatToutesBoutiques['exemplaires'], fn($ex) => (int) $ex['id_boutique'] === (int) $b['id_boutique']); $libresBoutique = count(array_filter($copies, fn($ex) => $ex['statut_pret'] === 'disponible')); ?>
+                    <option value="<?= (int) $b['id_boutique'] ?>"<?= $idBoutiqueChoisie === (int) $b['id_boutique'] ? ' selected' : '' ?><?= !$copies ? ' disabled' : '' ?>><?= htmlspecialchars($b['nom']) ?> · <?= $libresBoutique ? 'Disponible' : ($copies ? 'Liste d’attente' : 'Non proposé') ?></option>
+                <?php endforeach; ?>
+            </select>
+            <button class="bouton bouton-contour w-100">Voir cette boutique</button>
+        </form>
+    <?php endif; ?>
+    <?php if (!$reseauEmprunt): ?>
+        <p>Le choix de boutique est momentanément indisponible. Vos emprunts déjà enregistrés restent consultables dans « Mes emprunts ».</p>
+    <?php elseif (!$monEmprunt && !$idBoutiqueChoisie): ?>
+        <p>Choisissez une boutique pour voir ses disponibilités. Le retrait et le retour se feront au même comptoir.</p>
+    <?php elseif (!$monEmprunt && $etatEmprunt['total'] === 0): ?>
+        <p>Ce livre n’est pas proposé à l’emprunt dans cette boutique. Choisissez une autre boutique dans la liste.</p>
+    <?php else: ?>
+    <p class="bloc-emprunt__aide"><?= htmlspecialchars($monEmprunt ? libelleBoutiqueEmprunt($monEmprunt) : $boutiqueChoisie['nom']) ?> · retrait et retour au même comptoir.</p>
     <p class="bloc-emprunt__conditions">
         Gratuit · <?= (int) $exemplaireReference['duree_emprunt_jours'] ?> jours
         <?php if ((int) $exemplaireReference['renouvellements_max'] > 0): ?>
@@ -16,7 +46,7 @@ $exemplaireReference = $etatEmprunt['exemplaires'][0];
     </p>
     <p class="bloc-emprunt__dispo">
         <?php if ($etatEmprunt['libres'] > 0): ?>
-            <span class="pastille-etat"><i class="bi bi-check-circle" aria-hidden="true"></i> <?= $etatEmprunt['libres'] ?> exemplaire<?= $etatEmprunt['libres'] > 1 ? 's' : '' ?> disponible<?= $etatEmprunt['libres'] > 1 ? 's' : '' ?></span>
+            <span class="pastille-etat"><i class="bi bi-check-circle" aria-hidden="true"></i> Disponible dans cette boutique</span>
         <?php else: ?>
             <span class="pastille-etat attente"><i class="bi bi-hourglass-split" aria-hidden="true"></i> Tous réservés ou empruntés</span>
             <?php if ($etatEmprunt['prochain_retour']): ?>
@@ -41,6 +71,7 @@ $exemplaireReference = $etatEmprunt['exemplaires'][0];
         <form action="emprunt_action" method="POST">
             <input type="hidden" name="csrf" value="<?= jetonCsrf() ?>">
             <input type="hidden" name="action" value="quitter_attente">
+            <input type="hidden" name="id_boutique" value="<?= (int) $idBoutiqueChoisie ?>">
             <input type="hidden" name="id_livre" value="<?= (int) $id ?>">
             <input type="hidden" name="retour" value="livre">
             <button class="btn btn-link btn-sm text-muted p-0">Quitter la liste d'attente</button>
@@ -54,6 +85,7 @@ $exemplaireReference = $etatEmprunt['exemplaires'][0];
         <form action="emprunt_action" method="POST">
             <input type="hidden" name="csrf" value="<?= jetonCsrf() ?>">
             <input type="hidden" name="action" value="reserver">
+            <input type="hidden" name="id_boutique" value="<?= (int) $idBoutiqueChoisie ?>">
             <input type="hidden" name="id_livre" value="<?= (int) $id ?>">
             <input type="hidden" name="retour" value="livre">
             <button class="bouton bouton-principal w-100"><i class="bi bi-bookmark-plus" aria-hidden="true"></i> Réserver pour emprunter</button>
@@ -63,10 +95,12 @@ $exemplaireReference = $etatEmprunt['exemplaires'][0];
         <form action="emprunt_action" method="POST">
             <input type="hidden" name="csrf" value="<?= jetonCsrf() ?>">
             <input type="hidden" name="action" value="attendre">
+            <input type="hidden" name="id_boutique" value="<?= (int) $idBoutiqueChoisie ?>">
             <input type="hidden" name="id_livre" value="<?= (int) $id ?>">
             <input type="hidden" name="retour" value="livre">
             <button class="bouton bouton-contour w-100"><i class="bi bi-people" aria-hidden="true"></i> Rejoindre la liste d'attente</button>
         </form>
         <p class="bloc-emprunt__aide">Il vous sera réservé automatiquement à son retour, et vous serez prévenu par mail.</p>
+    <?php endif; ?>
     <?php endif; ?>
 </div>

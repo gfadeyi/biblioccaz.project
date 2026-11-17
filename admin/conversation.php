@@ -23,6 +23,11 @@ $droitLecture = DROITS_LECTURE_CONVERSATION[$conversation['type_objet']] ?? 'mod
 if (!$moderation && !aLeDroit($droitLecture)) {
     refuserAcces('Cette conversation relève de la modération.');
 }
+if (!$moderation && $conversation['type_objet'] === 'emprunt') {
+    require_once __DIR__ . '/../emprunts_lib.php';
+    $pretConversation = empruntParId($pdo, (int) $conversation['id_objet']);
+    if (!$pretConversation || erreurComptoirEmprunt($pdo, $pretConversation, (int) $_SESSION['user_id']) !== '') { refuserAcces('Accès interdit à ce comptoir.'); }
+}
 $peutRepondre = $conversation['type_objet'] === 'emprunt' && ($moderation || aLeDroit('catalogue'));
 $idModerateur = (int) $_SESSION['user_id'];
 

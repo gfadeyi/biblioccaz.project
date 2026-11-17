@@ -1,12 +1,13 @@
 <?php
+require_once __DIR__ . '/emprunts_boutiques_lib.php';
 
 const EXPORT_DONNEES_DELAI = 60;
 const EXPORT_DONNEES_LIGNES_MAX = 5000;
 
-function requetesExportDonnees(): array
+function requetesExportDonnees(?PDO $pdo = null): array
 {
     $limite = ' LIMIT ' . (EXPORT_DONNEES_LIGNES_MAX + 1);
-    return [
+    $requetes = [
         'adresses' => ["SELECT libelle, prenom, nom, adresse, complement, code_postal, ville, telephone, par_defaut, date_creation FROM adresse_livraison WHERE id_user = ? ORDER BY date_creation" . $limite, 1],
         'commandes' => ["SELECT id_commande AS numero, date_commande, prenom, nom, adresse, sous_total, remise, frais_livraison, total, points_gagnes, points_utilises, reduction_points, statut, etape_suivi, date_annulation FROM commande WHERE id_user = ? ORDER BY date_commande" . $limite, 1],
         'lignes_de_commande' => ["SELECT cl.id_commande AS numero_commande, cl.titre, cl.etat, cl.prix_unitaire, cl.quantite FROM commande_ligne cl INNER JOIN commande c ON c.id_commande = cl.id_commande WHERE c.id_user = ? ORDER BY cl.id_commande, cl.id_ligne" . $limite, 1],
@@ -37,6 +38,11 @@ function requetesExportDonnees(): array
         'candidatures_equipe' => ["SELECT role_vise, motivations, statut, date_candidature, date_decision FROM candidature_equipe WHERE id_user = ? ORDER BY date_candidature" . $limite, 1],
         'connexions' => ["SELECT espace, appareil, date_connexion, derniere_activite, date_revocation FROM session_utilisateur WHERE id_user = ? ORDER BY date_connexion DESC LIMIT 101", 1],
     ];
+    if ($pdo && empruntsBoutiquesDisponibles($pdo)) {
+        $requetes['emprunts'] = ["SELECT l.titre AS livre, b.nom AS boutique, m.statut, m.date_reservation, m.date_retrait, m.date_retour_prevue, m.date_retour, m.nb_renouvellements, m.jours_retard FROM emprunt m INNER JOIN exemplaire x ON x.id_exemplaire = m.id_exemplaire INNER JOIN livre l ON l.id_livre = x.id_livre LEFT JOIN boutique b ON b.id_boutique = m.id_boutique WHERE m.id_user = ? ORDER BY m.date_reservation" . $limite, 1];
+        $requetes['attente_emprunts'] = ["SELECT l.titre AS livre, b.nom AS boutique, a.date_demande FROM emprunt_attente a INNER JOIN livre l ON l.id_livre = a.id_livre LEFT JOIN boutique b ON b.id_boutique = a.id_boutique WHERE a.id_user = ? ORDER BY a.date_demande" . $limite, 1];
+    }
+    return $requetes;
 }
 
 function exportDonneesPersonnelles(PDO $pdo, int $idUser): array
@@ -55,7 +61,7 @@ function exportDonneesPersonnelles(PDO $pdo, int $idUser): array
     ];
     $indisponibles = [];
     $plafonnees = [];
-    foreach (requetesExportDonnees() as $section => [$sql, $nombreParametres]) {
+    foreach (requetesExportDonnees($pdo) as $section => [$sql, $nombreParametres]) {
         try {
             $requete = $pdo->prepare($sql);
             $requete->execute(array_fill(0, $nombreParametres, $idUser));

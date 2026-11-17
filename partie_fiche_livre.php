@@ -126,7 +126,7 @@
                         </div>
                     </div>
                 <?php endif; ?>
-                <?php if ($etatEmprunt['total'] > 0): ?><?php include __DIR__ . '/partie_emprunt_livre.php'; ?><hr><?php endif; ?>
+                <?php if ($etatEmprunt['total'] > 0 || !empty($empruntFiche)): ?><?php include __DIR__ . '/partie_emprunt_livre.php'; ?><hr><?php endif; ?>
                 <?php if (!$selectionMagasin): ?>
                     <?php if (!$idUserConnecte): ?><a class="btn btn-outline-success mb-3" href="<?= htmlspecialchars(lienConnexion()) ?>">Être averti du retour en stock</a><?php elseif ($alerteActive): ?><p>Vous serez averti du retour en stock.</p><?= formulaireCompte('alerte_retirer', (int) $id, 'Annuler l’alerte', 'btn btn-link') ?><?php else: ?><?= formulaireCompte('alerte_ajouter', (int) $id, 'M’avertir du retour en stock', 'btn btn-outline-success') ?><?php endif; ?>
                 <?php endif; ?>

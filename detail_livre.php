@@ -102,6 +102,8 @@ require_once 'emprunts_lib.php';
 verifierEmpruntsSiBesoin($pdo);
 $etatEmprunt = etatEmpruntLivre($pdo, (int) $livre['id_livre']);
 $peutReserverEmprunt = false;
+$empruntFiche = null;
+if ($idUserConnecte) { try { $empruntFiche = empruntActifLivre($pdo, (int) $livre['id_livre'], $idUserConnecte); } catch (PDOException $e) {} }
 if ($etatEmprunt['libres'] > 0 && $idUserConnecte) {
     try {
         $peutReserverEmprunt = !empruntActifLivre($pdo, (int) $livre['id_livre'], $idUserConnecte) && raisonInterdictionEmprunt($pdo, $idUserConnecte) === '';
@@ -109,9 +111,9 @@ if ($etatEmprunt['libres'] > 0 && $idUserConnecte) {
     }
 }
 foreach ($etatEmprunt['exemplaires'] as $exemplaireEmprunt) {
-    $toutesOffres[] = ['origine' => 'emprunt', 'etat' => $exemplaireEmprunt['etat'], 'prix' => 0.0, 'libre' => $exemplaireEmprunt['statut_pret'] === 'disponible',
+    $toutesOffres[] = ['origine' => 'emprunt', 'etat' => $exemplaireEmprunt['etat'], 'prix' => 0.0, 'libre' => $exemplaireEmprunt['statut_pret'] === 'disponible', 'id_boutique' => (int) ($exemplaireEmprunt['id_boutique'] ?? 0),
                        'detail' => ($exemplaireEmprunt['statut_pret'] === 'disponible' ? 'Disponible' : ($exemplaireEmprunt['statut_pret'] === 'reserve' ? 'Réservé' : 'Emprunté, retour prévu le ' . date('d/m', strtotime((string) $exemplaireEmprunt['retour_prevu']))))
-                           . ' · ' . (int) $exemplaireEmprunt['duree_emprunt_jours'] . ' jours, retrait en magasin'];
+                           . ' · ' . (int) $exemplaireEmprunt['duree_emprunt_jours'] . ' jours · ' . ($exemplaireEmprunt['boutique_nom'] ?? 'Comptoir à confirmer')];
 }
 
 const RANG_ETATS = ['neuf' => 0, 'tres bon' => 1, 'bon' => 2, 'use' => 3];
@@ -194,16 +196,8 @@ include 'partie_fiche_livre.php';
                         <span class="ligne-offre__action">
                             <?php if ($offreListe['origine'] === 'don'): ?>
                                 <a href="don_detail?id=<?= $offreListe['id_don'] ?>" class="bouton bouton-contour bouton-petit">Voir le don</a>
-                            <?php elseif ($offreListe['origine'] === 'emprunt' && $offreListe['libre'] && $peutReserverEmprunt): ?>
-                                <form action="emprunt_action" method="POST">
-                                    <input type="hidden" name="csrf" value="<?= jetonCsrf() ?>">
-                                    <input type="hidden" name="action" value="reserver">
-                                    <input type="hidden" name="id_livre" value="<?= (int) $id ?>">
-                                    <input type="hidden" name="retour" value="livre">
-                                    <button class="bouton bouton-principal bouton-petit"><i class="bi bi-bookmark-plus" aria-hidden="true"></i> Emprunter</button>
-                                </form>
                             <?php elseif ($offreListe['origine'] === 'emprunt'): ?>
-                                <a href="#emprunt" class="bouton bouton-contour bouton-petit"><?= $offreListe['libre'] ? 'Emprunter' : "Liste d'attente" ?></a>
+                                <a href="livre?id=<?= (int) $id ?>&amp;boutique=<?= (int) $offreListe['id_boutique'] ?>#emprunt" class="bouton bouton-contour bouton-petit"><?= $offreListe['libre'] ? 'Choisir cette boutique' : "Liste d'attente" ?></a>
                             <?php elseif ($offreListe['origine'] === 'particulier'): ?>
                                 <a href="annonce?id=<?= $offreListe['id_annonce'] ?>" class="bouton bouton-contour bouton-petit">Voir l'annonce</a>
                             <?php elseif ($peutAcheterEnMagasin): ?>

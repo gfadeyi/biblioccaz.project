@@ -40,6 +40,7 @@ $menu = [
         ['newsletter', 'newsletter', 'megaphone', 'Newsletter', 'admin', 0],
     ],
     'Système' => [
+        ['boutiques', 'boutiques', 'shop', 'Boutiques', 'admin', 0],
         ['sante', 'sante', 'heart-pulse', 'Santé du site', 'admin', 0],
         ['droits_equipe', 'droits_equipe', 'shield-lock', 'Droits de l’équipe', 'admin', 0],
         ['parametres_site', 'parametres_site', 'gear', 'Paramètres du site', 'admin', 0],

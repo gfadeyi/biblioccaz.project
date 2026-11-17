@@ -4,6 +4,7 @@ require_once __DIR__ . '/messagerie_lib.php';
 require_once __DIR__ . '/points_lib.php';
 require_once __DIR__ . '/profil_actif_lib.php';
 require_once __DIR__ . '/regles_emprunts_lib.php';
+require_once __DIR__ . '/emprunts_boutiques_lib.php';
 
 const EMPRUNTS_EN_COURS_MAX = 3;
 const ATTENTES_EMPRUNT_MAX = 3;
@@ -167,18 +168,20 @@ function raisonInterdictionEmprunt(PDO $pdo, int $idUser, bool $compterLimite = 
     return '';
 }
 
-function requeteEmprunt(): string
+function requeteEmprunt(?PDO $pdo = null): string
 {
+    $pdo ??= $GLOBALS['pdo'] ?? null;
+    $boutiques = $pdo && empruntsBoutiquesDisponibles($pdo);
     return "
         SELECT em.*, em.blocage_retard AS blocage_retard, e.id_livre, e.etat, e.statut_pret, e.is_disponible AS exemplaire_disponible,
                l.titre, l.auteur, l.couverture, u.pseudo, u.email, u.photo, u.statut AS membre_statut,
-               va.pseudo AS valide_par_pseudo, rp.pseudo AS retour_par_pseudo
+               va.pseudo AS valide_par_pseudo, rp.pseudo AS retour_par_pseudo," . ($boutiques ? ' be.nom AS boutique_nom, be.adresse AS boutique_adresse, be.horaires AS boutique_horaires' : ' NULL AS boutique_nom, NULL AS boutique_adresse, NULL AS boutique_horaires') . "
         FROM emprunt em
         INNER JOIN exemplaire e ON e.id_exemplaire = em.id_exemplaire
         INNER JOIN livre l ON l.id_livre = e.id_livre
         INNER JOIN `user` u ON u.id = em.id_user
         LEFT JOIN `user` va ON va.id = em.id_valide_par
-        LEFT JOIN `user` rp ON rp.id = em.id_retour_par";
+        LEFT JOIN `user` rp ON rp.id = em.id_retour_par" . ($boutiques ? ' LEFT JOIN boutique be ON be.id_boutique = em.id_boutique' : '');
 }
 
 function empruntParId(PDO $pdo, int $idEmprunt, bool $verrouiller = false): ?array
@@ -192,44 +195,48 @@ function empruntParId(PDO $pdo, int $idEmprunt, bool $verrouiller = false): ?arr
         verrouillerLivreEmprunt($pdo, (int) $objet['id_livre']);
         verrouillerLecteurEmprunt($pdo, (int) $objet['id_user']);
     }
-    $stmt = $pdo->prepare(requeteEmprunt() . " WHERE em.id_emprunt = ?" . ($verrouiller ? ' FOR UPDATE' : ''));
+    $stmt = $pdo->prepare(requeteEmprunt($pdo) . " WHERE em.id_emprunt = ?" . ($verrouiller ? ' FOR UPDATE' : ''));
     $stmt->execute([$idEmprunt]);
     return $stmt->fetch() ?: null;
 }
 
 function empruntParCode(PDO $pdo, string $code): ?array
 {
-    $stmt = $pdo->prepare(requeteEmprunt() . " WHERE em.code_retrait = ?");
+    $stmt = $pdo->prepare(requeteEmprunt($pdo) . " WHERE em.code_retrait = ?");
     $stmt->execute([$code]);
     return $stmt->fetch() ?: null;
 }
 
 function empruntActifLivre(PDO $pdo, int $idLivre, int $idUser): ?array
 {
-    $stmt = $pdo->prepare(requeteEmprunt() . " WHERE e.id_livre = ? AND em.id_user = ? AND em.statut IN ('reserve', 'en_cours') LIMIT 1" . ($pdo->inTransaction() ? ' FOR UPDATE' : ''));
+    $stmt = $pdo->prepare(requeteEmprunt($pdo) . " WHERE e.id_livre = ? AND em.id_user = ? AND em.statut IN ('reserve', 'en_cours') LIMIT 1" . ($pdo->inTransaction() ? ' FOR UPDATE' : ''));
     $stmt->execute([$idLivre, $idUser]);
     return $stmt->fetch() ?: null;
 }
 
 function empruntsMembre(PDO $pdo, int $idUser): array
 {
-    $stmt = $pdo->prepare(requeteEmprunt() . " WHERE em.id_user = ? ORDER BY FIELD(em.statut, 'reserve', 'en_cours') DESC, em.date_retour_prevue, em.date_reservation DESC");
+    $stmt = $pdo->prepare(requeteEmprunt($pdo) . " WHERE em.id_user = ? ORDER BY FIELD(em.statut, 'reserve', 'en_cours') DESC, em.date_retour_prevue, em.date_reservation DESC");
     $stmt->execute([$idUser]);
     return $stmt->fetchAll();
 }
 
-function etatEmpruntLivre(PDO $pdo, int $idLivre): array
+function etatEmpruntLivre(PDO $pdo, int $idLivre, ?int $idBoutique = null): array
 {
     $etat = ['total' => 0, 'libres' => 0, 'prochain_retour' => null, 'attente' => 0, 'exemplaires' => []];
     try {
+        $boutiques = empruntsBoutiquesDisponibles($pdo);
         $stmt = $pdo->prepare("
             SELECT e.id_exemplaire, e.etat, e.statut_pret, e.duree_emprunt_jours, e.renouvellements_max, e.blocage_retard,
+                   " . ($boutiques ? 'e.id_boutique, b.nom AS boutique_nom,' : 'NULL AS id_boutique, NULL AS boutique_nom,') . "
                    (SELECT MIN(em.date_retour_prevue) FROM emprunt em WHERE em.id_exemplaire = e.id_exemplaire AND em.statut = 'en_cours' AND em.blocage_retard IN (0, 1)) AS retour_prevu
             FROM exemplaire e
             INNER JOIN livre l ON l.id_livre = e.id_livre
+            " . ($boutiques ? 'INNER JOIN boutique b ON b.id_boutique = e.id_boutique AND b.actif = 1' : '') . "
             WHERE l.is_valide = 1 AND e.id_livre = ? AND " . conditionExemplaireEmprunt() . " AND e.is_disponible = 1
+            " . ($boutiques && $idBoutique !== null ? 'AND e.id_boutique = ?' : '') . "
             ORDER BY FIELD(e.statut_pret, 'disponible', 'reserve', 'emprunte'), e.id_exemplaire");
-        $stmt->execute([$idLivre]);
+        $stmt->execute($boutiques && $idBoutique !== null ? [$idLivre, $idBoutique] : [$idLivre]);
         $etat['exemplaires'] = $stmt->fetchAll();
         $etat['total'] = count($etat['exemplaires']);
         foreach ($etat['exemplaires'] as $exemplaire) {
@@ -240,8 +247,8 @@ function etatEmpruntLivre(PDO $pdo, int $idLivre): array
                 $etat['prochain_retour'] = $exemplaire['retour_prevu'];
             }
         }
-        $stmt = $pdo->prepare("SELECT COUNT(*) FROM emprunt_attente WHERE id_livre = ?");
-        $stmt->execute([$idLivre]);
+        $stmt = $pdo->prepare("SELECT COUNT(*) FROM emprunt_attente WHERE id_livre = ?" . ($boutiques ? ($idBoutique !== null ? ' AND id_boutique = ?' : ' AND id_boutique IS NOT NULL') : ''));
+        $stmt->execute($boutiques && $idBoutique !== null ? [$idLivre, $idBoutique] : [$idLivre]);
         $etat['attente'] = (int) $stmt->fetchColumn();
     } catch (PDOException $e) {
     }
@@ -271,50 +278,56 @@ function ordreAttenteEmprunt(PDO $pdo): string
     return (prioriteAttenteDisponible($pdo) ? 'prioritaire DESC, ' : '') . 'date_demande, id_attente';
 }
 
-function positionAttenteEmprunt(PDO $pdo, int $idLivre, int $idUser): int
+function positionAttenteEmprunt(PDO $pdo, int $idLivre, int $idUser, ?int $idBoutique = null): int
 {
     $stmt = $pdo->prepare("
         SELECT COUNT(*) FROM emprunt_attente a
         INNER JOIN emprunt_attente courant ON courant.id_livre = a.id_livre AND courant.id_user = ?
-        WHERE a.id_livre = ? AND " . attentePasseAvant($pdo, 'a', 'courant'));
-    $stmt->execute([$idUser, $idLivre]);
+        " . (empruntsBoutiquesDisponibles($pdo) ? ' AND courant.id_boutique <=> a.id_boutique' : '') . "
+        WHERE a.id_livre = ?" . (empruntsBoutiquesDisponibles($pdo) ? ' AND a.id_boutique <=> ?' : '') . ' AND ' . attentePasseAvant($pdo, 'a', 'courant'));
+    $stmt->execute(empruntsBoutiquesDisponibles($pdo) ? [$idUser, $idLivre, $idBoutique] : [$idUser, $idLivre]);
     return (int) $stmt->fetchColumn();
 }
 
 function attentesMembre(PDO $pdo, int $idUser): array
 {
+    $boutiques = empruntsBoutiquesDisponibles($pdo);
     $stmt = $pdo->prepare("
-        SELECT a.*, l.titre, l.auteur, l.couverture,
-               (SELECT COUNT(*) FROM emprunt_attente a2 WHERE a2.id_livre = a.id_livre AND " . attentePasseAvant($pdo, 'a2', 'a') . ") AS position,
+        SELECT a.*, l.titre, l.auteur, l.couverture, " . ($boutiques ? 'b.nom' : 'NULL') . " AS boutique_nom,
+               (SELECT COUNT(*) FROM emprunt_attente a2 WHERE a2.id_livre = a.id_livre" . ($boutiques ? ' AND a2.id_boutique <=> a.id_boutique' : '') . ' AND ' . attentePasseAvant($pdo, 'a2', 'a') . ") AS position,
                (SELECT MIN(em.date_retour_prevue) FROM emprunt em INNER JOIN exemplaire e ON e.id_exemplaire = em.id_exemplaire
-                WHERE e.id_livre = a.id_livre AND em.statut = 'en_cours') AS prochain_retour
+                WHERE e.id_livre = a.id_livre AND em.statut = 'en_cours'" . ($boutiques ? ' AND em.id_boutique <=> a.id_boutique' : '') . ") AS prochain_retour
         FROM emprunt_attente a INNER JOIN livre l ON l.id_livre = a.id_livre
+        " . ($boutiques ? 'LEFT JOIN boutique b ON b.id_boutique = a.id_boutique' : '') . "
         WHERE a.id_user = ? ORDER BY a.date_demande, a.id_attente");
     $stmt->execute([$idUser]);
     return $stmt->fetchAll();
 }
 
-function personneEnAttente(PDO $pdo, int $idLivre, int $idUserExclu): bool
+function personneEnAttente(PDO $pdo, int $idLivre, int $idUserExclu, ?int $idBoutique = null): bool
 {
-    $stmt = $pdo->prepare("SELECT id_attente FROM emprunt_attente WHERE id_livre = ? AND id_user <> ?" . ($pdo->inTransaction() ? ' FOR UPDATE' : ''));
-    $stmt->execute([$idLivre, $idUserExclu]);
+    $stmt = $pdo->prepare("SELECT id_attente FROM emprunt_attente WHERE id_livre = ? AND id_user <> ?" . (empruntsBoutiquesDisponibles($pdo) ? ' AND id_boutique <=> ?' : '') . ($pdo->inTransaction() ? ' FOR UPDATE' : ''));
+    $stmt->execute(empruntsBoutiquesDisponibles($pdo) ? [$idLivre, $idUserExclu, $idBoutique] : [$idLivre, $idUserExclu]);
     return $stmt->fetchColumn() !== false;
 }
 
 function prevenirEmprunteur(array $emprunt, string $sujet, string $texte, string $libelleBouton = 'Voir mes emprunts'): bool
 {
-    return notifierParMail($emprunt['email'], $sujet, "Bonjour {$emprunt['pseudo']},\n\n$texte", SITE_URL . '/mes_emprunts', $libelleBouton);
+    return notifierParMail($emprunt['email'], $sujet, "Bonjour {$emprunt['pseudo']},\n\n$texte\n\nRetrait et retour au même comptoir :\n" . informationsBoutiqueEmprunt($emprunt), SITE_URL . '/mes_emprunts', $libelleBouton);
 }
 
 function creerReservation(PDO $pdo, array $exemplaire, int $idUser, bool $depuisAttente): int
 {
+    $boutiques = empruntsBoutiquesDisponibles($pdo);
+    if ($boutiques && empty($exemplaire['id_boutique'])) { throw new DomainException('Cet exemplaire doit être affecté à une boutique avant réservation.'); }
     $code = genererCodeRetrait($pdo);
     $expiration = dateExpirationReservation(null, regleEmprunt($pdo, 'reservation_jours_ouvres'));
     $parametres = [$exemplaire['id_exemplaire'], $idUser, $code, $exemplaire['duree_emprunt_jours'], $exemplaire['renouvellements_max'], $exemplaire['blocage_retard'], $expiration];
     $avecRegles = chargerReglesEmprunts($pdo)['disponible'];
     if ($avecRegles) { $parametres[] = regleEmprunt($pdo, 'renouvellement_jours'); }
+    if ($boutiques) { $parametres[] = (int) $exemplaire['id_boutique']; }
     $pdo->prepare("INSERT INTO emprunt (id_exemplaire, id_user, code_retrait, duree_jours, renouvellements_max, blocage_retard, date_expiration_reservation"
-        . ($avecRegles ? ', renouvellement_jours' : '') . ") VALUES (?, ?, ?, ?, ?, ?, ?" . ($avecRegles ? ', ?' : '') . ")")
+        . ($avecRegles ? ', renouvellement_jours' : '') . ($boutiques ? ', id_boutique' : '') . ") VALUES (?, ?, ?, ?, ?, ?, ?" . ($avecRegles ? ', ?' : '') . ($boutiques ? ', ?' : '') . ")")
         ->execute($parametres);
     $idEmprunt = (int) $pdo->lastInsertId();
     $pdo->prepare("UPDATE exemplaire SET statut_pret = 'reserve' WHERE id_exemplaire = ?")->execute([$exemplaire['id_exemplaire']]);
@@ -327,8 +340,10 @@ function creerReservation(PDO $pdo, array $exemplaire, int $idUser, bool $depuis
     return $idEmprunt;
 }
 
-function reserverEmprunt(PDO $pdo, int $idLivre, int $idUser): array
+function reserverEmprunt(PDO $pdo, int $idLivre, int $idUser, int $idBoutique = 0): array
 {
+    $boutique = boutiqueEmprunt($pdo, $idBoutique);
+    if (!$boutique || !(int) $boutique['actif']) { return ['warning', 'Choisissez une boutique active avant de réserver.', null]; }
     $pdo->beginTransaction();
     try {
         verrouillerLivreEmprunt($pdo, $idLivre);
@@ -344,9 +359,9 @@ function reserverEmprunt(PDO $pdo, int $idLivre, int $idUser): array
         }
         $stmt = $pdo->prepare("
             SELECT e.*, l.titre FROM exemplaire e INNER JOIN livre l ON l.id_livre = e.id_livre
-            WHERE l.is_valide = 1 AND e.id_livre = ? AND " . conditionExemplaireEmprunt() . " AND e.is_disponible = 1 AND e.statut_pret = 'disponible'
+            WHERE l.is_valide = 1 AND e.id_livre = ? AND e.id_boutique = ? AND " . conditionExemplaireEmprunt() . " AND e.is_disponible = 1 AND e.statut_pret = 'disponible'
             ORDER BY e.id_exemplaire LIMIT 1 FOR UPDATE");
-        $stmt->execute([$idLivre]);
+        $stmt->execute([$idLivre, $idBoutique]);
         $exemplaire = $stmt->fetch();
         if (!$exemplaire) {
             $pdo->rollBack();
@@ -378,7 +393,7 @@ function reserverEmprunt(PDO $pdo, int $idLivre, int $idUser): array
         "Votre réservation de « {$emprunt['titre']} » est enregistrée.\n\nVotre code de retrait : {$emprunt['code_retrait']}\n\n"
         . "Présentez ce code (ou le QR code de la page Mes emprunts) en magasin avant le $dateLimite. Passé ce délai, la réservation sera annulée automatiquement.\n\n"
         . "Durée de l'emprunt : {$emprunt['duree_jours']} jours à partir du retrait.");
-    return ['success', "Livre réservé ! Retirez-le en magasin avant le $dateLimite avec le code {$emprunt['code_retrait']}.", $idEmprunt];
+    return ['success', "Livre réservé à " . libelleBoutiqueEmprunt($emprunt) . " ! Retirez-le avant le $dateLimite avec le code {$emprunt['code_retrait']}.", $idEmprunt];
 }
 
 function attribuerExemplaireLibere(PDO $pdo, int $idExemplaire): ?int
@@ -392,8 +407,10 @@ function attribuerExemplaireLibere(PDO $pdo, int $idExemplaire): ?int
     if (!$exemplaire || $exemplaire['id_proprietaire'] !== null || $exemplaire['type_offre'] !== 'emprunt' || !(int) $exemplaire['is_disponible'] || $exemplaire['statut_pret'] !== 'disponible') {
         return null;
     }
-    $stmt = $pdo->prepare("SELECT id_user FROM emprunt_attente WHERE id_livre = ? ORDER BY " . ordreAttenteEmprunt($pdo) . " FOR UPDATE");
-    $stmt->execute([$exemplaire['id_livre']]);
+    $boutiques = empruntsBoutiquesDisponibles($pdo);
+    if ($boutiques && (empty($exemplaire['id_boutique']) || !(int) (boutiqueEmprunt($pdo, (int) $exemplaire['id_boutique'])['actif'] ?? 0))) { return null; }
+    $stmt = $pdo->prepare("SELECT id_user FROM emprunt_attente WHERE id_livre = ?" . ($boutiques ? ' AND id_boutique = ?' : '') . " ORDER BY " . ordreAttenteEmprunt($pdo) . " FOR UPDATE");
+    $stmt->execute($boutiques ? [$exemplaire['id_livre'], $exemplaire['id_boutique']] : [$exemplaire['id_livre']]);
     foreach ($stmt->fetchAll(PDO::FETCH_COLUMN) as $idCandidat) {
         $idCandidat = (int) $idCandidat;
         verrouillerLecteurEmprunt($pdo, $idCandidat);
@@ -439,6 +456,7 @@ function annulerReservation(PDO $pdo, int $idEmprunt, ?int $idEmprunteur, ?int $
             $pdo->rollBack();
             return ['info', "Cette réservation n'est plus en cours.", null];
         }
+        if ($idEquipe && ($erreur = erreurComptoirEmprunt($pdo, $emprunt, $idEquipe)) !== '') { $pdo->rollBack(); return ['warning', $erreur, null]; }
         $pdo->prepare("UPDATE emprunt SET statut = 'annule', date_fin = NOW(), motif_annulation = ? WHERE id_emprunt = ?")
             ->execute([$idEquipe ? mb_substr($motif, 0, 500) : 'Annulée par le lecteur', $idEmprunt]);
         $attribution = libererExemplaire($pdo, (int) $emprunt['id_exemplaire']);
@@ -469,6 +487,7 @@ function validerRetrait(PDO $pdo, int $idEmprunt, int $idEquipe): array
             $pdo->rollBack();
             return ['danger', "Emprunt introuvable.", null];
         }
+        if (($erreur = erreurComptoirEmprunt($pdo, $emprunt, $idEquipe)) !== '') { $pdo->rollBack(); return ['warning', $erreur, null]; }
         if ($emprunt['statut'] === 'en_cours') {
             $pdo->rollBack();
             return ['info', "Ce livre a déjà été remis à @{$emprunt['pseudo']} le " . date('d/m/Y', strtotime($emprunt['date_retrait'])) . ".", $idEmprunt];
@@ -526,7 +545,7 @@ function raisonRefusRenouvellement(PDO $pdo, array $emprunt): string
             ? "Cet exemplaire ne peut pas être renouvelé."
             : "Vous avez déjà renouvelé cet emprunt " . (int) $emprunt['renouvellements_max'] . " fois.";
     }
-    if (personneEnAttente($pdo, (int) $emprunt['id_livre'], (int) $emprunt['id_user'])) {
+    if (personneEnAttente($pdo, (int) $emprunt['id_livre'], (int) $emprunt['id_user'], isset($emprunt['id_boutique']) ? (int) $emprunt['id_boutique'] : null)) {
         return "Un autre lecteur attend ce livre : l'emprunt ne peut pas être renouvelé.";
     }
     return '';
@@ -577,6 +596,7 @@ function enregistrerRetour(PDO $pdo, int $idEmprunt, int $idEquipe): array
             $pdo->rollBack();
             return ['danger', "Emprunt introuvable."];
         }
+        if (($erreur = erreurComptoirEmprunt($pdo, $emprunt, $idEquipe)) !== '') { $pdo->rollBack(); return ['warning', $erreur]; }
         if ($emprunt['statut'] !== 'en_cours') {
             $pdo->rollBack();
             return ['info', "Cet emprunt n'est pas en cours."];
@@ -638,11 +658,19 @@ function leverBlocage(PDO $pdo, int $idBlocage, int $idEquipe, string $motif): a
     if (!$blocage || $blocage['date_levee'] || $blocage['date_fin'] <= date('Y-m-d H:i:s')) {
         return ['info', "Ce blocage n'est plus actif."];
     }
+    $pdo->beginTransaction();
+    try {
+    if (empruntsBoutiquesDisponibles($pdo)) {
+        $pret = !empty($blocage['id_emprunt']) ? empruntParId($pdo, (int) $blocage['id_emprunt'], true) : ['id_boutique' => null];
+        if (($erreur = erreurComptoirEmprunt($pdo, $pret ?: ['id_boutique' => null], $idEquipe)) !== '') { return ['warning', $erreur]; }
+    }
     $miseAJour = $pdo->prepare("UPDATE blocage_emprunt SET date_levee = NOW(), id_leve_par = ?, motif_levee = ? WHERE id_blocage = ? AND date_levee IS NULL AND date_fin > NOW()");
     $miseAJour->execute([$idEquipe, mb_substr($motif, 0, 500), $idBlocage]);
     if (!$miseAJour->rowCount()) {
         return ['info', "Ce blocage n'est plus actif."];
     }
+    } catch (Throwable $e) { if ($pdo->inTransaction()) { $pdo->rollBack(); } throw $e; }
+    finally { if ($pdo->inTransaction()) { $pdo->commit(); } }
     insertLog('EMPRUNT', "Blocage #$idBlocage de @{$blocage['pseudo']} levé : $motif");
     notifierParMail($blocage['email'], "Un blocage de vos emprunts a été levé",
         "Bonjour {$blocage['pseudo']},\n\nL'équipe BIBLIOccaz a levé le blocage suivant : {$blocage['motif']}.\n\nMotif de la levée : $motif\n\nConsultez Mes emprunts pour vérifier si d'autres restrictions restent applicables à votre compte.",
@@ -650,8 +678,10 @@ function leverBlocage(PDO $pdo, int $idBlocage, int $idEquipe, string $motif): a
     return ['success', "Blocage levé pour @{$blocage['pseudo']}. Les autres restrictions éventuelles restent applicables."];
 }
 
-function rejoindreAttente(PDO $pdo, int $idLivre, int $idUser): array
+function rejoindreAttente(PDO $pdo, int $idLivre, int $idUser, int $idBoutique = 0): array
 {
+    $boutique = boutiqueEmprunt($pdo, $idBoutique);
+    if (!$boutique || !(int) $boutique['actif']) { return ['warning', 'Choisissez une boutique active pour cette liste d’attente.']; }
     $pdo->beginTransaction();
     try {
         verrouillerLivreEmprunt($pdo, $idLivre);
@@ -663,12 +693,21 @@ function rejoindreAttente(PDO $pdo, int $idLivre, int $idUser): array
         if (empruntActifLivre($pdo, $idLivre, $idUser)) {
             return ['info', "Vous avez déjà réservé ou emprunté ce livre."];
         }
-        $etat = etatEmpruntLivre($pdo, $idLivre);
+        $etat = etatEmpruntLivre($pdo, $idLivre, $idBoutique);
         if ($etat['total'] === 0) {
             return ['warning', "Ce livre n'est pas proposé à l'emprunt."];
         }
         if ($etat['libres'] > 0) {
             return ['info', "Un exemplaire est libre : vous pouvez le réserver directement."];
+        }
+        $ancien = $pdo->prepare('SELECT id_attente FROM emprunt_attente WHERE id_livre = ? AND id_user = ? AND id_boutique IS NULL FOR UPDATE');
+        $ancien->execute([$idLivre, $idUser]); $idAncien = (int) $ancien->fetchColumn();
+        $existe = $pdo->prepare('SELECT id_attente FROM emprunt_attente WHERE id_livre = ? AND id_user = ? AND id_boutique = ? FOR UPDATE');
+        $existe->execute([$idLivre, $idUser, $idBoutique]);
+        if ($existe->fetchColumn()) { return ['info', 'Vous êtes déjà sur la liste d’attente de cette boutique.']; }
+        if ($idAncien) {
+            $pdo->prepare('UPDATE emprunt_attente SET id_boutique = ? WHERE id_attente = ? AND id_user = ? AND id_boutique IS NULL')->execute([$idBoutique, $idAncien, $idUser]);
+            return ['success', 'Votre ancienne attente est rattachée à ' . $boutique['nom'] . ', avec sa date et sa priorité conservées.'];
         }
         $stmt = $pdo->prepare("SELECT id_attente FROM emprunt_attente WHERE id_user = ? FOR UPDATE");
         $stmt->execute([$idUser]);
@@ -677,13 +716,13 @@ function rejoindreAttente(PDO $pdo, int $idLivre, int $idUser): array
         }
         $prioritaire = prioriteAttenteDisponible($pdo) && participationMembre($pdo, $idUser)['actif'];
         $stmt = prioriteAttenteDisponible($pdo)
-            ? $pdo->prepare("INSERT IGNORE INTO emprunt_attente (id_livre, id_user, prioritaire) VALUES (?, ?, ?)")
-            : $pdo->prepare("INSERT IGNORE INTO emprunt_attente (id_livre, id_user) VALUES (?, ?)");
-        $stmt->execute(prioriteAttenteDisponible($pdo) ? [$idLivre, $idUser, $prioritaire ? 1 : 0] : [$idLivre, $idUser]);
+            ? $pdo->prepare("INSERT IGNORE INTO emprunt_attente (id_livre, id_user, id_boutique, prioritaire) VALUES (?, ?, ?, ?)")
+            : $pdo->prepare("INSERT IGNORE INTO emprunt_attente (id_livre, id_user, id_boutique) VALUES (?, ?, ?)");
+        $stmt->execute(prioriteAttenteDisponible($pdo) ? [$idLivre, $idUser, $idBoutique, $prioritaire ? 1 : 0] : [$idLivre, $idUser, $idBoutique]);
         if (!$stmt->rowCount()) {
             return ['info', "Vous êtes déjà sur la liste d'attente de ce livre."];
         }
-        return ['success', "Vous êtes sur la liste d'attente (position " . positionAttenteEmprunt($pdo, $idLivre, $idUser) . ")"
+        return ['success', "Vous êtes sur la liste d'attente de " . $boutique['nom'] . " (position " . positionAttenteEmprunt($pdo, $idLivre, $idUser, $idBoutique) . ")"
             . ($prioritaire ? ", en priorité grâce à votre profil actif" : '')
             . " : un exemplaire vous sera réservé dès qu'il sera rendu, et vous serez prévenu par mail."];
     } catch (Throwable $e) {
@@ -698,14 +737,14 @@ function rejoindreAttente(PDO $pdo, int $idLivre, int $idUser): array
     }
 }
 
-function quitterAttente(PDO $pdo, int $idLivre, int $idUser): array
+function quitterAttente(PDO $pdo, int $idLivre, int $idUser, ?int $idBoutique = null): array
 {
     $pdo->beginTransaction();
     try {
         verrouillerLivreEmprunt($pdo, $idLivre);
         verrouillerLecteurEmprunt($pdo, $idUser);
-        $stmt = $pdo->prepare("DELETE FROM emprunt_attente WHERE id_livre = ? AND id_user = ?");
-        $stmt->execute([$idLivre, $idUser]);
+        $stmt = $pdo->prepare("DELETE FROM emprunt_attente WHERE id_livre = ? AND id_user = ?" . (empruntsBoutiquesDisponibles($pdo) ? ' AND id_boutique <=> ?' : ''));
+        $stmt->execute(empruntsBoutiquesDisponibles($pdo) ? [$idLivre, $idUser, $idBoutique] : [$idLivre, $idUser]);
         return $stmt->rowCount() ? ['success', "Vous avez quitté la liste d'attente."] : ['info', "Vous n'étiez pas sur cette liste d'attente."];
     } catch (Throwable $e) {
         if ($pdo->inTransaction()) {
@@ -833,21 +872,31 @@ function verifierEmpruntsSiBesoin(PDO $pdo): void
     verifierEmprunts($pdo);
 }
 
-function compteursEmprunts(PDO $pdo): array
+function compteursEmprunts(PDO $pdo, ?int $idBoutique = null): array
 {
-    $compteurs = ['a_preparer' => 0, 'en_retard' => 0, 'en_cours' => 0, 'blocages' => 0];
+    $compteurs = array_fill_keys(['a_preparer', 'en_retard', 'en_cours', 'blocages', 'retraits', 'retours_prevus', 'retours', 'attente', 'relances_jour'], 0);
     try {
-        $compteurs['a_preparer'] = (int) $pdo->query("SELECT COUNT(*) FROM emprunt WHERE statut = 'reserve'")->fetchColumn();
-        $compteurs['en_cours'] = (int) $pdo->query("SELECT COUNT(*) FROM emprunt WHERE statut = 'en_cours'")->fetchColumn();
-        $compteurs['en_retard'] = (int) $pdo->query("SELECT COUNT(*) FROM emprunt WHERE statut = 'en_cours' AND date_retour_prevue < CURDATE()")->fetchColumn();
-        $compteurs['blocages'] = (int) $pdo->query("SELECT COUNT(*) FROM blocage_emprunt WHERE date_levee IS NULL AND date_fin > NOW()")->fetchColumn();
+        $filtre = empruntsBoutiquesDisponibles($pdo) && $idBoutique !== null;
+        $params = $filtre ? [$idBoutique === 0 ? null : $idBoutique] : [];
+        $r = $pdo->prepare("SELECT SUM(statut = 'reserve') AS a_preparer, SUM(statut = 'en_cours') AS en_cours,
+            SUM(statut = 'en_cours' AND date_retour_prevue < CURDATE()) AS en_retard,
+            SUM(DATE(date_retrait) = CURDATE()) AS retraits, SUM(statut = 'en_cours' AND date_retour_prevue = CURDATE()) AS retours_prevus,
+            SUM(DATE(date_retour) = CURDATE()) AS retours, SUM(DATE(date_derniere_relance) = CURDATE()) AS relances_jour
+            FROM emprunt" . ($filtre ? ' WHERE id_boutique <=> ?' : ''));
+        $r->execute($params);
+        foreach ($r->fetch(PDO::FETCH_ASSOC) as $cle => $valeur) { $compteurs[$cle] = (int) $valeur; }
+        $r = $pdo->prepare('SELECT COUNT(*) FROM emprunt_attente' . ($filtre ? ' WHERE id_boutique <=> ?' : '')); $r->execute($params); $compteurs['attente'] = (int) $r->fetchColumn();
+        $r = $pdo->prepare('SELECT COUNT(*) FROM blocage_emprunt b' . ($filtre ? ' INNER JOIN emprunt em ON em.id_emprunt = b.id_emprunt' : '') . ' WHERE b.date_levee IS NULL AND b.date_fin > NOW()' . ($filtre ? ' AND em.id_boutique <=> ?' : ''));
+        $r->execute($params); $compteurs['blocages'] = (int) $r->fetchColumn();
     } catch (PDOException $e) {
     }
     return $compteurs;
 }
 
-function mettreEnEmprunt(PDO $pdo, int $idLivre, string $etat, ?int $idExemplaireVente, int $duree, int $renouvellements, bool $blocage, int $idEquipe): array
+function mettreEnEmprunt(PDO $pdo, int $idLivre, string $etat, ?int $idExemplaireVente, int $duree, int $renouvellements, bool $blocage, int $idEquipe, int $idBoutique = 0): array
 {
+    $boutique = boutiqueEmprunt($pdo, $idBoutique);
+    if (!$boutique || !(int) $boutique['actif']) { return ['warning', 'Choisissez la boutique où cet exemplaire est physiquement disponible.']; }
     if ($duree < 7 || $duree > 90 || $renouvellements < 0 || $renouvellements > 5) {
         return ['warning', "Durée entre 7 et 90 jours, renouvellements entre 0 et 5."];
     }
@@ -855,6 +904,7 @@ function mettreEnEmprunt(PDO $pdo, int $idLivre, string $etat, ?int $idExemplair
     try {
         $prix = 0;
         verrouillerLivreEmprunt($pdo, $idLivre);
+        if (($erreur = erreurComptoirEmprunt($pdo, ['id_boutique' => $idBoutique], $idEquipe)) !== '') { $pdo->rollBack(); return ['warning', $erreur]; }
         if ($idExemplaireVente) {
             $stmt = $pdo->prepare("SELECT * FROM exemplaire WHERE id_exemplaire = ? AND id_livre = ? AND " . conditionExemplaireMagasin('exemplaire') . " FOR UPDATE");
             $stmt->execute([$idExemplaireVente, $idLivre]);
@@ -868,9 +918,9 @@ function mettreEnEmprunt(PDO $pdo, int $idLivre, string $etat, ?int $idExemplair
             $prix = $offre['prix'];
         }
         $pdo->prepare("
-            INSERT INTO exemplaire (id_livre, etat, prix, type_offre, is_disponible, quantite, id_user, statut_pret, duree_emprunt_jours, renouvellements_max, blocage_retard, date_creation)
-            VALUES (?, ?, ?, 'emprunt', 1, 1, ?, 'disponible', ?, ?, ?, NOW())")
-            ->execute([$idLivre, $etat, $prix, $idEquipe, $duree, $renouvellements, $blocage ? 1 : 0]);
+            INSERT INTO exemplaire (id_livre, etat, prix, type_offre, is_disponible, quantite, id_user, statut_pret, duree_emprunt_jours, renouvellements_max, blocage_retard, date_creation, id_boutique)
+            VALUES (?, ?, ?, 'emprunt', 1, 1, ?, 'disponible', ?, ?, ?, NOW(), ?)")
+            ->execute([$idLivre, $etat, $prix, $idEquipe, $duree, $renouvellements, $blocage ? 1 : 0, $idBoutique]);
         $idExemplaire = (int) $pdo->lastInsertId();
         $attribution = attribuerExemplaireLibere($pdo, $idExemplaire);
         $pdo->commit();
@@ -886,17 +936,26 @@ function mettreEnEmprunt(PDO $pdo, int $idLivre, string $etat, ?int $idExemplair
     return ['success', "Exemplaire mis en emprunt" . ($idExemplaireVente ? " (le stock de vente baisse de 1)" : '') . ($attribution ? " et réservé pour le premier lecteur de la liste d'attente." : '.')];
 }
 
-function modifierReglagesEmprunt(PDO $pdo, int $idExemplaire, int $duree, int $renouvellements, bool $blocage): array
+function modifierReglagesEmprunt(PDO $pdo, int $idExemplaire, int $duree, int $renouvellements, bool $blocage, int $idEquipe = 0): array
 {
     if ($duree < 7 || $duree > 90 || $renouvellements < 0 || $renouvellements > 5) {
         return ['warning', "Durée entre 7 et 90 jours, renouvellements entre 0 et 5."];
     }
-    $stmt = $pdo->prepare("UPDATE exemplaire SET duree_emprunt_jours = ?, renouvellements_max = ?, blocage_retard = ? WHERE id_exemplaire = ? AND " . conditionExemplaireEmprunt('exemplaire'));
-    $stmt->execute([$duree, $renouvellements, $blocage ? 1 : 0, $idExemplaire]);
-    return ['success', "Réglages enregistrés : ils s'appliquent aux prochains emprunts de cet exemplaire."];
+    $pdo->beginTransaction();
+    try {
+        $livre = $pdo->prepare('SELECT id_livre FROM exemplaire WHERE id_exemplaire = ?');
+        $livre->execute([$idExemplaire]);
+        verrouillerLivreEmprunt($pdo, (int) $livre->fetchColumn());
+        $r = $pdo->prepare('SELECT * FROM exemplaire WHERE id_exemplaire = ? FOR UPDATE'); $r->execute([$idExemplaire]); $objet = $r->fetch();
+        if (!$objet || ($erreur = erreurComptoirEmprunt($pdo, $objet, $idEquipe)) !== '') { return ['warning', $objet ? $erreur : 'Exemplaire introuvable.']; }
+        $stmt = $pdo->prepare("UPDATE exemplaire SET duree_emprunt_jours = ?, renouvellements_max = ?, blocage_retard = ? WHERE id_exemplaire = ? AND " . conditionExemplaireEmprunt('exemplaire'));
+        $stmt->execute([$duree, $renouvellements, $blocage ? 1 : 0, $idExemplaire]);
+        return ['success', "Réglages enregistrés : ils s'appliquent aux prochains emprunts de cet exemplaire."];
+    } catch (Throwable $e) { if ($pdo->inTransaction()) { $pdo->rollBack(); } throw $e; }
+    finally { if ($pdo->inTransaction()) { $pdo->commit(); } }
 }
 
-function changerDisponibiliteEmprunt(PDO $pdo, int $idExemplaire, bool $disponible): array
+function changerDisponibiliteEmprunt(PDO $pdo, int $idExemplaire, bool $disponible, int $idEquipe = 0): array
 {
     $pdo->beginTransaction();
     try {
@@ -910,6 +969,7 @@ function changerDisponibiliteEmprunt(PDO $pdo, int $idExemplaire, bool $disponib
             $pdo->rollBack();
             return ['danger', "Exemplaire introuvable.", false];
         }
+        if (($erreur = erreurComptoirEmprunt($pdo, $exemplaire, $idEquipe)) !== '') { $pdo->rollBack(); return ['warning', $erreur, false]; }
         if (!$disponible && $exemplaire['statut_pret'] !== 'disponible') {
             $pdo->rollBack();
             return ['warning', "Cet exemplaire est réservé ou emprunté : attendez son retour pour le retirer de l'emprunt.", false];
@@ -927,18 +987,20 @@ function changerDisponibiliteEmprunt(PDO $pdo, int $idExemplaire, bool $disponib
     return ['success', $disponible ? "Exemplaire remis en emprunt." . ($attribution ? " Il est réservé pour le premier lecteur de la liste d'attente." : '') : "Exemplaire retiré de l'emprunt.", true];
 }
 
-function supprimerExemplaireEmprunt(PDO $pdo, int $idExemplaire): array
+function supprimerExemplaireEmprunt(PDO $pdo, int $idExemplaire, int $idEquipe = 0): array
 {
     $pdo->beginTransaction();
     try {
         $livre = $pdo->prepare("SELECT id_livre FROM exemplaire WHERE id_exemplaire = ?");
         $livre->execute([$idExemplaire]);
         verrouillerLivreEmprunt($pdo, (int) $livre->fetchColumn());
-        $verrou = $pdo->prepare("SELECT id_exemplaire FROM exemplaire WHERE id_exemplaire = ? AND " . conditionExemplaireEmprunt('exemplaire') . " FOR UPDATE");
+        $verrou = $pdo->prepare("SELECT * FROM exemplaire WHERE id_exemplaire = ? AND " . conditionExemplaireEmprunt('exemplaire') . " FOR UPDATE");
         $verrou->execute([$idExemplaire]);
-        if (!$verrou->fetchColumn()) {
+        $objet = $verrou->fetch();
+        if (!$objet) {
             return ['warning', "Exemplaire d'emprunt introuvable."];
         }
+        if (($erreur = erreurComptoirEmprunt($pdo, $objet, $idEquipe)) !== '') { return ['warning', $erreur]; }
         $stmt = $pdo->prepare("SELECT id_emprunt FROM emprunt WHERE id_exemplaire = ? FOR UPDATE");
         $stmt->execute([$idExemplaire]);
         if ($stmt->fetchColumn() !== false) {
@@ -986,6 +1048,7 @@ function telechargerTicketEmprunt(array $emprunt, PDO $pdo): void
         <p class="sous-titre">' . ($estReserve ? 'À présenter en magasin avant le ' . $date($emprunt['date_expiration_reservation']) . '.' : 'Livre remis le ' . $date($emprunt['date_retrait'], 'd/m/Y à H:i') . '.') . '</p>
         <div class="code">Code de retrait<span>' . $echapper($emprunt['code_retrait']) . '</span></div>
         <table>
+            <tr><th>Retrait et retour</th><td>' . nl2br($echapper(informationsBoutiqueEmprunt($emprunt))) . '</td></tr>
             <tr><th>Livre</th><td><strong>' . $echapper($emprunt['titre']) . '</strong>' . ($emprunt['auteur'] ? '<br>' . $echapper($emprunt['auteur']) : '') . '</td></tr>
             <tr><th>État de l\'exemplaire</th><td>' . $echapper(libelleEtat($emprunt['etat'])) . ' (exemplaire n° ' . (int) $emprunt['id_exemplaire'] . ')</td></tr>
             <tr><th>Emprunteur</th><td>@' . $echapper($emprunt['pseudo']) . '</td></tr>

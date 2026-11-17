@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/_init.php';
 exigerDroit('catalogue');
+require_once __DIR__ . '/../emprunts_lib.php';
 $executions = [];
 $suiviDisponible = true;
 try {
@@ -8,14 +9,13 @@ try {
     $requete->execute();
     $executions = $requete->fetchAll();
 } catch (PDOException $erreur) { $suiviDisponible = false; }
-$requete = $pdo->prepare("SELECT COUNT(*) FROM emprunt WHERE statut = 'en_cours' AND date_retour_prevue < CURDATE()");
-$requete->execute();
-$enRetard = (int) $requete->fetchColumn();
+$perimetreRelances = empruntsBoutiquesDisponibles($pdo) ? perimetreBoutiqueEquipe($pdo, (int) $_SESSION['user_id']) : null;
+$enRetard = compteursEmprunts($pdo, $perimetreRelances)['en_retard'];
 $titrePage = 'Suivi des relances';
 $pageActive = 'relances_emprunts';
 include __DIR__ . '/_haut.php';
 ?>
-<p class="text-muted">Les relances sont exécutées par la tâche planifiée des emprunts. Ce suivi permet de vérifier les passages et de repérer un problème d’envoi.</p>
+<p class="text-muted">Journal technique global du réseau : les relances sont exécutées par la tâche planifiée des emprunts. Les totaux ci-dessous concernent toutes les boutiques ; le lien vers les retards respecte votre comptoir.</p>
 <a href="emprunts" class="btn btn-outline-success mb-3">Voir les emprunts · <?= $enRetard ?> en retard</a>
 <?php if (!$suiviDisponible): ?><div class="alert alert-warning">Installez <code>sql/maj_suivi_relances.sql</code> pour enregistrer les prochains passages.</div><?php endif; ?>
 <?php if (!$executions): ?><div class="carte p-4">Aucun passage enregistré depuis l’installation du suivi.</div><?php endif; ?>

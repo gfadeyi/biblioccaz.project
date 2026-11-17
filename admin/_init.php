@@ -141,13 +141,22 @@ function compteursEquipe(PDO $pdo): array
     } catch (PDOException $e) {
     }
     try {
-        $c['emprunts_a_preparer'] = (int) $pdo->query("SELECT COUNT(*) FROM emprunt WHERE statut = 'reserve'")->fetchColumn();
-        $c['emprunts_en_retard'] = (int) $pdo->query("SELECT COUNT(*) FROM emprunt WHERE statut = 'en_cours' AND date_retour_prevue < CURDATE()")->fetchColumn();
-        $c['emprunts_questions'] = (int) $pdo->query("
+        require_once __DIR__ . '/../emprunts_lib.php';
+        require_once __DIR__ . '/../emprunts_boutiques_lib.php';
+        $idBoutique = empruntsBoutiquesDisponibles($pdo) ? perimetreBoutiqueEquipe($pdo, (int) ($_SESSION['user_id'] ?? 0)) : null;
+        if ($idBoutique !== -1) {
+            $compteursEmprunts = compteursEmprunts($pdo, $idBoutique);
+            $c['emprunts_a_preparer'] = (int) $compteursEmprunts['a_preparer'];
+            $c['emprunts_en_retard'] = (int) $compteursEmprunts['en_retard'];
+            $conditionBoutique = $idBoutique !== null ? ' AND em.id_boutique = ?' : '';
+            $requeteQuestions = $pdo->prepare("
             SELECT COUNT(*) FROM conversation c INNER JOIN emprunt em ON em.id_emprunt = c.id_objet
-            WHERE c.type_objet = 'emprunt' AND c.statut = 'ouverte'
+            WHERE c.type_objet = 'emprunt' AND c.statut = 'ouverte' $conditionBoutique
               AND (SELECT m.id_auteur FROM conversation_message m WHERE m.id_conversation = c.id_conversation AND m.est_systeme = 0
-                   ORDER BY m.date_envoi DESC, m.id_message DESC LIMIT 1) = em.id_user")->fetchColumn();
+                   ORDER BY m.date_envoi DESC, m.id_message DESC LIMIT 1) = em.id_user");
+            $requeteQuestions->execute($idBoutique !== null ? [$idBoutique] : []);
+            $c['emprunts_questions'] = (int) $requeteQuestions->fetchColumn();
+        }
         $c['emprunts'] = $c['emprunts_a_preparer'] + $c['emprunts_en_retard'] + $c['emprunts_questions'];
     } catch (PDOException $e) {
     }

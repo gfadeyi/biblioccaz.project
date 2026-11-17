@@ -53,19 +53,28 @@ if ($catalogue) {
             GROUP BY l.id_livre, l.titre ORDER BY nb_alertes DESC LIMIT 6")->fetchAll();
     } catch (PDOException $e) {
     }
+    require_once __DIR__ . '/../emprunts_boutiques_lib.php';
+    $idBoutiqueEmprunts = empruntsBoutiquesDisponibles($pdo) ? perimetreBoutiqueEquipe($pdo, $moi) : null;
+    $comptoirEmprunts = $idBoutiqueEmprunts > 0 ? comptoirEquipe($pdo, $moi) : null;
+    $indicateursEmprunts = array_fill_keys(['a_preparer', 'retraits', 'retours_prevus', 'retours', 'en_retard', 'attente', 'relances_jour'], 0);
+    if ($idBoutiqueEmprunts !== -1) {
+        $indicateursEmprunts = array_replace($indicateursEmprunts, compteursEmprunts($pdo, $idBoutiqueEmprunts));
+    }
     $emprunts = [
-        ['a_preparer', 'À préparer', compter($pdo, "SELECT COUNT(*) FROM emprunt WHERE statut = 'reserve'"), 'emprunts?onglet=a_preparer'],
-        ['retraits', 'Retirés aujourd’hui', compter($pdo, "SELECT COUNT(*) FROM emprunt WHERE DATE(date_retrait) = CURDATE()"), 'emprunts?onglet=en_cours'],
-        ['retours_prevus', 'Retours attendus aujourd’hui', compter($pdo, "SELECT COUNT(*) FROM emprunt WHERE statut = 'en_cours' AND date_retour_prevue = CURDATE()"), 'emprunts?onglet=en_cours'],
-        ['retours', 'Rendus aujourd’hui', compter($pdo, "SELECT COUNT(*) FROM emprunt WHERE DATE(date_retour) = CURDATE()"), 'emprunts'],
-        ['retards', 'En retard', compter($pdo, "SELECT COUNT(*) FROM emprunt WHERE statut = 'en_cours' AND date_retour_prevue < CURDATE()"), 'emprunts?onglet=en_cours'],
-        ['attente', 'En liste d’attente', compter($pdo, "SELECT COUNT(*) FROM emprunt_attente"), 'emprunts'],
+        ['a_preparer', 'À préparer', $indicateursEmprunts['a_preparer'], 'emprunts?onglet=a_preparer'],
+        ['retraits', 'Retirés aujourd’hui', $indicateursEmprunts['retraits'], 'emprunts?onglet=en_cours'],
+        ['retours_prevus', 'Retours attendus aujourd’hui', $indicateursEmprunts['retours_prevus'], 'emprunts?onglet=en_cours'],
+        ['retours', 'Rendus aujourd’hui', $indicateursEmprunts['retours'], 'emprunts'],
+        ['retards', 'En retard', $indicateursEmprunts['en_retard'], 'emprunts?onglet=en_cours'],
+        ['attente', 'En liste d’attente', $indicateursEmprunts['attente'], 'emprunts'],
     ];
     try {
-        $derniereRelance = $pdo->query("SELECT date_debut, date_fin, statut, rappels, expirations, erreurs FROM relance_execution ORDER BY date_debut DESC LIMIT 1")->fetch() ?: null;
+        $requeteRelance = $pdo->prepare("SELECT date_debut, date_fin, statut, rappels, expirations, erreurs FROM relance_execution ORDER BY date_debut DESC LIMIT 1");
+        $requeteRelance->execute();
+        $derniereRelance = $requeteRelance->fetch() ?: null;
     } catch (PDOException $e) {
     }
-    $relancesDuJour = (int) compter($pdo, "SELECT COUNT(*) FROM emprunt WHERE DATE(date_derniere_relance) = CURDATE()");
+    $relancesDuJour = (int) $indicateursEmprunts['relances_jour'];
     $cartes[] = ['currency-euro', 'Ventes du jour', formaterPrix($ventes['jour']), (int) $ventes['jour_nb'] . ' commande' . ($ventes['jour_nb'] > 1 ? 's' : ''), 'commandes', false];
     $cartes[] = ['graph-up-arrow', 'Ventes du mois', formaterPrix($ventes['mois']), (int) $ventes['mois_nb'] . ' commande' . ($ventes['mois_nb'] > 1 ? 's' : ''), 'commandes', false];
     $cartes[] = ['box-seam', 'Stock bas', $nbStockBas, 'moins de ' . SEUIL_STOCK_BAS_PUBLIC . ' exemplaires', 'inventaire', $nbStockBas > 0];
@@ -177,13 +186,18 @@ include __DIR__ . '/_haut.php';
         <div class="col-xl-6">
             <section class="carte h-100" aria-labelledby="titreEmprunts">
                 <div class="carte-entete"><h2 id="titreEmprunts">Emprunts du jour</h2><a href="emprunts#code" class="lien-carte">Comptoir</a></div>
+                <?php if ($idBoutiqueEmprunts === -1): ?>
+                    <p class="carte-corps text-muted mb-0">Un administrateur doit vous affecter à une boutique avant de traiter les emprunts.</p>
+                <?php elseif ($comptoirEmprunts): ?>
+                    <p class="carte-corps text-muted mb-0">Comptoir : <?= e($comptoirEmprunts['nom']) ?></p>
+                <?php endif; ?>
                 <div class="chiffres-ligne">
                     <?php foreach ($emprunts as [, $libelle, $nombre, $lien]): ?>
                         <a href="<?= e($lien) ?>"><strong><?= (int) $nombre ?></strong><span><?= e($libelle) ?></span></a>
                     <?php endforeach; ?>
                 </div>
                 <div class="carte-corps border-top small">
-                    <strong>Suivi des relances :</strong>
+                    <strong>Exécution globale des relances :</strong>
                     <?php if ($derniereRelance): ?>
                         dernier passage <?= depuis($derniereRelance['date_debut']) ?> (<?= e($derniereRelance['statut']) ?>, <?= (int) $derniereRelance['rappels'] ?> rappel<?= $derniereRelance['rappels'] > 1 ? 's' : '' ?><?= $derniereRelance['erreurs'] > 0 ? ', ' . (int) $derniereRelance['erreurs'] . ' erreur' . ($derniereRelance['erreurs'] > 1 ? 's' : '') : '' ?>),
                     <?php else: ?>

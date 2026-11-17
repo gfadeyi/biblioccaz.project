@@ -2,6 +2,13 @@
 require_once __DIR__ . '/_init.php';
 require_once __DIR__ . '/../emprunts_lib.php';
 exigerDroit('catalogue');
+$boutiquesDisponibles = empruntsBoutiquesDisponibles($pdo);
+$boutiquesComptoir = boutiquesEmprunt($pdo);
+$idBoutiqueVue = $boutiquesDisponibles ? perimetreBoutiqueEquipe($pdo, (int) $_SESSION['user_id']) : null;
+if ($idBoutiqueVue === null && $boutiquesDisponibles && isset($_GET['boutique'])) {
+    $choix = filter_var($_GET['boutique'], FILTER_VALIDATE_INT, ['options' => ['min_range' => 0]]);
+    if ($choix !== false && ($choix === 0 || boutiqueEmprunt($pdo, $choix))) { $idBoutiqueVue = $choix; }
+}
 
 $onglets = [
     'a_preparer' => ['À préparer et retirer', "em.statut = 'reserve'"],
@@ -26,6 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'retour' => enregistrerRetour($pdo, $idEmprunt, $idEquipe),
             'annuler' => array_slice(annulerReservation($pdo, $idEmprunt, null, $idEquipe, $motif), 0, 2),
             'lever' => leverBlocage($pdo, (int) ($_POST['id_blocage'] ?? 0), $idEquipe, $motif),
+            'qualifier_boutique' => qualifierAncienEmpruntBoutique($pdo, $idEmprunt, (int) ($_POST['id_boutique'] ?? 0), $idEquipe),
             default => ['danger', "Action inconnue."],
         };
     } catch (PDOException $e) {
@@ -42,11 +50,16 @@ $compteursEmprunts = ['a_preparer' => 0, 'en_cours' => 0, 'en_retard' => 0, 'blo
 $nombres = array_fill_keys(array_keys($onglets), 0);
 try {
     verifierEmprunts($pdo);
-    $compteursEmprunts = compteursEmprunts($pdo);
+    $compteursEmprunts = compteursEmprunts($pdo, $idBoutiqueVue);
     $nombres = ['a_preparer' => $compteursEmprunts['a_preparer'], 'en_cours' => $compteursEmprunts['en_cours'], 'blocages' => $compteursEmprunts['blocages'],
-                'historique' => (int) $pdo->query("SELECT COUNT(*) FROM emprunt WHERE statut IN ('rendu', 'expire', 'annule')")->fetchColumn()];
+                'historique' => 0];
+    $requeteHistorique = $pdo->prepare("SELECT COUNT(*) FROM emprunt WHERE statut IN ('rendu', 'expire', 'annule')" . ($idBoutiqueVue !== null && $boutiquesDisponibles ? ' AND id_boutique <=> ?' : ''));
+    $requeteHistorique->execute($idBoutiqueVue !== null && $boutiquesDisponibles ? [$idBoutiqueVue === 0 ? null : $idBoutiqueVue] : []);
+    $nombres['historique'] = (int) $requeteHistorique->fetchColumn();
+    if ($idFiltre && ($objetVise = empruntParId($pdo, $idFiltre)) && erreurComptoirEmprunt($pdo, $objetVise, $idEquipe) !== '') { refuserAcces('Accès interdit à ce comptoir.'); }
     if ($codeCherche !== '') {
         $empruntCode = empruntParCode($pdo, $codeCherche);
+        if ($empruntCode && erreurComptoirEmprunt($pdo, $empruntCode, $idEquipe) !== '') { $empruntCode = null; }
     }
     $champsConversation = ",
         (SELECT MAX(c.id_conversation) FROM conversation c WHERE c.type_objet = 'emprunt' AND c.id_objet = em.id_emprunt) AS id_conversation,
@@ -55,19 +68,20 @@ try {
          ORDER BY m.date_envoi DESC, m.id_message DESC LIMIT 1) AS question_lecteur";
     if ($onglet === 'blocages' && !$idFiltre) {
         $sql = "SELECT b.*, u.pseudo, lp.pseudo AS leve_par, (b.date_levee IS NULL AND b.date_fin > NOW()) AS actif
-                FROM blocage_emprunt b INNER JOIN `user` u ON u.id = b.id_user LEFT JOIN `user` lp ON lp.id = b.id_leve_par";
-        $parametres = [];
+                FROM blocage_emprunt b INNER JOIN `user` u ON u.id = b.id_user LEFT JOIN `user` lp ON lp.id = b.id_leve_par" . ($idBoutiqueVue !== null && $boutiquesDisponibles ? ' INNER JOIN emprunt em ON em.id_emprunt = b.id_emprunt WHERE em.id_boutique <=> ?' : ' WHERE 1=1');
+        $parametres = $idBoutiqueVue !== null && $boutiquesDisponibles ? [$idBoutiqueVue === 0 ? null : $idBoutiqueVue] : [];
         if ($q !== '') {
-            $sql .= " WHERE u.pseudo LIKE ?";
+            $sql .= " AND u.pseudo LIKE ?";
             $parametres[] = '%' . $q . '%';
         }
         $stmt = $pdo->prepare($sql . " ORDER BY actif DESC, b.date_debut DESC LIMIT 100");
         $stmt->execute($parametres);
         $blocages = $stmt->fetchAll();
     } else {
-        $requete = str_replace('SELECT em.*,', 'SELECT em.*' . $champsConversation . ',', requeteEmprunt());
+        $requete = str_replace('SELECT em.*,', 'SELECT em.*' . $champsConversation . ',', requeteEmprunt($pdo));
         $sql = $requete . " WHERE (" . ($idFiltre ? 'em.id_emprunt = ?' : $onglets[$onglet][1]) . ")";
         $parametres = $idFiltre ? [$idFiltre] : [];
+        if ($idBoutiqueVue !== null && $boutiquesDisponibles) { $sql .= ' AND em.id_boutique <=> ?'; $parametres[] = $idBoutiqueVue === 0 ? null : $idBoutiqueVue; }
         if ($q !== '') {
             $sql .= " AND (l.titre LIKE ? OR u.pseudo LIKE ? OR em.code_retrait = ?)";
             array_push($parametres, '%' . $q . '%', '%' . $q . '%', strtoupper($q));
@@ -90,6 +104,15 @@ $pageActive = 'emprunts';
 $sousTitrePage = "Réservations à préparer, retraits au comptoir, emprunts en cours (retards en tête), retours et blocages.";
 $scriptsPage = '<script src="../javascript/scanner_qr.js?v=' . filemtime(__DIR__ . '/../javascript/scanner_qr.js') . '"></script>';
 include __DIR__ . '/_haut.php';
+if ($boutiquesDisponibles) {
+    if (aLeDroit('admin')) {
+        echo '<form method="GET" class="d-flex flex-wrap gap-2 align-items-center mb-3"><label for="filtre-comptoir">Comptoir</label><select class="form-select w-auto" id="filtre-comptoir" name="boutique"><option value="">Tout le réseau</option><option value="0"' . ($idBoutiqueVue === 0 ? ' selected' : '') . '>Anciens prêts sans boutique</option>';
+        foreach ($boutiquesComptoir as $b) { echo '<option value="' . (int) $b['id_boutique'] . '"' . ($idBoutiqueVue === (int) $b['id_boutique'] ? ' selected' : '') . '>' . e($b['nom']) . '</option>'; }
+        echo '</select><button class="btn btn-vert">Afficher</button><a class="btn btn-outline-success" href="boutiques">Gérer les affectations</a></form>';
+    } else {
+        echo '<p class="alert alert-info" role="status">' . e(comptoirEquipe($pdo, $idEquipe)['nom'] ?? 'Aucun comptoir affecté : demandez votre affectation à un administrateur.') . ' · Retrait et retour dans cette boutique.</p>';
+    }
+}
 
 function carteEmpruntAdmin(array $em, PDO $pdo, bool $resultatCode = false): void
 {
@@ -101,6 +124,13 @@ function carteEmpruntAdmin(array $em, PDO $pdo, bool $resultatCode = false): voi
     ?>
     <div class="col-xl-6">
         <article class="carte p-3 h-100 d-flex flex-column emprunt-admin<?= $retard ? ' emprunt-admin--retard' : '' ?>" id="emprunt-<?= $identifiantCarte ?>">
+            <p class="small fw-bold"><?= e(libelleBoutiqueEmprunt($em)) ?></p>
+            <?php if (aLeDroit('admin') && empruntsBoutiquesDisponibles($pdo) && empty($em['id_boutique']) && in_array($em['statut'], ['reserve', 'en_cours'], true)): ?>
+                <form method="POST" class="mb-3" data-confirmer="Confirmer la boutique d’origine de cet ancien prêt ? Aucun déplacement de livre n’est enregistré.">
+                    <?= champCsrf() ?><input type="hidden" name="action" value="qualifier_boutique"><input type="hidden" name="id_emprunt" value="<?= (int) $em['id_emprunt'] ?>">
+                    <label for="origine-<?= $identifiantCarte ?>" class="form-label">Boutique d’origine à confirmer</label><select class="form-select" id="origine-<?= $identifiantCarte ?>" name="id_boutique" required><option value="" disabled selected>Choisir</option><?php foreach (boutiquesEmprunt($pdo) as $b): ?><option value="<?= (int) $b['id_boutique'] ?>"><?= e($b['nom']) ?></option><?php endforeach; ?></select><button class="btn btn-outline-success mt-2">Renseigner l’origine</button>
+                </form>
+            <?php endif; ?>
             <div class="d-flex gap-3">
                 <img src="<?= imageLivre($em['couverture']) ?>" alt="" class="emprunt-admin__visuel" loading="lazy" decoding="async">
                 <div class="min-w-0 flex-grow-1">
@@ -185,6 +215,7 @@ function carteEmpruntAdmin(array $em, PDO $pdo, bool $resultatCode = false): voi
     <div class="row g-3 mb-4">
         <div class="col-lg-5">
             <form method="GET" class="carte p-3 h-100">
+                <?php if ($idBoutiqueVue !== null && aLeDroit('admin')): ?><input type="hidden" name="boutique" value="<?= (int) $idBoutiqueVue ?>"><?php endif; ?>
                 <label class="fw-bold small d-block mb-2" for="code"><i class="bi bi-qr-code-scan" aria-hidden="true"></i> Retrait ou retour au comptoir</label>
                 <div class="d-flex gap-2">
                     <input type="text" id="code" name="code" value="<?= e($codeCherche) ?>" class="form-control text-uppercase" maxlength="80" autocomplete="off" placeholder="Code à 6 caractères" style="letter-spacing: .15em;" required<?= $codeCherche === '' ? ' autofocus' : '' ?> aria-describedby="aide-code">
@@ -232,7 +263,7 @@ function carteEmpruntAdmin(array $em, PDO $pdo, bool $resultatCode = false): voi
     <ul class="nav nav-pills mb-3 flex-wrap">
         <?php foreach ($onglets as $cle => [$libelle]): ?>
             <li class="nav-item">
-                <a class="nav-link <?= $onglet === $cle && !$idFiltre ? 'active bg-success' : 'text-success' ?>" href="?onglet=<?= $cle ?>"<?= $onglet === $cle && !$idFiltre ? ' aria-current="page"' : '' ?>>
+                <a class="nav-link <?= $onglet === $cle && !$idFiltre ? 'active bg-success' : 'text-success' ?>" href="?onglet=<?= $cle ?><?= $idBoutiqueVue !== null && aLeDroit('admin') ? '&amp;boutique=' . (int) $idBoutiqueVue : '' ?>"<?= $onglet === $cle && !$idFiltre ? ' aria-current="page"' : '' ?>>
                     <?= e($libelle) ?> <span class="badge rounded-pill <?= $onglet === $cle && !$idFiltre ? 'bg-light text-success' : 'bg-success-subtle text-success-emphasis' ?>"><?= $nombres[$cle] ?></span>
                 </a>
             </li>
@@ -240,6 +271,7 @@ function carteEmpruntAdmin(array $em, PDO $pdo, bool $resultatCode = false): voi
     </ul>
 
     <form class="d-flex gap-2 mb-3" method="GET">
+        <?php if ($idBoutiqueVue !== null && aLeDroit('admin')): ?><input type="hidden" name="boutique" value="<?= (int) $idBoutiqueVue ?>"><?php endif; ?>
         <input type="hidden" name="onglet" value="<?= e($onglet) ?>">
         <input type="search" name="q" value="<?= e($q) ?>" class="form-control" aria-label="Rechercher un emprunt" style="max-width: 320px;" placeholder="<?= $onglet === 'blocages' ? 'Pseudo' : 'Titre, pseudo ou code' ?>">
         <button class="btn btn-outline-secondary" aria-label="Rechercher"><i class="bi bi-search" aria-hidden="true"></i></button>

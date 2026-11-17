@@ -51,21 +51,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $duree = (int) ($_POST['duree'] ?? regleEmprunt($pdo, 'duree_jours'));
         $renouvellements = (int) ($_POST['renouvellements'] ?? regleEmprunt($pdo, 'renouvellements_max'));
         $blocage = !empty($_POST['blocage_retard']);
+        $idBoutiqueStock = (int) ($_POST['id_boutique'] ?? 0);
+        if ($action !== 'emprunt_ajouter') {
+            $cible = $pdo->prepare('SELECT id_livre FROM exemplaire WHERE id_exemplaire = ?'); $cible->execute([$idEx]);
+            if ((int) $cible->fetchColumn() !== $idLivre) { rediriger($retour, 'danger', 'Cet exemplaire ne correspond pas au livre affiché.'); }
+        }
         try {
             if ($action === 'emprunt_ajouter') {
+                if (($_POST['presence_confirmee'] ?? '') !== '1') { rediriger($retour, 'warning', 'Confirmez que le livre est présent dans la boutique choisie.'); }
                 $source = (string) ($_POST['source'] ?? '');
                 $idOffreVente = ctype_digit($source) ? (int) $source : null;
                 $etat = $_POST['etat_emprunt'] ?? '';
                 if (!$idOffreVente && !isset(ETATS_EXEMPLAIRE[$etat])) {
                     rediriger("$retour#emprunt", 'danger', "Choisissez l'état du nouvel exemplaire.");
                 }
-                [$type, $message] = mettreEnEmprunt($pdo, $idLivre, (string) $etat, $idOffreVente, $duree, $renouvellements, $blocage, (int) $_SESSION['user_id']);
+                [$type, $message] = mettreEnEmprunt($pdo, $idLivre, (string) $etat, $idOffreVente, $duree, $renouvellements, $blocage, (int) $_SESSION['user_id'], $idBoutiqueStock);
             } elseif ($action === 'emprunt_reglages') {
-                [$type, $message] = modifierReglagesEmprunt($pdo, $idEx, $duree, $renouvellements, $blocage);
+                [$type, $message] = modifierReglagesEmprunt($pdo, $idEx, $duree, $renouvellements, $blocage, (int) $_SESSION['user_id']);
             } elseif ($action === 'emprunt_retirer' || $action === 'emprunt_remettre') {
-                [$type, $message] = changerDisponibiliteEmprunt($pdo, $idEx, $action === 'emprunt_remettre');
+                [$type, $message] = changerDisponibiliteEmprunt($pdo, $idEx, $action === 'emprunt_remettre', (int) $_SESSION['user_id']);
             } elseif ($action === 'emprunt_supprimer') {
-                [$type, $message] = supprimerExemplaireEmprunt($pdo, $idEx);
+                [$type, $message] = supprimerExemplaireEmprunt($pdo, $idEx, (int) $_SESSION['user_id']);
+            } elseif ($action === 'emprunt_affecter') {
+                [$type, $message] = affecterExemplaireBoutique($pdo, $idEx, $idBoutiqueStock, (int) $_SESSION['user_id']);
             } else {
                 [$type, $message] = ['danger', "Action inconnue."];
             }
@@ -120,6 +128,9 @@ $exemplairesEmprunt = null;
 if ($vueStock === 'emprunt') {
 try {
     require_once __DIR__ . '/../emprunts_lib.php';
+    $boutiquesStock = boutiquesEmprunt($pdo, false);
+    $nomsBoutiquesStock = array_column($boutiquesStock, 'nom', 'id_boutique');
+    $perimetreStock = empruntsBoutiquesDisponibles($pdo) ? perimetreBoutiqueEquipe($pdo, (int) $_SESSION['user_id']) : null;
     $stmt = $pdo->prepare("
         SELECT e.*, (SELECT COUNT(*) FROM emprunt em WHERE em.id_exemplaire = e.id_exemplaire AND em.statut IN ('en_cours', 'rendu')) AS nb_prets,
                ea.id_emprunt AS id_emprunt_actif, ea.date_retour_prevue AS retour_prevu, u.pseudo AS emprunteur,
@@ -128,8 +139,9 @@ try {
         LEFT JOIN emprunt ea ON ea.id_exemplaire = e.id_exemplaire AND ea.statut IN ('reserve', 'en_cours')
         LEFT JOIN `user` u ON u.id = ea.id_user
         WHERE e.id_livre = ? AND " . conditionExemplaireEmprunt() . "
+        " . ($perimetreStock !== null ? ' AND e.id_boutique = ?' : '') . "
         ORDER BY e.is_disponible DESC, e.id_exemplaire");
-    $stmt->execute([$idLivre]);
+    $stmt->execute($perimetreStock !== null ? [$idLivre, $perimetreStock] : [$idLivre]);
     $exemplairesEmprunt = $stmt->fetchAll();
 } catch (PDOException $e) {
 }
@@ -313,6 +325,10 @@ include __DIR__ . '/_haut.php';
                                         <td>
                                             <span class="badge bg-light text-dark border"><?= e(ETATS_EXEMPLAIRE[$ex['etat']] ?? ucfirst($ex['etat'])) ?></span>
                                             <div class="small text-muted">n° <?= (int) $ex['id_exemplaire'] ?></div>
+                                            <div class="small"><?= e($nomsBoutiquesStock[$ex['id_boutique'] ?? 0] ?? 'Sans boutique — à affecter') ?></div>
+                                            <?php if (aLeDroit('admin') && empty($ex['id_boutique']) && $ex['statut_pret'] === 'disponible' && empruntsBoutiquesDisponibles($pdo)): ?>
+                                                <form method="POST" class="mt-2"><?= champCsrf() ?><input type="hidden" name="action" value="emprunt_affecter"><input type="hidden" name="id_exemplaire" value="<?= (int) $ex['id_exemplaire'] ?>"><label class="visually-hidden" for="boutique-ex-<?= (int) $ex['id_exemplaire'] ?>">Boutique de cet exemplaire</label><select class="form-select form-select-sm" name="id_boutique" id="boutique-ex-<?= (int) $ex['id_exemplaire'] ?>" required><option value="" disabled selected>Choisir</option><?php foreach ($boutiquesStock as $b): ?><?php if ((int) $b['actif']): ?><option value="<?= (int) $b['id_boutique'] ?>"><?= e($b['nom']) ?></option><?php endif; ?><?php endforeach; ?></select><button class="btn btn-sm btn-outline-success mt-1">Affecter</button></form>
+                                            <?php endif; ?>
                                         </td>
                                         <td class="small">
                                             <?php if ($retire): ?>
@@ -382,6 +398,8 @@ include __DIR__ . '/_haut.php';
                     <?= champCsrf() ?>
                     <input type="hidden" name="action" value="emprunt_ajouter">
                     <h2 class="h6 fw-bold text-success">Mettre un exemplaire en emprunt</h2>
+                    <?php if (!empruntsBoutiquesDisponibles($pdo)): ?><p class="alert alert-info">Le choix de boutique nécessite sql/maj_emprunts_boutiques.sql.</p><?php elseif ($perimetreStock === -1): ?><p class="alert alert-info">Un administrateur doit vous affecter à un comptoir avant d’ajouter un prêt.</p><?php endif; ?>
+                    <div class="mb-3"><label class="form-label" for="nouveau-comptoir">Boutique de l’exemplaire</label><select class="form-select" id="nouveau-comptoir" name="id_boutique" required><option value="" disabled selected>Choisir le comptoir</option><?php foreach ($boutiquesStock as $b): ?><?php if ((int) $b['actif'] && ($perimetreStock === null || $perimetreStock === (int) $b['id_boutique'])): ?><option value="<?= (int) $b['id_boutique'] ?>"><?= e($b['nom']) ?></option><?php endif; ?><?php endforeach; ?></select><label class="form-check mt-2"><input class="form-check-input" type="checkbox" name="presence_confirmee" value="1" required><span class="form-check-label">Je confirme que le livre est présent à ce comptoir. Le stock de vente du site ne prouve pas sa présence dans cette boutique.</span></label></div>
                     <div class="row g-2 align-items-end">
                         <div class="col-md-5">
                             <label class="form-label small fw-bold" for="source">Exemplaire</label>
