@@ -163,8 +163,7 @@ if (!$enLigneDeCommande && !str_starts_with($currentPage, 'admin/') && !apercuAc
 }
 require_once __DIR__ . '/apercu_lib.php';
 $ignoredPages = ['admin/logs_donnees.php', 'recherche.php', 'don_recherche_livre.php', 'admin/livre_isbn.php',
-                 'get_captcha_image.php', 'captcha_piece.php', 'captcha_verifier.php',
-                 'admin/puzzle_image.php', 'admin/puzzle_piece.php', 'admin/puzzle_verifier.php'];
+                 'get_captcha_image.php', 'captcha_piece.php', 'captcha_verifier.php'];
 
 if (!$enLigneDeCommande && !in_array($currentPage, $ignoredPages) && strpos($currentPage, 'traitement_') === false && !apercuActif()) {
     insertLog('VISITE', "Consultation de la page : " . $currentPage);
